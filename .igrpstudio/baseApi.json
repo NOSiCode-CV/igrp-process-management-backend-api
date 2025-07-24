@@ -1,0 +1,14 @@
+{
+  "type": "springboot",
+  "name": "igrp_platform_process_management",
+  "group": "cv.igrp.platform.process.management",
+  "artifact": "igrp-platform-process-management",
+  "packageName": "process",
+  "database": "Postgresql",
+  "description": "iGRP Platform Process Management",
+  "projectStructureStyle": "domain",
+  "enableObservability": false,
+  "enableEntityRevision": true,
+  "version": "0.1.0-beta.1",
+  "enableGraalVm": false
+}
