@@ -9,6 +9,34 @@
         "RUNNING",
         "Running"
       ]
+    },
+    {
+      "name": "CREATED",
+      "attributes": [
+        "CREATED",
+        "CREATED"
+      ]
+    },
+    {
+      "name": "SUSPENDED",
+      "attributes": [
+        "SUSPENDED",
+        "SUSPENDED"
+      ]
+    },
+    {
+      "name": "CANCELLED",
+      "attributes": [
+        "CANCELLED",
+        "CANCELLED"
+      ]
+    },
+    {
+      "name": "COMPLETED",
+      "attributes": [
+        "COMPLETED",
+        "COMPLETED"
+      ]
     }
   ],
   "attributes": [

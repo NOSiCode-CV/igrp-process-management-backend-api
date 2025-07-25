@@ -1,10 +1,10 @@
 package cv.igrp.platform.process.management.processruntime.application.commands;
 
 import cv.igrp.framework.core.domain.Command;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
 
 
 @Data
@@ -12,7 +12,7 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class AssignTaskCommand implements Command {
 
-  @NotBlank(message = "The field <id> is required")
+  @NotBlank(message = "The field <id> is required.")
   private String id;
 
 }

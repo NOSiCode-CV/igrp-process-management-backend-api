@@ -4,10 +4,45 @@
   "name": "TaskInstanceStatus",
   "values": [
     {
-      "name": "RUNNING",
+      "name": "CREATED",
       "attributes": [
-        "RUNNING",
-        "Running"
+        "CREATED",
+        "CREATED"
+      ]
+    },
+    {
+      "name": "ASSIGNED",
+      "attributes": [
+        "ASSIGNED",
+        "ASSIGNED"
+      ]
+    },
+    {
+      "name": "SUSPENDED",
+      "attributes": [
+        "SUSPENDED",
+        "SUSPENDED"
+      ]
+    },
+    {
+      "name": "COMPLETED",
+      "attributes": [
+        "COMPLETED",
+        "COMPLETED"
+      ]
+    },
+    {
+      "name": "CANCELLED",
+      "attributes": [
+        "CANCELLED",
+        "CANCELLED"
+      ]
+    },
+    {
+      "name": "DELETED",
+      "attributes": [
+        "DELETED",
+        "DELETED"
       ]
     }
   ],

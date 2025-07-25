@@ -13,7 +13,11 @@ import java.util.stream.Collectors;
 
 public enum ProcessInstanceStatus implements IgrpEnum<String> {
 
-  RUNNING("RUNNING", "Running")
+  RUNNING("RUNNING", "Running"),
+    CREATED("CREATED", "CREATED"),
+    SUSPENDED("SUSPENDED", "SUSPENDED"),
+    CANCELLED("CANCELLED", "CANCELLED"),
+    COMPLETED("COMPLETED", "COMPLETED")
   ;
 
   private final String code;

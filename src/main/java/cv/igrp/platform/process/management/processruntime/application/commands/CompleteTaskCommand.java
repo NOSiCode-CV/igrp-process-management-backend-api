@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UnClaimTaskCommand implements Command {
+public class CompleteTaskCommand implements Command {
 
   @NotBlank(message = "The field <id> is required.")
   private String id;

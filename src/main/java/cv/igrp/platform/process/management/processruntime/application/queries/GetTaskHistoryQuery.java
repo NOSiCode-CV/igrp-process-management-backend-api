@@ -10,13 +10,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ListTaskInstancesQuery implements Query {
+public class GetTaskHistoryQuery implements Query {
 
-  @NotBlank(message = "The field <processId> is required.")
-  private String processId;
-  @NotBlank(message = "The field <user> is required.")
-  private String user;
-  @NotBlank(message = "The field <status> is required.")
-  private String status;
+  @NotBlank(message = "The field <id> is required.")
+  private String id;
 
 }

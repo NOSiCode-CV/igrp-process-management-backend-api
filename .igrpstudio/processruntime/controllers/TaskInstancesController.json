@@ -3,7 +3,7 @@
   "name": "TaskInstances",
   "module": "processruntime",
   "description": "Task Instances Management",
-  "basePath": "tasks",
+  "basePath": "tasks-instances",
   "actions": [
     {
       "actionName": "listTaskInstances",
@@ -36,6 +36,12 @@
           "type": "string",
           "name": "user",
           "description": "User UID",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "status",
+          "description": "Status of the task instance",
           "isRequired": false
         }
       ]
@@ -174,6 +180,64 @@
           "type": "string",
           "isRequired": true,
           "description": "ID of the task instance"
+        }
+      ]
+    },
+    {
+      "actionName": "completeTask",
+      "path": "{id}",
+      "method": "POST",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TaskInstanceDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "processruntime"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true,
+          "description": "ID of the task instance"
+        }
+      ]
+    },
+    {
+      "actionName": "getTaskHistory",
+      "path": "{id}/history",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TaskInstanceHistoryDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "processruntime"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true,
+          "description": "ID of the Task Instance"
         }
       ]
     }
