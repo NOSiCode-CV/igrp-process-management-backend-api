@@ -32,6 +32,14 @@ public class SecurityConfig {
     @Value("${auth.jwt.issuer}")
     private String jwtIssuer;
 
+    @Bean
+    public UserDetailsService userDetailsService() {
+      return username -> User.withUsername(username)
+          .password("{noop}password")
+          .roles("USER")
+          .build();
+    }
+
     /**
      * Configures the security filter chain, enabling OAuth2 resource server with JWT and specifying
      * which requests require authentication.
