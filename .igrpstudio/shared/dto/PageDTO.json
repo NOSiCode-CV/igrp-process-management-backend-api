@@ -1,7 +1,7 @@
 {
   "type": "dto",
   "module": "shared",
-  "name": "PageDTO",
+  "name": "Page",
   "template": "classic",
   "enableCustonValidation": false,
   "attributes": [

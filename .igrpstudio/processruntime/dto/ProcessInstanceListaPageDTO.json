@@ -1,0 +1,26 @@
+{
+  "type": "dto",
+  "module": "processruntime",
+  "name": "ProcessInstanceListaPageDTO",
+  "template": "classic",
+  "enableCustonValidation": false,
+  "extends": {
+    "name": "Page",
+    "module": "shared"
+  },
+  "attributes": [
+    {
+      "name": "id",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    }
+  ],
+  "id": "r9uhcmpe2r"
+}

@@ -1,0 +1,182 @@
+{
+  "type": "controller",
+  "name": "TaskInstances",
+  "module": "processruntime",
+  "description": "Task Instances Management",
+  "basePath": "tasks",
+  "actions": [
+    {
+      "actionName": "listTaskInstances",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "description": "List of task instances",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TaskInstanceListaPageDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "processruntime"
+              }
+            }
+          }
+        }
+      },
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "processId",
+          "description": "ID of the process instance",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "user",
+          "description": "User UID",
+          "isRequired": false
+        }
+      ]
+    },
+    {
+      "actionName": "getTaskInstanceById",
+      "path": "{id}",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "description": "Task Instance Info",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TaskInstanceDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "processruntime"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "claimTask",
+      "path": "{id}/claim",
+      "method": "POST",
+      "responses": {
+        "204": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true,
+          "description": "ID of the task instance"
+        }
+      ]
+    },
+    {
+      "actionName": "unClaimTask",
+      "path": "{id}/unclaim",
+      "method": "POST",
+      "responses": {
+        "204": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true,
+          "description": "ID of the task instance"
+        }
+      ]
+    },
+    {
+      "actionName": "assignTask",
+      "path": "{id}/assign",
+      "method": "POST",
+      "responses": {
+        "204": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true,
+          "description": "ID of the task instance"
+        }
+      ]
+    },
+    {
+      "actionName": "unAssignTask",
+      "path": "{id}/unassign",
+      "method": "POST",
+      "responses": {
+        "204": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true,
+          "description": "ID of the task instance"
+        }
+      ]
+    }
+  ],
+  "id": "s7o1wob8tj-CONTROLLER"
+}

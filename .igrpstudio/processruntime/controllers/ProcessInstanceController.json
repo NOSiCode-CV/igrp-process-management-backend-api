@@ -1,0 +1,96 @@
+{
+  "type": "controller",
+  "name": "ProcessInstance",
+  "module": "processruntime",
+  "description": "Process Instance Management",
+  "basePath": "process-instances",
+  "actions": [
+    {
+      "actionName": "listProcessInstances",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "description": "List of process instances",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProcessInstanceDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "processruntime"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "startProcessInstance",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ProcessInstanceRequestDTO",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "processruntime",
+              "description": "Process instance request data"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "OK",
+          "description": "Started process instance",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProcessInstanceDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "processruntime"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getProcessInstanceById",
+      "path": "{id}",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "description": "Process Instance Info",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProcessInstanceDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "processruntime"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true,
+          "description": "ID of the process instance"
+        }
+      ]
+    }
+  ],
+  "id": "pyn9bsrz1z-CONTROLLER"
+}

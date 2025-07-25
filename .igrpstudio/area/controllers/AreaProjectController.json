@@ -3,11 +3,10 @@
   "name": "AreaProject",
   "module": "area",
   "description": "Area and Project Management",
-  "basePath": "api",
+  "basePath": "areas",
   "actions": [
     {
       "actionName": "listAreas",
-      "path": "/areas",
       "method": "GET",
       "responses": {
         "200": {
@@ -49,7 +48,6 @@
     },
     {
       "actionName": "createArea",
-      "path": "/areas",
       "method": "POST",
       "requestBody": {
         "content": {
@@ -84,7 +82,7 @@
     },
     {
       "actionName": "getAreaById",
-      "path": "/areas/{id}",
+      "path": "{id}",
       "method": "GET",
       "responses": {
         "200": {
@@ -114,7 +112,7 @@
     },
     {
       "actionName": "updateArea",
-      "path": "/areas/{id}",
+      "path": "{id}",
       "method": "PUT",
       "requestBody": {
         "content": {
@@ -157,7 +155,7 @@
     },
     {
       "actionName": "deleteArea",
-      "path": "/areas/{id}",
+      "path": "{id}",
       "method": "DELETE",
       "responses": {
         "204": {
@@ -184,7 +182,7 @@
     },
     {
       "actionName": "listProjects",
-      "path": "/areas/{areaId}/projects",
+      "path": "{areaId}/projects",
       "method": "GET",
       "responses": {
         "200": {
@@ -214,8 +212,22 @@
     },
     {
       "actionName": "createProject",
-      "path": "/areas/{areaId}/projects",
+      "path": "{areaId}/projects",
       "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ProjectRequestDTO",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "area",
+              "description": "The project reques data"
+            }
+          }
+        }
+      },
       "responses": {
         "200": {
           "name": "OK",
@@ -240,25 +252,11 @@
           "isRequired": true,
           "description": "ID of the area"
         }
-      ],
-      "requestBody": {
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "ProjectRequestDTO",
-              "collectionType": "none",
-              "name": "data",
-              "objectType": "dto",
-              "module": "area",
-              "description": "The project reques data"
-            }
-          }
-        }
-      }
+      ]
     },
     {
       "actionName": "listChildren",
-      "path": "/areas/{id}/children",
+      "path": "{id}/children",
       "method": "GET",
       "responses": {
         "200": {

@@ -31,7 +31,7 @@ import cv.igrp.platform.process.management.area.application.dto.ProjectRequestDT
 
 @IgrpController
 @RestController
-@RequestMapping(path = "api")
+@RequestMapping(path = "areas")
 @Tag(name = "AreaProject", description = "Area and Project Management")
 public class AreaProjectController {
 
@@ -50,7 +50,6 @@ public class AreaProjectController {
   }
 
   @GetMapping(
-    value = "/areas"
   )
   @Operation(
     summary = "GET method to handle operations for listAreas",
@@ -89,7 +88,6 @@ public class AreaProjectController {
   }
 
   @PostMapping(
-    value = "/areas"
   )
   @Operation(
     summary = "POST method to handle operations for createArea",
@@ -126,7 +124,7 @@ public class AreaProjectController {
   }
 
   @GetMapping(
-    value = "/areas/{id}"
+    value = "{id}"
   )
   @Operation(
     summary = "GET method to handle operations for getAreaById",
@@ -163,7 +161,7 @@ public class AreaProjectController {
   }
 
   @PutMapping(
-    value = "/areas/{id}"
+    value = "{id}"
   )
   @Operation(
     summary = "PUT method to handle operations for updateArea",
@@ -200,7 +198,7 @@ public class AreaProjectController {
   }
 
   @DeleteMapping(
-    value = "/areas/{id}"
+    value = "{id}"
   )
   @Operation(
     summary = "DELETE method to handle operations for deleteArea",
@@ -237,7 +235,7 @@ public class AreaProjectController {
   }
 
   @GetMapping(
-    value = "/areas/{areaId}/projects"
+    value = "{areaId}/projects"
   )
   @Operation(
     summary = "GET method to handle operations for listProjects",
@@ -274,7 +272,7 @@ public class AreaProjectController {
   }
 
   @PostMapping(
-    value = "/areas/{areaId}/projects"
+    value = "{areaId}/projects"
   )
   @Operation(
     summary = "POST method to handle operations for createProject",
@@ -311,7 +309,7 @@ public class AreaProjectController {
   }
 
   @GetMapping(
-    value = "/areas/{id}/children"
+    value = "{id}/children"
   )
   @Operation(
     summary = "GET method to handle operations for listChildren",

@@ -1,0 +1,24 @@
+{
+  "type": "enum",
+  "module": "shared",
+  "name": "TaskInstanceStatus",
+  "values": [
+    {
+      "name": "RUNNING",
+      "attributes": [
+        "RUNNING",
+        "Running"
+      ]
+    }
+  ],
+  "attributes": [
+    {
+      "type": "string",
+      "name": "Code"
+    },
+    {
+      "type": "string",
+      "name": "Description"
+    }
+  ]
+}
