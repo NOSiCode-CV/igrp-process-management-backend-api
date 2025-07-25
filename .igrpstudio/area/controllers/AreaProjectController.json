@@ -1,0 +1,291 @@
+{
+  "type": "controller",
+  "name": "AreaProject",
+  "module": "area",
+  "description": "Area and Project Management",
+  "basePath": "api",
+  "actions": [
+    {
+      "actionName": "listAreas",
+      "path": "/areas",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "description": "List of areas",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AreaListaPageDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "area"
+              }
+            }
+          }
+        }
+      },
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "code",
+          "description": "Code of the area",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "name",
+          "description": "Name of the area",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "applicationCode",
+          "description": "Application code",
+          "isRequired": false
+        }
+      ]
+    },
+    {
+      "actionName": "createArea",
+      "path": "/areas",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "collectionType": "none",
+              "name": "data",
+              "type": "AreaRequestDTO",
+              "objectType": "dto",
+              "module": "area"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "OK",
+          "description": "Persisted Area",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AreaDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "area"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getAreaById",
+      "path": "/areas/{id}",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "description": "Area Info",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AreaDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "area"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true,
+          "description": "ID of an area"
+        }
+      ]
+    },
+    {
+      "actionName": "updateArea",
+      "path": "/areas/{id}",
+      "method": "PUT",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AreaRequestDTO",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "area"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "description": "Updated area",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AreaDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "area"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true,
+          "description": "ID of the area"
+        }
+      ]
+    },
+    {
+      "actionName": "deleteArea",
+      "path": "/areas/{id}",
+      "method": "DELETE",
+      "responses": {
+        "204": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true,
+          "description": "ID of the area"
+        }
+      ]
+    },
+    {
+      "actionName": "listProjects",
+      "path": "/areas/{areaId}/projects",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "description": "List of projects of an area",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProjectDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "area"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "areaId",
+          "type": "string",
+          "isRequired": true,
+          "description": "ID of the area"
+        }
+      ]
+    },
+    {
+      "actionName": "createProject",
+      "path": "/areas/{areaId}/projects",
+      "method": "POST",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "description": "Persisted project",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProjectDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "area"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "areaId",
+          "type": "string",
+          "isRequired": true,
+          "description": "ID of the area"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ProjectRequestDTO",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "area",
+              "description": "The project reques data"
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "listChildren",
+      "path": "/areas/{id}/children",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "description": "List of subareas",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AreaDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "area"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true,
+          "description": "ID of the node"
+        }
+      ]
+    }
+  ],
+  "id": "eyv1ps0zwe-CONTROLLER"
+}

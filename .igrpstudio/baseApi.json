@@ -1,9 +1,9 @@
 {
   "type": "springboot",
   "name": "igrp_platform_process_management",
-  "group": "cv.igrp.platform.process.management",
+  "group": "cv.igrp.platform.process",
   "artifact": "igrp-platform-process-management",
-  "packageName": "process",
+  "packageName": "management",
   "database": "Postgresql",
   "description": "iGRP Platform Process Management",
   "projectStructureStyle": "domain",
