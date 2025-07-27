@@ -5,7 +5,7 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceRequestDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.StartProcessRequestDTO;
 
 @Data
 @NoArgsConstructor
@@ -13,6 +13,6 @@ import cv.igrp.platform.process.management.processruntime.application.dto.Proces
 public class StartProcessInstanceCommand implements Command {
 
   
-  private ProcessInstanceRequestDTO processinstancerequestdto;
+  private StartProcessRequestDTO startprocessrequestdto;
 
 }

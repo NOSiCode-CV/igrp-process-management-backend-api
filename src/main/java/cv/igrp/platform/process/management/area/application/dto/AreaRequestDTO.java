@@ -9,7 +9,7 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
@@ -25,11 +25,11 @@ public class AreaRequestDTO  {
   @NotBlank(message = "The field <code> is required")
   
   private String code ;
+  @NotBlank(message = "The field <applicationBase> is required")
+  
+  private String applicationBase ;
   
   
-  private String description ;
-  @NotBlank(message = "The field <applicationCode> is required")
-  
-  private String applicationCode ;
+  private UUID parentId ;
 
 }

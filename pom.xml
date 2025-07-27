@@ -126,13 +126,13 @@
       <artifactId>stereotype</artifactId>
       <version>0.1.0-beta.1</version>
     </dependency>
-
+        <!--
     <dependency>
         <groupId>cv.nosi.igrp</groupId>
         <artifactId>runtime-activiti</artifactId>
         <version>0.1.0-beta.1</version>
     </dependency>
-
+-->
     <dependency>
       <groupId>com.github.ben-manes.caffeine</groupId>
       <artifactId>caffeine</artifactId>

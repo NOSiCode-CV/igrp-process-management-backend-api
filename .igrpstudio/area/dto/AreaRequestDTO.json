@@ -30,10 +30,10 @@
       "primaryKey": false
     },
     {
-      "name": "description",
+      "name": "applicationBase",
       "objectType": "java",
       "type": "string",
-      "required": false,
+      "required": true,
       "before": false,
       "after": false,
       "positive": false,
@@ -42,10 +42,10 @@
       "primaryKey": false
     },
     {
-      "name": "applicationCode",
+      "name": "parentId",
       "objectType": "java",
-      "type": "string",
-      "required": true,
+      "type": "uuid",
+      "required": false,
       "before": false,
       "after": false,
       "positive": false,

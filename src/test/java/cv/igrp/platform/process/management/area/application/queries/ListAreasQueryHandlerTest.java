@@ -31,7 +31,7 @@ public class ListAreasQueryHandlerTest {
     // ListAreasQuery query = new ListAreasQuery(...);
     //
     // When
-    // ResponseEntity<List<AreaListaPageDTO>> response = listAreasQueryHandler.handle(query);
+    // ResponseEntity<AreaListaPageDTO> response = listAreasQueryHandler.handle(query);
     //
     // Then
     // assertNotNull(response);

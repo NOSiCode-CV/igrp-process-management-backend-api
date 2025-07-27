@@ -15,10 +15,10 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "ProcessInstanceDTO",
+                "type": "ProcessInstanceListaPageDTO",
                 "objectType": "dto",
                 "name": "data",
-                "collectionType": "list",
+                "collectionType": "none",
                 "module": "processruntime"
               }
             }
@@ -33,12 +33,12 @@
         "content": {
           "application/json": {
             "schema": {
-              "type": "ProcessInstanceRequestDTO",
+              "type": "StartProcessRequestDTO",
               "collectionType": "none",
               "name": "data",
               "objectType": "dto",
               "module": "processruntime",
-              "description": "Process instance request data"
+              "description": "Start process request data"
             }
           }
         }

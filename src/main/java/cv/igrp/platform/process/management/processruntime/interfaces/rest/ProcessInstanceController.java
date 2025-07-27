@@ -22,9 +22,9 @@ import cv.igrp.platform.process.management.processruntime.application.commands.*
 import cv.igrp.platform.process.management.processruntime.application.queries.*;
 
 
-import java.util.List;
+import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceListaPageDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.StartProcessRequestDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceDTO;
-import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceRequestDTO;
 
 @IgrpController
 @RestController
@@ -58,14 +58,14 @@ public class ProcessInstanceController {
           content = @Content(
               mediaType = "application/json",
               schema = @Schema(
-                  implementation = ProcessInstanceDTO.class,
+                  implementation = ProcessInstanceListaPageDTO.class,
                   type = "object")
           )
       )
     }
   )
   
-  public ResponseEntity<List<ProcessInstanceDTO>> listProcessInstances(
+  public ResponseEntity<ProcessInstanceListaPageDTO> listProcessInstances(
     )
   {
 
@@ -73,7 +73,7 @@ public class ProcessInstanceController {
 
       final var query = new ListProcessInstancesQuery();
 
-      ResponseEntity<List<ProcessInstanceDTO>> response = queryBus.handle(query);
+      ResponseEntity<ProcessInstanceListaPageDTO> response = queryBus.handle(query);
 
       LOGGER.debug("Operation finished");
 
@@ -101,7 +101,7 @@ public class ProcessInstanceController {
     }
   )
   
-  public ResponseEntity<ProcessInstanceDTO> startProcessInstance(@Valid @RequestBody ProcessInstanceRequestDTO startProcessInstanceRequest
+  public ResponseEntity<ProcessInstanceDTO> startProcessInstance(@Valid @RequestBody StartProcessRequestDTO startProcessInstanceRequest
     )
   {
 

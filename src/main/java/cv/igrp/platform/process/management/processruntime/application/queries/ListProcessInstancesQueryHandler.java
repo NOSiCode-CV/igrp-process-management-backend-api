@@ -8,11 +8,10 @@ import org.springframework.context.event.EventListener;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceListaPageDTO;
 
 @Component
-public class ListProcessInstancesQueryHandler implements QueryHandler<ListProcessInstancesQuery, ResponseEntity<List<ProcessInstanceDTO>>>{
+public class ListProcessInstancesQueryHandler implements QueryHandler<ListProcessInstancesQuery, ResponseEntity<ProcessInstanceListaPageDTO>>{
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ListProcessInstancesQueryHandler.class);
 
@@ -22,7 +21,7 @@ public class ListProcessInstancesQueryHandler implements QueryHandler<ListProces
   }
 
    @IgrpQueryHandler
-  public ResponseEntity<List<ProcessInstanceDTO>> handle(ListProcessInstancesQuery query) {
+  public ResponseEntity<ProcessInstanceListaPageDTO> handle(ListProcessInstancesQuery query) {
     // TODO: Implement the query handling logic here
     return null;
   }

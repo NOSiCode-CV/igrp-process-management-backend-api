@@ -17,7 +17,15 @@ public class ListAreasQuery implements Query {
   private String code;
   @NotBlank(message = "The field <name> is required")
   private String name;
-  @NotBlank(message = "The field <applicationCode> is required")
-  private String applicationCode;
+  @NotBlank(message = "The field <applicationBase> is required")
+  private String applicationBase;
+  @NotBlank(message = "The field <status> is required")
+  private String status;
+  @NotBlank(message = "The field <parentId> is required")
+  private String parentId;
+  @NotNull(message = "The field <page> is required")
+  private Integer page;
+  @NotNull(message = "The field <size> is required")
+  private Integer size;
 
 }

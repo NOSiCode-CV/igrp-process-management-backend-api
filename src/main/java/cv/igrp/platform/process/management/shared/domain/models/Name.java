@@ -10,15 +10,15 @@ import java.util.regex.Pattern;
 @Getter
 public final class Name {
 
-    private final String valor;
-    private final String nomeNormalizado;
+    private final String value;
+    private final String normalizedName;
 
     @Builder
-    public Name(String valor) {
-        if (valor == null || valor.trim().isEmpty())
-            throw new IllegalArgumentException("Nome não pode ser vazio.");
-        this.valor = valor.trim();
-        this.nomeNormalizado = normalizeName(this.valor);
+    private Name(String value) {
+        if (value == null || value.trim().isEmpty())
+            throw new IllegalArgumentException("The value of the name is required.");
+        this.value = value.trim();
+        this.normalizedName = normalizeName(this.value);
     }
 
     private String normalizeName(String input) {
@@ -26,6 +26,12 @@ public final class Name {
         var pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
         var withoutAccents = pattern.matcher(normalized).replaceAll("");
         return withoutAccents.toUpperCase();
+    }
+
+    public static Name create(String value) {
+      return Name.builder()
+          .value(value)
+          .build();
     }
 
 }

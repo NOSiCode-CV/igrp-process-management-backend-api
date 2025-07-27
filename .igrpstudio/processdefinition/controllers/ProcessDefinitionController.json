@@ -1,0 +1,72 @@
+{
+  "type": "controller",
+  "name": "ProcessDefinition",
+  "module": "processdefinition",
+  "description": "Process Definition Management",
+  "basePath": "process-definitions",
+  "actions": [
+    {
+      "actionName": "deployProcess",
+      "path": "deploy",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ProcessDeploymentRequestDTO",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "processdefinition"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "OK",
+          "description": "Process deploymeny",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProcessDeploymentDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "processdefinition"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "undeployProcess",
+      "path": "{deploymentId}",
+      "method": "DELETE",
+      "responses": {
+        "204": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "deploymentId",
+          "type": "string",
+          "isRequired": true,
+          "description": "ID of the deployment"
+        }
+      ]
+    }
+  ],
+  "id": "o9isd9wv95-CONTROLLER"
+}

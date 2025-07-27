@@ -9,7 +9,10 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceDTO;
 import cv.igrp.platform.process.management.shared.application.dto.PageDTO;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.EqualsAndHashCode;
 @Data
 @NoArgsConstructor
@@ -20,7 +23,7 @@ import lombok.EqualsAndHashCode;
 public class ProcessInstanceListaPageDTO extends PageDTO {
 
   
-  
-  private String id ;
+  @Valid
+  private List<ProcessInstanceDTO> content = new ArrayList<>();
 
 }

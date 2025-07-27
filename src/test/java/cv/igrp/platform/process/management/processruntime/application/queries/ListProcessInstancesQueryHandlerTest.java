@@ -31,7 +31,7 @@ public class ListProcessInstancesQueryHandlerTest {
     // ListProcessInstancesQuery query = new ListProcessInstancesQuery(...);
     //
     // When
-    // ResponseEntity<List<ProcessInstanceDTO>> response = listProcessInstancesQueryHandler.handle(query);
+    // ResponseEntity<ProcessInstanceListaPageDTO> response = listProcessInstancesQueryHandler.handle(query);
     //
     // Then
     // assertNotNull(response);

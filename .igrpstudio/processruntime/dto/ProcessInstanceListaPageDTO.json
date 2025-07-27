@@ -10,16 +10,18 @@
   },
   "attributes": [
     {
-      "name": "id",
-      "objectType": "java",
-      "type": "string",
+      "name": "content",
+      "objectType": "dto",
+      "type": "ProcessInstanceDTO",
       "required": false,
       "before": false,
       "after": false,
       "positive": false,
       "isEmail": false,
       "isUrl": false,
-      "primaryKey": false
+      "primaryKey": false,
+      "module": "processruntime",
+      "collectionType": "list"
     }
   ],
   "id": "r9uhcmpe2r"
