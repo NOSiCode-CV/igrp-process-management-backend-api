@@ -10,6 +10,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import cv.igrp.platform.process.management.shared.application.constants.ProcessInstanceStatus;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
@@ -21,9 +23,48 @@ public class ProcessInstanceDTO  {
 
   
   
-  private String id ;
+  private UUID id ;
+  
+  
+  private String procReleaseKey ;
+  
+  
+  private String procReleaseId ;
+  
+  
+  private String number ;
   
   
   private ProcessInstanceStatus status ;
+  
+  
+  private String statusDesc ;
+  
+  
+  private String businessKey ;
+  
+  
+  private String version ;
+  
+  
+  private LocalDateTime startedAt ;
+  
+  
+  private String startedBy ;
+  
+  
+  private LocalDateTime endedAt ;
+  
+  
+  private String endedBy ;
+  
+  
+  private LocalDateTime canceledAt ;
+  
+  
+  private String canceledBy ;
+  
+  
+  private String obsCancel ;
 
 }

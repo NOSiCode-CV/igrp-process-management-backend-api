@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import cv.igrp.framework.core.domain.CommandBus;
 import cv.igrp.framework.core.domain.QueryBus;
 import cv.igrp.platform.process.management.processdefinition.application.commands.*;
-import cv.igrp.platform.process.management.processdefinition.application.queries.*;
 
 
 import cv.igrp.platform.process.management.processdefinition.application.dto.ProcessDeploymentRequestDTO;
@@ -33,11 +32,11 @@ public class ProcessDefinitionController {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ProcessDefinitionController.class);
 
-  
+
   private final CommandBus commandBus;
   private final QueryBus queryBus;
 
-  
+
   public ProcessDefinitionController(
     CommandBus commandBus, QueryBus queryBus
   ) {
@@ -64,7 +63,7 @@ public class ProcessDefinitionController {
       )
     }
   )
-  
+
   public ResponseEntity<ProcessDeploymentDTO> deployProcess(@Valid @RequestBody ProcessDeploymentRequestDTO deployProcessRequest
     )
   {
@@ -101,7 +100,7 @@ public class ProcessDefinitionController {
       )
     }
   )
-  
+
   public ResponseEntity<String> undeployProcess(
     @PathVariable(value = "deploymentId") String deploymentId)
   {

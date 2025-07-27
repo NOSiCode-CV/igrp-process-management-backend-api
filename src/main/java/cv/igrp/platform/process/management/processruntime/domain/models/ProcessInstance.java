@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 @Getter
@@ -28,6 +30,8 @@ public class ProcessInstance {
   private String obsCancel;
   private ProcessInstanceStatus status;
 
+  private Map<String, Object> variables;
+
   @Builder
   public ProcessInstance(Identifier id,
                          Code procReleaseKey,
@@ -43,7 +47,8 @@ public class ProcessInstance {
                          String endedBy,
                          String canceledBy,
                          String obsCancel,
-                         ProcessInstanceStatus status) {
+                         ProcessInstanceStatus status,
+                         Map<String, Object> variables) {
     this.id = id == null ? Identifier.generate() : id;
     this.procReleaseKey = Objects.requireNonNull(procReleaseKey, "Process release key cannot be null");
     this.procReleaseId = Objects.requireNonNull(procReleaseId, "Process release id cannot be null");;
@@ -59,9 +64,16 @@ public class ProcessInstance {
     this.canceledBy = canceledBy;
     this.obsCancel = obsCancel;
     this.status = status == null ? ProcessInstanceStatus.CREATED : status;
+    this.variables = variables == null ? new HashMap<>() : variables;
   }
 
   public void start(){
+    if(this.status != ProcessInstanceStatus.CREATED && this.status != ProcessInstanceStatus.SUSPENDED){
+      throw new IllegalStateException("The status of the process instance must be CREATED or SUSPENDED");
+    }
+    if(this.startedBy == null || this.startedBy.isBlank()){
+      throw new IllegalStateException("The started by (user) of the process instance cannot be null or blank");
+    }
     this.status = ProcessInstanceStatus.RUNNING;
     this.startedAt = LocalDateTime.now();
   }

@@ -1,29 +1,37 @@
 package cv.igrp.platform.process.management.processruntime.application.queries;
 
+import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstance;
+import cv.igrp.platform.process.management.processruntime.domain.service.ProcessInstanceService;
+import cv.igrp.platform.process.management.processruntime.mappers.ProcessInstanceMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import cv.igrp.framework.core.domain.QueryHandler;
 import cv.igrp.framework.stereotype.IgrpQueryHandler;
-import org.springframework.context.event.EventListener;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceDTO;
 
+import java.util.UUID;
+
 @Component
-public class GetProcessInstanceByIdQueryHandler implements QueryHandler<GetProcessInstanceByIdQuery, ResponseEntity<ProcessInstanceDTO>>{
+public class GetProcessInstanceByIdQueryHandler implements QueryHandler<GetProcessInstanceByIdQuery, ResponseEntity<ProcessInstanceDTO>> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(GetProcessInstanceByIdQueryHandler.class);
 
+  private final ProcessInstanceService processInstanceService;
+  private final ProcessInstanceMapper processInstanceMapper;
 
-  public GetProcessInstanceByIdQueryHandler() {
-
+  public GetProcessInstanceByIdQueryHandler(ProcessInstanceService processInstanceService,
+                                            ProcessInstanceMapper processInstanceMapper) {
+    this.processInstanceService = processInstanceService;
+    this.processInstanceMapper = processInstanceMapper;
   }
 
-   @IgrpQueryHandler
+  @IgrpQueryHandler
   public ResponseEntity<ProcessInstanceDTO> handle(GetProcessInstanceByIdQuery query) {
-    // TODO: Implement the query handling logic here
-    return null;
+    ProcessInstance processInstance = processInstanceService.getProcessInstanceById(UUID.fromString(query.getId()));
+    return ResponseEntity.ok(processInstanceMapper.toDTO(processInstance));
   }
 
 }

@@ -24,6 +24,9 @@ public class StartProcessRequestDTO  {
   @NotBlank(message = "The field <processDefinitionId> is required")
   
   private String processDefinitionId ;
+  @NotBlank(message = "The field <processKey> is required")
+  
+  private String processKey ;
   
   
   private String businessKey ;

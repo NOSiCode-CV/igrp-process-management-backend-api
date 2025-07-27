@@ -2,6 +2,9 @@ package cv.igrp.platform.process.management.processruntime.application.commands;
 
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
+import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstance;
+import cv.igrp.platform.process.management.processruntime.domain.service.ProcessInstanceService;
+import cv.igrp.platform.process.management.processruntime.mappers.ProcessInstanceMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.slf4j.Logger;
@@ -12,16 +15,22 @@ import cv.igrp.platform.process.management.processruntime.application.dto.Proces
 @Component
 public class StartProcessInstanceCommandHandler implements CommandHandler<StartProcessInstanceCommand, ResponseEntity<ProcessInstanceDTO>> {
 
-   private static final Logger LOGGER = LoggerFactory.getLogger(StartProcessInstanceCommandHandler.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(StartProcessInstanceCommandHandler.class);
 
-   public StartProcessInstanceCommandHandler() {
+  private final ProcessInstanceService processInstanceService;
+  private final ProcessInstanceMapper mapper;
 
-   }
+  public StartProcessInstanceCommandHandler(ProcessInstanceService processInstanceService,
+                                            ProcessInstanceMapper mapper) {
+    this.processInstanceService = processInstanceService;
+    this.mapper = mapper;
+  }
 
-   @IgrpCommandHandler
-   public ResponseEntity<ProcessInstanceDTO> handle(StartProcessInstanceCommand command) {
-      // TODO: Implement the command handling logic here
-      return null;
-   }
+  @IgrpCommandHandler
+  public ResponseEntity<ProcessInstanceDTO> handle(StartProcessInstanceCommand command) {
+    ProcessInstance process = processInstanceService.startProcessInstance(
+        mapper.toModel(command.getStartprocessrequestdto()));
+    return ResponseEntity.status(201).body(mapper.toDTO(process));
+  }
 
 }

@@ -24,7 +24,45 @@
             }
           }
         }
-      }
+      },
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "number",
+          "description": "Process Number",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "procReleaseKey",
+          "description": "Process Key",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "procReleaseId",
+          "description": "Process Definition ID",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "status",
+          "description": "Process Status",
+          "isRequired": false
+        },
+        {
+          "type": "integer",
+          "name": "page",
+          "description": "Current Page",
+          "isRequired": false
+        },
+        {
+          "type": "integer",
+          "name": "size",
+          "description": "Page Size",
+          "isRequired": false
+        }
+      ]
     },
     {
       "actionName": "startProcessInstance",
