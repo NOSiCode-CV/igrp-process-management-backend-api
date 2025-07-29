@@ -96,6 +96,10 @@ public class AreaRepositoryImpl implements AreaRepository {
         Join<AreaEntity, AreaEntity> parentArea = root.join("areaId");
         return cb.equal(parentArea.get("id"), filter.getParentId().getValue());
       });
+    }else{
+      spec = spec.and((root, query, cb) -> {
+        return cb.isNull(root.get("areaId"));
+      });
     }
 
     return spec;

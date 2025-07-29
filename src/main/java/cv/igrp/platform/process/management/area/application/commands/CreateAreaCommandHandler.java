@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cv.igrp.platform.process.management.area.application.dto.AreaDTO;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class CreateAreaCommandHandler implements CommandHandler<CreateAreaCommand, ResponseEntity<AreaDTO>> {
@@ -27,6 +28,7 @@ public class CreateAreaCommandHandler implements CommandHandler<CreateAreaComman
   }
 
   @IgrpCommandHandler
+  @Transactional
   public ResponseEntity<AreaDTO> handle(CreateAreaCommand command) {
     Area area = areaService.createArea(areaMapper.toModel(command.getArearequestdto()));
     return ResponseEntity.status(201).body(areaMapper.toDTO(area));
