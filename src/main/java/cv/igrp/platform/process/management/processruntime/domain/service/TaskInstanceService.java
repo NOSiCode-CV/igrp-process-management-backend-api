@@ -9,7 +9,6 @@ import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponse
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.UUID;
 
 @Service
@@ -30,14 +29,7 @@ public class TaskInstanceService {
 
 
   public TaskInstance create(TaskInstance model) {
-
-    var taskInstanceEntity = taskInstanceRepository.create(model);
-
-
-    var taskInstanceEventEntity = taskInstanceEventRepository.save(
-        taskInstanceEntity, model.getTaskInstanceEvents().getFirst());
-    taskInstanceEntity.addEvents(new ArrayList<>(taskInstanceEntity));
-    return taskInstanceEntity;
+    return taskInstanceRepository.create(model);
   }
 
 
