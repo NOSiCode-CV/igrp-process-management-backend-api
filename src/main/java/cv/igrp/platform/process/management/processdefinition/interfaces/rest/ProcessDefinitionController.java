@@ -83,43 +83,6 @@ public class ProcessDefinitionController {
               .body(response.getBody());
   }
 
-  @DeleteMapping(
-    value = "{deploymentId}"
-  )
-  @Operation(
-    summary = "DELETE method to handle operations for undeployProcess",
-    description = "DELETE method to handle operations for undeployProcess",
-    responses = {
-      @ApiResponse(
-          responseCode = "204",
-          description = "",
-          content = @Content(
-              mediaType = "application/json",
-              schema = @Schema(
-                  implementation = String.class,
-                  type = "String")
-          )
-      )
-    }
-  )
-  
-  public ResponseEntity<String> undeployProcess(
-    @PathVariable(value = "deploymentId") String deploymentId)
-  {
-
-      LOGGER.debug("Operation started");
-
-      final var command = new UndeployProcessCommand(deploymentId);
-
-       ResponseEntity<String> response = commandBus.send(command);
-
-       LOGGER.debug("Operation finished");
-
-        return ResponseEntity.status(response.getStatusCode())
-              .headers(response.getHeaders())
-              .body(response.getBody());
-  }
-
   @GetMapping(
   )
   @Operation(

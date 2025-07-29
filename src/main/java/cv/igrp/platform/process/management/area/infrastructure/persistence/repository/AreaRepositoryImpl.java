@@ -105,7 +105,6 @@ public class AreaRepositoryImpl implements AreaRepository {
     return spec;
   }
 
-
   @Override
   @Transactional(readOnly = true)
   public Optional<Area> findById(UUID id) {
