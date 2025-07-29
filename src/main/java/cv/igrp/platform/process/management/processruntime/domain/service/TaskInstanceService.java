@@ -28,6 +28,11 @@ public class TaskInstanceService {
   }
 
 
+  public TaskInstance create(TaskInstance model) {
+    return taskInstanceRepository.create(model);
+  }
+
+
   public TaskInstance getTaskInstanceById(UUID id) {
     return taskInstanceRepository.findById(id)
         .orElseThrow(() -> IgrpResponseStatusException.notFound("No Task Instance found with id: " + id));
@@ -40,11 +45,11 @@ public class TaskInstanceService {
 
 
   public PageableLista<TaskInstance> getAllMyTasks(TaskInstanceFilter filter) {
-    return null;
+    return taskInstanceRepository.findAll(filter);
   }
 
 
-  public PageableLista<TaskInstance> getAllTaskHistory(TaskInstanceFilter filter) {
+  public PageableLista<TaskInstance> getAllTaskHistory(UUID id) {
     return null;
   }
 

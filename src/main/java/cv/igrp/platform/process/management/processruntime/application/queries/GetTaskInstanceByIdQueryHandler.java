@@ -3,7 +3,6 @@ package cv.igrp.platform.process.management.processruntime.application.queries;
 import cv.igrp.framework.core.domain.QueryHandler;
 import cv.igrp.framework.stereotype.IgrpQueryHandler;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceDTO;
-import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
 import cv.igrp.platform.process.management.processruntime.domain.service.TaskInstanceService;
 import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
 import org.slf4j.Logger;
@@ -30,8 +29,8 @@ public class GetTaskInstanceByIdQueryHandler implements QueryHandler<GetTaskInst
 
    @IgrpQueryHandler
   public ResponseEntity<TaskInstanceDTO> handle(GetTaskInstanceByIdQuery query) {
-     TaskInstance taskInstance =  taskInstanceService.getTaskInstanceById(UUID.fromString(query.getId()));
-     return ResponseEntity.ok(taskInstanceMapper.toDTO(taskInstance));
+     final var taskInstance =  taskInstanceService.getTaskInstanceById(UUID.fromString(query.getId()));
+     return ResponseEntity.ok(taskInstanceMapper.toTaskDTO(taskInstance));
   }
 
 }

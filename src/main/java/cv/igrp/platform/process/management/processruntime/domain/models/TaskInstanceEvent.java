@@ -12,7 +12,7 @@ import java.util.Objects;
 @Getter
 public class TaskInstanceEvent {
   private Identifier id;
-  private Code taskInstanceId;
+  private Identifier taskInstanceId;
   private Code eventType;
   private LocalDateTime startedAt;
   private String startedBy;
@@ -27,7 +27,7 @@ public class TaskInstanceEvent {
 
   @Builder
   public TaskInstanceEvent(Identifier id,
-                           Code taskInstanceId,
+                           Identifier taskInstanceId,
                            Code eventType,
                            LocalDateTime startedAt,
                            String startedBy,

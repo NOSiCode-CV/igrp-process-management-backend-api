@@ -55,7 +55,7 @@
       "primaryKey": false
     },
     {
-      "name": "taskKeyDesc",
+      "name": "name",
       "objectType": "java",
       "type": "string",
       "required": false,

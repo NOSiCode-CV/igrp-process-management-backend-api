@@ -33,7 +33,7 @@ public class TaskInstanceListDTO {
   private String taskKey ;
 
 
-  private String taskKeyDesc ;
+  private String name ;
 
 
   private String processNumber ;

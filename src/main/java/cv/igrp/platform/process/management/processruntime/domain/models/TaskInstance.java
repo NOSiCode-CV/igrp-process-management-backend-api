@@ -3,6 +3,7 @@ package cv.igrp.platform.process.management.processruntime.domain.models;
 import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
+import cv.igrp.platform.process.management.shared.domain.models.Name;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -13,15 +14,15 @@ import java.util.List;
 @Getter
 public class TaskInstance {
   private final Identifier id;
-  private final Code processInstanceId;
+  private final Identifier processInstanceId;
   private final Code processType;
   private final Code processNumber;
   private final Code taskKey;
-  private final Code taskKeyDesc;
+  private final Name name;
   private final Code externalId;
   private final Code applicationBase;
   private final Code user;
-  private final String searchTerms;
+  private final Code searchTerms;
   private final LocalDateTime startedAt;
   private final String startedBy;
   private final TaskInstanceStatus status;
@@ -29,15 +30,15 @@ public class TaskInstance {
 
   @Builder
   public TaskInstance(Identifier id,
-                      Code processInstanceId,
+                      Identifier processInstanceId,
                       Code processType,
                       Code processNumber,
                       Code taskKey,
-                      Code taskKeyDesc,
+                      Name name,
                       Code externalId,
                       Code applicationBase,
                       Code user,
-                      String searchTerms,
+                      Code searchTerms,
                       LocalDateTime startedAt,
                       String startedBy,
                       TaskInstanceStatus status,
@@ -47,7 +48,7 @@ public class TaskInstance {
     this.processType = processType;
     this.processNumber = processNumber;
     this.taskKey = taskKey;
-    this.taskKeyDesc = taskKeyDesc;
+    this.name = name;
     this.externalId = externalId;
     this.applicationBase = applicationBase;
     this.user = user;
