@@ -37,6 +37,7 @@ public class ListProcessInstancesQueryHandler implements QueryHandler<ListProces
         .procReleaseId(query.getProcReleaseId() != null ? Code.create(query.getProcReleaseId()) : null)
         .procReleaseKey(query.getProcReleaseKey() != null ? Code.create(query.getProcReleaseKey()) : null)
         .status(query.getStatus() != null ? ProcessInstanceStatus.valueOf(query.getStatus()) : null)
+        .searchTerms(query.getSearchTerms())
         .page(query.getPage())
         .size(query.getSize())
         .build();

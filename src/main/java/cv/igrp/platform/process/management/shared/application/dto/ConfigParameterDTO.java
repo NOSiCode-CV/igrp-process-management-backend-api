@@ -1,7 +1,7 @@
 /* THIS FILE WAS GENERATED AUTOMATICALLY BY iGRP STUDIO. */
 /* DO NOT MODIFY IT BECAUSE IT COULD BE REWRITTEN AT ANY TIME. */
 
-package cv.igrp.platform.process.management.area.application.dto;
+package cv.igrp.platform.process.management.shared.application.dto;
 
 import cv.igrp.framework.stereotype.IgrpDTO;
 import jakarta.validation.*;
@@ -17,16 +17,13 @@ import lombok.AllArgsConstructor;
 
 
 @IgrpDTO
-public class ProcessDefinitionRequestDTO  {
+public class ConfigParameterDTO  {
 
-  @NotBlank(message = "The field <processKey> is required")
+  @NotBlank(message = "The field <label> is required")
   
-  private String processKey ;
-  @NotBlank(message = "The field <releaseId> is required")
+  private String label ;
+  @NotBlank(message = "The field <value> is required")
   
-  private String releaseId ;
-  
-  
-  private String version ;
+  private String value ;
 
 }

@@ -1,15 +1,15 @@
 {
   "type": "dto",
-  "module": "area",
-  "name": "ProcessDefinitionRequestDTO",
+  "module": "processdefinition",
+  "name": "ProcessDeploymentListDTO",
   "template": "classic",
   "enableCustonValidation": false,
   "attributes": [
     {
-      "name": "processKey",
+      "name": "id",
       "objectType": "java",
       "type": "string",
-      "required": true,
+      "required": false,
       "before": false,
       "after": false,
       "positive": false,
@@ -18,10 +18,34 @@
       "primaryKey": false
     },
     {
-      "name": "releaseId",
+      "name": "processKey",
       "objectType": "java",
       "type": "string",
-      "required": true,
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    },
+    {
+      "name": "name",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    },
+    {
+      "name": "description",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
       "before": false,
       "after": false,
       "positive": false,
@@ -42,5 +66,5 @@
       "primaryKey": false
     }
   ],
-  "id": "ocvgjra05m"
+  "id": "60d954wzla"
 }

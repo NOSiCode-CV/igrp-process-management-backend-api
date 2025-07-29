@@ -13,6 +13,7 @@ public class ProcessInstanceFilter {
   private final Code procReleaseKey;
   private final Code procReleaseId;
   private final ProcessInstanceStatus status;
+  private final String searchTerms;
   private final Integer page;
   private final Integer size;
 
@@ -21,12 +22,14 @@ public class ProcessInstanceFilter {
                                Code procReleaseKey,
                                Code procReleaseId,
                                ProcessInstanceStatus status,
+                               String searchTerms,
                                Integer page,
                                Integer size) {
     this.number = number;
     this.procReleaseKey = procReleaseKey;
     this.procReleaseId = procReleaseId;
     this.status = status;
+    this.searchTerms = searchTerms;
     this.page = page == null ? 0 : page;
     this.size = size == null ? 50 : size;
   }

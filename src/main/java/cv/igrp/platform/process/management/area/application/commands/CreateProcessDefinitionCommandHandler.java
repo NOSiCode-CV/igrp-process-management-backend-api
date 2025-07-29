@@ -6,6 +6,7 @@ import cv.igrp.platform.process.management.area.application.dto.ProcessDefinitio
 import cv.igrp.platform.process.management.area.domain.models.AreaProcess;
 import cv.igrp.platform.process.management.area.domain.service.AreaService;
 import cv.igrp.platform.process.management.area.mappers.AreaProcessMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.slf4j.Logger;
@@ -32,11 +33,12 @@ public class CreateProcessDefinitionCommandHandler implements CommandHandler<Cre
   @IgrpCommandHandler
   public ResponseEntity<ProcessDefinitionDTO> handle(CreateProcessDefinitionCommand command) {
     ProcessDefinitionRequestDTO processDefinitionRequestDTO = command.getProcessdefinitionrequestdto();
+    UUID areaId = UUID.fromString(command.getAreaId());
     AreaProcess areaProcess = areaService.createProcessDefinition(
-        UUID.fromString(command.getAreaId()),
+        areaId,
         areaProcessMapper.toModel(processDefinitionRequestDTO)
     );
-    return ResponseEntity.ok(areaProcessMapper.toDTO(areaProcess));
+    return ResponseEntity.status(HttpStatus.CREATED).body(areaProcessMapper.toDTO(areaProcess));
   }
 
 }

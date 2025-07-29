@@ -91,8 +91,12 @@ public class ProcessInstanceEntity extends AuditEntity {
     private ProcessInstanceStatus status;
 
   
-    @Column(name="searchterms")
+    @Column(name="search_terms")
     private String searchTerms;
+
+  
+    @Column(name="application_base")
+    private String applicationBase;
 
   
 }

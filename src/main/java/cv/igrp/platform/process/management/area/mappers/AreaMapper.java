@@ -41,7 +41,7 @@ public class AreaMapper {
       areaDTO.setCode(area.getCode().getValue());
       areaDTO.setStatus(area.getStatus());
       areaDTO.setStatusDesc(area.getStatus().getDescription());
-      areaDTO.setAreaId(area.getAreaId().getValue());
+      areaDTO.setAreaId(area.getAreaId() != null ? area.getAreaId().getValue() : null);
       areaDTO.setUpdatedAt(area.getUpdatedAt());
       areaDTO.setCreatedAt(area.getCreatedAt());
       areaDTO.setCreatedBy(area.getCreatedBy());

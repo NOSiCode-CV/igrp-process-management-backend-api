@@ -76,6 +76,7 @@ public class ProcessInstance {
     }
     this.status = ProcessInstanceStatus.RUNNING;
     this.startedAt = LocalDateTime.now();
+    this.number = Code.create("12345");
   }
 
 }

@@ -28,6 +28,8 @@ import cv.igrp.platform.process.management.area.application.dto.AreaDTO;
 import cv.igrp.platform.process.management.area.application.dto.ProcessDefinitionListaPageDTO;
 import cv.igrp.platform.process.management.area.application.dto.ProcessDefinitionRequestDTO;
 import cv.igrp.platform.process.management.area.application.dto.ProcessDefinitionDTO;
+import java.util.List;
+import cv.igrp.platform.process.management.shared.application.dto.ConfigParameterDTO;
 
 @IgrpController
 @RestController
@@ -287,7 +289,7 @@ public class AreasController {
     description = "POST method to handle operations for createProcessDefinition",
     responses = {
       @ApiResponse(
-          responseCode = "200",
+          responseCode = "201",
           description = "Persisted process definition",
           content = @Content(
               mediaType = "application/json",
@@ -349,6 +351,43 @@ public class AreasController {
        LOGGER.debug("Operation finished");
 
         return ResponseEntity.status(response.getStatusCode())
+              .headers(response.getHeaders())
+              .body(response.getBody());
+  }
+
+  @GetMapping(
+    value = "status"
+  )
+  @Operation(
+    summary = "GET method to handle operations for listAreaStatus",
+    description = "GET method to handle operations for listAreaStatus",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          description = "List of area status",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = ConfigParameterDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<List<ConfigParameterDTO>> listAreaStatus(
+    )
+  {
+
+      LOGGER.debug("Operation started");
+
+      final var query = new ListAreaStatusQuery();
+
+      ResponseEntity<List<ConfigParameterDTO>> response = queryBus.handle(query);
+
+      LOGGER.debug("Operation finished");
+
+      return ResponseEntity.status(response.getStatusCode())
               .headers(response.getHeaders())
               .body(response.getBody());
   }

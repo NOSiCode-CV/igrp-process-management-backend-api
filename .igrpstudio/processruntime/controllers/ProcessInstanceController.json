@@ -51,6 +51,18 @@
           "isRequired": false
         },
         {
+          "type": "string",
+          "name": "searchTerms",
+          "description": "Serach Terms",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "appicationBase",
+          "description": "Application Code",
+          "isRequired": false
+        },
+        {
           "type": "integer",
           "name": "page",
           "description": "Current Page",
@@ -128,6 +140,28 @@
           "description": "ID of the process instance"
         }
       ]
+    },
+    {
+      "actionName": "listProcessInstanceStatus",
+      "path": "status",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "description": "List of process instance status",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ConfigParameterDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "shared"
+              }
+            }
+          }
+        }
+      }
     }
   ],
   "id": "pyn9bsrz1z-CONTROLLER"

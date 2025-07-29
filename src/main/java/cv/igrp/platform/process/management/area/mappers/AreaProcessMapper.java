@@ -12,13 +12,13 @@ import cv.igrp.platform.process.management.shared.infrastructure.persistence.ent
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.UUID;
 
 @Component
 public class AreaProcessMapper {
 
   public AreaProcess toModel(ProcessDefinitionRequestDTO processDefinitionRequestDTO) {
     return AreaProcess.builder()
-        .areaId(Identifier.create(processDefinitionRequestDTO.getAreaId()))
         .processKey(Code.create(processDefinitionRequestDTO.getProcessKey()))
         .releaseId(Code.create(processDefinitionRequestDTO.getReleaseId()))
         .version(processDefinitionRequestDTO.getVersion())
@@ -28,7 +28,7 @@ public class AreaProcessMapper {
   public ProcessDefinitionDTO toDTO(AreaProcess areaProcess) {
     ProcessDefinitionDTO processDefinitionDTO = new ProcessDefinitionDTO();
     processDefinitionDTO.setId(areaProcess.getId().getValue());
-    processDefinitionDTO.setAreaId(areaProcess.getAreaId().getValue());
+    processDefinitionDTO.setAreaId(areaProcess.getAreaId() != null ? areaProcess.getAreaId().getValue() : null);
     processDefinitionDTO.setProcessKey(areaProcess.getProcessKey().getValue());
     processDefinitionDTO.setReleaseId(areaProcess.getReleaseId().getValue());
     processDefinitionDTO.setVersion(areaProcess.getVersion());

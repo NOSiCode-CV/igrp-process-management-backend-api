@@ -285,7 +285,7 @@
         }
       },
       "responses": {
-        "200": {
+        "201": {
           "name": "OK",
           "description": "Persisted process definition",
           "content": {
@@ -342,6 +342,28 @@
           "description": "ID of the process definition"
         }
       ]
+    },
+    {
+      "actionName": "listAreaStatus",
+      "path": "status",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "description": "List of area status",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ConfigParameterDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "shared"
+              }
+            }
+          }
+        }
+      }
     }
   ],
   "id": "eyv1ps0zwe-CONTROLLER"

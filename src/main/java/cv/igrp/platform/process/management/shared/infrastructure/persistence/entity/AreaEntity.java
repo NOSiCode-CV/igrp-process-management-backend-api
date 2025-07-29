@@ -22,7 +22,15 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "t_area")
+@Table(name = "t_area",
+  uniqueConstraints = {
+    @UniqueConstraint(
+      name = "uk_t_area_application_base_code",
+      columnNames = {
+        "code","application_base"
+      }
+    )
+  })
 public class AreaEntity extends AuditEntity {
 
     @Id

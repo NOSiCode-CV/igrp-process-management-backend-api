@@ -25,6 +25,8 @@ import cv.igrp.platform.process.management.processruntime.application.queries.*;
 import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceListaPageDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.StartProcessRequestDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceDTO;
+import java.util.List;
+import cv.igrp.platform.process.management.shared.application.dto.ConfigParameterDTO;
 
 @IgrpController
 @RestController
@@ -70,13 +72,15 @@ public class ProcessInstanceController {
     @RequestParam(value = "procReleaseKey", required = false) String procReleaseKey,
     @RequestParam(value = "procReleaseId", required = false) String procReleaseId,
     @RequestParam(value = "status", required = false) String status,
+    @RequestParam(value = "searchTerms", required = false) String searchTerms,
+    @RequestParam(value = "appicationBase", required = false) String appicationBase,
     @RequestParam(value = "page", required = false) Integer page,
     @RequestParam(value = "size", required = false) Integer size)
   {
 
       LOGGER.debug("Operation started");
 
-      final var query = new ListProcessInstancesQuery(number, procReleaseKey, procReleaseId, status, page, size);
+      final var query = new ListProcessInstancesQuery(number, procReleaseKey, procReleaseId, status, searchTerms, appicationBase, page, size);
 
       ResponseEntity<ProcessInstanceListaPageDTO> response = queryBus.handle(query);
 
@@ -152,6 +156,43 @@ public class ProcessInstanceController {
       final var query = new GetProcessInstanceByIdQuery(id);
 
       ResponseEntity<ProcessInstanceDTO> response = queryBus.handle(query);
+
+      LOGGER.debug("Operation finished");
+
+      return ResponseEntity.status(response.getStatusCode())
+              .headers(response.getHeaders())
+              .body(response.getBody());
+  }
+
+  @GetMapping(
+    value = "status"
+  )
+  @Operation(
+    summary = "GET method to handle operations for listProcessInstanceStatus",
+    description = "GET method to handle operations for listProcessInstanceStatus",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          description = "List of process instance status",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = ConfigParameterDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<List<ConfigParameterDTO>> listProcessInstanceStatus(
+    )
+  {
+
+      LOGGER.debug("Operation started");
+
+      final var query = new ListProcessInstanceStatusQuery();
+
+      ResponseEntity<List<ConfigParameterDTO>> response = queryBus.handle(query);
 
       LOGGER.debug("Operation finished");
 

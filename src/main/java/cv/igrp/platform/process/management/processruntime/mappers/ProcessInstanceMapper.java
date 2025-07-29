@@ -63,7 +63,7 @@ public class ProcessInstanceMapper {
     return ProcessInstance.builder()
         .procReleaseId(Code.create(startProcessRequestDTO.getProcessDefinitionId()))
         .procReleaseKey(Code.create(startProcessRequestDTO.getProcessKey()))
-        .businessKey(Code.create(startProcessRequestDTO.getBusinessKey()))
+        .businessKey(startProcessRequestDTO.getBusinessKey() != null ? Code.create(startProcessRequestDTO.getBusinessKey()) : null)
         .variables(vars)
         .build();
   }

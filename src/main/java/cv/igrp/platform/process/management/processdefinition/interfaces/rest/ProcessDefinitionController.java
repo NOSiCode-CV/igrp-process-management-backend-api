@@ -19,10 +19,12 @@ import org.slf4j.LoggerFactory;
 import cv.igrp.framework.core.domain.CommandBus;
 import cv.igrp.framework.core.domain.QueryBus;
 import cv.igrp.platform.process.management.processdefinition.application.commands.*;
+import cv.igrp.platform.process.management.processdefinition.application.queries.*;
 
 
 import cv.igrp.platform.process.management.processdefinition.application.dto.ProcessDeploymentRequestDTO;
 import cv.igrp.platform.process.management.processdefinition.application.dto.ProcessDeploymentDTO;
+import cv.igrp.platform.process.management.processdefinition.application.dto.ProcessDeploymentListPageDTO;
 
 @IgrpController
 @RestController
@@ -32,11 +34,11 @@ public class ProcessDefinitionController {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ProcessDefinitionController.class);
 
-
+  
   private final CommandBus commandBus;
   private final QueryBus queryBus;
 
-
+  
   public ProcessDefinitionController(
     CommandBus commandBus, QueryBus queryBus
   ) {
@@ -63,7 +65,7 @@ public class ProcessDefinitionController {
       )
     }
   )
-
+  
   public ResponseEntity<ProcessDeploymentDTO> deployProcess(@Valid @RequestBody ProcessDeploymentRequestDTO deployProcessRequest
     )
   {
@@ -100,7 +102,7 @@ public class ProcessDefinitionController {
       )
     }
   )
-
+  
   public ResponseEntity<String> undeployProcess(
     @PathVariable(value = "deploymentId") String deploymentId)
   {
@@ -114,6 +116,42 @@ public class ProcessDefinitionController {
        LOGGER.debug("Operation finished");
 
         return ResponseEntity.status(response.getStatusCode())
+              .headers(response.getHeaders())
+              .body(response.getBody());
+  }
+
+  @GetMapping(
+  )
+  @Operation(
+    summary = "GET method to handle operations for listDeployments",
+    description = "GET method to handle operations for listDeployments",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          description = "List of deployments",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = ProcessDeploymentListPageDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<ProcessDeploymentListPageDTO> listDeployments(
+    )
+  {
+
+      LOGGER.debug("Operation started");
+
+      final var query = new ListDeploymentsQuery();
+
+      ResponseEntity<ProcessDeploymentListPageDTO> response = queryBus.handle(query);
+
+      LOGGER.debug("Operation finished");
+
+      return ResponseEntity.status(response.getStatusCode())
               .headers(response.getHeaders())
               .body(response.getBody());
   }
