@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cv.igrp.platform.process.management.area.application.dto.AreaDTO;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -30,6 +31,7 @@ public class UpdateAreaCommandHandler implements CommandHandler<UpdateAreaComman
   }
 
   @IgrpCommandHandler
+  @Transactional
   public ResponseEntity<AreaDTO> handle(UpdateAreaCommand command) {
     AreaRequestDTO areaRequestDTO = command.getArearequestdto();
     Area area = areaService.updateArea(

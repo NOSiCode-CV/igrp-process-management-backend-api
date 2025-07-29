@@ -52,6 +52,10 @@ public class AreaEntity extends AuditEntity {
     private String name;
 
   
+    @Column(name="description")
+    private String description;
+
+  
 
 
   @ManyToOne(fetch = FetchType.LAZY)

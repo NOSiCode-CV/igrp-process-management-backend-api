@@ -60,5 +60,8 @@ public class AreaDTO  {
   
   
   private String updatedBy ;
+  
+  
+  private String description ;
 
 }

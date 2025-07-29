@@ -19,6 +19,7 @@ public class Area {
   private Code code;
   private Name name;
   private Code applicationBase;
+  private String description;
   private Identifier areaId;
   private Status status;
 
@@ -34,6 +35,7 @@ public class Area {
               Code code,
               Name name,
               Code applicationBase,
+              String description,
               Identifier areaId,
               Status status,
               List<AreaProcess> projects,
@@ -45,7 +47,7 @@ public class Area {
     this.code = Objects.requireNonNull(code, "The code of the area must not be null");
     this.name = name;
     this.applicationBase = Objects.requireNonNull(applicationBase, "The application code must not be null");
-    ;
+    this.description = description;
     this.areaId = areaId;
     this.status = status == null ? Status.ACTIVE : status;
     this.process = projects == null ? new ArrayList<>() : projects;
@@ -78,9 +80,9 @@ public class Area {
     this.code = newArea.getCode();
     this.name = newArea.getName();
     this.applicationBase = newArea.getApplicationBase();
-    if(newArea.getAreaId() != null) {
-      this.areaId = newArea.getAreaId();
-    }
+    this.areaId = newArea.getAreaId() != null ? newArea.getAreaId() : this.areaId;
+    this.description = newArea.getDescription() != null && !newArea.getDescription().isBlank()
+        ? newArea.getDescription() : this.description;
   }
 
 }

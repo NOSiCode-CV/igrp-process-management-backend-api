@@ -19,12 +19,15 @@ import java.util.UUID;
 @IgrpDTO
 public class AreaRequestDTO  {
 
-  @NotBlank(message = "The field <name> is required")
-  
-  private String name ;
   @NotBlank(message = "The field <code> is required")
   
   private String code ;
+  @NotBlank(message = "The field <name> is required")
+  
+  private String name ;
+  
+  
+  private String description ;
   @NotBlank(message = "The field <applicationBase> is required")
   
   private String applicationBase ;

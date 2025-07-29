@@ -30,6 +30,7 @@ public class AreaMapper {
           .name(Name.create(areaRequestDTO.getName()))
           .applicationBase(Code.create(areaRequestDTO.getApplicationBase()))
           .areaId(areaRequestDTO.getParentId() != null ? Identifier.create(areaRequestDTO.getParentId()) : null)
+          .description(areaRequestDTO.getDescription())
           .build();
     }
 
@@ -37,6 +38,7 @@ public class AreaMapper {
       AreaDTO areaDTO = new AreaDTO();
       areaDTO.setId(area.getId().getValue());
       areaDTO.setName(area.getName().getValue());
+      areaDTO.setDescription(area.getDescription());
       areaDTO.setApplicationBase(area.getApplicationBase().getValue());
       areaDTO.setCode(area.getCode().getValue());
       areaDTO.setStatus(area.getStatus());
@@ -61,6 +63,7 @@ public class AreaMapper {
       areaEntity.setApplicationBase(area.getApplicationBase().getValue());
       areaEntity.setCode(area.getCode().getValue());
       areaEntity.setStatus(area.getStatus());
+      areaEntity.setDescription(area.getDescription());
       if(area.getAreaId() != null) {
         AreaEntity parent = new AreaEntity();
         parent.setId(area.getAreaId().getValue());
