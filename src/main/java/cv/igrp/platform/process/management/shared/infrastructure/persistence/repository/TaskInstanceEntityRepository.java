@@ -6,11 +6,13 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.history.RevisionRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.UUID;
+
 @Repository
 public interface TaskInstanceEntityRepository extends
-    JpaRepository<TaskInstanceEntity, Integer>,
+    JpaRepository<TaskInstanceEntity, UUID>,
     JpaSpecificationExecutor<TaskInstanceEntity>,
-    RevisionRepository<TaskInstanceEntity, Integer, Integer>
+    RevisionRepository<TaskInstanceEntity, UUID, Integer>
 {
 
 }

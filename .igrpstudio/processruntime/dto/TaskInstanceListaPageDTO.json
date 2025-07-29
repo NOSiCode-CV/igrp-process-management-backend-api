@@ -12,7 +12,7 @@
     {
       "name": "content",
       "objectType": "dto",
-      "type": "TaskInstanceDTO",
+      "type": "TaskInstanceListDTO",
       "required": false,
       "before": false,
       "after": false,

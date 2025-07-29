@@ -4,26 +4,25 @@
 package cv.igrp.platform.process.management.processruntime.application.dto;
 
 import cv.igrp.framework.stereotype.IgrpDTO;
-import jakarta.validation.*;
-import jakarta.validation.constraints.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceDTO;
 import cv.igrp.platform.process.management.shared.application.dto.PageDTO;
+import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
 import java.util.ArrayList;
 import java.util.List;
-import lombok.EqualsAndHashCode;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 
 @EqualsAndHashCode(callSuper = true)
 @IgrpDTO
-public class TaskInstanceListaPageDTO extends PageDTO {
+public class TaskInstanceListaPageDTO extends PageDTO{
 
-  
+
   @Valid
-  private List<TaskInstanceDTO> content = new ArrayList<>();
+  private List<TaskInstanceListDTO> content = new ArrayList<>();
 
 }

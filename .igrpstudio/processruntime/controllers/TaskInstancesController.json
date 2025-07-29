@@ -28,9 +28,15 @@
       "requestParams": [
         {
           "type": "string",
-          "name": "processId",
-          "description": "ID of the process instance",
+          "name": "processNumber",
+          "description": "Process Number",
           "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "processKey",
+          "description": "Process Definition Key",
+          "isRequired": true
         },
         {
           "type": "string",
@@ -43,6 +49,26 @@
           "name": "status",
           "description": "Status of the task instance",
           "isRequired": false
+        },
+        {
+          "type": "integer",
+          "name": "page",
+          "isRequired": false
+        },
+        {
+          "type": "integer",
+          "name": "size",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "dateFrom",
+          "isRequired": true
+        },
+        {
+          "type": "string",
+          "name": "dateTo",
+          "isRequired": true
         }
       ]
     },
@@ -240,6 +266,28 @@
           "description": "ID of the Task Instance"
         }
       ]
+    },
+    {
+      "actionName": "getAllMyTasks",
+      "path": "me",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "description": "List All My Tasks",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TaskInstanceListaPageDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "processruntime"
+              }
+            }
+          }
+        }
+      }
     }
   ],
   "id": "s7o1wob8tj-CONTROLLER"

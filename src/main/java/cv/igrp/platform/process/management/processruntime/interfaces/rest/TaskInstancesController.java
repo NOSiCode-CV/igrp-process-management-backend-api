@@ -10,6 +10,7 @@ import cv.igrp.platform.process.management.processruntime.application.commands.*
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceHistoryDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceListaPageDTO;
+import cv.igrp.platform.process.management.processruntime.application.queries.GetAllMyTasksQuery;
 import cv.igrp.platform.process.management.processruntime.application.queries.GetTaskHistoryQuery;
 import cv.igrp.platform.process.management.processruntime.application.queries.GetTaskInstanceByIdQuery;
 import cv.igrp.platform.process.management.processruntime.application.queries.ListTaskInstancesQuery;
@@ -65,14 +66,19 @@ public class TaskInstancesController {
   )
 
   public ResponseEntity<TaskInstanceListaPageDTO> listTaskInstances(
-    @RequestParam(value = "processId", required = false) String processId,
+    @RequestParam(value = "processNumber", required = false) String processNumber,
+    @RequestParam(value = "processKey") String processKey,
     @RequestParam(value = "user", required = false) String user,
-    @RequestParam(value = "status", required = false) String status)
+    @RequestParam(value = "status", required = false) String status,
+    @RequestParam(value = "page", required = false) Integer page,
+    @RequestParam(value = "size", required = false) Integer size,
+    @RequestParam(value = "dateFrom") String dateFrom,
+    @RequestParam(value = "dateTo") String dateTo)
   {
 
       LOGGER.debug("Operation started");
 
-      final var query = new ListTaskInstancesQuery(processId, user, status);
+      final var query = new ListTaskInstancesQuery(processNumber, processKey, user, status, page, size, dateFrom, dateTo);
 
       ResponseEntity<TaskInstanceListaPageDTO> response = queryBus.handle(query);
 
@@ -334,6 +340,43 @@ public class TaskInstancesController {
       final var query = new GetTaskHistoryQuery(id);
 
       ResponseEntity<List<TaskInstanceHistoryDTO>> response = queryBus.handle(query);
+
+      LOGGER.debug("Operation finished");
+
+      return ResponseEntity.status(response.getStatusCode())
+              .headers(response.getHeaders())
+              .body(response.getBody());
+  }
+
+  @GetMapping(
+    value = "me"
+  )
+  @Operation(
+    summary = "GET method to handle operations for getAllMyTasks",
+    description = "GET method to handle operations for getAllMyTasks",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          description = "List All My Tasks",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = TaskInstanceListaPageDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+
+  public ResponseEntity<TaskInstanceListaPageDTO> getAllMyTasks(
+    )
+  {
+
+      LOGGER.debug("Operation started");
+
+      final var query = new GetAllMyTasksQuery();
+
+      ResponseEntity<TaskInstanceListaPageDTO> response = queryBus.handle(query);
 
       LOGGER.debug("Operation finished");
 
