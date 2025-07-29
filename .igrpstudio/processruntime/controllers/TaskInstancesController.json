@@ -36,7 +36,7 @@
           "type": "string",
           "name": "processKey",
           "description": "Process Definition Key",
-          "isRequired": true
+          "isRequired": false
         },
         {
           "type": "string",
@@ -51,6 +51,16 @@
           "isRequired": false
         },
         {
+          "type": "string",
+          "name": "dateFrom",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "dateTo",
+          "isRequired": false
+        },
+        {
           "type": "integer",
           "name": "page",
           "isRequired": false
@@ -59,16 +69,6 @@
           "type": "integer",
           "name": "size",
           "isRequired": false
-        },
-        {
-          "type": "string",
-          "name": "dateFrom",
-          "isRequired": true
-        },
-        {
-          "type": "string",
-          "name": "dateTo",
-          "isRequired": true
         }
       ]
     },
@@ -287,7 +287,47 @@
             }
           }
         }
-      }
+      },
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "processNumber",
+          "isRequired": false,
+          "description": "Process Number"
+        },
+        {
+          "type": "string",
+          "name": "processKey",
+          "isRequired": false,
+          "description": "Process Definition Key"
+        },
+        {
+          "type": "string",
+          "name": "status",
+          "isRequired": false,
+          "description": "Status of the task instance"
+        },
+        {
+          "type": "string",
+          "name": "dateFrom",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "dateTo",
+          "isRequired": false
+        },
+        {
+          "type": "integer",
+          "name": "page",
+          "isRequired": false
+        },
+        {
+          "type": "integer",
+          "name": "size",
+          "isRequired": false
+        }
+      ]
     }
   ],
   "id": "s7o1wob8tj-CONTROLLER"

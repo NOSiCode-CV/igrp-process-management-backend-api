@@ -5,14 +5,11 @@ package cv.igrp.platform.process.management.processruntime.application.dto;
 
 import cv.igrp.framework.stereotype.IgrpDTO;
 import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
-import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -21,38 +18,17 @@ import java.util.UUID;
 
 
 @IgrpDTO
-public class TaskInstanceDTO {
+public class TaskInstanceEventListDTO {
 
 
 
   private UUID id ;
 
 
-  private UUID processInstanceId ;
+  private UUID taskInstanceId ;
 
 
-  private String processType ;
-
-
-  private String processNumber ;
-
-
-  private String taskKey ;
-
-
-  private String name ;
-
-
-  private String externalId ;
-
-
-  private String applicationBase ;
-
-
-  private String user ;
-
-
-  private String searchTerms ;
+  private String eventType ;
 
 
   private LocalDateTime startedAt ;
@@ -61,9 +37,18 @@ public class TaskInstanceDTO {
   private String startedBy ;
 
 
-  private TaskInstanceStatus status ;
+  private String startObs ;
 
-  @Valid
-  private List<TaskInstanceEventListDTO> taskInstanceEvents = new ArrayList<>();
+
+  private LocalDateTime endedAt ;
+
+
+  private String endedBy ;
+
+
+  private String endObs ;
+
+
+  private TaskInstanceStatus status ;
 
 }

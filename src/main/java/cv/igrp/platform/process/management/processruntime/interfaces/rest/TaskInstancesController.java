@@ -67,18 +67,18 @@ public class TaskInstancesController {
 
   public ResponseEntity<TaskInstanceListaPageDTO> listTaskInstances(
     @RequestParam(value = "processNumber", required = false) String processNumber,
-    @RequestParam(value = "processKey") String processKey,
+    @RequestParam(value = "processKey", required = false) String processKey,
     @RequestParam(value = "user", required = false) String user,
     @RequestParam(value = "status", required = false) String status,
+    @RequestParam(value = "dateFrom", required = false) String dateFrom,
+    @RequestParam(value = "dateTo", required = false) String dateTo,
     @RequestParam(value = "page", required = false) Integer page,
-    @RequestParam(value = "size", required = false) Integer size,
-    @RequestParam(value = "dateFrom") String dateFrom,
-    @RequestParam(value = "dateTo") String dateTo)
+    @RequestParam(value = "size", required = false) Integer size)
   {
 
       LOGGER.debug("Operation started");
 
-      final var query = new ListTaskInstancesQuery(processNumber, processKey, user, status, page, size, dateFrom, dateTo);
+      final var query = new ListTaskInstancesQuery(processNumber, processKey, user, status, dateFrom, dateTo, page, size);
 
       ResponseEntity<TaskInstanceListaPageDTO> response = queryBus.handle(query);
 
@@ -369,12 +369,18 @@ public class TaskInstancesController {
   )
 
   public ResponseEntity<TaskInstanceListaPageDTO> getAllMyTasks(
-    )
+    @RequestParam(value = "processNumber", required = false) String processNumber,
+    @RequestParam(value = "processKey", required = false) String processKey,
+    @RequestParam(value = "status", required = false) String status,
+    @RequestParam(value = "dateFrom", required = false) String dateFrom,
+    @RequestParam(value = "dateTo", required = false) String dateTo,
+    @RequestParam(value = "page", required = false) Integer page,
+    @RequestParam(value = "size", required = false) Integer size)
   {
 
       LOGGER.debug("Operation started");
 
-      final var query = new GetAllMyTasksQuery();
+      final var query = new GetAllMyTasksQuery(processNumber, processKey, status, dateFrom, dateTo, page, size);
 
       ResponseEntity<TaskInstanceListaPageDTO> response = queryBus.handle(query);
 

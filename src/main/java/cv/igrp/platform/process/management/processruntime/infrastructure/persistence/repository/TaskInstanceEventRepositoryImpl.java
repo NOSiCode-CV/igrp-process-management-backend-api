@@ -4,7 +4,6 @@ import cv.igrp.platform.process.management.processruntime.domain.models.TaskInst
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceFilter;
 import cv.igrp.platform.process.management.processruntime.domain.repository.TaskInstanceEventRepository;
 import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
-import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.TaskInstanceEntity;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.repository.TaskInstanceEventEntityRepository;
 import org.springframework.stereotype.Repository;
 
@@ -24,15 +23,6 @@ public class TaskInstanceEventRepositoryImpl implements TaskInstanceEventReposit
     this.taskMapper = taskMapper;
   }
 
-  @Override
-  public TaskInstanceEvent save(TaskInstanceEntity taskInstanceEntity,
-                                TaskInstanceEvent taskInstanceEvent) {
-    var taskInstanceEventEntity = taskMapper.toEventEntity(
-        taskInstanceEvent,taskInstanceEntity);
-    return taskMapper.toEventModel(
-        taskInstanceEventEntityRepository.save(taskInstanceEventEntity));
-  }
-
 
   @Override
   public Optional<TaskInstanceEvent> findById(UUID id) {
@@ -42,7 +32,7 @@ public class TaskInstanceEventRepositoryImpl implements TaskInstanceEventReposit
 
   @Override
   public List<TaskInstanceEvent> findAll(TaskInstanceFilter filter) {
-    return null; // todo
+    throw new IllegalStateException("to be implemented"); // todo
   }
 
 

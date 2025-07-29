@@ -9,6 +9,7 @@ import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponse
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 @Service
@@ -28,6 +29,18 @@ public class TaskInstanceService {
   }
 
 
+  public TaskInstance create(TaskInstance model) {
+
+    var taskInstanceEntity = taskInstanceRepository.create(model);
+
+
+    var taskInstanceEventEntity = taskInstanceEventRepository.save(
+        taskInstanceEntity, model.getTaskInstanceEvents().getFirst());
+    taskInstanceEntity.addEvents(new ArrayList<>(taskInstanceEntity));
+    return taskInstanceEntity;
+  }
+
+
   public TaskInstance getTaskInstanceById(UUID id) {
     return taskInstanceRepository.findById(id)
         .orElseThrow(() -> IgrpResponseStatusException.notFound("No Task Instance found with id: " + id));
@@ -40,11 +53,11 @@ public class TaskInstanceService {
 
 
   public PageableLista<TaskInstance> getAllMyTasks(TaskInstanceFilter filter) {
-    return null;
+    return taskInstanceRepository.findAll(filter);
   }
 
 
-  public PageableLista<TaskInstance> getAllTaskHistory(TaskInstanceFilter filter) {
+  public PageableLista<TaskInstance> getAllTaskHistory(UUID id) {
     return null;
   }
 

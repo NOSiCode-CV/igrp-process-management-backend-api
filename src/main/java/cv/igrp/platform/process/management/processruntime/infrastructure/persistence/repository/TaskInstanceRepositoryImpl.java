@@ -2,10 +2,10 @@ package cv.igrp.platform.process.management.processruntime.infrastructure.persis
 
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceFilter;
-import cv.igrp.platform.process.management.processruntime.domain.repository.TaskInstanceEventRepository;
 import cv.igrp.platform.process.management.processruntime.domain.repository.TaskInstanceRepository;
 import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
 import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
+import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.TaskInstanceEntity;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.repository.TaskInstanceEntityRepository;
@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
@@ -23,24 +24,18 @@ import java.util.UUID;
 public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
 
   private final TaskInstanceEntityRepository taskInstanceEntityRepository;
-  private final TaskInstanceEventRepository taskInstanceEventRepository;
   private final TaskInstanceMapper taskMapper;
 
   public TaskInstanceRepositoryImpl(TaskInstanceEntityRepository taskInstanceEntityRepository,
-                                    TaskInstanceEventRepository taskInstanceEventRepository,
                                     TaskInstanceMapper taskMapper) {
-      this.taskInstanceEntityRepository = taskInstanceEntityRepository;
-      this.taskInstanceEventRepository = taskInstanceEventRepository;
-      this.taskMapper = taskMapper;
+    this.taskInstanceEntityRepository = taskInstanceEntityRepository;
+    this.taskMapper = taskMapper;
   }
 
 
   @Override
-  public TaskInstance save(TaskInstance taskInstance) {
-    var taskInstanceEntity = taskInstanceEntityRepository.save(taskMapper.toEntity(taskInstance));
-    var taskInstanceEvent = taskInstanceEventRepository.save(
-        taskInstanceEntity,taskInstance.getTaskInstanceEvents().getFirst());
-    return taskMapper.toModel(taskInstanceEntity);
+  public TaskInstance create(TaskInstance taskInstance) {
+    return taskMapper.toModel(taskInstanceEntityRepository.save(taskMapper.toNewTaskEntity(taskInstance)));
   }
 
 
@@ -115,13 +110,35 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
 
   @Override
   public Optional<TaskInstance> findById(UUID id) {
-      return taskInstanceEntityRepository.findById(id).map(taskMapper::toModel);
+      return taskInstanceEntityRepository.findById(id).map(taskMapper::toModelWithEvents);
   }
+
 
   @Override
   public void updateStatus(UUID id, TaskInstanceStatus newStatus) {
-    // todo
+      var taskInstanceEntity = taskInstanceEntityRepository.getReferenceById(id);
+      taskInstanceEntity.setStatus(newStatus);
+      taskInstanceEntityRepository.save(taskInstanceEntity);
   }
+
+
+  @Override
+  public void assigne(UUID id, Code user) {
+    var taskInstanceEntity = taskInstanceEntityRepository.getReferenceById(id);
+    taskInstanceEntity.setAssignedBy(user.getValue());
+    taskInstanceEntity.setAssignedAt(LocalDateTime.now());
+    taskInstanceEntityRepository.save(taskInstanceEntity);
+  }
+
+
+  @Override
+  public void release(UUID id) {
+    var taskInstanceEntity = taskInstanceEntityRepository.getReferenceById(id);
+    taskInstanceEntity.setAssignedBy(null);
+    taskInstanceEntity.setAssignedAt(null);
+    taskInstanceEntityRepository.save(taskInstanceEntity);
+  }
+
 
 }
 

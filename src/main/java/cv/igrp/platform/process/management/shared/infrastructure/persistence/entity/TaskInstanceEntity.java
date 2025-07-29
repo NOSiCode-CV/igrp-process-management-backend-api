@@ -7,6 +7,7 @@ import cv.igrp.framework.stereotype.IgrpEntity;
 import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
 import cv.igrp.platform.process.management.shared.config.AuditEntity;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.envers.Audited;
@@ -41,8 +42,8 @@ public class TaskInstanceEntity extends AuditEntity {
     private String taskKey;
 
 
-    @Column(name="task_key_desc", length=100)
-    private String taskKeyDesc;
+    @Column(name="name", length=100)
+    private String name;
 
 
     @Column(name="external_id")
@@ -57,13 +58,22 @@ public class TaskInstanceEntity extends AuditEntity {
     private String startedBy;
 
 
+    @Column(name="assigned_by", length=100)
+    private String assignedBy;
+
+
+    @Column(name="assigned_at")
+    private LocalDateTime assignedAt;
+
+
     @NotNull(message = "status is mandatory")
     @Enumerated(EnumType.STRING)
     @Column(name="status", nullable = false)
     private TaskInstanceStatus status;
 
 
-    @Column(name="application_base")
+    @NotBlank(message = "applicationBase is mandatory")
+    @Column(name="application_base", nullable = false)
     private String applicationBase;
 
 

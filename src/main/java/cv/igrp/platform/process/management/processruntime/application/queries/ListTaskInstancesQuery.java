@@ -21,13 +21,13 @@ public class ListTaskInstancesQuery implements Query {
   private String user;
   @NotBlank(message = "The field <status> is required.")
   private String status;
-  @NotNull(message = "The field <page> is required.")
-  private Integer page;
-  @NotNull(message = "The field <size> is required.")
-  private Integer size;
   @NotBlank(message = "The field <dateFrom> is required.")
   private String dateFrom;
   @NotBlank(message = "The field <dateTo> is required.")
   private String dateTo;
+  @NotNull(message = "The field <page> is required.")
+  private Integer page;
+  @NotNull(message = "The field <size> is required.")
+  private Integer size;
 
 }
