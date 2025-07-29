@@ -17,14 +17,13 @@ public class GetTaskInstanceByIdQueryHandler implements QueryHandler<GetTaskInst
 
   private static final Logger LOGGER = LoggerFactory.getLogger(GetTaskInstanceByIdQueryHandler.class);
 
-
   private final TaskInstanceService taskInstanceService;
   private final TaskInstanceMapper taskInstanceMapper;
 
   public GetTaskInstanceByIdQueryHandler(TaskInstanceService taskInstanceService,
-                                       TaskInstanceMapper taskInstanceMapper) {
+                                       TaskInstanceMapper taskMapper) {
     this.taskInstanceService = taskInstanceService;
-    this.taskInstanceMapper = taskInstanceMapper;
+    this.taskInstanceMapper = taskMapper;
   }
 
    @IgrpQueryHandler

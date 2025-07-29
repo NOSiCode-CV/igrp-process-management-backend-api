@@ -2,11 +2,14 @@ package cv.igrp.platform.process.management.processruntime.application.commands;
 
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
+import cv.igrp.platform.process.management.processruntime.domain.service.TaskInstanceService;
+import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 
+import java.util.UUID;
 
 
 @Component
@@ -14,14 +17,19 @@ public class UnAssignTaskCommandHandler implements CommandHandler<UnAssignTaskCo
 
    private static final Logger LOGGER = LoggerFactory.getLogger(UnAssignTaskCommandHandler.class);
 
-   public UnAssignTaskCommandHandler() {
+  private final TaskInstanceService taskInstanceService;
+  private final TaskInstanceMapper taskInstanceMapper;
 
-   }
+  public UnAssignTaskCommandHandler(TaskInstanceService taskInstanceService,
+                                   TaskInstanceMapper taskMapper) {
+    this.taskInstanceService = taskInstanceService;
+    this.taskInstanceMapper = taskMapper;
+  }
 
    @IgrpCommandHandler
    public ResponseEntity<String> handle(UnAssignTaskCommand command) {
-      // TODO: Implement the command handling logic here
-      return null;
+     final var taskInstance =  taskInstanceService.getUnAssignTaskById(UUID.fromString(command.getId()));
+     return ResponseEntity.ok(taskInstanceMapper.toTaskDTO(taskInstance));
    }
 
 }

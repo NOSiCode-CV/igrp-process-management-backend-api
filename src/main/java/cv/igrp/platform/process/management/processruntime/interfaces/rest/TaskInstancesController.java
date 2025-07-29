@@ -332,12 +332,13 @@ public class TaskInstancesController {
   )
 
   public ResponseEntity<List<TaskInstanceHistoryDTO>> getTaskHistory(
-    @PathVariable(value = "id") String id)
+    @RequestParam(value = "page") Integer page,
+    @RequestParam(value = "size") Integer size, @PathVariable(value = "id") String id)
   {
 
       LOGGER.debug("Operation started");
 
-      final var query = new GetTaskHistoryQuery(id);
+      final var query = new GetTaskHistoryQuery(page, size, id);
 
       ResponseEntity<List<TaskInstanceHistoryDTO>> response = queryBus.handle(query);
 

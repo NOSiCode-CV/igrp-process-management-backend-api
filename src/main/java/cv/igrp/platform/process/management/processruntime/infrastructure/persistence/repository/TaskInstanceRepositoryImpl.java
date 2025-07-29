@@ -5,6 +5,7 @@ import cv.igrp.platform.process.management.processruntime.domain.models.TaskInst
 import cv.igrp.platform.process.management.processruntime.domain.repository.TaskInstanceRepository;
 import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
 import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
+import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.TaskInstanceEntity;
@@ -30,6 +31,12 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
                                     TaskInstanceMapper taskMapper) {
     this.taskInstanceEntityRepository = taskInstanceEntityRepository;
     this.taskMapper = taskMapper;
+  }
+
+
+  public TaskInstanceEntity getTaskInstanceByID(UUID id){
+    return taskInstanceEntityRepository.findById(id)
+        .orElseThrow(()-> IgrpResponseStatusException.notFound("No TaskInstance fount for id["+ id +"]"));
   }
 
 
@@ -116,25 +123,27 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
 
   @Override
   public void updateStatus(UUID id, TaskInstanceStatus newStatus) {
-      var taskInstanceEntity = taskInstanceEntityRepository.getReferenceById(id);
+      var taskInstanceEntity = getTaskInstanceByID(id);
       taskInstanceEntity.setStatus(newStatus);
       taskInstanceEntityRepository.save(taskInstanceEntity);
   }
 
 
   @Override
-  public void assigne(UUID id, Code user) {
-    var taskInstanceEntity = taskInstanceEntityRepository.getReferenceById(id);
+  public void assigneTask(UUID id, Code user, TaskInstanceStatus status, LocalDateTime date) {
+    var taskInstanceEntity = getTaskInstanceByID(id);
     taskInstanceEntity.setAssignedBy(user.getValue());
-    taskInstanceEntity.setAssignedAt(LocalDateTime.now());
+    taskInstanceEntity.setStatus(status);
+    taskInstanceEntity.setAssignedAt(date);
     taskInstanceEntityRepository.save(taskInstanceEntity);
   }
 
 
   @Override
-  public void release(UUID id) {
-    var taskInstanceEntity = taskInstanceEntityRepository.getReferenceById(id);
+  public void releaseTask(UUID id, TaskInstanceStatus status) {
+    var taskInstanceEntity = getTaskInstanceByID(id);
     taskInstanceEntity.setAssignedBy(null);
+    taskInstanceEntity.setStatus(status);
     taskInstanceEntity.setAssignedAt(null);
     taskInstanceEntityRepository.save(taskInstanceEntity);
   }

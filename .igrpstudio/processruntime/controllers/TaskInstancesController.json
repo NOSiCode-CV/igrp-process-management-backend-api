@@ -258,6 +258,18 @@
           }
         }
       },
+      "requestParams": [
+        {
+          "type": "integer",
+          "name": "page",
+          "isRequired": true
+        },
+        {
+          "type": "integer",
+          "name": "size",
+          "isRequired": true
+        }
+      ],
       "pathVariables": [
         {
           "name": "id",

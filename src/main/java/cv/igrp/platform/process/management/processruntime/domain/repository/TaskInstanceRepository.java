@@ -6,6 +6,7 @@ import cv.igrp.platform.process.management.shared.application.constants.TaskInst
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -19,8 +20,8 @@ public interface TaskInstanceRepository {
 
   void updateStatus(UUID id, TaskInstanceStatus newStatus);
 
-  void assigne(UUID id, Code user);
+  void assigneTask(UUID id, Code user, TaskInstanceStatus status, LocalDateTime date);
 
-  void release(UUID id);
+  void releaseTask(UUID id, TaskInstanceStatus status);
 
 }

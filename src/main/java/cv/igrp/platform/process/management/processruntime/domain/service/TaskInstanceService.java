@@ -39,6 +39,12 @@ public class TaskInstanceService {
   }
 
 
+  public TaskInstance getUnClaimTaskById(UUID id) {
+    return taskInstanceRepository.findById(id)
+        .orElseThrow(() -> IgrpResponseStatusException.notFound("No Task Instance found with id: " + id));
+  }
+
+
   public PageableLista<TaskInstance> getAllTaskInstances(TaskInstanceFilter filter) {
     return taskInstanceRepository.findAll(filter);
   }
@@ -55,6 +61,6 @@ public class TaskInstanceService {
 
 
   public TaskInstance updateTaskUser(UUID id, String user) {
-    return null;
+    var taskInstance = taskInstanceRepository.findById(id);
   }
 }
