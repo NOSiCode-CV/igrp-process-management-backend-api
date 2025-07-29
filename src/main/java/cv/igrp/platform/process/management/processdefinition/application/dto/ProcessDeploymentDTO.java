@@ -56,5 +56,8 @@ public class ProcessDeploymentDTO  {
   
   
   private LocalDateTime deployedAt ;
+  
+  
+  private String applicationBase ;
 
 }

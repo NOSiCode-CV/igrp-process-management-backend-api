@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import cv.igrp.platform.process.management.processdefinition.application.dto.ProcessDeploymentListDTO;
 import cv.igrp.platform.process.management.shared.application.dto.PageDTO;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.EqualsAndHashCode;
 @Data
 @NoArgsConstructor
@@ -22,6 +24,6 @@ public class ProcessDeploymentListPageDTO extends PageDTO {
 
   
   @Valid
-  private ProcessDeploymentListDTO content ;
+  private List<ProcessDeploymentListDTO> content = new ArrayList<>();
 
 }

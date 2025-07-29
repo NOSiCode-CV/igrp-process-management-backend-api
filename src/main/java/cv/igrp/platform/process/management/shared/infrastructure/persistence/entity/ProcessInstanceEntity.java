@@ -42,7 +42,8 @@ public class ProcessInstanceEntity extends AuditEntity {
     private String procReleaseKey;
 
   
-    @Column(name="proc_release_id")
+    @NotBlank(message = "procReleaseId is mandatory")
+    @Column(name="proc_release_id", nullable = false)
     private String procReleaseId;
 
   
@@ -95,7 +96,8 @@ public class ProcessInstanceEntity extends AuditEntity {
     private String searchTerms;
 
   
-    @Column(name="application_base")
+    @NotBlank(message = "applicationBase is mandatory")
+    @Column(name="application_base", nullable = false)
     private String applicationBase;
 
   

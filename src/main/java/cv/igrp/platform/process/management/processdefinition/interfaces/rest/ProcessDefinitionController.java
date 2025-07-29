@@ -140,12 +140,12 @@ public class ProcessDefinitionController {
   )
   
   public ResponseEntity<ProcessDeploymentListPageDTO> listDeployments(
-    )
+    @RequestParam(value = "applicationBase", required = false) String applicationBase)
   {
 
       LOGGER.debug("Operation started");
 
-      final var query = new ListDeploymentsQuery();
+      final var query = new ListDeploymentsQuery(applicationBase);
 
       ResponseEntity<ProcessDeploymentListPageDTO> response = queryBus.handle(query);
 

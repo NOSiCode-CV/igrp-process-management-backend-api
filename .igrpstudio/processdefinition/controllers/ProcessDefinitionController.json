@@ -86,7 +86,15 @@
             }
           }
         }
-      }
+      },
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "applicationBase",
+          "description": "Application Code",
+          "isRequired": false
+        }
+      ]
     }
   ],
   "id": "o9isd9wv95-CONTROLLER"

@@ -23,8 +23,8 @@ public class ListProcessInstancesQuery implements Query {
   private String status;
   @NotBlank(message = "The field <searchTerms> is required")
   private String searchTerms;
-  @NotBlank(message = "The field <appicationBase> is required")
-  private String appicationBase;
+  @NotBlank(message = "The field <applicationBase> is required")
+  private String applicationBase;
   @NotNull(message = "The field <page> is required")
   private Integer page;
   @NotNull(message = "The field <size> is required")

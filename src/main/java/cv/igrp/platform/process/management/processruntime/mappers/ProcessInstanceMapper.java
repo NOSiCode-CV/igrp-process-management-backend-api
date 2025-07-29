@@ -52,6 +52,7 @@ public class ProcessInstanceMapper {
         .endedBy(processInstanceEntity.getEndedBy())
         .canceledBy(processInstanceEntity.getCanceledBy())
         .obsCancel(processInstanceEntity.getObsCancel())
+        .applicationBase(Code.create(processInstanceEntity.getApplicationBase()))
         .build();
   }
 
@@ -64,6 +65,7 @@ public class ProcessInstanceMapper {
         .procReleaseId(Code.create(startProcessRequestDTO.getProcessDefinitionId()))
         .procReleaseKey(Code.create(startProcessRequestDTO.getProcessKey()))
         .businessKey(startProcessRequestDTO.getBusinessKey() != null ? Code.create(startProcessRequestDTO.getBusinessKey()) : null)
+        .applicationBase(Code.create(startProcessRequestDTO.getApplicationBase()))
         .variables(vars)
         .build();
   }
@@ -84,7 +86,8 @@ public class ProcessInstanceMapper {
     processInstanceDTO.setEndedAt(processInstance.getEndedAt());
     processInstanceDTO.setEndedBy(processInstance.getEndedBy());
     processInstanceDTO.setObsCancel(processInstance.getObsCancel());
-    processInstanceDTO.setBusinessKey(processInstance.getBusinessKey().getValue());
+    processInstanceDTO.setApplicationBase(processInstance.getApplicationBase().getValue());
+    processInstanceDTO.setBusinessKey(processInstance.getBusinessKey() != null ? processInstance.getBusinessKey().getValue() : null);
     return processInstanceDTO;
   }
 

@@ -14,6 +14,7 @@ public class ProcessInstanceFilter {
   private final Code procReleaseId;
   private final ProcessInstanceStatus status;
   private final String searchTerms;
+  private final Code applicationBase;
   private final Integer page;
   private final Integer size;
 
@@ -23,6 +24,7 @@ public class ProcessInstanceFilter {
                                Code procReleaseId,
                                ProcessInstanceStatus status,
                                String searchTerms,
+                               Code applicationBase,
                                Integer page,
                                Integer size) {
     this.number = number;
@@ -30,6 +32,7 @@ public class ProcessInstanceFilter {
     this.procReleaseId = procReleaseId;
     this.status = status;
     this.searchTerms = searchTerms;
+    this.applicationBase = applicationBase;
     this.page = page == null ? 0 : page;
     this.size = size == null ? 50 : size;
   }

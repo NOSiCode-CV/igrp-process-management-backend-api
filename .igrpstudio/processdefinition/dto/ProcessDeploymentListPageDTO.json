@@ -20,7 +20,8 @@
       "isEmail": false,
       "isUrl": false,
       "primaryKey": false,
-      "module": "processdefinition"
+      "module": "processdefinition",
+      "collectionType": "list"
     }
   ],
   "id": "f2fh7a32tq"

@@ -58,7 +58,7 @@
         },
         {
           "type": "string",
-          "name": "appicationBase",
+          "name": "applicationBase",
           "description": "Application Code",
           "isRequired": false
         },

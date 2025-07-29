@@ -34,5 +34,8 @@ public class ProcessDeploymentListDTO  {
   
   
   private String version ;
+  
+  
+  private String applicationBase ;
 
 }

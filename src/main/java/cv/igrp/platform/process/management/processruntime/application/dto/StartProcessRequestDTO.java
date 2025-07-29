@@ -30,6 +30,9 @@ public class StartProcessRequestDTO  {
   
   
   private String businessKey ;
+  @NotBlank(message = "The field <applicationBase> is required")
+  
+  private String applicationBase ;
   
   @Valid
   private List<ProcessVariableDTO> variables = new ArrayList<>();

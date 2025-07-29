@@ -19,6 +19,7 @@ public class ProcessInstance {
   private final Code procReleaseId;
   private Code number;
   private Code businessKey;
+  private Code applicationBase;
   private String version;
   private String searchTerms;
   private LocalDateTime startedAt;
@@ -38,6 +39,7 @@ public class ProcessInstance {
                          Code procReleaseId,
                          Code number,
                          Code businessKey,
+                         Code applicationBase,
                          String version,
                          String searchTerms,
                          LocalDateTime startedAt,
@@ -51,9 +53,10 @@ public class ProcessInstance {
                          Map<String, Object> variables) {
     this.id = id == null ? Identifier.generate() : id;
     this.procReleaseKey = Objects.requireNonNull(procReleaseKey, "Process release key cannot be null");
-    this.procReleaseId = Objects.requireNonNull(procReleaseId, "Process release id cannot be null");;
+    this.procReleaseId = Objects.requireNonNull(procReleaseId, "Process release id cannot be null");
     this.number = number;
     this.businessKey = businessKey;
+    this.applicationBase = Objects.requireNonNull(applicationBase, "Application base cannot be null");;
     this.version = version;
     this.searchTerms = searchTerms;
     this.startedAt = startedAt;

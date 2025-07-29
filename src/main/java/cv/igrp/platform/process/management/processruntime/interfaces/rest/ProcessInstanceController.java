@@ -73,14 +73,14 @@ public class ProcessInstanceController {
     @RequestParam(value = "procReleaseId", required = false) String procReleaseId,
     @RequestParam(value = "status", required = false) String status,
     @RequestParam(value = "searchTerms", required = false) String searchTerms,
-    @RequestParam(value = "appicationBase", required = false) String appicationBase,
+    @RequestParam(value = "applicationBase", required = false) String applicationBase,
     @RequestParam(value = "page", required = false) Integer page,
     @RequestParam(value = "size", required = false) Integer size)
   {
 
       LOGGER.debug("Operation started");
 
-      final var query = new ListProcessInstancesQuery(number, procReleaseKey, procReleaseId, status, searchTerms, appicationBase, page, size);
+      final var query = new ListProcessInstancesQuery(number, procReleaseKey, procReleaseId, status, searchTerms, applicationBase, page, size);
 
       ResponseEntity<ProcessInstanceListaPageDTO> response = queryBus.handle(query);
 

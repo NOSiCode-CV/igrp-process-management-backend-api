@@ -66,5 +66,8 @@ public class ProcessInstanceDTO  {
   
   
   private String obsCancel ;
+  
+  
+  private String applicationBase ;
 
 }

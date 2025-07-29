@@ -42,6 +42,18 @@
       "primaryKey": false
     },
     {
+      "name": "applicationBase",
+      "objectType": "java",
+      "type": "string",
+      "required": true,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    },
+    {
       "name": "variables",
       "objectType": "dto",
       "type": "ProcessVariableDTO",

@@ -2,6 +2,8 @@ package cv.igrp.platform.process.management.processdefinition.domain.service;
 
 import cv.igrp.platform.process.management.processdefinition.domain.models.ProcessDeployment;
 import cv.igrp.platform.process.management.processdefinition.domain.repository.ProcessDeploymentRepository;
+import cv.igrp.platform.process.management.shared.domain.models.Code;
+import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -14,7 +16,12 @@ public class ProcessDeploymentService {
   }
 
   public ProcessDeployment deployProcess(ProcessDeployment processDeployment){
+    processDeployment.deploy();
     return processDeploymentRepository.deploy(processDeployment);
+  }
+
+  public PageableLista<ProcessDeployment> getAllDeployments(Code applicationCode){
+    return processDeploymentRepository.findAll(applicationCode);
   }
 
   public void undeployProcess(String deploymentId){
