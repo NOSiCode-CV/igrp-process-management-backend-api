@@ -9,8 +9,10 @@ import cv.igrp.platform.process.management.processdefinition.domain.models.Proce
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Name;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
+import cv.nosi.igrp.runtime.core.engine.process.model.IgrpProcessDefinitionRepresentation;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Component
@@ -69,5 +71,20 @@ public class ProcessDeploymentMapper {
     dto.setContent(content);
     return dto;
   }
+
+  public ProcessDeployment toModel(IgrpProcessDefinitionRepresentation definition) {
+    return ProcessDeployment.builder()
+        .key(Code.create(definition.getKey()))
+        .name(Name.create(definition.getName()))
+        .resourceName(Name.create(definition.getResourceName()))
+        .bpmnXml(BpmnXml.create(definition.getBpmnXml()))
+        .version(definition.getVersion())
+        .deploymentId(definition.getDeploymentId())
+        .deployed(definition.isDeployed())
+        .deployedAt(definition.getDeployedAt())
+        .applicationBase(Code.create(definition.getApplicationBase()))
+        .build();
+  }
+
 
 }

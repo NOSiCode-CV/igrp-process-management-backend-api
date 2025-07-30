@@ -1,5 +1,6 @@
 package cv.igrp.platform.process.management.processdefinition.domain.service;
 
+import cv.igrp.platform.process.management.processdefinition.domain.filter.ProcessDeploymentFilter;
 import cv.igrp.platform.process.management.processdefinition.domain.models.ProcessDeployment;
 import cv.igrp.platform.process.management.processdefinition.domain.repository.ProcessDeploymentRepository;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
@@ -23,6 +24,11 @@ public class ProcessDeploymentService {
   public PageableLista<ProcessDeployment> getAllDeployments(Code applicationCode){
     return processDeploymentRepository.findAll(applicationCode);
   }
+
+  public PageableLista<ProcessDeployment> getAllDeployments(ProcessDeploymentFilter processDeploymentFilter){
+    return processDeploymentRepository.findAll(processDeploymentFilter);
+  }
+
 
   public void undeployProcess(String deploymentId){
 

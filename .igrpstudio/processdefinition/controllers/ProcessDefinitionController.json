@@ -66,6 +66,23 @@
           "name": "applicationBase",
           "description": "Application Code",
           "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "processName",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "page",
+          "value": "0",
+          "isRequired": true
+        },
+        {
+          "type": "string",
+          "name": "size",
+          "value": "20",
+          "isRequired": true
         }
       ]
     }

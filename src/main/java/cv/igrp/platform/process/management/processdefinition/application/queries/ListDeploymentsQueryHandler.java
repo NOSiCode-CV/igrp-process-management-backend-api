@@ -1,5 +1,9 @@
 package cv.igrp.platform.process.management.processdefinition.application.queries;
 
+import cv.igrp.framework.core.domain.QueryHandler;
+import cv.igrp.framework.stereotype.IgrpQueryHandler;
+import cv.igrp.platform.process.management.processdefinition.application.dto.ProcessDeploymentListPageDTO;
+import cv.igrp.platform.process.management.processdefinition.domain.filter.ProcessDeploymentFilter;
 import cv.igrp.platform.process.management.processdefinition.domain.models.ProcessDeployment;
 import cv.igrp.platform.process.management.processdefinition.domain.service.ProcessDeploymentService;
 import cv.igrp.platform.process.management.processdefinition.mappers.ProcessDeploymentMapper;
@@ -7,13 +11,8 @@ import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import cv.igrp.framework.core.domain.QueryHandler;
-import cv.igrp.framework.stereotype.IgrpQueryHandler;
-import org.springframework.context.event.EventListener;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-
-import cv.igrp.platform.process.management.processdefinition.application.dto.ProcessDeploymentListPageDTO;
 
 @Component
 public class ListDeploymentsQueryHandler implements QueryHandler<ListDeploymentsQuery, ResponseEntity<ProcessDeploymentListPageDTO>> {
@@ -31,9 +30,18 @@ public class ListDeploymentsQueryHandler implements QueryHandler<ListDeployments
 
   @IgrpQueryHandler
   public ResponseEntity<ProcessDeploymentListPageDTO> handle(ListDeploymentsQuery query) {
-    PageableLista<ProcessDeployment> deployments = processDeploymentService.getAllDeployments(
-        query.getApplicationBase() != null ? Code.create(query.getApplicationBase()) : null
-    );
+
+    var pageNumber=  Integer.parseInt(query.getPage());
+    var pageSize = Integer.parseInt(query.getPage());
+
+    var filter = ProcessDeploymentFilter.builder()
+        .processName(query.getProcessName())
+        .applicationBase(query.getApplicationBase() != null ? Code.create(query.getApplicationBase()) : null)
+        .pageNumber(pageNumber)
+        .pageSize(pageSize)
+        .build();
+
+    PageableLista<ProcessDeployment> deployments = processDeploymentService.getAllDeployments(filter);
     return ResponseEntity.ok(mapper.toDTO(deployments));
   }
 
