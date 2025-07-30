@@ -9,8 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.UUID;
-
 
 @Component
 public class UnClaimTaskCommandHandler implements CommandHandler<UnClaimTaskCommand, ResponseEntity<String>> {
@@ -28,8 +26,9 @@ public class UnClaimTaskCommandHandler implements CommandHandler<UnClaimTaskComm
 
    @IgrpCommandHandler
    public ResponseEntity<String> handle(UnClaimTaskCommand command) {
-     final var taskInstance =  taskInstanceService.getUnClaimTaskById(UUID.fromString(command.getId()));
-     return ResponseEntity.ok(taskInstanceMapper.toTaskDTO(taskInstance));
+//     final var taskInstance =  taskInstanceService.getUnClaimTaskById(UUID.fromString(command.getId()));
+//     return ResponseEntity.ok(taskInstanceMapper.toTaskDTO(taskInstance));
+     return null;
    }
 
 }

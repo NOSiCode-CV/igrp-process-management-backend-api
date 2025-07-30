@@ -60,7 +60,19 @@ public class TaskInstanceService {
   }
 
 
-  public TaskInstance updateTaskUser(UUID id, String user) {
-    var taskInstance = taskInstanceRepository.findById(id);
+  public TaskInstance claimTask(TaskInstance model) {
+    //var taskInstance = taskInstanceRepository.findById(id);
+    return null;
   }
+
+  public TaskInstance unClaimTask(TaskInstance model) {
+    //var taskInstance = taskInstanceRepository.findById(id);
+    return null;
+  }
+
+  public TaskInstance signTask(TaskInstance model) {
+    //var taskInstance = taskInstanceRepository.findById(id);
+    return null;
+  }
+
 }
