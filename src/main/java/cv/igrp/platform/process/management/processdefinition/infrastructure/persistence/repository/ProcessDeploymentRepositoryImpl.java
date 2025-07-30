@@ -40,8 +40,8 @@ public class ProcessDeploymentRepositoryImpl implements ProcessDeploymentReposit
         .key(processDeployment.getKey().getValue())
         .name(processDeployment.getName().getValue())
         .resourceName(processDeployment.getResourceName().getValue())
-        .bpmnXml(processDeployment.getBpmnXml().toString())
-        .applicationBase(processDeployment.getApplicationBase().getValue())  // todo, is application base same as category?
+        .bpmnXml(processDeployment.getBpmnXml().getXml())
+        .applicationBase(processDeployment.getApplicationBase().getValue())
         .build();
 
     var deployedRepresentation  = (IgrpProcessDefinitionRepresentation) processDefinitionAdapter.deploy(processDefinitionRepresentation);
@@ -54,32 +54,11 @@ public class ProcessDeploymentRepositoryImpl implements ProcessDeploymentReposit
 
   }
 
-  @Override
-  public PageableLista<ProcessDeployment> findAll(Code applicationCode) {
-    ArrayList<ProcessDeployment> deployments = new ArrayList<>();
-    // Go to activiti engine here
-    // ...
-    return new PageableLista<>(
-        0,
-        50,
-        0L,
-        0,
-        false,
-        false,
-        deployments
-    );
-  }
-
   private ProcessFilter toProcessFilter(ProcessDeploymentFilter filter) {
     ProcessFilter processFilter = new ProcessFilter();
-    processFilter.setName(filter.getProcessName());
-    processFilter.setApplicationBase(filter.getApplicationBase() != null ? filter.getApplicationBase().getValue() : null);
+    processFilter.setName(filter.getProcessName()!=null && !filter.getProcessName().isBlank() ? filter.getProcessName() : null );
+    processFilter.setApplicationBase(filter.getApplicationBase() != null && !filter.getApplicationBase().getValue().isBlank() ? filter.getApplicationBase().getValue() : null);
 
-    if (filter.getPageNumber() != null && filter.getPageSize() != null) {
-      int startIndex = filter.getPageNumber() * filter.getPageSize();
-      processFilter.setStartIndex(startIndex);
-      processFilter.setMaxResults(filter.getPageSize());
-    }
     return processFilter;
   }
 
@@ -88,19 +67,13 @@ public class ProcessDeploymentRepositoryImpl implements ProcessDeploymentReposit
   public PageableLista<ProcessDeployment> findAll(ProcessDeploymentFilter filter) {
     ProcessFilter processFilter = toProcessFilter(filter);
 
-    int pageSize = filter.getPageSize() != null ? filter.getPageSize() : 20;
-    int pageNumber = filter.getPageNumber() != null ? filter.getPageNumber() : 0;
-    int startIndex = pageNumber * pageSize;
-
-    processFilter.setStartIndex(startIndex);
-    processFilter.setMaxResults(pageSize);
-
     List<ProcessDefinition> definitions = processManagerAdapter.getDeployedProcesses(processFilter);
+    System.out.println("definitions: " + definitions);
 
     // Mapear para ProcessDeployment
     List<ProcessDeployment> content = definitions.stream()
         .map(def -> ProcessDeployment.builder()
-            .id(Identifier.create(def.getId()))
+            .id(def.getId())
             .key(Code.create(def.getKey()))
             .name(Name.create(def.getName()))
             .description(def.getDescription())
@@ -110,20 +83,10 @@ public class ProcessDeploymentRepositoryImpl implements ProcessDeploymentReposit
             .build())
         .toList();
 
-    boolean hasNextPage = definitions.size() == pageSize;
-    long totalElements = hasNextPage ? startIndex + definitions.size() + 1 : startIndex + definitions.size();
-
-    int totalPages = (int) Math.ceil((double) totalElements / pageSize);
-    boolean first = pageNumber == 0;
-    boolean last = !hasNextPage;
 
     return PageableLista.<ProcessDeployment>builder()
-        .pageNumber(pageNumber)
-        .pageSize(pageSize)
-        .totalElements(totalElements)
-        .totalPages(totalPages)
-        .first(first)
-        .last(last)
+        .pageNumber(processFilter.getPageNumber())
+        .pageSize(processFilter.getPageSize())
         .content(content)
         .build();
   }

@@ -21,14 +21,9 @@ public class ProcessDeploymentService {
     return processDeploymentRepository.deploy(processDeployment);
   }
 
-  public PageableLista<ProcessDeployment> getAllDeployments(Code applicationCode){
-    return processDeploymentRepository.findAll(applicationCode);
-  }
-
   public PageableLista<ProcessDeployment> getAllDeployments(ProcessDeploymentFilter processDeploymentFilter){
     return processDeploymentRepository.findAll(processDeploymentFilter);
   }
-
 
   public void undeployProcess(String deploymentId){
 

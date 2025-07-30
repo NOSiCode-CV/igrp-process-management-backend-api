@@ -20,44 +20,44 @@ import java.util.UUID;
 @IgrpDTO
 public class ProcessDeploymentDTO  {
 
-  
-  
-  private UUID id ;
-  
-  
+
+
+  private String id ;
+
+
   private String key ;
-  
-  
+
+
   private String name ;
-  
-  
+
+
   private String description ;
-  
-  
+
+
   private String version ;
-  
-  
+
+
   private String bpmnXml ;
-  
-  
+
+
   private String bpmnUrl ;
-  
-  
+
+
   private String bpmnSourceType ;
-  
-  
+
+
   private String resourceName ;
-  
-  
+
+
   private boolean deployed ;
-  
-  
+
+
   private String deploymentId ;
-  
-  
+
+
   private LocalDateTime deployedAt ;
-  
-  
+
+
   private String applicationBase ;
 
 }

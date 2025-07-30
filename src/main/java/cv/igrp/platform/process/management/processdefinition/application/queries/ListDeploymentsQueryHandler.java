@@ -35,7 +35,7 @@ public class ListDeploymentsQueryHandler implements QueryHandler<ListDeployments
     var pageSize = Integer.parseInt(query.getPage());
 
     var filter = ProcessDeploymentFilter.builder()
-        .processName(query.getProcessName())
+        .processName(query.getProcessName()!=null ? query.getProcessName() : null)
         .applicationBase(query.getApplicationBase() != null ? Code.create(query.getApplicationBase()) : null)
         .pageNumber(pageNumber)
         .pageSize(pageSize)

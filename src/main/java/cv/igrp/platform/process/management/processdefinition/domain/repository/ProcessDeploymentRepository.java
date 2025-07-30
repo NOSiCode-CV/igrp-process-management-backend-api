@@ -9,8 +9,6 @@ public interface ProcessDeploymentRepository {
 
   ProcessDeployment deploy(ProcessDeployment processDeployment);
   void undeploy(String deploymentId);
-  PageableLista<ProcessDeployment> findAll(Code applicationCode);
-
   PageableLista<ProcessDeployment> findAll(ProcessDeploymentFilter processDeploymentFilter);
 
 }

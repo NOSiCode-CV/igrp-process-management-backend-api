@@ -12,7 +12,7 @@ import java.util.Objects;
 @Getter
 public class ProcessDeployment {
 
-  private Identifier id;
+  private String id;
   private Code key;
   private Name name;
   private String description;
@@ -30,7 +30,7 @@ public class ProcessDeployment {
   private Code applicationBase;
 
   @Builder
-  public ProcessDeployment(Identifier id,
+  public ProcessDeployment(String id,
                            Code key,
                            Name name,
                            String description,
@@ -45,7 +45,7 @@ public class ProcessDeployment {
                            Code procReleaseKey,
                            Code procReleaseId,
                            Code applicationBase) {
-    this.id = id == null ? Identifier.generate() : id;
+    this.id = id;
     this.key = Objects.requireNonNull(key, "Key cannot be null");
     this.name = name;
     this.description = description;
