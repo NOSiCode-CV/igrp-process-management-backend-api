@@ -50,9 +50,11 @@ public class ProcessDeploymentMapper {
     ProcessDeploymentListDTO dto = new ProcessDeploymentListDTO();
     dto.setId(model.getId());
     dto.setName(model.getName().getValue());
-    dto.setDescription(model.getDescription());
+    dto.setDescription("dadasdadasdsad");
     dto.setProcessKey(model.getKey().getValue());
     dto.setVersion(model.getVersion());
+    dto.setApplicationBase(model.getApplicationBase().getValue());
+    dto.setDeploymentId(model.getDeploymentId());
     return dto;
   }
 

@@ -17,7 +17,7 @@ import lombok.AllArgsConstructor;
 
 
 @IgrpDTO
-public class ProcessDeploymentListDTO  {
+public class ProcessDeploymentListDTO {
 
   
   
@@ -34,6 +34,9 @@ public class ProcessDeploymentListDTO  {
   
   
   private String version ;
+  
+  
+  private String deploymentId ;
   
   
   private String applicationBase ;

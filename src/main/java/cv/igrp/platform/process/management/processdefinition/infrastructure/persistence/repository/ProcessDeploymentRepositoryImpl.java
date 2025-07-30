@@ -77,7 +77,7 @@ public class ProcessDeploymentRepositoryImpl implements ProcessDeploymentReposit
             .key(Code.create(def.getKey()))
             .name(Name.create(def.getName()))
             .description(def.getDescription())
-            .applicationBase(Code.create(def.getCategory()))
+            .applicationBase(Code.create(def.getApplicationBase()))
             .deploymentId(def.getDeploymentId())
             .version( String.valueOf(def.getVersion()))
             .build())
