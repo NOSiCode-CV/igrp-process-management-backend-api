@@ -13,7 +13,7 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class GetAreaByIdQuery implements Query {
 
-  @NotBlank(message = "The field <id> is required")
+  @NotBlank(message = "The field <id> is required.")
   private String id;
 
 }

@@ -12,7 +12,7 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class DeleteAreaCommand implements Command {
 
-  @NotBlank(message = "The field <id> is required")
+  @NotBlank(message = "The field <id> is required.")
   private String id;
 
 }

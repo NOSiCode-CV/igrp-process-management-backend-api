@@ -14,7 +14,7 @@ public class CreateProcessDefinitionCommand implements Command {
 
   
   private ProcessDefinitionRequestDTO processdefinitionrequestdto;
-  @NotBlank(message = "The field <areaId> is required")
+  @NotBlank(message = "The field <areaId> is required.")
   private String areaId;
 
 }
