@@ -24,8 +24,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @IgrpController
 @RestController
 @RequestMapping(path = "tasks-instances")
@@ -331,7 +329,7 @@ public class TaskInstancesController {
     }
   )
 
-  public ResponseEntity<List<TaskInstanceHistoryDTO>> getTaskHistory(
+  public ResponseEntity<TaskInstanceHistoryDTO> getTaskHistory(
     @RequestParam(value = "page") Integer page,
     @RequestParam(value = "size") Integer size, @PathVariable(value = "id") String id)
   {
@@ -340,7 +338,7 @@ public class TaskInstancesController {
 
       final var query = new GetTaskHistoryQuery(page, size, id);
 
-      ResponseEntity<List<TaskInstanceHistoryDTO>> response = queryBus.handle(query);
+      ResponseEntity<TaskInstanceHistoryDTO> response = queryBus.handle(query);
 
       LOGGER.debug("Operation finished");
 

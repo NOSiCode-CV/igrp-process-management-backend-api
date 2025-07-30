@@ -55,7 +55,7 @@ public class TaskInstanceService {
   }
 
 
-  public PageableLista<TaskInstance> getAllTaskHistory(UUID id) {
+  public PageableLista<TaskInstance> getAllTaskHistory(TaskInstanceFilter filter) {
     return null;
   }
 
@@ -70,7 +70,17 @@ public class TaskInstanceService {
     return null;
   }
 
-  public TaskInstance signTask(TaskInstance model) {
+  public TaskInstance assignTask(TaskInstance model) {
+    //var taskInstance = taskInstanceRepository.findById(id);
+    return null;
+  }
+
+  public TaskInstance unAssignTask(TaskInstance model) {
+    //var taskInstance = taskInstanceRepository.findById(id);
+    return null;
+  }
+
+  public TaskInstance completeTask(TaskInstance model) {
     //var taskInstance = taskInstanceRepository.findById(id);
     return null;
   }

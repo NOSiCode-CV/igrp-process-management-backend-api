@@ -21,29 +21,29 @@ public class ListTaskInstancesQueryHandler implements QueryHandler<ListTaskInsta
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ListTaskInstancesQueryHandler.class);
 
-  private final TaskInstanceService taskInstanceService;
-  private final TaskInstanceMapper taskInstanceMapper;
+    private final TaskInstanceService taskInstanceService;
+    private final TaskInstanceMapper taskInstanceMapper;
 
-  public ListTaskInstancesQueryHandler(TaskInstanceService taskInstanceService,
-                                       TaskInstanceMapper taskInstanceMapper) {
+    public ListTaskInstancesQueryHandler(TaskInstanceService taskInstanceService,
+                                     TaskInstanceMapper taskInstanceMapper) {
     this.taskInstanceService = taskInstanceService;
-    this.taskInstanceMapper = taskInstanceMapper;
-  }
+        this.taskInstanceMapper = taskInstanceMapper;
+    }
 
-   @IgrpQueryHandler
-  public ResponseEntity<TaskInstanceListaPageDTO> handle(ListTaskInstancesQuery query) {
-     TaskInstanceFilter filter = TaskInstanceFilter.builder()
-         .processNumber(query.getProcessNumber() != null ? Code.create(query.getProcessNumber()) : null)
-         .processKey(query.getProcessKey() != null ? Code.create(query.getProcessKey()) : null)
-         .user(query.getUser() != null ? Code.create(query.getUser()) : null)
-         .status(query.getStatus() != null ? TaskInstanceStatus.valueOf(query.getStatus()) : null)
-         .dateFrom(DateUtil.stringToLocalDate.apply(query.getDateFrom()))
-         .dateTo(DateUtil.stringToLocalDate.apply(query.getDateTo()))
-         .page(query.getPage())
-         .size(query.getSize())
-         .build();
-     PageableLista<TaskInstance> taskInstances =  taskInstanceService.getAllTaskInstances(filter);
-     return ResponseEntity.ok(taskInstanceMapper.toDTO(taskInstances));
-  }
+    @IgrpQueryHandler
+    public ResponseEntity<TaskInstanceListaPageDTO> handle(ListTaskInstancesQuery query) {
+        TaskInstanceFilter filter = TaskInstanceFilter.builder()
+           .processNumber(query.getProcessNumber() != null ? Code.create(query.getProcessNumber()) : null)
+           .processKey(query.getProcessKey() != null ? Code.create(query.getProcessKey()) : null)
+           .user(query.getUser() != null ? Code.create(query.getUser()) : null)
+           .status(query.getStatus() != null ? TaskInstanceStatus.valueOf(query.getStatus()) : null)
+           .dateFrom(DateUtil.stringToLocalDate.apply(query.getDateFrom()))
+           .dateTo(DateUtil.stringToLocalDate.apply(query.getDateTo()))
+           .page(query.getPage())
+           .size(query.getSize())
+           .build();
+        PageableLista<TaskInstance> taskInstances =  taskInstanceService.getAllTaskInstances(filter);
+        return ResponseEntity.ok(taskInstanceMapper.toDTO(taskInstances));
+    }
 
 }
