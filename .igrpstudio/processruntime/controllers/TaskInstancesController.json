@@ -251,7 +251,7 @@
                 "type": "TaskInstanceHistoryDTO",
                 "objectType": "dto",
                 "name": "data",
-                "collectionType": "list",
+                "collectionType": "none",
                 "module": "processruntime"
               }
             }
