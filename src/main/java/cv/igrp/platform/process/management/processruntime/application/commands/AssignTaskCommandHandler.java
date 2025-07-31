@@ -4,6 +4,7 @@ import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
 import cv.igrp.platform.process.management.processruntime.domain.service.TaskInstanceService;
+import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +28,7 @@ public class AssignTaskCommandHandler implements CommandHandler<AssignTaskComman
     public ResponseEntity<String> handle(AssignTaskCommand command) {
        var taskInstanceReq = TaskInstance.builder()
            .id(Identifier.create(command.getId()))
-           //.user()
+           .user(Code.create(command.getUser()))
            .build();
        taskInstanceService.assignTask(taskInstanceReq);
        return ResponseEntity.noContent().build();

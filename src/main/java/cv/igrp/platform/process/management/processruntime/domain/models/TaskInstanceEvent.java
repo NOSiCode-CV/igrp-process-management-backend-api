@@ -1,7 +1,7 @@
 package cv.igrp.platform.process.management.processruntime.domain.models;
 
+import cv.igrp.platform.process.management.shared.application.constants.TaskEventType;
 import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
-import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,7 +13,7 @@ import java.util.Objects;
 public class TaskInstanceEvent {
   private Identifier id;
   private Identifier taskInstanceId;
-  private Code eventType;
+  private TaskEventType eventType;
   private LocalDateTime startedAt;
   private String startedBy;
   private byte[] inputTask;
@@ -28,7 +28,7 @@ public class TaskInstanceEvent {
   @Builder
   public TaskInstanceEvent(Identifier id,
                            Identifier taskInstanceId,
-                           Code eventType,
+                           TaskEventType eventType,
                            LocalDateTime startedAt,
                            String startedBy,
                            byte[] inputTask,

@@ -27,7 +27,6 @@ public class ClaimTaskCommandHandler implements CommandHandler<ClaimTaskCommand,
     public ResponseEntity<String> handle(ClaimTaskCommand command) {
         var taskInstanceReq = TaskInstance.builder()
            .id(Identifier.create(command.getId()))
-           //.user()
            .build();
         taskInstanceService.claimTask(taskInstanceReq);
         return ResponseEntity.noContent().build();

@@ -4,10 +4,10 @@
 package cv.igrp.platform.process.management.shared.infrastructure.persistence.entity;
 
 import cv.igrp.framework.stereotype.IgrpEntity;
+import cv.igrp.platform.process.management.shared.application.constants.TaskEventType;
 import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
 import cv.igrp.platform.process.management.shared.config.AuditEntity;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.envers.Audited;
@@ -38,9 +38,10 @@ public class TaskInstanceEventEntity extends AuditEntity {
   @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "task_instance_id", referencedColumnName = "id")
     private TaskInstanceEntity taskInstanceId;
-    @NotBlank(message = "eventType is mandatory")
-    @Column(name="event_type", nullable = false, length=10)
-    private String eventType;
+    @NotNull(message = "eventType is mandatory")
+    @Enumerated(EnumType.STRING)
+    @Column(name="event_type", nullable = false)
+    private TaskEventType eventType;
 
 
     @Column(name="started_at")

@@ -26,9 +26,8 @@ public class UnAssignTaskCommandHandler implements CommandHandler<UnAssignTaskCo
     public ResponseEntity<String> handle(UnAssignTaskCommand command) {
         var taskInstanceReq = TaskInstance.builder()
            .id(Identifier.create(command.getId()))
-           //.user()
            .build();
-        taskInstanceService.unAssignTask(taskInstanceReq);
+        taskInstanceService.claimTask(taskInstanceReq);
         return ResponseEntity.noContent().build();
     }
 

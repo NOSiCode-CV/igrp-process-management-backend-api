@@ -10,6 +10,7 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 public class TaskInstance {
@@ -26,6 +27,8 @@ public class TaskInstance {
   private final LocalDateTime startedAt;
   private final String startedBy;
   private final TaskInstanceStatus status;
+  private final Code reason;
+  private final Map<String,Object> taskVariables;
   private final List<TaskInstanceEvent> taskInstanceEvents;
 
   @Builder
@@ -42,6 +45,8 @@ public class TaskInstance {
                       LocalDateTime startedAt,
                       String startedBy,
                       TaskInstanceStatus status,
+                      Code reason,
+                      Map<String,Object> taskVariables,
                       List<TaskInstanceEvent> taskInstanceEvents) {
     this.id = id == null ? Identifier.generate() : id;
     this.processInstanceId = processInstanceId;
@@ -56,6 +61,8 @@ public class TaskInstance {
     this.startedAt = startedAt;
     this.startedBy = startedBy;
     this.status = status == null ? TaskInstanceStatus.CREATED : status;
+    this.reason = reason;
+    this.taskVariables = taskVariables!=null ? taskVariables : Map.of();
     this.taskInstanceEvents = taskInstanceEvents!=null ? taskInstanceEvents : new ArrayList<>();
   }
 

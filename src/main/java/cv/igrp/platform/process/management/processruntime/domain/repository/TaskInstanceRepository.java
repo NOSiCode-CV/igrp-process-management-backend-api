@@ -2,6 +2,7 @@ package cv.igrp.platform.process.management.processruntime.domain.repository;
 
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceFilter;
+import cv.igrp.platform.process.management.shared.application.constants.TaskEventType;
 import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
@@ -12,16 +13,18 @@ import java.util.UUID;
 
 public interface TaskInstanceRepository {
 
-  TaskInstance create(TaskInstance taskInstance);
-
-  PageableLista<TaskInstance> findAll(TaskInstanceFilter filter);
 
   Optional<TaskInstance> findById(UUID id);
 
-  void updateStatus(UUID id, TaskInstanceStatus newStatus);
+  String getExternalIdByTaskId(UUID id);
 
-  void assigneTask(UUID id, Code user, TaskInstanceStatus status, LocalDateTime date);
+  TaskInstance create(TaskInstance taskInstance, Code externalId, TaskEventType taskEventType);
 
-  void releaseTask(UUID id, TaskInstanceStatus status);
+  void updateTask(UUID id, TaskEventType taskEventType, Code user,
+                  TaskInstanceStatus taskInstanceStatus, LocalDateTime dateTime);
 
+  TaskInstance completeTask(UUID id, TaskEventType taskEventType, Code user,
+                            TaskInstanceStatus taskInstanceStatus, LocalDateTime dateTime);
+
+  PageableLista<TaskInstance> findAll(TaskInstanceFilter filter);
 }
