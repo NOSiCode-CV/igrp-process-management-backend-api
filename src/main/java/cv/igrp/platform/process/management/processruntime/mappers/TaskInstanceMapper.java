@@ -105,7 +105,7 @@ public class TaskInstanceMapper {
     return TaskInstanceEvent.builder()
         .id(Identifier.create(eventEntity.getId()))
         .taskInstanceId(Identifier.create(eventEntity.getTaskInstanceId().getId()))
-        .eventType(Code.create(eventEntity.getEventType()))
+        .eventType(eventEntity.getEventType())
         .status(eventEntity.getStatus())
         .startedAt(eventEntity.getStartedAt())
         .startedBy(eventEntity.getStartedBy())
@@ -179,7 +179,7 @@ public class TaskInstanceMapper {
     var eventDto = new TaskInstanceEventListDTO();
     eventDto.setId(model.getId().getValue());
     eventDto.setTaskInstanceId(model.getTaskInstanceId().getValue());
-    eventDto.setEventType(model.getEventType().getValue());
+    eventDto.setEventType(model.getEventType().getCode());
     eventDto.setStartedAt(model.getStartedAt());
     eventDto.setStartedBy(model.getStartedBy());
     eventDto.setStartObs(model.getStartObs());
