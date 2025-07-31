@@ -43,6 +43,7 @@ public class ProcessDeploymentMapper {
     dto.setDeployedAt(model.getDeployedAt());
     dto.setBpmnSourceType(model.getBpmnSourceType());
     dto.setApplicationBase(model.getApplicationBase().getValue());
+    dto.setVersion(model.getVersion());
     return dto;
   }
 
@@ -50,7 +51,7 @@ public class ProcessDeploymentMapper {
     ProcessDeploymentListDTO dto = new ProcessDeploymentListDTO();
     dto.setId(model.getId());
     dto.setName(model.getName().getValue());
-    dto.setDescription("dadasdadasdsad");
+    dto.setDescription(model.getDescription());
     dto.setProcessKey(model.getKey().getValue());
     dto.setVersion(model.getVersion());
     dto.setApplicationBase(model.getApplicationBase().getValue());

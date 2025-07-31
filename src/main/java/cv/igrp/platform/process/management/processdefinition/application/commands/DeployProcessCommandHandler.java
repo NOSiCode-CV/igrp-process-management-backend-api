@@ -30,6 +30,7 @@ public class DeployProcessCommandHandler implements CommandHandler<DeployProcess
   @IgrpCommandHandler
   public ResponseEntity<ProcessDeploymentDTO> handle(DeployProcessCommand command) {
     ProcessDeployment processDeployment = mapper.toModel(command.getProcessdeploymentrequestdto());
+
     return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toDTO(
         processDeploymentService.deployProcess(processDeployment)));
   }
