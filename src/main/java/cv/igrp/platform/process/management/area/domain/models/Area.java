@@ -38,7 +38,7 @@ public class Area {
               String description,
               Identifier areaId,
               Status status,
-              List<AreaProcess> projects,
+              List<AreaProcess> process,
               LocalDateTime createdAt,
               LocalDateTime updatedAt,
               String createdBy,
@@ -50,7 +50,7 @@ public class Area {
     this.description = description;
     this.areaId = areaId;
     this.status = status == null ? Status.ACTIVE : status;
-    this.process = projects == null ? new ArrayList<>() : projects;
+    this.process = process == null ? new ArrayList<>() : process;
     this.createdAt = createdAt == null ? LocalDateTime.now() : createdAt;
     this.updatedAt = updatedAt;
     this.createdBy = createdBy;

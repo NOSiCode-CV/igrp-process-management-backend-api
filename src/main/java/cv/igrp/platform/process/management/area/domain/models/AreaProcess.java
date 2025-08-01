@@ -51,7 +51,7 @@ public class AreaProcess {
     if(area == null) {
       throw new IllegalArgumentException("The area must not be null");
     }
-    this.areaId = area.getAreaId();
+    this.areaId = area.getId();
   }
 
   public void unbindFromArea(Area area) {
