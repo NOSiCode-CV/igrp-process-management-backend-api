@@ -8,6 +8,7 @@ import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponse
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.UUID;
 
 @Service
@@ -36,6 +37,18 @@ public class ProcessInstanceService {
     // Call process engine
     // ...
     // Persist
+
+    var variables = processInstance.getVariables();
+    var businessKey = processInstance.getBusinessKey();
+    var processKey= processInstance.getProcReleaseKey();
+
+    if (variables == null) {
+      variables = Collections.emptyMap();
+    }
+
+    var id = runtimeProcessEngineRepository.startProcessInstanceByKeyT(processKey.getValue(), businessKey.getValue(),variables);
+    System.out.println("ID processo: " + id);
+    //return processInstance;
     return processInstanceRepository.save(processInstance);
   }
 

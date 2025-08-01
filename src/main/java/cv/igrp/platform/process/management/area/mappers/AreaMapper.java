@@ -79,6 +79,7 @@ public class AreaMapper {
           .applicationBase(Code.create(areaEntity.getApplicationBase()))
           .code(Code.create(areaEntity.getCode()))
           .status(areaEntity.getStatus())
+          .description(areaEntity.getDescription())
           .createdAt(areaEntity.getCreatedDate())
           .updatedAt(areaEntity.getLastModifiedDate())
           .createdBy(areaEntity.getCreatedBy())

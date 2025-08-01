@@ -23,6 +23,7 @@ public class ProcessInstanceMapper {
     processInstanceEntity.setId(processInstance.getId().getValue());
     processInstanceEntity.setProcReleaseId(processInstance.getProcReleaseId().getValue());
     processInstanceEntity.setProcReleaseKey(processInstance.getProcReleaseKey().getValue());
+    processInstanceEntity.setApplicationBase(processInstance.getApplicationBase().getValue());
     processInstanceEntity.setVersion(processInstance.getVersion());
     processInstanceEntity.setStatus(processInstance.getStatus());
     processInstanceEntity.setBusinessKey(processInstance.getBusinessKey().getValue());
@@ -66,6 +67,7 @@ public class ProcessInstanceMapper {
         .procReleaseKey(Code.create(startProcessRequestDTO.getProcessKey()))
         .businessKey(startProcessRequestDTO.getBusinessKey() != null ? Code.create(startProcessRequestDTO.getBusinessKey()) : null)
         .applicationBase(Code.create(startProcessRequestDTO.getApplicationBase()))
+        .startedBy("user")
         .variables(vars)
         .build();
   }
