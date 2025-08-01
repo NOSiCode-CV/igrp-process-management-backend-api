@@ -27,6 +27,7 @@ import cv.igrp.platform.process.management.processruntime.application.dto.StartP
 import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceDTO;
 import java.util.List;
 import cv.igrp.platform.process.management.shared.application.dto.ConfigParameterDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceTaskStatusDTO;
 
 @IgrpController
 @RestController
@@ -193,6 +194,43 @@ public class ProcessInstanceController {
       final var query = new ListProcessInstanceStatusQuery();
 
       ResponseEntity<List<ConfigParameterDTO>> response = queryBus.handle(query);
+
+      LOGGER.debug("Operation finished");
+
+      return ResponseEntity.status(response.getStatusCode())
+              .headers(response.getHeaders())
+              .body(response.getBody());
+  }
+
+  @GetMapping(
+    value = "{id}/task-status"
+  )
+  @Operation(
+    summary = "GET method to handle operations for getTaskStatus",
+    description = "GET method to handle operations for getTaskStatus",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          description = "List of task status of the process instance",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = ProcessInstanceTaskStatusDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<List<ProcessInstanceTaskStatusDTO>> getTaskStatus(
+    @PathVariable(value = "id") String id)
+  {
+
+      LOGGER.debug("Operation started");
+
+      final var query = new GetTaskStatusQuery(id);
+
+      ResponseEntity<List<ProcessInstanceTaskStatusDTO>> response = queryBus.handle(query);
 
       LOGGER.debug("Operation finished");
 

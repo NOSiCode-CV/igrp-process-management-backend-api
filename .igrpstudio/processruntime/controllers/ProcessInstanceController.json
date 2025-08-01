@@ -162,6 +162,36 @@
           }
         }
       }
+    },
+    {
+      "actionName": "getTaskStatus",
+      "path": "{id}/task-status",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "description": "List of task status of the process instance",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProcessInstanceTaskStatusDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "processruntime"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true,
+          "description": "ID of the process instance"
+        }
+      ]
     }
   ],
   "id": "pyn9bsrz1z-CONTROLLER"
