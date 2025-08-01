@@ -2,7 +2,7 @@ package cv.igrp.platform.process.management.processruntime.application.queries;
 
 import cv.igrp.framework.core.domain.QueryHandler;
 import cv.igrp.framework.stereotype.IgrpQueryHandler;
-import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
+import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceEvent;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceFilter;
 import cv.igrp.platform.process.management.processruntime.domain.service.TaskInstanceService;
 import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
@@ -40,7 +40,7 @@ public class GetTaskHistoryQueryHandler implements QueryHandler<GetTaskHistoryQu
             .page(query.getPage())
             .size(query.getSize())
             .build();
-        PageableLista<TaskInstance> taskInstances =  taskInstanceService.getAllTaskHistory(filter);
+        PageableLista<TaskInstanceEvent> taskInstances =  taskInstanceService.getTaskHistory(filter);
         return null;//ResponseEntity.ok(taskInstanceMapper.toDTO(taskInstances));
     }
 

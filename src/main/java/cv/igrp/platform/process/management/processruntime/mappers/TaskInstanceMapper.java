@@ -6,6 +6,7 @@ import cv.igrp.platform.process.management.processruntime.application.dto.TaskIn
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceListaPageDTO;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceEvent;
+import cv.igrp.platform.process.management.shared.application.constants.TaskEventType;
 import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
@@ -20,24 +21,36 @@ import org.springframework.stereotype.Component;
 public class TaskInstanceMapper {
 
 
-  public TaskInstanceEntity toNewTaskEntity(TaskInstance taskInstance) {
+  public TaskInstanceEntity toNewTaskEntity(TaskInstance taskInstance, Code externalId) {
 
     var taskEntity = new TaskInstanceEntity();
+    taskEntity.setExternalId(externalId.getValue());
     taskEntity.setId(taskInstance.getId().getValue());
     taskEntity.setTaskKey(taskInstance.getTaskKey().getValue());
     taskEntity.setName(taskInstance.getName().getValue());
-    taskEntity.setExternalId(taskInstance.getExternalId().getValue());
     taskEntity.setStartedBy(taskInstance.getUser().getValue());
     taskEntity.setStartedAt(taskInstance.getStartedAt());
     taskEntity.setStatus(taskInstance.getStatus());
     taskEntity.setApplicationBase(taskInstance.getApplicationBase().getValue());
     taskEntity.setSearchTerms(taskInstance.getSearchTerms().getValue());
+    return taskEntity;
+  }
 
-    var taskInstanceEvent = taskInstance.getTaskInstanceEvents().getFirst();
+
+  public void toNewTaskEventEntity(TaskInstanceEntity taskInstanceEntity,
+                                   TaskEventType taskEventType,
+                                   TaskInstanceEvent taskInstanceEvent) {
+
     var eventEntity = new TaskInstanceEventEntity();
+    eventEntity.setTaskInstanceId(taskInstanceEntity);
 
-    eventEntity.setId(taskInstance.getId().getValue());
-    eventEntity.setEventType(taskInstanceEvent.getEventType().getValue());
+    eventEntity.setStartedAt(taskInstanceEntity.getStartedAt());
+    eventEntity.setStartedBy(taskInstanceEntity.getStartedBy());
+    eventEntity.setStatus(taskInstanceEntity.getStatus());
+
+    eventEntity.setEventType(taskEventType);
+
+    eventEntity.setId(taskInstanceEvent.getId().getValue());
     eventEntity.setStartedAt(taskInstanceEvent.getStartedAt());
     eventEntity.setStartedBy(taskInstanceEvent.getStartedBy());
     eventEntity.setStartObs(taskInstanceEvent.getStartObs());
@@ -46,13 +59,6 @@ public class TaskInstanceMapper {
     eventEntity.setEndedAt(taskInstanceEvent.getEndedAt());
     eventEntity.setEndedBy(taskInstanceEvent.getEndedBy());
     eventEntity.setEndObs(taskInstanceEvent.getEndObs());
-
-    eventEntity.setTaskInstanceId(taskEntity);
-    eventEntity.setStartedAt(taskInstance.getStartedAt());
-    eventEntity.setStartedBy(taskInstance.getStartedBy());
-    eventEntity.setStatus(taskEntity.getStatus());
-
-    return taskEntity;
   }
 
 
@@ -99,7 +105,7 @@ public class TaskInstanceMapper {
     return TaskInstanceEvent.builder()
         .id(Identifier.create(eventEntity.getId()))
         .taskInstanceId(Identifier.create(eventEntity.getTaskInstanceId().getId()))
-        .eventType(Code.create(eventEntity.getEventType()))
+        .eventType(eventEntity.getEventType())
         .status(eventEntity.getStatus())
         .startedAt(eventEntity.getStartedAt())
         .startedBy(eventEntity.getStartedBy())
@@ -173,7 +179,7 @@ public class TaskInstanceMapper {
     var eventDto = new TaskInstanceEventListDTO();
     eventDto.setId(model.getId().getValue());
     eventDto.setTaskInstanceId(model.getTaskInstanceId().getValue());
-    eventDto.setEventType(model.getEventType().getValue());
+    eventDto.setEventType(model.getEventType().getCode());
     eventDto.setStartedAt(model.getStartedAt());
     eventDto.setStartedBy(model.getStartedBy());
     eventDto.setStartObs(model.getStartObs());

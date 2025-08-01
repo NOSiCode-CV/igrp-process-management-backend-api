@@ -4,6 +4,7 @@ import cv.igrp.platform.process.management.processruntime.domain.models.TaskInst
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceFilter;
 import cv.igrp.platform.process.management.processruntime.domain.repository.TaskInstanceEventRepository;
 import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
+import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.repository.TaskInstanceEventEntityRepository;
 import org.springframework.stereotype.Repository;
 
@@ -19,20 +20,25 @@ public class TaskInstanceEventRepositoryImpl implements TaskInstanceEventReposit
 
   public TaskInstanceEventRepositoryImpl(TaskInstanceEventEntityRepository taskInstanceEventEntityRepository,
                                          TaskInstanceMapper taskMapper) {
-    this.taskInstanceEventEntityRepository = taskInstanceEventEntityRepository;
-    this.taskMapper = taskMapper;
+      this.taskInstanceEventEntityRepository = taskInstanceEventEntityRepository;
+      this.taskMapper = taskMapper;
   }
 
 
   @Override
   public Optional<TaskInstanceEvent> findById(UUID id) {
-    return taskInstanceEventEntityRepository.findById(id).map(taskMapper::toEventModel);
+      return taskInstanceEventEntityRepository.findById(id).map(taskMapper::toEventModel);
   }
 
 
   @Override
   public List<TaskInstanceEvent> findAll(TaskInstanceFilter filter) {
-    throw new IllegalStateException("to be implemented"); // todo
+      throw new IllegalStateException("to be implemented"); // todo
+  }
+
+  @Override
+  public PageableLista<TaskInstanceEvent> getTaskHistory(TaskInstanceFilter filter) {
+      throw new IllegalStateException("to be implemented"); // todo
   }
 
 

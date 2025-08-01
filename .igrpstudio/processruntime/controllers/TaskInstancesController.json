@@ -173,6 +173,13 @@
           }
         }
       },
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "user",
+          "isRequired": true
+        }
+      ],
       "pathVariables": [
         {
           "name": "id",

@@ -219,12 +219,12 @@ public class TaskInstancesController {
   )
 
   public ResponseEntity<String> assignTask(
-    @PathVariable(value = "id") String id)
+    @RequestParam(value = "user") String user, @PathVariable(value = "id") String id)
   {
 
       LOGGER.debug("Operation started");
 
-      final var command = new AssignTaskCommand(id);
+      final var command = new AssignTaskCommand(user, id);
 
        ResponseEntity<String> response = commandBus.send(command);
 
