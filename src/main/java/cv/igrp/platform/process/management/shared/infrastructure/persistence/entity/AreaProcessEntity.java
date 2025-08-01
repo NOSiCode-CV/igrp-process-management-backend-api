@@ -50,7 +50,7 @@ public class AreaProcessEntity extends AuditEntity {
 
   
     @NotBlank(message = "procReleaseId is mandatory")
-    @Column(name="proc_release_id", unique = true, nullable = false)
+    @Column(name="proc_release_id", nullable = false)
     private String procReleaseId;
 
   

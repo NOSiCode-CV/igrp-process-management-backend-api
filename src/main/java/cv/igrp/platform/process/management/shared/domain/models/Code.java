@@ -1,10 +1,12 @@
 package cv.igrp.platform.process.management.shared.domain.models;
 
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 
 @Getter
+@EqualsAndHashCode
 public class Code {
 
   private final String value;

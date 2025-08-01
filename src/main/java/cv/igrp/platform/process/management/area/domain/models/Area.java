@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Getter
 public class Area {
@@ -65,8 +66,13 @@ public class Area {
     processDefinition.bindToArea(this);
   }
 
+  public Optional<AreaProcess> getProcess(Code releaseId) {
+    return process.stream().filter(processDefinition -> processDefinition.getReleaseId().equals(releaseId))
+        .findFirst();
+  }
+
   public void remove(AreaProcess processDefinition) {
-    boolean result = process.removeIf(obj -> obj.getId().equals(processDefinition.getId()));
+    boolean result = process.removeIf(areaProcess -> areaProcess.getId().equals(processDefinition.getId()));
     if (result) {
       processDefinition.unbindFromArea(this);
     }

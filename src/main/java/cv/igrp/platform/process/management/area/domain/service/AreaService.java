@@ -10,6 +10,7 @@ import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponse
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -51,7 +52,13 @@ public class AreaService {
 
   public AreaProcess createProcessDefinition(UUID areaId, AreaProcess areaProcess) {
     Area area = getAreaById(areaId);
-    area.add(areaProcess);
+    Optional<AreaProcess> process = area.getProcess(areaProcess.getReleaseId());
+    if(process.isEmpty()) {
+      area.add(areaProcess);
+    }else{
+      areaProcess = process.get();
+      areaProcess.reActivate();
+    }
     return areaProcessRepository.save(areaProcess);
   }
 

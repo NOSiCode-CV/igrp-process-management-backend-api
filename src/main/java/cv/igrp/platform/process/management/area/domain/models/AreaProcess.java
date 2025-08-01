@@ -62,4 +62,8 @@ public class AreaProcess {
     this.status = Status.INACTIVE;
   }
 
+  public void reActivate(){
+    this.status = Status.ACTIVE;
+  }
+
 }
