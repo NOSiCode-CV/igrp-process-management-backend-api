@@ -31,22 +31,13 @@ public class TaskInstanceEventListDTO {
   private String eventType ;
 
 
-  private LocalDateTime startedAt ;
+  private LocalDateTime performedAt ;
 
 
-  private String startedBy ;
+  private String performedBy ;
 
 
-  private String startObs ;
-
-
-  private LocalDateTime endedAt ;
-
-
-  private String endedBy ;
-
-
-  private String endObs ;
+  private String obs ;
 
 
   private TaskInstanceStatus status ;

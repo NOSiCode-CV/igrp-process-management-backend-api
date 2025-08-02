@@ -2,20 +2,19 @@ package cv.igrp.platform.process.management.processruntime.infrastructure.persis
 
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceFilter;
+import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceInfo;
 import cv.igrp.platform.process.management.processruntime.domain.repository.TaskInstanceRepository;
 import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
-import cv.igrp.platform.process.management.shared.application.constants.TaskEventType;
-import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
 import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.TaskInstanceEntity;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.repository.TaskInstanceEntityRepository;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
@@ -31,8 +30,8 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
   public TaskInstanceRepositoryImpl(TaskInstanceEntityRepository taskInstanceEntityRepository,
                                     TaskInstanceMapper taskMapper) {
 
-    this.taskInstanceEntityRepository = taskInstanceEntityRepository;
-    this.taskMapper = taskMapper;
+      this.taskInstanceEntityRepository = taskInstanceEntityRepository;
+      this.taskMapper = taskMapper;
   }
 
 
@@ -44,66 +43,74 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
 
 
   @Override
-  public Optional<TaskInstance> findById(UUID id) {
-    return taskInstanceEntityRepository.findById(id).map(taskMapper::toModelWithEvents);
+  public Optional<TaskInstanceInfo> findById(UUID id) {
+      return taskInstanceEntityRepository.findById(id).map(taskMapper::toModelWithEvents);
   }
 
 
   @Override
   public String getExternalIdByTaskId(UUID id) {
-    return getTaskInstanceByID(id).getExternalId();
+      return getTaskInstanceByID(id).getExternalId();
   }
 
 
   @Override
-  public TaskInstance create(TaskInstance taskInstance, Code externalId, TaskEventType taskEventType) {
+  public TaskInstanceInfo create(TaskInstance taskInstance) {
 
-    var taskEntity = taskMapper.toNewTaskEntity(taskInstance,externalId);
-    taskMapper.toNewTaskEventEntity(
-        taskEntity,
-        taskEventType,
-        taskInstance.getTaskInstanceEvents().getFirst());
-    taskEntity = taskInstanceEntityRepository.save(taskEntity);
-    return taskMapper.toModel(taskEntity);
+      var taskInstanceEntity = taskMapper.toNewTaskEntity(taskInstance);
+
+      var taskInstanceEventEntity = taskMapper.toNewTaskEventEntity(taskInstance.getTaskInstanceEvent());
+
+      taskInstanceEntity = taskInstanceEntityRepository.save(taskInstanceEntity);
+      taskInstanceEventEntity.setTaskInstanceId(taskInstanceEntity);
+
+      return taskMapper.toModelInfo(taskInstanceEntity);
   }
 
 
   @Override
-  public void updateTask(UUID id, TaskEventType taskEventType, Code user,
-                         TaskInstanceStatus taskInstanceStatus, LocalDateTime dateTime) {
+  public void updateTask(TaskInstance taskInstance) {
 
-      update(id, taskEventType, user, taskInstanceStatus, dateTime);
-  }
+    var taskInstanceEntity = getTaskInstanceByID(taskInstance.getId().getValue());
+    taskInstanceEntity.setStatus(taskInstance.getStatus());
+    taskInstanceEntity.setAssignedBy(taskInstance.getAssignedBy());
+    taskInstanceEntity.setAssignedAt(taskInstance.getAssignedAt());
 
-  @Override
-  public TaskInstance completeTask(UUID id, TaskEventType taskEventType, Code user,
-                                   TaskInstanceStatus taskInstanceStatus, LocalDateTime dateTime) {
+    var taskInstanceEventEntity = taskMapper.toNewTaskEventEntity(taskInstance.getTaskInstanceEvent());
+    taskInstanceEventEntity.setTaskInstanceId(taskInstanceEntity);
 
-    return taskMapper.toModel( update(id, taskEventType, user, taskInstanceStatus, dateTime) );
-  }
-
-
-  private TaskInstanceEntity update(UUID id, TaskEventType taskEventType, Code user,
-                         TaskInstanceStatus taskInstanceStatus, LocalDateTime dateTime) {
-
-    var taskInstanceEntity = getTaskInstanceByID(id);
-    taskInstanceEntity.setStatus(taskInstanceStatus);
-    //taskMapper.toNewTaskEventEntity(taskInstanceEntity,taskEventType,null); todo
-    return taskInstanceEntityRepository.save(taskInstanceEntity);
+    taskInstanceEntityRepository.save(taskInstanceEntity);
   }
 
 
   @Override
-  public PageableLista<TaskInstance> findAll(TaskInstanceFilter filter) {
+  public TaskInstanceInfo completeTask(TaskInstance taskInstance) {
+
+    var taskInstanceEntity = getTaskInstanceByID(taskInstance.getId().getValue());
+    taskInstanceEntity.setEndedAt(taskInstance.getEndedAt());
+    taskInstanceEntity.setEndedBy(taskInstance.getEndedBy());
+    taskInstanceEntity.setStatus(taskInstance.getStatus());
+
+    var taskInstanceEventEntity = taskMapper.toNewTaskEventEntity(taskInstance.getTaskInstanceEvent());
+    taskInstanceEventEntity.setTaskInstanceId(taskInstanceEntity);
+
+    return taskMapper.toModelInfo(taskInstanceEntityRepository.save(taskInstanceEntity));
+  }
+
+
+  @Override
+  @Transactional(readOnly = true)
+  public PageableLista<TaskInstanceInfo> findAll(TaskInstanceFilter filter) {
 
       Specification<TaskInstanceEntity> spec = buildSpecification(filter);
 
-      PageRequest pageRequest = PageRequest.of(filter.getPage(), filter.getSize());
+      PageRequest pageRequest = PageRequest.of(filter.getPage(), filter.getSize(),
+          Sort.by(Sort.Direction.DESC, "startedAt"));
 
       var pageableProcess = taskInstanceEntityRepository.findAll(spec, pageRequest);
 
-      List<TaskInstance> content = pageableProcess.stream()
-          .map(taskMapper::toModel)
+      List<TaskInstanceInfo> content = pageableProcess.stream()
+          .map(taskMapper::toModelInfo)
           .toList();
 
       return new PageableLista<>(

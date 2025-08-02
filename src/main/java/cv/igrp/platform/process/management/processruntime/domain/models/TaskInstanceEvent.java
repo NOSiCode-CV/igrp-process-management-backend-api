@@ -11,44 +11,41 @@ import java.util.Objects;
 
 @Getter
 public class TaskInstanceEvent {
-  private Identifier id;
-  private Identifier taskInstanceId;
-  private TaskEventType eventType;
-  private LocalDateTime startedAt;
-  private String startedBy;
-  private byte[] inputTask;
-  private byte[] outputTask;
-  private String startObs;
-  private LocalDateTime endedAt;
-  private String endedBy;
-  private String endObs;
-  private TaskInstanceStatus status;
+    private final Identifier id;
+    private final Identifier taskInstanceId;
+    private final TaskEventType eventType;
+    private LocalDateTime performedAt;
+    private final String performedBy;
+    private final String obs;
+    private final TaskInstanceStatus status;
 
 
-  @Builder
-  public TaskInstanceEvent(Identifier id,
-                           Identifier taskInstanceId,
-                           TaskEventType eventType,
-                           LocalDateTime startedAt,
-                           String startedBy,
-                           byte[] inputTask,
-                           byte[] outputTask,
-                           String startObs,
-                           LocalDateTime endedAt,
-                           String endedBy,
-                           String endObs,
-                           TaskInstanceStatus status) {
-    this.id = id == null ? Identifier.generate() : id;
-    this.taskInstanceId = Objects.requireNonNull(taskInstanceId, "Task Instance Id cannot be null");
-    this.eventType = Objects.requireNonNull(eventType, "Event Type Id cannot be null");
-    this.startedAt = startedAt;
-    this.startedBy = startedBy;
-    this.inputTask = inputTask;
-    this.outputTask = outputTask;
-    this.startObs = startObs;
-    this.endedAt = endedAt;
-    this.endedBy = endedBy;
-    this.endObs = endObs;
-    this.status = status;
-  }
+    @Builder
+    public TaskInstanceEvent(
+                Identifier id,
+                Identifier taskInstanceId,
+                TaskEventType eventType,
+                LocalDateTime performedAt,
+                String performedBy,
+                String obs,
+                TaskInstanceStatus status
+    ) {
+        this.id = id == null ? Identifier.generate() : id;
+        this.taskInstanceId = taskInstanceId;
+        this.eventType = Objects.requireNonNull(eventType, "EventType cannot be null");
+        this.performedAt = performedAt;
+        this.performedBy = Objects.requireNonNull(performedBy, "PerformedBy cannot be null");
+        this.obs = obs;
+        this.status = Objects.requireNonNull(status, "Status cannot be null");
+    }
+
+
+    public void validate() {
+        if(this.performedBy == null || this.performedBy.isBlank()){
+            throw new IllegalStateException("The performed by (user) of the task instance event cannot be null or blank");
+        }
+        this.performedAt = LocalDateTime.now();
+    }
+
+
 }

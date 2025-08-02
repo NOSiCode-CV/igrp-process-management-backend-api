@@ -3,18 +3,14 @@ package cv.igrp.platform.process.management.processruntime.domain.service;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceEvent;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceFilter;
+import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceInfo;
 import cv.igrp.platform.process.management.processruntime.domain.repository.TaskInstanceEventRepository;
 import cv.igrp.platform.process.management.processruntime.domain.repository.TaskInstanceRepository;
-import cv.igrp.platform.process.management.shared.application.constants.TaskEventType;
-import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
 import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 import cv.nosi.igrp.runtime.activiti.engine.task.ActivitiTaskManager;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -34,108 +30,92 @@ public class TaskInstanceService {
   }
 
 
-  @Transactional
-  public TaskInstance createTask(TaskInstance model) {
 
-      final var externalTaskId = activitiTaskManager.createTask(
-          model.getProcessInstanceId().getValue().toString(),
-          model.getTaskKey().getValue(),
-          model.getName().getValue(),
-          model.getUser().getValue(),
-          model.getTaskVariables());
+  public TaskInstanceInfo createTask(TaskInstance taskInstance) {
 
-      return taskInstanceRepository.create(model,
-          Code.create(externalTaskId),
-          TaskEventType.CREATE);
+      taskInstance.create();
+
+      return taskInstanceRepository.create(taskInstance);
   }
 
 
-  public TaskInstance getTaskInstanceById(UUID id) {
-    return taskInstanceRepository.findById(id)
-        .orElseThrow(() -> IgrpResponseStatusException.notFound("No Task Instance found with id: " + id));
+  public TaskInstanceInfo getTaskInstanceById(UUID id) {
+      return taskInstanceRepository.findById(id)
+          .orElseThrow(() -> IgrpResponseStatusException.notFound("No Task Instance found with id: " + id));
   }
 
 
-  @Transactional
-  public void claimTask(TaskInstance model) {
+  public void claimTask(TaskInstance taskInstance) {
 
-      activitiTaskManager.assignTask(
-          taskInstanceRepository.getExternalIdByTaskId(model.getId().getValue()),
-          model.getUser().getValue(),
-          model.getReason().getValue());
+      taskInstance.update();
 
-      taskInstanceRepository.updateTask(
-          model.getId().getValue(),
-          TaskEventType.CLAIM,
-          model.getUser(),
-          TaskInstanceStatus.ASSIGNED,
-          LocalDateTime.now());
+//      activitiTaskManager.assignTask(
+//          taskInstanceRepository.getExternalIdByTaskId(taskInstance.getId().getValue()),
+//          taskInstance.getUser().getValue(),
+//          null);
+
+      taskInstanceRepository.updateTask(taskInstance);
   }
 
 
-  @Transactional
-  public void assignTask(TaskInstance model) {
+  public void assignTask(TaskInstance taskInstance) {
 
-      activitiTaskManager.assignTask(
-          taskInstanceRepository.getExternalIdByTaskId(model.getId().getValue()),
-          model.getUser().getValue(),
-          model.getReason().getValue());
+      taskInstance.update();
 
-      taskInstanceRepository.updateTask(
-          model.getId().getValue(),
-          TaskEventType.ASSIGN,
-          model.getUser(),
-          TaskInstanceStatus.ASSIGNED,
-          LocalDateTime.now());
+//      activitiTaskManager.assignTask(
+//          taskInstanceRepository.getExternalIdByTaskId(taskInstance.getId().getValue()),
+//          taskInstance.getUser().getValue(),
+//          null);
+
+      taskInstanceRepository.updateTask(taskInstance);
   }
 
 
-  @Transactional
-  public void unClaimTask(TaskInstance model) {
+  public void unClaimTask(TaskInstance taskInstance) {
 
-      activitiTaskManager.claimTask(
-          taskInstanceRepository.getExternalIdByTaskId(model.getId().getValue()),
-          model.getUser().getValue());
+      taskInstance.update();
 
-      taskInstanceRepository.updateTask(
-          model.getId().getValue(),
-          TaskEventType.UNCLAIM,
-          model.getUser(),
-          TaskInstanceStatus.SUSPENDED,
-          LocalDateTime.now());
+//      activitiTaskManager.unclaimTask(
+//          taskInstanceRepository.getExternalIdByTaskId(taskInstance.getId().getValue()));
+
+      taskInstanceRepository.updateTask(taskInstance);
   }
 
 
-  @Transactional
-  public TaskInstance completeTask(TaskInstance model) {
+  public TaskInstanceInfo completeTask(TaskInstance taskInstance) {
 
-      activitiTaskManager.completeTask(
-          taskInstanceRepository.getExternalIdByTaskId(model.getId().getValue()),
-          model.getTaskVariables(),
-          model.getUser().getValue());
+      taskInstance.complete();
 
-      return taskInstanceRepository.completeTask(
-          model.getId().getValue(),
-          TaskEventType.COMPLETE,
-          model.getUser(),
-          TaskInstanceStatus.COMPLETED,
-          LocalDateTime.now());
+      /*activitiTaskManager.completeTask(
+          taskInstanceRepository.getExternalIdByTaskId(taskInstance.getId().getValue()),
+          taskInstance.getTaskVariables(),
+          taskInstance.getUser().getValue());*/
+
+      var completedTask = taskInstanceRepository.completeTask(taskInstance);
+
+      /*if(processoNaoTerminou){ todo
+        activitiTaskManager.createTask(
+            processInstanceId,
+            taskDefinitionKey,
+            taskName,
+            assignee,
+            variables);
+      }*/
+
+      return completedTask;
   }
 
 
-  @Transactional(readOnly = true)
-  public PageableLista<TaskInstance> getAllTaskInstances(TaskInstanceFilter filter) {
+  public PageableLista<TaskInstanceInfo> getAllTaskInstances(TaskInstanceFilter filter) {
       return taskInstanceRepository.findAll(filter);
   }
 
 
-  @Transactional(readOnly = true)
-  public PageableLista<TaskInstance> getAllMyTasks(TaskInstanceFilter filter) {
+  public PageableLista<TaskInstanceInfo> getAllMyTasks(TaskInstanceFilter filter) {
       return taskInstanceRepository.findAll(filter);
   }
 
 
-  @Transactional(readOnly = true)
   public PageableLista<TaskInstanceEvent> getTaskHistory(TaskInstanceFilter filter) {
       return taskInstanceEventRepository.getTaskHistory(filter);
   }

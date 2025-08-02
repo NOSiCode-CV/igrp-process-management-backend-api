@@ -3,8 +3,8 @@ package cv.igrp.platform.process.management.processruntime.application.queries;
 import cv.igrp.framework.core.domain.QueryHandler;
 import cv.igrp.framework.stereotype.IgrpQueryHandler;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceListaPageDTO;
-import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceFilter;
+import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceInfo;
 import cv.igrp.platform.process.management.processruntime.domain.service.TaskInstanceService;
 import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
 import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
@@ -42,7 +42,7 @@ public class ListTaskInstancesQueryHandler implements QueryHandler<ListTaskInsta
            .page(query.getPage())
            .size(query.getSize())
            .build();
-        PageableLista<TaskInstance> taskInstances =  taskInstanceService.getAllTaskInstances(filter);
+        PageableLista<TaskInstanceInfo> taskInstances =  taskInstanceService.getAllTaskInstances(filter);
         return ResponseEntity.ok(taskInstanceMapper.toDTO(taskInstances));
     }
 

@@ -10,10 +10,8 @@ import cv.igrp.platform.process.management.processruntime.application.commands.*
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceHistoryDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceListaPageDTO;
-import cv.igrp.platform.process.management.processruntime.application.queries.GetAllMyTasksQuery;
-import cv.igrp.platform.process.management.processruntime.application.queries.GetTaskHistoryQuery;
-import cv.igrp.platform.process.management.processruntime.application.queries.GetTaskInstanceByIdQuery;
-import cv.igrp.platform.process.management.processruntime.application.queries.ListTaskInstancesQuery;
+import cv.igrp.platform.process.management.processruntime.application.queries.*;
+import cv.igrp.platform.process.management.shared.application.dto.ConfigParameterDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -23,6 +21,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @IgrpController
 @RestController
@@ -382,6 +382,80 @@ public class TaskInstancesController {
       final var query = new GetAllMyTasksQuery(processNumber, processKey, status, dateFrom, dateTo, page, size);
 
       ResponseEntity<TaskInstanceListaPageDTO> response = queryBus.handle(query);
+
+      LOGGER.debug("Operation finished");
+
+      return ResponseEntity.status(response.getStatusCode())
+              .headers(response.getHeaders())
+              .body(response.getBody());
+  }
+
+  @GetMapping(
+    value = "status"
+  )
+  @Operation(
+    summary = "GET method to handle operations for listTaskInstanceStatus",
+    description = "GET method to handle operations for listTaskInstanceStatus",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          description = "",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = ConfigParameterDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+
+  public ResponseEntity<List<ConfigParameterDTO>> listTaskInstanceStatus(
+    @RequestParam(value = "status") String status)
+  {
+
+      LOGGER.debug("Operation started");
+
+      final var query = new ListTaskInstanceStatusQuery(status);
+
+      ResponseEntity<List<ConfigParameterDTO>> response = queryBus.handle(query);
+
+      LOGGER.debug("Operation finished");
+
+      return ResponseEntity.status(response.getStatusCode())
+              .headers(response.getHeaders())
+              .body(response.getBody());
+  }
+
+  @GetMapping(
+    value = "event_type"
+  )
+  @Operation(
+    summary = "GET method to handle operations for listTaskInstanceEventType",
+    description = "GET method to handle operations for listTaskInstanceEventType",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          description = "",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = ConfigParameterDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+
+  public ResponseEntity<List<ConfigParameterDTO>> listTaskInstanceEventType(
+    )
+  {
+
+      LOGGER.debug("Operation started");
+
+      final var query = new ListTaskInstanceEventTypeQuery();
+
+      ResponseEntity<List<ConfigParameterDTO>> response = queryBus.handle(query);
 
       LOGGER.debug("Operation finished");
 

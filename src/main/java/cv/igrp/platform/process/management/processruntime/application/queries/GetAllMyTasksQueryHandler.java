@@ -3,8 +3,8 @@ package cv.igrp.platform.process.management.processruntime.application.queries;
 import cv.igrp.framework.core.domain.QueryHandler;
 import cv.igrp.framework.stereotype.IgrpQueryHandler;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceListaPageDTO;
-import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceFilter;
+import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceInfo;
 import cv.igrp.platform.process.management.processruntime.domain.service.TaskInstanceService;
 import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
 import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
@@ -35,14 +35,14 @@ public class GetAllMyTasksQueryHandler implements QueryHandler<GetAllMyTasksQuer
        TaskInstanceFilter filter = TaskInstanceFilter.builder()
            .processNumber(query.getProcessNumber() != null ? Code.create(query.getProcessNumber()) : null)
            .processKey(query.getProcessKey() != null ? Code.create(query.getProcessKey()) : null)
-           //.user() todo
+           //.user(Code.create(query.getUser())) todo
            .status(query.getStatus() != null ? TaskInstanceStatus.valueOf(query.getStatus()) : null)
            .dateFrom(DateUtil.stringToLocalDate.apply(query.getDateFrom()))
            .dateTo(DateUtil.stringToLocalDate.apply(query.getDateTo()))
            .page(query.getPage())
            .size(query.getSize())
            .build();
-       PageableLista<TaskInstance> taskInstances =  taskInstanceService.getAllMyTasks(filter);
+       PageableLista<TaskInstanceInfo> taskInstances =  taskInstanceService.getAllMyTasks(filter);
        return ResponseEntity.ok(taskInstanceMapper.toDTO(taskInstances));
     }
 
