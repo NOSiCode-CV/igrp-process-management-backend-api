@@ -13,12 +13,12 @@ import java.util.stream.Collectors;
 
 public enum TaskInstanceStatus implements IgrpEnum<String> {
 
-  CREATED("CREATED", "CREATED"),
-    ASSIGNED("ASSIGNED", "ASSIGNED"),
-    SUSPENDED("SUSPENDED", "SUSPENDED"),
-    COMPLETED("COMPLETED", "COMPLETED"),
-    CANCELLED("CANCELLED", "CANCELLED"),
-    DELETED("DELETED", "DELETED")
+  CREATED("CREATED", "Criado"),
+    ASSIGNED("ASSIGNED", "Atribuido"),
+    SUSPENDED("SUSPENDED", "Suspenso"),
+    COMPLETED("COMPLETED", "Completo"),
+    CANCELLED("CANCELLED", "Cancelado"),
+    DELETED("DELETED", "Eliminado")
   ;
 
   private final String code;

@@ -7,42 +7,42 @@
       "name": "CREATED",
       "attributes": [
         "CREATED",
-        "CREATED"
+        "Criado"
       ]
     },
     {
       "name": "ASSIGNED",
       "attributes": [
         "ASSIGNED",
-        "ASSIGNED"
+        "Atribuido"
       ]
     },
     {
       "name": "SUSPENDED",
       "attributes": [
         "SUSPENDED",
-        "SUSPENDED"
+        "Suspenso"
       ]
     },
     {
       "name": "COMPLETED",
       "attributes": [
         "COMPLETED",
-        "COMPLETED"
+        "Completo"
       ]
     },
     {
       "name": "CANCELLED",
       "attributes": [
         "CANCELLED",
-        "CANCELLED"
+        "Cancelado"
       ]
     },
     {
       "name": "DELETED",
       "attributes": [
         "DELETED",
-        "DELETED"
+        "Eliminado"
       ]
     }
   ],
