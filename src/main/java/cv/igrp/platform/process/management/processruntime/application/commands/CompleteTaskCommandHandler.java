@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class CompleteTaskCommandHandler implements CommandHandler<CompleteTaskCommand, ResponseEntity<TaskInstanceDTO>> {
@@ -27,6 +28,7 @@ public class CompleteTaskCommandHandler implements CommandHandler<CompleteTaskCo
     }
 
    @IgrpCommandHandler
+   @Transactional
    public ResponseEntity<TaskInstanceDTO> handle(CompleteTaskCommand command) {
        var taskInstanceReq = TaskInstance.builder()
            .id(Identifier.create(command.getId()))

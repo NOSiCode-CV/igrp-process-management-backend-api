@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Component
@@ -25,6 +25,7 @@ public class AssignTaskCommandHandler implements CommandHandler<AssignTaskComman
     }
 
     @IgrpCommandHandler
+    @Transactional
     public ResponseEntity<String> handle(AssignTaskCommand command) {
        var taskInstanceReq = TaskInstance.builder()
            .id(Identifier.create(command.getId()))

@@ -42,7 +42,7 @@
       "primaryKey": false
     },
     {
-      "name": "startedAt",
+      "name": "performedAt",
       "objectType": "java",
       "type": "datetime",
       "required": false,
@@ -54,7 +54,7 @@
       "primaryKey": false
     },
     {
-      "name": "startedBy",
+      "name": "performedBy",
       "objectType": "java",
       "type": "string",
       "required": false,
@@ -66,43 +66,7 @@
       "primaryKey": false
     },
     {
-      "name": "startObs",
-      "objectType": "java",
-      "type": "string",
-      "required": false,
-      "before": false,
-      "after": false,
-      "positive": false,
-      "isEmail": false,
-      "isUrl": false,
-      "primaryKey": false
-    },
-    {
-      "name": "endedAt",
-      "objectType": "java",
-      "type": "datetime",
-      "required": false,
-      "before": false,
-      "after": false,
-      "positive": false,
-      "isEmail": false,
-      "isUrl": false,
-      "primaryKey": false
-    },
-    {
-      "name": "endedBy",
-      "objectType": "java",
-      "type": "string",
-      "required": false,
-      "before": false,
-      "after": false,
-      "positive": false,
-      "isEmail": false,
-      "isUrl": false,
-      "primaryKey": false
-    },
-    {
-      "name": "endObs",
+      "name": "obs",
       "objectType": "java",
       "type": "string",
       "required": false,

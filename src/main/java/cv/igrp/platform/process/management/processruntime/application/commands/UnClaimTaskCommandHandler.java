@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Component
@@ -23,6 +24,7 @@ public class UnClaimTaskCommandHandler implements CommandHandler<UnClaimTaskComm
     }
 
     @IgrpCommandHandler
+    @Transactional
     public ResponseEntity<String> handle(UnClaimTaskCommand command) {
         var taskInstanceReq = TaskInstance.builder()
             .id(Identifier.create(command.getId()))
