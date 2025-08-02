@@ -44,36 +44,16 @@ public class TaskInstanceEventEntity extends AuditEntity {
     private TaskEventType eventType;
 
 
-    @Column(name="started_at")
-    private LocalDateTime startedAt;
+    @Column(name="performed_at")
+    private LocalDateTime performedAt;
 
 
-    @Column(name="started_by", length=100)
-    private String startedBy;
+    @Column(name="performed_by", length=100)
+    private String performedBy;
 
 
-    @Column(name="input_task")
-    private byte[] inputTask;
-
-
-    @Column(name="output_task")
-    private byte[] outputTask;
-
-
-    @Column(name="start_obs", length=100)
-    private String startObs;
-
-
-    @Column(name="ended_at")
-    private LocalDateTime endedAt;
-
-
-    @Column(name="ended_by", length=100)
-    private String endedBy;
-
-
-    @Column(name="end_obs", length=400)
-    private String endObs;
+    @Column(name="obs", length=100)
+    private String obs;
 
 
     @NotNull(message = "status is mandatory")

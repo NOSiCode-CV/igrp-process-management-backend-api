@@ -33,21 +33,26 @@ public class TaskInstanceEntity extends AuditEntity {
     private UUID id;
 
 
+    @Column(name="external_id")
+    private String externalId;
+
+
+    @Column(name="task_key", length=50)
+    private String taskKey;
+
+
 
 
   @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "process_instance_id", referencedColumnName = "id")
     private ProcessInstanceEntity processInstanceId;
-    @Column(name="task_key", length=50)
-    private String taskKey;
+    @NotBlank(message = "applicationBase is mandatory")
+    @Column(name="application_base", nullable = false)
+    private String applicationBase;
 
 
     @Column(name="name", length=100)
     private String name;
-
-
-    @Column(name="external_id")
-    private String externalId;
 
 
     @Column(name="started_at")
@@ -66,19 +71,22 @@ public class TaskInstanceEntity extends AuditEntity {
     private LocalDateTime assignedAt;
 
 
+    @Column(name="search_terms")
+    private String searchTerms;
+
+
+    @Column(name="ended_at")
+    private LocalDateTime endedAt;
+
+
+    @Column(name="ended_by")
+    private String endedBy;
+
+
     @NotNull(message = "status is mandatory")
     @Enumerated(EnumType.STRING)
     @Column(name="status", nullable = false)
     private TaskInstanceStatus status;
-
-
-    @NotBlank(message = "applicationBase is mandatory")
-    @Column(name="application_base", nullable = false)
-    private String applicationBase;
-
-
-    @Column(name="search_terms")
-    private String searchTerms;
 
      @OneToMany(mappedBy = "taskInstanceId")
 private List<TaskInstanceEventEntity> taskinstanceevents;
