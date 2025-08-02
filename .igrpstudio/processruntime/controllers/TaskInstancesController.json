@@ -347,6 +347,56 @@
           "isRequired": false
         }
       ]
+    },
+    {
+      "actionName": "listTaskInstanceStatus",
+      "path": "status",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ConfigParameterDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "shared"
+              }
+            }
+          }
+        }
+      },
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "status",
+          "description": "Status of the task",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "listTaskInstanceEventType",
+      "path": "event_type",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ConfigParameterDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "shared"
+              }
+            }
+          }
+        }
+      }
     }
   ],
   "id": "s7o1wob8tj-CONTROLLER"
