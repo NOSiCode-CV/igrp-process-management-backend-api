@@ -72,4 +72,8 @@ public class AreaProcessEntity extends AuditEntity {
     private String removedBy;
 
   
+    @Column(name="name")
+    private String name;
+
+  
 }

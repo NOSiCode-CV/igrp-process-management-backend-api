@@ -1,7 +1,9 @@
 package cv.igrp.platform.process.management.processruntime.domain.repository;
 
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstance;
+import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstanceTaskStatus;
 
+import java.util.List;
 import java.util.Map;
 
 public interface RuntimeProcessEngineRepository {
@@ -11,5 +13,6 @@ public interface RuntimeProcessEngineRepository {
 
   String startProcessInstanceByKeyT(String processKey, String businessKey, Map<String, Object> variables);
 
+  List<ProcessInstanceTaskStatus> getTaskStatus(String processInstanceId);
 
 }

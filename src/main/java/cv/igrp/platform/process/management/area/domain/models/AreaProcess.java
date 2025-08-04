@@ -24,6 +24,8 @@ public class AreaProcess {
   private LocalDateTime removedAt;
   private String removedBy;
 
+  private String name;
+
   @Builder
   public AreaProcess(Identifier id,
                      Code processKey,
@@ -34,7 +36,8 @@ public class AreaProcess {
                      LocalDateTime createdAt,
                      String createdBy,
                      LocalDateTime removedAt,
-                     String removedBy) {
+                     String removedBy,
+                     String name) {
     this.id = id == null ? Identifier.generate() : id;
     this.processKey = Objects.requireNonNull(processKey, "The process key cannot be null");
     this.releaseId = Objects.requireNonNull(releaseId, "The process release id cannot be null");
@@ -45,6 +48,7 @@ public class AreaProcess {
     this.createdBy = createdBy;
     this.removedAt = removedAt;
     this.removedBy = removedBy;
+    this.name = name == null || name.isBlank() ? "Process - " + this.releaseId.getValue() : name;
   }
 
   public void bindToArea(Area area) {

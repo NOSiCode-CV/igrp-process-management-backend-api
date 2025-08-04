@@ -28,5 +28,8 @@ public class ProcessDefinitionRequestDTO  {
   
   
   private String version ;
+  @NotBlank(message = "The field <name> is required")
+  
+  private String name ;
 
 }

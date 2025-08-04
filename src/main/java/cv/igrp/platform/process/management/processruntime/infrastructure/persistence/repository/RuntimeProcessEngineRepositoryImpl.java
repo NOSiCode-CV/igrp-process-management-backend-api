@@ -1,7 +1,7 @@
 package cv.igrp.platform.process.management.processruntime.infrastructure.persistence.repository;
 
-import cv.igrp.platform.process.management.processruntime.application.commands.StartProcessInstanceCommandHandler;
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstance;
+import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstanceTaskStatus;
 import cv.igrp.platform.process.management.processruntime.domain.repository.RuntimeProcessEngineRepository;
 import cv.igrp.platform.process.management.shared.security.SecurityUtil;
 import cv.nosi.igrp.runtime.core.engine.process.ProcessManagerAdapter;
@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Map;
 
 @Repository
@@ -52,5 +53,10 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
       throw new RuntimeException("Falha ao iniciar processo", e);
     }
   }//d504ae77-6e2e-11f0-8cc3-00090faa0001
+
+  @Override
+  public List<ProcessInstanceTaskStatus> getTaskStatus(String processInstanceId) {
+    return List.of();
+  }
 
 }

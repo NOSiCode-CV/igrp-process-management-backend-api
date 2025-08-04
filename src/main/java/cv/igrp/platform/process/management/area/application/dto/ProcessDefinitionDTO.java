@@ -54,5 +54,8 @@ public class ProcessDefinitionDTO  {
   
   
   private String removedBy ;
+  
+  
+  private String name ;
 
 }

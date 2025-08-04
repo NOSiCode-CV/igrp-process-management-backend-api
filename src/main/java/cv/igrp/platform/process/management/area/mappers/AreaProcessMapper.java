@@ -22,6 +22,7 @@ public class AreaProcessMapper {
         .processKey(Code.create(processDefinitionRequestDTO.getProcessKey()))
         .releaseId(Code.create(processDefinitionRequestDTO.getReleaseId()))
         .version(processDefinitionRequestDTO.getVersion())
+        .name(processDefinitionRequestDTO.getName())
         .build();
   }
 
@@ -38,6 +39,7 @@ public class AreaProcessMapper {
     processDefinitionDTO.setCreatedBy(areaProcess.getCreatedBy());
     processDefinitionDTO.setRemovedAt(areaProcess.getRemovedAt());
     processDefinitionDTO.setRemovedBy(areaProcess.getRemovedBy());
+    processDefinitionDTO.setName(areaProcess.getName());
     return processDefinitionDTO;
   }
 
@@ -53,6 +55,7 @@ public class AreaProcessMapper {
         .removedAt(areaProcessEntity.getRemovedAt())
         .removedBy(areaProcessEntity.getRemovedBy())
         .status(areaProcessEntity.getStatus())
+        .name(areaProcessEntity.getName())
         .build();
   }
 
@@ -65,6 +68,7 @@ public class AreaProcessMapper {
     areaProcessEntity.setRemovedAt(areaProcess.getRemovedAt());
     areaProcessEntity.setRemovedBy(areaProcess.getRemovedBy());
     areaProcessEntity.setVersion(areaProcess.getVersion());
+    areaProcessEntity.setName(areaProcess.getName());
     AreaEntity areaEntity = new AreaEntity();
     areaEntity.setId(areaProcess.getAreaId().getValue());
     areaProcessEntity.setAreaId(areaEntity);

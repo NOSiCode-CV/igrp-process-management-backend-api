@@ -75,7 +75,7 @@ public class ProcessInstanceMapper {
   public ProcessInstanceDTO toDTO(ProcessInstance processInstance) {
     ProcessInstanceDTO processInstanceDTO = new ProcessInstanceDTO();
     processInstanceDTO.setId(processInstance.getId().getValue());
-    processInstanceDTO.setNumber(processInstance.getNumber().toString());
+    processInstanceDTO.setNumber(processInstance.getNumber() != null ? processInstance.getNumber().getValue() : null);
     processInstanceDTO.setProcReleaseId(processInstance.getProcReleaseId().getValue());
     processInstanceDTO.setProcReleaseKey(processInstance.getProcReleaseKey().getValue());
     processInstanceDTO.setVersion(processInstance.getVersion());
