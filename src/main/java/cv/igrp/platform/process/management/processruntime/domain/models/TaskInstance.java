@@ -103,9 +103,9 @@ public class TaskInstance {
         if(endedBy ==null || endedBy.isEmpty()) {
             throw new IllegalStateException("The ended by by (user) cannot be null!");
         }
-        if(taskVariables.isEmpty()) {
-            throw new IllegalStateException("The task variables cannot not be Empty!");
-        }
+//        if(taskVariables.isEmpty()) {
+//            throw new IllegalStateException("The task variables cannot not be Empty!");
+//        }
         this.status = TaskInstanceStatus.COMPLETED;
         this.endedAt = LocalDateTime.now();
         checkTaskInstanceEvent();

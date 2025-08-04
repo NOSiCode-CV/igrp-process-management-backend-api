@@ -47,7 +47,7 @@ public class TaskInstanceMapper {
     eventEntity.setStatus(taskInstanceEvent.getStatus());
     eventEntity.setPerformedAt(taskInstanceEvent.getPerformedAt());
     eventEntity.setPerformedBy(taskInstanceEvent.getPerformedBy());
-    eventEntity.setObs(taskInstanceEvent.getObs());
+    eventEntity.setObs(taskInstanceEvent.getNote());
     return eventEntity;
   }
 
@@ -167,7 +167,7 @@ public class TaskInstanceMapper {
     eventDto.setEventType(event.getEventType().getCode());
     eventDto.setPerformedAt(event.getPerformedAt());
     eventDto.setPerformedBy(event.getPerformedBy());
-    eventDto.setObs(event.getObs());
+    eventDto.setObs(event.getNote());
     eventDto.setStatus(event.getStatus());
     return eventDto;
   }

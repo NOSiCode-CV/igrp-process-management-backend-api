@@ -52,8 +52,8 @@ public class TaskInstanceEventEntity extends AuditEntity {
     private String performedBy;
 
 
-    @Column(name="obs", length=100)
-    private String obs;
+    @Column(name="note", length=100)
+    private String note;
 
 
     @NotNull(message = "status is mandatory")

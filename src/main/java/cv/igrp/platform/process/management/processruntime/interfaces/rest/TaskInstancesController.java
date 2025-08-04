@@ -145,12 +145,13 @@ public class TaskInstancesController {
   )
 
   public ResponseEntity<String> claimTask(
-    @PathVariable(value = "id") String id)
+    @RequestParam(value = "user") String user,
+    @RequestParam(value = "note", required = false) String note, @PathVariable(value = "id") String id)
   {
 
       LOGGER.debug("Operation started");
 
-      final var command = new ClaimTaskCommand(id);
+      final var command = new ClaimTaskCommand(user, note, id);
 
        ResponseEntity<String> response = commandBus.send(command);
 
@@ -182,12 +183,13 @@ public class TaskInstancesController {
   )
 
   public ResponseEntity<String> unClaimTask(
-    @PathVariable(value = "id") String id)
+    @RequestParam(value = "user") String user,
+    @RequestParam(value = "note", required = false) String note, @PathVariable(value = "id") String id)
   {
 
       LOGGER.debug("Operation started");
 
-      final var command = new UnClaimTaskCommand(id);
+      final var command = new UnClaimTaskCommand(user, note, id);
 
        ResponseEntity<String> response = commandBus.send(command);
 
@@ -219,12 +221,14 @@ public class TaskInstancesController {
   )
 
   public ResponseEntity<String> assignTask(
-    @RequestParam(value = "user") String user, @PathVariable(value = "id") String id)
+    @RequestParam(value = "user_perform") String user_perform,
+    @RequestParam(value = "user_assigned") String user_assigned,
+    @RequestParam(value = "note", required = false) String note, @PathVariable(value = "id") String id)
   {
 
       LOGGER.debug("Operation started");
 
-      final var command = new AssignTaskCommand(user, id);
+      final var command = new AssignTaskCommand(user_perform, user_assigned, note, id);
 
        ResponseEntity<String> response = commandBus.send(command);
 
@@ -256,12 +260,13 @@ public class TaskInstancesController {
   )
 
   public ResponseEntity<String> unAssignTask(
-    @PathVariable(value = "id") String id)
+    @RequestParam(value = "user") String user,
+    @RequestParam(value = "note", required = false) String note, @PathVariable(value = "id") String id)
   {
 
       LOGGER.debug("Operation started");
 
-      final var command = new UnAssignTaskCommand(id);
+      final var command = new UnAssignTaskCommand(user, note, id);
 
        ResponseEntity<String> response = commandBus.send(command);
 
@@ -293,12 +298,13 @@ public class TaskInstancesController {
   )
 
   public ResponseEntity<TaskInstanceDTO> completeTask(
-    @PathVariable(value = "id") String id)
+    @RequestParam(value = "user") String user,
+    @RequestParam(value = "note", required = false) String note, @PathVariable(value = "id") String id)
   {
 
       LOGGER.debug("Operation started");
 
-      final var command = new CompleteTaskCommand(id);
+      final var command = new CompleteTaskCommand(user, note, id);
 
        ResponseEntity<TaskInstanceDTO> response = commandBus.send(command);
 
