@@ -12,10 +12,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AssignTaskCommand implements Command {
 
-  @NotBlank(message = "The field <user_perform> is required.")
-  private String user_perform;
-  @NotBlank(message = "The field <user_assigned> is required.")
-  private String user_assigned;
+  @NotBlank(message = "The field <user> is required.")
+  private String user;
   @NotBlank(message = "The field <note> is required.")
   private String note;
   @NotBlank(message = "The field <id> is required.")

@@ -2,10 +2,8 @@ package cv.igrp.platform.process.management.processruntime.infrastructure.persis
 
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceFilter;
-import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceInfo;
 import cv.igrp.platform.process.management.processruntime.domain.repository.TaskInstanceRepository;
 import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
-import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.TaskInstanceEntity;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.repository.TaskInstanceEntityRepository;
@@ -35,72 +33,31 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
   }
 
 
-  private TaskInstanceEntity getTaskInstanceByID(UUID id) {
-
-    return taskInstanceEntityRepository.findById(id)
-        .orElseThrow(()-> IgrpResponseStatusException.notFound("No TaskInstance fount for id["+ id +"]"));
-  }
-
-
   @Override
-  public Optional<TaskInstanceInfo> findById(UUID id) {
+  public Optional<TaskInstance> findById(UUID id) {
       return taskInstanceEntityRepository.findById(id).map(taskMapper::toModelWithEvents);
   }
 
 
   @Override
-  public String getExternalIdByTaskId(UUID id) {
-      return getTaskInstanceByID(id).getExternalId();
+  public TaskInstance create(TaskInstance taskInstance) {
+      return taskMapper.toModel(
+          taskInstanceEntityRepository.save(
+              taskMapper.toNewTaskEntity(taskInstance)));
   }
 
 
   @Override
-  public TaskInstanceInfo create(TaskInstance taskInstance) {
-
-      var taskInstanceEntity = taskMapper.toNewTaskEntity(taskInstance);
-
-      var taskInstanceEventEntity = taskMapper.toNewTaskEventEntity(taskInstance.getTaskInstanceEvent());
-
-      taskInstanceEntity = taskInstanceEntityRepository.save(taskInstanceEntity);
-      taskInstanceEventEntity.setTaskInstanceId(taskInstanceEntity);
-
-      return taskMapper.toModelInfo(taskInstanceEntity);
-  }
-
-
-  @Override
-  public void updateTask(TaskInstance taskInstance) {
-
-    var taskInstanceEntity = getTaskInstanceByID(taskInstance.getId().getValue());
-    taskInstanceEntity.setStatus(taskInstance.getStatus());
-    taskInstanceEntity.setAssignedBy(taskInstance.getAssignedBy());
-    taskInstanceEntity.setAssignedAt(taskInstance.getAssignedAt());
-
-    var taskInstanceEventEntity = taskMapper.toNewTaskEventEntity(taskInstance.getTaskInstanceEvent());
-    taskInstanceEventEntity.setTaskInstanceId(taskInstanceEntity);
-
-    taskInstanceEntityRepository.save(taskInstanceEntity);
-  }
-
-
-  @Override
-  public TaskInstanceInfo completeTask(TaskInstance taskInstance) {
-
-    var taskInstanceEntity = getTaskInstanceByID(taskInstance.getId().getValue());
-    taskInstanceEntity.setEndedAt(taskInstance.getEndedAt());
-    taskInstanceEntity.setEndedBy(taskInstance.getEndedBy());
-    taskInstanceEntity.setStatus(taskInstance.getStatus());
-
-    var taskInstanceEventEntity = taskMapper.toNewTaskEventEntity(taskInstance.getTaskInstanceEvent());
-    taskInstanceEventEntity.setTaskInstanceId(taskInstanceEntity);
-
-    return taskMapper.toModelInfo(taskInstanceEntityRepository.save(taskInstanceEntity));
+  public TaskInstance update(TaskInstance taskInstance) {
+    return taskMapper.toModelWithEvents(
+        taskInstanceEntityRepository.save(
+            taskMapper.toTaskEntity(taskInstance)));
   }
 
 
   @Override
   @Transactional(readOnly = true)
-  public PageableLista<TaskInstanceInfo> findAll(TaskInstanceFilter filter) {
+  public PageableLista<TaskInstance> findAll(TaskInstanceFilter filter) {
 
       Specification<TaskInstanceEntity> spec = buildSpecification(filter);
 
@@ -109,8 +66,8 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
 
       var pageableProcess = taskInstanceEntityRepository.findAll(spec, pageRequest);
 
-      List<TaskInstanceInfo> content = pageableProcess.stream()
-          .map(taskMapper::toModelInfo)
+      List<TaskInstance> content = pageableProcess.stream()
+          .map(taskMapper::toModel)
           .toList();
 
       return new PageableLista<>(

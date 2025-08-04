@@ -28,7 +28,7 @@ public class GetTaskInstanceByIdQueryHandler implements QueryHandler<GetTaskInst
 
    @IgrpQueryHandler
   public ResponseEntity<TaskInstanceDTO> handle(GetTaskInstanceByIdQuery query) {
-     final var taskInstance =  taskInstanceService.getTaskInstanceById(UUID.fromString(query.getId()));
+     final var taskInstance =  taskInstanceService.getById(UUID.fromString(query.getId()));
      return ResponseEntity.ok(taskInstanceMapper.toTaskDTO(taskInstance));
   }
 

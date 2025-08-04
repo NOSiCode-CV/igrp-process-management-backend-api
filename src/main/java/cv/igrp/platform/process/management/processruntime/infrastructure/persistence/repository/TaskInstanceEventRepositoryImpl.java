@@ -30,6 +30,11 @@ public class TaskInstanceEventRepositoryImpl implements TaskInstanceEventReposit
       return taskInstanceEventEntityRepository.findById(id).map(taskMapper::toEventModel);
   }
 
+  @Override
+  public void save(TaskInstanceEvent taskInstanceEvent) {
+    taskInstanceEventEntityRepository.save(taskMapper.toTaskEventEntity(taskInstanceEvent));
+  }
+
 
   @Override
   public List<TaskInstanceEvent> findAll(TaskInstanceFilter filter) {
