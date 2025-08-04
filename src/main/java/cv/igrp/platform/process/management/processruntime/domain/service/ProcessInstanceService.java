@@ -36,27 +36,25 @@ public class ProcessInstanceService {
 
   public ProcessInstance startProcessInstance(ProcessInstance processInstance) {
     processInstance.start();
-    // Call process engine
-    // ...
-    // Persist
 
     var variables = processInstance.getVariables();
     var businessKey = processInstance.getBusinessKey();
     var processKey= processInstance.getProcReleaseKey();
+    var processDefinitionId = processInstance.getProcReleaseId();
 
     if (variables == null) {
       variables = Collections.emptyMap();
     }
 
-    var id = runtimeProcessEngineRepository.startProcessInstanceByKeyT(processKey.getValue(), businessKey.getValue(),variables);
-    System.out.println("ID processo: " + id);
+    var id = runtimeProcessEngineRepository.startProcessInstanceById(processDefinitionId.getValue(), businessKey.getValue(),variables);
     //return processInstance;
     return processInstanceRepository.save(processInstance);
   }
 
   public List<ProcessInstanceTaskStatus> getProcessInstanceTaskStatus(UUID id) {
     ProcessInstance processInstance = getProcessInstanceById(id);
-    return runtimeProcessEngineRepository.getTaskStatus(processInstance.getNumber().getValue());
+    //return runtimeProcessEngineRepository.getTaskStatus(processInstance.getNumber().getValue());
+    return null;
   }
 
 }

@@ -31,6 +31,16 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
   @Override
   public ProcessInstance startProcessInstanceById(String processDefinitionId, String businessKey, Map<String, Object> variables) {
 
+     // Set authentication context
+    securityUtil.logInAs("joao");
+
+    LOGGER.info("Authenticated user: {}", SecurityContextHolder.getContext().getAuthentication().getName());
+    try {
+      var processInstance = processManagerAdapter.startProcess(processDefinitionId, businessKey, variables);
+    } catch (Exception e) {
+      LOGGER.error("Erro ao iniciar processo", e);
+      throw new RuntimeException("Falha ao iniciar processo", e);
+    }
     return null;
   }
 
