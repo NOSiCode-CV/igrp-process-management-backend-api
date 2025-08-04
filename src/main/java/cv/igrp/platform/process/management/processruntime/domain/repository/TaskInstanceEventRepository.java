@@ -12,6 +12,8 @@ public interface TaskInstanceEventRepository {
 
     Optional<TaskInstanceEvent> findById(UUID id);
 
+    public void save( TaskInstanceEvent taskInstanceEvent);
+
     List<TaskInstanceEvent> findAll(TaskInstanceFilter filter);
 
     PageableLista<TaskInstanceEvent> getTaskHistory(TaskInstanceFilter filter);

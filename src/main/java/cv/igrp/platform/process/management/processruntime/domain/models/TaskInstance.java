@@ -1,5 +1,6 @@
 package cv.igrp.platform.process.management.processruntime.domain.models;
 
+import cv.igrp.platform.process.management.shared.application.constants.TaskEventType;
 import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
@@ -8,6 +9,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -21,16 +23,16 @@ public class TaskInstance {
     private final Identifier id;
     private final Code taskKey;
     private final Name name;
-    private final String searchTerms;
+    private String searchTerms;
     private TaskInstanceStatus status;
     private LocalDateTime startedAt;
-    private final String startedBy;
+    private Code startedBy;
     private LocalDateTime assignedAt;
-    private final String assignedBy;
+    private Code assignedBy;
     private LocalDateTime endedAt;
-    private final String endedBy;
-    private final Map<String,Object> taskVariables;
-    private final TaskInstanceEvent taskInstanceEvent;
+    private Code endedBy;
+    private Map<String,Object> variables;
+    private List<TaskInstanceEvent> taskInstanceEvents;
 
     @Builder
     public TaskInstance(
@@ -45,13 +47,13 @@ public class TaskInstance {
                         String searchTerms,
                         TaskInstanceStatus status,
                         LocalDateTime startedAt,
-                        String startedBy,
+                        Code startedBy,
                         LocalDateTime assignedAt,
-                        String assignedBy,
+                        Code assignedBy,
                         LocalDateTime endedAt,
-                        String endedBy,
+                        Code endedBy,
                         Map<String,Object> taskVariables,
-                        TaskInstanceEvent taskInstanceEvent)
+                        List<TaskInstanceEvent> taskInstanceEvents)
     {
         this.applicationBase = Objects.requireNonNull(applicationBase, "Application Base cannot be null!");
         this.processType = Objects.requireNonNull(processType, "Process Type cannot be null!");
@@ -69,54 +71,75 @@ public class TaskInstance {
         this.assignedBy = assignedBy;
         this.endedAt = endedAt;
         this.endedBy = endedBy;
-        this.taskVariables = taskVariables!=null ? taskVariables : Map.of();
-        this.taskInstanceEvent = Objects.requireNonNull(taskInstanceEvent, "TaskInstanceEvent cannot be null!");
+        this.variables = taskVariables!=null ? taskVariables : Map.of();
+        this.taskInstanceEvents = taskInstanceEvents;
     }
 
 
     public void create() {
-        if(this.status!=TaskInstanceStatus.CREATED && this.status!=TaskInstanceStatus.ASSIGNED)
+        if (this.status != TaskInstanceStatus.CREATED && this.status != TaskInstanceStatus.ASSIGNED) {
             throw new IllegalStateException("The status of the task instance must be CREATED or ASSIGNED");
-        if(startedBy==null || startedBy.isEmpty())
+        }
+        if (startedBy==null) {
             throw new IllegalStateException("The started by (user) of the task cannot be null!");
-        this.startedAt = LocalDateTime.now();
-        checkTaskInstanceEvent();
-    }
-
-
-    public void update() {
-        if(this.status==TaskInstanceStatus.COMPLETED) {
-            throw new IllegalStateException("The status of the task instance cannot be COMPLETED!");
         }
-        if(this.status==TaskInstanceStatus.ASSIGNED) {
-            if(assignedBy==null || assignedBy.isEmpty()) {
-              throw new IllegalStateException("The assigned by (user) cannot be null!");
+        if(this.status != TaskInstanceStatus.CREATED) {
+            if(this.assignedBy==null) {
+                throw new IllegalStateException("The signed by (user) of the task cannot be null!");
             }
-        } else {
-            ; // todo
+            this.assignedAt = LocalDateTime.now();
         }
-        checkTaskInstanceEvent();
+        this.startedAt = LocalDateTime.now();
+        createTaskInstanceEvent(TaskEventType.CREATE,null);
     }
 
 
-    public void complete() {
-        if(endedBy ==null || endedBy.isEmpty()) {
-            throw new IllegalStateException("The ended by by (user) cannot be null!");
+    public void claim(String note) {
+        this.status = TaskInstanceStatus.ASSIGNED;
+        this.assignedAt = LocalDateTime.now();
+        this.assignedBy = Code.create("user456");//todo
+        createTaskInstanceEvent(TaskEventType.CLAIM,note);
+    }
+
+
+    public void assign(Code user, String note) {
+        if(user==null) {
+          throw new IllegalStateException("The assigned by (user) cannot be null!");
         }
-//        if(taskVariables.isEmpty()) {
-//            throw new IllegalStateException("The task variables cannot not be Empty!");
-//        }
+        this.status = TaskInstanceStatus.ASSIGNED;
+        this.assignedAt = LocalDateTime.now();
+        this.assignedBy = user;
+        createTaskInstanceEvent(TaskEventType.ASSIGN,note);
+    }
+
+
+    public void unClaim(String note) {
+        this.status = TaskInstanceStatus.CREATED;
+        this.assignedAt = null;
+        this.assignedBy = null;
+        createTaskInstanceEvent(TaskEventType.UNCLAIM,note);
+    }
+
+
+    public void complete(Map<String,Object> variables, String note) {
         this.status = TaskInstanceStatus.COMPLETED;
         this.endedAt = LocalDateTime.now();
-        checkTaskInstanceEvent();
+        this.endedBy = Code.create("user789");//todo
+        this.variables = variables!=null ? variables : Map.of();
+        createTaskInstanceEvent(TaskEventType.COMPLETE,note);
     }
 
 
-    private void checkTaskInstanceEvent() {
-        if (this.status != this.getTaskInstanceEvent().getStatus())
-            throw new IllegalStateException(
-                "The status of the task instance event must be equal to the task instance event status!");
-        this.getTaskInstanceEvent().validate();
+    private void createTaskInstanceEvent(TaskEventType eventType, String note){
+        this.taskInstanceEvents = List.of(TaskInstanceEvent.builder()
+            .taskInstanceId(Identifier.generate())
+            .taskInstanceId(this.id)
+            .eventType(eventType)
+            .status(this.status)
+            .performedAt(LocalDateTime.now())
+            .performedBy(Code.create("user1234")) //todo
+            .note(note)
+            .build());
     }
 
 
