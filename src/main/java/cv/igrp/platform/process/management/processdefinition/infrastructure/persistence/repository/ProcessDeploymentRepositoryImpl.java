@@ -51,11 +51,6 @@ public class ProcessDeploymentRepositoryImpl implements ProcessDeploymentReposit
     return processDeploymentMapper.toModel(deployedRepresentation);
   }
 
-  @Override
-  public void undeploy(String deploymentId) {
-
-  }
-
   private ProcessFilter toProcessFilter(ProcessDeploymentFilter filter) {
     ProcessFilter processFilter = new ProcessFilter();
     processFilter.setName(filter.getProcessName()!=null && !filter.getProcessName().isBlank() ? filter.getProcessName() : null );

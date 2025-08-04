@@ -2,6 +2,7 @@ package cv.igrp.platform.process.management.processruntime.infrastructure.persis
 
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstance;
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstanceTaskStatus;
+import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
 import cv.igrp.platform.process.management.processruntime.domain.repository.RuntimeProcessEngineRepository;
 import cv.igrp.platform.process.management.shared.security.SecurityUtil;
 import cv.nosi.igrp.runtime.core.engine.process.ProcessManagerAdapter;
@@ -34,12 +35,35 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
   }
 
   @Override
-  public ProcessInstance startProcessInstanceByKey(String processKey, String businessKey, Map<String, Object> variables) {
-
+  public ProcessInstance getProcessInstanceById(String processInstanceId) {
     return null;
   }
 
   @Override
+  public List<ProcessInstanceTaskStatus> getProcessInstanceTaskStatus(String processInstanceId) {
+    return List.of();
+  }
+
+  @Override
+  public List<TaskInstance> getActiveTaskInstances(String processInstanceId) {
+    return List.of();
+  }
+
+  @Override
+  public List<TaskInstance> getTaskInstances(String processInstanceId) {
+    return List.of();
+  }
+
+  @Override
+  public void completeTask(String taskInstanceId, Map<String, Object> variables) {
+
+  }
+
+  @Override
+  public TaskInstance getTaskInstance(String taskInstanceId) {
+    return null;
+  }
+  /*@Override
   public String startProcessInstanceByKeyT(String processKey, String businessKey, Map<String, Object> variables) {
 
     // Set authentication context
@@ -47,16 +71,14 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
 
     LOGGER.info("Authenticated user: {}", SecurityContextHolder.getContext().getAuthentication().getName());
     try {
-      return processManagerAdapter.startProcess(processKey, businessKey, variables);
+      i bn processManagerAdapter.startProcess(processKey, businessKey, variables);
     } catch (Exception e) {
       LOGGER.error("Erro ao iniciar processo", e);
       throw new RuntimeException("Falha ao iniciar processo", e);
     }
-  }//d504ae77-6e2e-11f0-8cc3-00090faa0001
+  }*/
 
-  @Override
-  public List<ProcessInstanceTaskStatus> getTaskStatus(String processInstanceId) {
-    return List.of();
-  }
+
+
 
 }
