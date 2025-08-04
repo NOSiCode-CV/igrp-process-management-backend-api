@@ -16,7 +16,7 @@ public class TaskInstanceEvent {
     private final TaskEventType eventType;
     private LocalDateTime performedAt;
     private final String performedBy;
-    private final String obs;
+    private final String note;
     private final TaskInstanceStatus status;
 
 
@@ -27,15 +27,15 @@ public class TaskInstanceEvent {
                 TaskEventType eventType,
                 LocalDateTime performedAt,
                 String performedBy,
-                String obs,
+                String note,
                 TaskInstanceStatus status
     ) {
         this.id = id == null ? Identifier.generate() : id;
         this.taskInstanceId = taskInstanceId;
         this.eventType = Objects.requireNonNull(eventType, "EventType cannot be null");
-        this.performedAt = performedAt;
+        this.performedAt = Objects.requireNonNull(performedAt, "PerformedAt cannot be null");
         this.performedBy = Objects.requireNonNull(performedBy, "PerformedBy cannot be null");
-        this.obs = obs;
+        this.note = note!=null && !note.isBlank() ? note.trim() : null;
         this.status = Objects.requireNonNull(status, "Status cannot be null");
     }
 

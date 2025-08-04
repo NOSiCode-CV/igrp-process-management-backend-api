@@ -119,6 +119,18 @@
           }
         }
       },
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "user",
+          "isRequired": true
+        },
+        {
+          "type": "string",
+          "name": "note",
+          "isRequired": false
+        }
+      ],
       "pathVariables": [
         {
           "name": "id",
@@ -146,6 +158,18 @@
           }
         }
       },
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "user",
+          "isRequired": true
+        },
+        {
+          "type": "string",
+          "name": "note",
+          "isRequired": false
+        }
+      ],
       "pathVariables": [
         {
           "name": "id",
@@ -176,8 +200,18 @@
       "requestParams": [
         {
           "type": "string",
-          "name": "user",
+          "name": "user_perform",
           "isRequired": true
+        },
+        {
+          "type": "string",
+          "name": "user_assigned",
+          "isRequired": true
+        },
+        {
+          "type": "string",
+          "name": "note",
+          "isRequired": false
         }
       ],
       "pathVariables": [
@@ -207,6 +241,18 @@
           }
         }
       },
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "user",
+          "isRequired": true
+        },
+        {
+          "type": "string",
+          "name": "note",
+          "isRequired": false
+        }
+      ],
       "pathVariables": [
         {
           "name": "id",
@@ -236,6 +282,18 @@
           }
         }
       },
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "user",
+          "isRequired": true
+        },
+        {
+          "type": "string",
+          "name": "note",
+          "isRequired": false
+        }
+      ],
       "pathVariables": [
         {
           "name": "id",
