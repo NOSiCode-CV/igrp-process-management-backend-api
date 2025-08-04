@@ -23,13 +23,6 @@ public class TaskInstanceMapper {
   public TaskInstanceEntity toNewTaskEntity(TaskInstance taskInstance) {
     var taskInstanceEntity = new TaskInstanceEntity();
     taskInstanceEntity.setId(taskInstance.getId().getValue());
-    this.toTaskInstanceEntity(taskInstance,taskInstanceEntity);
-    return taskInstanceEntity;
-  }
-
-
-  public void toTaskInstanceEntity(TaskInstance taskInstance,
-                                   TaskInstanceEntity taskInstanceEntity) {
     taskInstanceEntity.setApplicationBase(taskInstance.getApplicationBase().getValue());
     taskInstanceEntity.setExternalId(taskInstance.getExternalId().getValue());
     taskInstanceEntity.setTaskKey(taskInstance.getTaskKey().getValue());
@@ -40,6 +33,20 @@ public class TaskInstanceMapper {
     taskInstanceEntity.setAssignedAt(taskInstance.getAssignedAt());
     taskInstanceEntity.setStatus(taskInstance.getStatus());
     taskInstanceEntity.setSearchTerms(taskInstance.getSearchTerms());
+    return taskInstanceEntity;
+  }
+
+
+  public TaskInstanceEntity toTaskEntity(TaskInstance taskInstance) {
+    var taskInstanceEntity = new TaskInstanceEntity();
+    taskInstanceEntity.setId(taskInstance.getId().getValue());
+    taskInstanceEntity.setStatus(taskInstance.getStatus());
+    taskInstanceEntity.setAssignedBy(taskInstance.getAssignedBy().getValue());
+    taskInstanceEntity.setAssignedAt(taskInstance.getAssignedAt());
+    taskInstanceEntity.setEndedBy(taskInstance.getEndedBy().getValue());
+    taskInstanceEntity.setEndedAt(taskInstance.getEndedAt());
+    taskInstanceEntity.setSearchTerms(taskInstance.getSearchTerms());
+    return taskInstanceEntity;
   }
 
 
@@ -62,7 +69,7 @@ public class TaskInstanceMapper {
 
 
 
-  public TaskInstance toModelInfo(TaskInstanceEntity entity) {
+  public TaskInstance toModel(TaskInstanceEntity entity) {
     return TaskInstance.builder()
         .id(Identifier.create(entity.getId()))
         .processType(Code.create(entity.getProcessInstanceId().getProcReleaseKey()))
