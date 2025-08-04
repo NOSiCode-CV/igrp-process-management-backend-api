@@ -4,15 +4,19 @@ import cv.igrp.platform.process.management.processruntime.application.dto.Proces
 import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceListaPageDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.StartProcessRequestDTO;
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstance;
+import cv.igrp.platform.process.management.shared.application.constants.ProcessInstanceStatus;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.ProcessInstanceEntity;
+import cv.nosi.igrp.runtime.core.engine.process.model.IGRPProcessStatus;
 import org.springframework.stereotype.Component;
 
+import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Component
 public class ProcessInstanceMapper {
@@ -108,5 +112,41 @@ public class ProcessInstanceMapper {
     dto.setContent(content);
     return dto;
   }
+
+  public ProcessInstance toModel(cv.nosi.igrp.runtime.core.engine.process.model.ProcessInstance processInstance) {
+
+    if (processInstance == null) {
+      return null;
+    }
+
+    return ProcessInstance.builder()
+        .number(Code.create(processInstance.getId()))
+        .procReleaseId(processInstance.getProcessDefinitionId() != null ? Code.create(processInstance.getProcessDefinitionId()) : null)
+        .procReleaseKey(processInstance.getProcessDefinitionKey() != null ? Code.create(processInstance.getProcessDefinitionKey()) : null)
+        .businessKey(processInstance.getBusinessKey() != null ? Code.create(processInstance.getBusinessKey()) : null)
+        .applicationBase(Code.create("igrp")) // ou mapeia de algum lado se houver contexto
+        .version(processInstance.getProcessDefinitionVersion() != null ? String.valueOf(processInstance.getProcessDefinitionVersion()) : null)
+        .startedBy(processInstance.getInitiator())
+        .startedAt(Optional.ofNullable(processInstance.getStartDate())
+            .map(d -> d.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime())
+            .orElse(null))
+        .endedAt(Optional.ofNullable(processInstance.getCompletedDate())
+            .map(d -> d.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime())
+            .orElse(null))
+        .status(mapStatus(processInstance.getStatus()))
+        .variables(new HashMap<>()) // se houver alguma origem para as variáveis, mapeia aqui
+        .build();
+  }
+
+  private ProcessInstanceStatus mapStatus(IGRPProcessStatus igrpStatus) {
+    if (igrpStatus == null) return ProcessInstanceStatus.CREATED;
+    try {
+      return ProcessInstanceStatus.valueOf(igrpStatus.name());
+    } catch (IllegalArgumentException ex) {
+      return ProcessInstanceStatus.CREATED; // fallback
+    }
+  }
+
+
 
 }

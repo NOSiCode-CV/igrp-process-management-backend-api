@@ -4,6 +4,7 @@ import cv.igrp.platform.process.management.processruntime.domain.models.ProcessI
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstanceTaskStatus;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
 import cv.igrp.platform.process.management.processruntime.domain.repository.RuntimeProcessEngineRepository;
+import cv.igrp.platform.process.management.processruntime.mappers.ProcessInstanceMapper;
 import cv.igrp.platform.process.management.shared.security.SecurityUtil;
 import cv.nosi.igrp.runtime.core.engine.process.ProcessManagerAdapter;
 import org.slf4j.Logger;
@@ -22,10 +23,13 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
   private final SecurityUtil securityUtil;
   private static final Logger LOGGER = LoggerFactory.getLogger(RuntimeProcessEngineRepositoryImpl.class);
 
+  private final ProcessInstanceMapper processInstanceMapper;
 
-  public RuntimeProcessEngineRepositoryImpl(ProcessManagerAdapter processManagerAdapter, SecurityUtil securityUtil) {
+
+  public RuntimeProcessEngineRepositoryImpl(ProcessManagerAdapter processManagerAdapter, SecurityUtil securityUtil, ProcessInstanceMapper processInstanceMapper) {
     this.processManagerAdapter = processManagerAdapter;
     this.securityUtil = securityUtil;
+    this.processInstanceMapper = processInstanceMapper;
   }
 
   @Override
@@ -37,11 +41,12 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
     LOGGER.info("Authenticated user: {}", SecurityContextHolder.getContext().getAuthentication().getName());
     try {
       var processInstance = processManagerAdapter.startProcess(processDefinitionId, businessKey, variables);
+      LOGGER.info("Process started with ID: {}", processInstance.getId());
+      return processInstanceMapper.toModel(processInstance);
     } catch (Exception e) {
       LOGGER.error("Erro ao iniciar processo", e);
       throw new RuntimeException("Falha ao iniciar processo", e);
     }
-    return null;
   }
 
   @Override
