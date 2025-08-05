@@ -19,12 +19,8 @@ public interface RuntimeProcessEngineRepository {
   // list of available Tasks
   List<TaskInstance> getActiveTaskInstances(String processInstanceId);
 
-  List<TaskInstance> getTaskInstances(String processInstanceId);
-
   // Execute/Complete Task
   void completeTask(String taskInstanceId, Map<String, Object> variables);
 
-  // Task Instance Details + variable/forms
-  TaskInstance getTaskInstance(String taskInstanceId);
 
 }

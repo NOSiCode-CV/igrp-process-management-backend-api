@@ -9,8 +9,8 @@ import cv.igrp.platform.process.management.processruntime.mappers.ProcessInstanc
 import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
 import cv.igrp.platform.process.management.shared.security.SecurityUtil;
 import cv.nosi.igrp.runtime.core.engine.process.ProcessManagerAdapter;
-import cv.nosi.igrp.runtime.core.engine.task.TaskManager;
-import cv.nosi.igrp.runtime.core.engine.task.model.IGRPTaskStatus;
+import cv.nosi.igrp.runtime.core.engine.task.TaskActionService;
+import cv.nosi.igrp.runtime.core.engine.task.TaskQueryService;
 import cv.nosi.igrp.runtime.core.engine.task.model.TaskFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +26,6 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
 
 
   private final ProcessManagerAdapter processManagerAdapter;
-  private final TaskManager taskManagerAdapter;
   private final SecurityUtil securityUtil;
   private static final Logger LOGGER = LoggerFactory.getLogger(RuntimeProcessEngineRepositoryImpl.class);
 
@@ -34,16 +33,21 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
 
   private final TaskInstanceMapper taskInstanceMapper;
 
+  private final TaskActionService taskActionService;
   private final ProcessInstanceTaskStatusMapper processInstanceTaskStatusMapper;
 
+  private final TaskQueryService taskQueryService;
 
-  public RuntimeProcessEngineRepositoryImpl(ProcessManagerAdapter processManagerAdapter, TaskManager taskManagerAdapter, SecurityUtil securityUtil, ProcessInstanceMapper processInstanceMapper, TaskInstanceMapper taskInstanceMapper, ProcessInstanceTaskStatusMapper processInstanceTaskStatusMapper) {
+  public RuntimeProcessEngineRepositoryImpl(ProcessManagerAdapter processManagerAdapter, SecurityUtil securityUtil, ProcessInstanceMapper processInstanceMapper,
+                                            TaskInstanceMapper taskInstanceMapper,
+                                            TaskActionService taskActionService, ProcessInstanceTaskStatusMapper processInstanceTaskStatusMapper, TaskQueryService taskQueryService) {
     this.processManagerAdapter = processManagerAdapter;
-    this.taskManagerAdapter = taskManagerAdapter;
     this.securityUtil = securityUtil;
     this.processInstanceMapper = processInstanceMapper;
     this.taskInstanceMapper = taskInstanceMapper;
+    this.taskActionService = taskActionService;
     this.processInstanceTaskStatusMapper = processInstanceTaskStatusMapper;
+    this.taskQueryService = taskQueryService;
   }
 
   @Override
@@ -80,10 +84,8 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
   public List<ProcessInstanceTaskStatus> getProcessInstanceTaskStatus(String processInstanceId) {
     try {
 
-      TaskFilter filter = new TaskFilter();
-      filter.setProcessInstanceId(processInstanceId);
 
-      var tasks = taskManagerAdapter.listTasks(filter);
+      var tasks = taskQueryService.getAllTasks(processInstanceId);
 
       return tasks.stream()
           .map(processInstanceTaskStatusMapper::toModel)
@@ -99,11 +101,8 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
   @Override
   public List<TaskInstance> getActiveTaskInstances(String processInstanceId) {
     try {
-      TaskFilter filter = new TaskFilter();
-      filter.setProcessInstanceId(processInstanceId);
-      filter.setStatus(IGRPTaskStatus.CREATED);
 
-      return taskManagerAdapter.listTasks(filter).stream()
+      return taskQueryService.getActiveTaskInstances(processInstanceId).stream()
           .map(taskInstanceMapper::toModel)
           .collect(Collectors.toList());
 
@@ -113,33 +112,11 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
     }
   }
 
-  @Override
-  public List<TaskInstance> getTaskInstances(String processInstanceId) {
-
-    try {
-      TaskFilter filter = new TaskFilter();
-      filter.setProcessInstanceId(processInstanceId);
-
-      return taskManagerAdapter.listTasks(filter).stream()
-          .map(taskInstanceMapper::toModel)
-          .collect(Collectors.toList());
-
-    } catch (Exception e) {
-      LOGGER.error("Erro ao obter tarefas da instância: {}", processInstanceId, e);
-      throw new RuntimeException("Erro ao obter tarefas", e);
-    }
-
-  }
 
   @Override
   public void completeTask(String taskInstanceId, Map<String, Object> variables) {
 
-    taskManagerAdapter.completeTask(taskInstanceId, variables, "user");
-  }
-
-  @Override
-  public TaskInstance getTaskInstance(String taskInstanceId) {
-    return taskManagerAdapter.getTask(taskInstanceId).map(taskInstanceMapper::toModel).orElse(null);
+    taskActionService.completeTask(taskInstanceId, variables, "user");
   }
 
 
