@@ -8,7 +8,6 @@ import cv.igrp.platform.process.management.processruntime.domain.repository.Task
 import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
-import cv.nosi.igrp.runtime.activiti.engine.task.ActivitiTaskManager;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -17,15 +16,13 @@ import java.util.UUID;
 @Service
 public class TaskInstanceService {
 
-  private final ActivitiTaskManager activitiTaskManager;
   private final TaskInstanceRepository taskInstanceRepository;
   private final TaskInstanceEventRepository taskInstanceEventRepository;
 
-  public TaskInstanceService(ActivitiTaskManager activitiTaskManager,
+  public TaskInstanceService(
                              TaskInstanceRepository taskInstanceRepository,
                              TaskInstanceEventRepository taskInstanceEventRepository) {
 
-      this.activitiTaskManager = activitiTaskManager;
       this.taskInstanceRepository = taskInstanceRepository;
       this.taskInstanceEventRepository = taskInstanceEventRepository;
   }

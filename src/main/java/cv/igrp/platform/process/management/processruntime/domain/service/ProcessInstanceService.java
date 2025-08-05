@@ -38,7 +38,7 @@ public class ProcessInstanceService {
     processInstance.start();
 
     var variables = processInstance.getVariables();
-    var businessKey = processInstance.getBusinessKey();
+    var businessKey = processInstance.getBusinessKey()!=null ? processInstance.getBusinessKey().getValue() : null;
     var processKey= processInstance.getProcReleaseKey();
     var processDefinitionId = processInstance.getProcReleaseId();
 
@@ -46,7 +46,7 @@ public class ProcessInstanceService {
       variables = Collections.emptyMap();
     }
 
-    var id = runtimeProcessEngineRepository.startProcessInstanceById(processDefinitionId.getValue(), businessKey.getValue(),variables);
+    var id = runtimeProcessEngineRepository.startProcessInstanceById(processDefinitionId.getValue(), businessKey,variables);
 
     return processInstanceRepository.save(processInstance);
   }

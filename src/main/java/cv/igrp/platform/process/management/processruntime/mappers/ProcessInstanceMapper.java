@@ -30,7 +30,7 @@ public class ProcessInstanceMapper {
     processInstanceEntity.setApplicationBase(processInstance.getApplicationBase().getValue());
     processInstanceEntity.setVersion(processInstance.getVersion());
     processInstanceEntity.setStatus(processInstance.getStatus());
-    processInstanceEntity.setBusinessKey(processInstance.getBusinessKey().getValue());
+    processInstanceEntity.setBusinessKey(processInstance.getBusinessKey()!=null ? processInstance.getBusinessKey().getValue() : null);
     processInstanceEntity.setStartedAt(processInstance.getStartedAt());
     processInstanceEntity.setStartedBy(processInstance.getStartedBy());
     processInstanceEntity.setCanceledAt(processInstance.getCanceledAt());
@@ -45,7 +45,7 @@ public class ProcessInstanceMapper {
         .id(Identifier.create(processInstanceEntity.getId()))
         .number(Code.create(processInstanceEntity.getNumber()))
         .procReleaseKey(Code.create(processInstanceEntity.getProcReleaseKey()))
-        .businessKey(Code.create(processInstanceEntity.getBusinessKey()))
+        .businessKey(processInstanceEntity.getBusinessKey()!=null ? Code.create(processInstanceEntity.getBusinessKey()) : null)
         .procReleaseId(Code.create(processInstanceEntity.getProcReleaseId()))
         .status(processInstanceEntity.getStatus())
         .searchTerms(processInstanceEntity.getSearchTerms())
@@ -69,7 +69,8 @@ public class ProcessInstanceMapper {
     return ProcessInstance.builder()
         .procReleaseId(Code.create(startProcessRequestDTO.getProcessDefinitionId()))
         .procReleaseKey(Code.create(startProcessRequestDTO.getProcessKey()))
-        .businessKey(startProcessRequestDTO.getBusinessKey() != null ? Code.create(startProcessRequestDTO.getBusinessKey()) : null)
+        .businessKey(startProcessRequestDTO.getBusinessKey() != null && !startProcessRequestDTO.getBusinessKey().trim().isEmpty()
+            ? Code.create(startProcessRequestDTO.getBusinessKey()) : null)
         .applicationBase(Code.create(startProcessRequestDTO.getApplicationBase()))
         .startedBy("user")
         .variables(vars)
