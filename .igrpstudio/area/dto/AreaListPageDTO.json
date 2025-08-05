@@ -1,18 +1,14 @@
 {
   "type": "dto",
-  "module": "processruntime",
-  "name": "ProcessInstanceListaPageDTO",
+  "module": "area",
+  "name": "AreaListPageDTO",
   "template": "classic",
   "enableCustonValidation": false,
-  "extends": {
-    "name": "Page",
-    "module": "shared"
-  },
   "attributes": [
     {
       "name": "content",
       "objectType": "dto",
-      "type": "ProcessInstanceDTO",
+      "type": "AreaDTO",
       "required": false,
       "before": false,
       "after": false,
@@ -20,9 +16,13 @@
       "isEmail": false,
       "isUrl": false,
       "primaryKey": false,
-      "module": "processruntime",
-      "collectionType": "list"
+      "collectionType": "list",
+      "module": "area"
     }
   ],
-  "id": "r9uhcmpe2r"
+  "id": "e7l6osirny",
+  "extends": {
+    "name": "Page",
+    "module": "shared"
+  }
 }

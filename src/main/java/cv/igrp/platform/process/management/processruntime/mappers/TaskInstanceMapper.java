@@ -11,9 +11,9 @@ import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import cv.igrp.platform.process.management.shared.domain.models.Name;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
+import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.ProcessInstanceEntity;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.TaskInstanceEntity;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.TaskInstanceEventEntity;
-import cv.nosi.igrp.runtime.core.engine.task.model.IGRPTaskStatus;
 import cv.nosi.igrp.runtime.core.engine.task.model.TaskInfo;
 import org.springframework.stereotype.Component;
 
@@ -29,10 +29,17 @@ public class TaskInstanceMapper {
   public TaskInstanceEntity toNewTaskEntity(TaskInstance taskInstance) {
     var taskInstanceEntity = new TaskInstanceEntity();
     taskInstanceEntity.setId(taskInstance.getId().getValue());
-    taskInstanceEntity.setApplicationBase(taskInstance.getApplicationBase().getValue());
-    taskInstanceEntity.setExternalId(taskInstance.getExternalId().getValue());
     taskInstanceEntity.setTaskKey(taskInstance.getTaskKey().getValue());
+    taskInstanceEntity.setExternalId(taskInstance.getExternalId().getValue());
     taskInstanceEntity.setName(taskInstance.getName().getValue());
+    taskInstanceEntity.setApplicationBase(taskInstance.getApplicationBase().getValue());
+    if(taskInstance.getProcessInstanceId()!=null) {
+        var processInstanceEntity = new ProcessInstanceEntity();
+        processInstanceEntity.setId(taskInstance.getProcessInstanceId().getValue());
+        taskInstanceEntity.setProcessInstanceId(processInstanceEntity);
+    }
+    taskInstanceEntity.setProcessNumber(taskInstance.getProcessNumber().getValue());
+    taskInstanceEntity.setProcessType(taskInstance.getProcessType()!=null?taskInstance.getProcessType().getValue():null);
     taskInstanceEntity.setStartedBy(taskInstance.getStartedBy().getValue());
     taskInstanceEntity.setStartedAt(taskInstance.getStartedAt());
     taskInstanceEntity.setAssignedBy(taskInstance.getAssignedBy().getValue());
@@ -190,37 +197,20 @@ public class TaskInstanceMapper {
 
 
   public TaskInstance toModel(TaskInfo taskInfo) {
-
-    if (taskInfo == null) {
-      return null;
-    }
-
     return TaskInstance.builder()
-        .applicationBase(null) // Não disponível em TaskInfo
-        .processType(null)     // Não disponível em TaskInfo
         .processInstanceId(Identifier.create(taskInfo.processInstanceId()))
-        .processNumber(Code.create(taskInfo.processInstanceId()))   //Não disponível em TaskInfo
         .externalId(Code.create(taskInfo.id()))
         .taskKey(Code.create(taskInfo.taskDefinitionKey()))
         .name(Name.create(taskInfo.name()))
-        .searchTerms(null)     // Não disponível em TaskInfo
         .startedAt(taskInfo.createdTime()!=null ? convertToLocalDateTime(taskInfo.createdTime()) : null)
         .build();
   }
+
 
   private LocalDateTime convertToLocalDateTime(Date createdTime) {
     return createdTime.toInstant()
         .atZone(ZoneId.systemDefault())
         .toLocalDateTime();
-  }
-
-  private TaskInstanceStatus mapStatus(IGRPTaskStatus igrpTaskStatus) {
-    if (igrpTaskStatus == null) return TaskInstanceStatus.CREATED;
-    try {
-      return TaskInstanceStatus.valueOf(igrpTaskStatus.name());
-    } catch (IllegalArgumentException ex) {
-      return TaskInstanceStatus.CREATED;
-    }
   }
 
 

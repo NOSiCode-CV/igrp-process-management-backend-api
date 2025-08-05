@@ -15,11 +15,11 @@ import java.util.Objects;
 
 @Getter
 public class TaskInstance {
-    private final Code applicationBase;
-    private final Code processType;
-    private final Identifier processInstanceId;
-    private final Code processNumber;
-    private final Code externalId;
+    private Code applicationBase;
+    private Code processType;
+    private Identifier processInstanceId;
+    private Code processNumber;
+    private Code externalId;
     private final Identifier id;
     private final Code taskKey;
     private final Name name;
@@ -55,31 +55,41 @@ public class TaskInstance {
                         Map<String,Object> taskVariables,
                         List<TaskInstanceEvent> taskInstanceEvents)
     {
-        this.applicationBase = Objects.requireNonNull(applicationBase, "Application Base cannot be null!");
-        this.processType = Objects.requireNonNull(processType, "Process Type cannot be null!");
-        this.processInstanceId = Objects.requireNonNull(processInstanceId, "Process Instance Id cannot be null!");
-        this.processNumber = Objects.requireNonNull(processNumber, "Process Number cannot be null!");
-        this.externalId = Objects.requireNonNull(externalId, "External Id cannot be null!");
-        this.taskKey = Objects.requireNonNull(taskKey, "Task Key Id cannot be null!");
-        this.id = id == null ? Identifier.generate() : id;
-        this.name = name;
-        this.searchTerms = searchTerms;
-        this.status = status == null ? TaskInstanceStatus.CREATED : status;
-        this.startedAt = startedAt;
-        this.startedBy = startedBy;
-        this.assignedAt = assignedAt;
-        this.assignedBy = assignedBy;
-        this.endedAt = endedAt;
-        this.endedBy = endedBy;
-        this.variables = taskVariables!=null ? taskVariables : Map.of();
-        this.taskInstanceEvents = taskInstanceEvents;
+      this.externalId = Objects.requireNonNull(externalId, "External Id cannot be null!");
+      this.taskKey = Objects.requireNonNull(taskKey, "Task Key Id cannot be null!");
+      this.id = id == null ? Identifier.generate() : id;
+      this.applicationBase = applicationBase;
+      this.processType = processType;
+      this.processInstanceId = processInstanceId;
+      this.processNumber = processNumber;
+      this.name = name;
+      this.searchTerms = searchTerms;
+      this.status = status == null ? TaskInstanceStatus.CREATED : status;
+      this.startedAt = startedAt;
+      this.startedBy = startedBy;
+      this.assignedAt = assignedAt;
+      this.assignedBy = assignedBy;
+      this.endedAt = endedAt;
+      this.endedBy = endedBy;
+      this.variables = taskVariables!=null ? taskVariables : Map.of();
+      this.taskInstanceEvents = taskInstanceEvents;
     }
 
 
     public void create() {
+        if(processInstanceId==null) {
+          throw new IllegalStateException("The processInstanceId cannot be null!");
+        }
+        if(processNumber==null) {
+          throw new IllegalStateException("The processNumber cannot be null!");
+        }
+        if(applicationBase==null) {
+          throw new IllegalStateException("The applicationBase cannot be null!");
+        }
         this.status = TaskInstanceStatus.CREATED;
+        if(startedAt==null)
+            this.startedAt = LocalDateTime.now();
         this.startedBy = Code.create("user4444create");//todo
-        this.startedAt = LocalDateTime.now();
         createTaskInstanceEvent(TaskEventType.CREATE,null);
     }
 
@@ -133,4 +143,10 @@ public class TaskInstance {
     }
 
 
+  public TaskInstance withIdentity(Code applicationBase, Code processType, Identifier processInstanceId) {
+      this.applicationBase = applicationBase;
+      this.processType = processType;
+      this.processInstanceId = processInstanceId;
+      return this;
+  }
 }

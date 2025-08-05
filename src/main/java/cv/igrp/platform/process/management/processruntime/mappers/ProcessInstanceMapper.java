@@ -1,7 +1,7 @@
 package cv.igrp.platform.process.management.processruntime.mappers;
 
 import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceDTO;
-import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceListaPageDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceListPageDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.StartProcessRequestDTO;
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstance;
 import cv.igrp.platform.process.management.shared.application.constants.ProcessInstanceStatus;
@@ -23,16 +23,14 @@ public class ProcessInstanceMapper {
 
   public ProcessInstanceEntity toEntity(ProcessInstance processInstance) {
     ProcessInstanceEntity processInstanceEntity = new ProcessInstanceEntity();
-    processInstanceEntity.setNumber(processInstance.getNumber() != null ? processInstance.getNumber().getValue() : null);
-    processInstanceEntity.setObsCancel(processInstance.getObsCancel());
-    processInstanceEntity.setApplicationBase(processInstance.getApplicationBase() != null ? processInstance.getApplicationBase().getValue() : null);
+    processInstanceEntity.setNumber(processInstance.getNumber().toString());
     processInstanceEntity.setId(processInstance.getId().getValue());
     processInstanceEntity.setProcReleaseId(processInstance.getProcReleaseId().getValue());
     processInstanceEntity.setProcReleaseKey(processInstance.getProcReleaseKey().getValue());
     processInstanceEntity.setApplicationBase(processInstance.getApplicationBase().getValue());
     processInstanceEntity.setVersion(processInstance.getVersion());
     processInstanceEntity.setStatus(processInstance.getStatus());
-    processInstanceEntity.setBusinessKey(processInstance.getBusinessKey()!=null ? processInstance.getBusinessKey().getValue() : null);
+    processInstanceEntity.setBusinessKey(processInstance.getBusinessKey() != null ? processInstance.getBusinessKey().getValue() : null);
     processInstanceEntity.setStartedAt(processInstance.getStartedAt());
     processInstanceEntity.setStartedBy(processInstance.getStartedBy());
     processInstanceEntity.setCanceledAt(processInstance.getCanceledAt());
@@ -47,7 +45,7 @@ public class ProcessInstanceMapper {
         .id(Identifier.create(processInstanceEntity.getId()))
         .number(Code.create(processInstanceEntity.getNumber()))
         .procReleaseKey(Code.create(processInstanceEntity.getProcReleaseKey()))
-        .businessKey(processInstanceEntity.getBusinessKey()!=null ? Code.create(processInstanceEntity.getBusinessKey()) : null)
+        .businessKey(processInstanceEntity.getBusinessKey() != null ? Code.create(processInstanceEntity.getBusinessKey()) : null)
         .procReleaseId(Code.create(processInstanceEntity.getProcReleaseId()))
         .status(processInstanceEntity.getStatus())
         .searchTerms(processInstanceEntity.getSearchTerms())
@@ -71,8 +69,7 @@ public class ProcessInstanceMapper {
     return ProcessInstance.builder()
         .procReleaseId(Code.create(startProcessRequestDTO.getProcessDefinitionId()))
         .procReleaseKey(Code.create(startProcessRequestDTO.getProcessKey()))
-        .businessKey(startProcessRequestDTO.getBusinessKey() != null && !startProcessRequestDTO.getBusinessKey().trim().isEmpty()
-            ? Code.create(startProcessRequestDTO.getBusinessKey()) : null)
+        .businessKey(startProcessRequestDTO.getBusinessKey() != null ? Code.create(startProcessRequestDTO.getBusinessKey()) : null)
         .applicationBase(Code.create(startProcessRequestDTO.getApplicationBase()))
         .startedBy("user")
         .variables(vars)
@@ -100,8 +97,8 @@ public class ProcessInstanceMapper {
     return processInstanceDTO;
   }
 
-  public ProcessInstanceListaPageDTO toDTO(PageableLista<ProcessInstance> processInstances) {
-    ProcessInstanceListaPageDTO dto = new ProcessInstanceListaPageDTO();
+  public ProcessInstanceListPageDTO toDTO(PageableLista<ProcessInstance> processInstances) {
+    ProcessInstanceListPageDTO dto = new ProcessInstanceListPageDTO();
     dto.setTotalElements(processInstances.getTotalElements());
     dto.setTotalPages(processInstances.getTotalPages());
     dto.setPageNumber(processInstances.getPageNumber());

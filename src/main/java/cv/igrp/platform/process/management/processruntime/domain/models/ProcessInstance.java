@@ -70,7 +70,7 @@ public class ProcessInstance {
     this.variables = variables == null ? new HashMap<>() : variables;
   }
 
-  public void start(){
+  public void start(Code processInstanceId){
     if(this.status != ProcessInstanceStatus.CREATED && this.status != ProcessInstanceStatus.SUSPENDED){
       throw new IllegalStateException("The status of the process instance must be CREATED or SUSPENDED");
     }
@@ -79,7 +79,16 @@ public class ProcessInstance {
     }
     this.status = ProcessInstanceStatus.RUNNING;
     this.startedAt = LocalDateTime.now();
-    this.number = Code.create("12345");
+    this.number = processInstanceId;
+  }
+
+  public void complete(LocalDateTime endedAt, String endedBy){
+    if(this.endedBy == null || this.endedBy.isBlank()){
+      throw new IllegalStateException("The endedBy (user) of the process instance cannot be null or blank");
+    }
+    this.status = ProcessInstanceStatus.COMPLETED;
+    this.endedBy = endedBy;
+    this.endedAt = endedAt == null ? LocalDateTime.now() : endedAt;
   }
 
 }

@@ -9,7 +9,7 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import cv.igrp.platform.process.management.area.application.dto.ProcessDefinitionDTO;
+import cv.igrp.platform.process.management.area.application.dto.AreaDTO;
 import cv.igrp.platform.process.management.shared.application.dto.PageDTO;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,10 +20,10 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @IgrpDTO
-public class ProcessDefinitionListaPageDTO extends PageDTO {
+public class AreaListPageDTO extends PageDTO {
 
   
   @Valid
-  private List<ProcessDefinitionDTO> content = new ArrayList<>();
+  private List<AreaDTO> content = new ArrayList<>();
 
 }

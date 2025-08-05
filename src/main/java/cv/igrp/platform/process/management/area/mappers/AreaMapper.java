@@ -1,7 +1,7 @@
 package cv.igrp.platform.process.management.area.mappers;
 
 import cv.igrp.platform.process.management.area.application.dto.AreaDTO;
-import cv.igrp.platform.process.management.area.application.dto.AreaListaPageDTO;
+import cv.igrp.platform.process.management.area.application.dto.AreaListPageDTO;
 import cv.igrp.platform.process.management.area.application.dto.AreaRequestDTO;
 import cv.igrp.platform.process.management.area.application.dto.ProcessDefinitionDTO;
 import cv.igrp.platform.process.management.area.domain.models.Area;
@@ -94,8 +94,8 @@ public class AreaMapper {
       return area;
     }
 
-  public AreaListaPageDTO toDTO(PageableLista<Area> areaPageableLista ) {
-    AreaListaPageDTO areaListaPageDTO = new AreaListaPageDTO();
+  public AreaListPageDTO toDTO(PageableLista<Area> areaPageableLista ) {
+    AreaListPageDTO areaListaPageDTO = new AreaListPageDTO();
     areaListaPageDTO.setPageNumber(areaPageableLista.getPageNumber());
     areaListaPageDTO.setPageSize(areaPageableLista.getPageSize());
     areaListaPageDTO.setTotalElements(areaPageableLista.getTotalElements());

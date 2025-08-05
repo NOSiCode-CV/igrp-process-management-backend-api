@@ -1,7 +1,7 @@
 package cv.igrp.platform.process.management.area.mappers;
 
 import cv.igrp.platform.process.management.area.application.dto.ProcessDefinitionDTO;
-import cv.igrp.platform.process.management.area.application.dto.ProcessDefinitionListaPageDTO;
+import cv.igrp.platform.process.management.area.application.dto.ProcessDefinitionListPageDTO;
 import cv.igrp.platform.process.management.area.application.dto.ProcessDefinitionRequestDTO;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.area.domain.models.AreaProcess;
@@ -12,7 +12,6 @@ import cv.igrp.platform.process.management.shared.infrastructure.persistence.ent
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.UUID;
 
 @Component
 public class AreaProcessMapper {
@@ -75,8 +74,8 @@ public class AreaProcessMapper {
     return areaProcessEntity;
   }
 
-  public ProcessDefinitionListaPageDTO toDTO(PageableLista<AreaProcess> areaProcessPageableLista) {
-    ProcessDefinitionListaPageDTO dto = new ProcessDefinitionListaPageDTO();
+  public ProcessDefinitionListPageDTO toDTO(PageableLista<AreaProcess> areaProcessPageableLista) {
+    ProcessDefinitionListPageDTO dto = new ProcessDefinitionListPageDTO();
     dto.setPageNumber(areaProcessPageableLista.getPageNumber());
     dto.setPageSize(areaProcessPageableLista.getPageSize());
     dto.setTotalElements(areaProcessPageableLista.getTotalElements());

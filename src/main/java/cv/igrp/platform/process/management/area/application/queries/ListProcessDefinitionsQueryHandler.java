@@ -15,10 +15,10 @@ import cv.igrp.framework.stereotype.IgrpQueryHandler;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import cv.igrp.platform.process.management.area.application.dto.ProcessDefinitionListaPageDTO;
+import cv.igrp.platform.process.management.area.application.dto.ProcessDefinitionListPageDTO;
 
 @Component
-public class ListProcessDefinitionsQueryHandler implements QueryHandler<ListProcessDefinitionsQuery, ResponseEntity<ProcessDefinitionListaPageDTO>> {
+public class ListProcessDefinitionsQueryHandler implements QueryHandler<ListProcessDefinitionsQuery, ResponseEntity<ProcessDefinitionListPageDTO>> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ListProcessDefinitionsQueryHandler.class);
 
@@ -31,7 +31,7 @@ public class ListProcessDefinitionsQueryHandler implements QueryHandler<ListProc
   }
 
   @IgrpQueryHandler
-  public ResponseEntity<ProcessDefinitionListaPageDTO> handle(ListProcessDefinitionsQuery query) {
+  public ResponseEntity<ProcessDefinitionListPageDTO> handle(ListProcessDefinitionsQuery query) {
     AreaProcessFilter filter = AreaProcessFilter.builder()
         .processKey(query.getProcessKey() != null ? Code.create(query.getProcessKey()) : null)
         .releaseId(query.getReleaseId() != null ? Code.create(query.getReleaseId()) : null)

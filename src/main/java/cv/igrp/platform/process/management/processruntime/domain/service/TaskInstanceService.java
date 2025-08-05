@@ -36,21 +36,25 @@ public class TaskInstanceService {
   }
 
 
-  public void createTaskInstancesByProcessInstanceId(Identifier processInstanceId) {
+  public void createTaskInstancesByProcess(Identifier processInstanceId, Code processNumber,
+                                           Code processType, Code applicationBase) {
+
       var activeTaskList = runtimeProcessEngineRepository
-          .getActiveTaskInstances(processInstanceId.getValue().toString());
+          .getActiveTaskInstances(processNumber.getValue());
+
       if(activeTaskList.isEmpty())
         return;
-      activeTaskList.forEach(this::createTask);
+
+      activeTaskList.forEach(t->this.createTask(
+          t.withIdentity(applicationBase,processType,processInstanceId)));
   }
 
 
 
-  private TaskInstance createTask(TaskInstance taskInstance) {
+  private void createTask(TaskInstance taskInstance) {
       taskInstance.create();
-      var saved = taskInstanceRepository.create(taskInstance);
+      taskInstanceRepository.create(taskInstance);
       taskInstanceEventRepository.save(taskInstance.getTaskInstanceEvents().getFirst());
-      return saved;
   }
 
 
@@ -63,23 +67,21 @@ public class TaskInstanceService {
   public void claimTask(UUID id) {
       var taskInstance = getById(id);
       taskInstance.claim(null);
-      taskInstanceRepository.update(taskInstance);
-      taskInstanceEventRepository.save(taskInstance.getTaskInstanceEvents().getFirst());
+      this.save(taskInstance);
   }
 
 
   public void assignTask(UUID id, Code user, String note) {
       var taskInstance = getById(id);
       taskInstance.assign(user,note);
-      taskInstanceRepository.update(taskInstance);
-      taskInstanceEventRepository.save(taskInstance.getTaskInstanceEvents().getFirst());
+      this.save(taskInstance);
   }
 
 
   public void unClaimTask(UUID id, String note) {
       var taskInstance = getById(id);
       taskInstance.unClaim(note);
-      save(taskInstance);
+      this.save(taskInstance);
   }
 
 
@@ -88,7 +90,8 @@ public class TaskInstanceService {
       taskActionService.completeTask(id.toString(),variables,null);
       taskInstance.complete(variables,note);
       var completedTask = save(taskInstance);
-      createTaskInstancesByProcessInstanceId(taskInstance.getProcessInstanceId());
+      createTaskInstancesByProcess(taskInstance.getProcessInstanceId(), taskInstance.getProcessNumber(),
+              taskInstance.getProcessType(), taskInstance.getApplicationBase());
       return completedTask;
   }
 

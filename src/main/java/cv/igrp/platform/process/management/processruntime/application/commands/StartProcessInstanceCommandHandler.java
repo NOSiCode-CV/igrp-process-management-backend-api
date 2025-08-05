@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceDTO;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class StartProcessInstanceCommandHandler implements CommandHandler<StartProcessInstanceCommand, ResponseEntity<ProcessInstanceDTO>> {
@@ -27,6 +28,7 @@ public class StartProcessInstanceCommandHandler implements CommandHandler<StartP
   }
 
   @IgrpCommandHandler
+  @Transactional
   public ResponseEntity<ProcessInstanceDTO> handle(StartProcessInstanceCommand command) {
     var processInstance = mapper.toModel(command.getStartprocessrequestdto());
     System.out.println("processInstance: " + processInstance);

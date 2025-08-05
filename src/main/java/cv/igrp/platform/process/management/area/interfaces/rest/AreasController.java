@@ -22,10 +22,10 @@ import cv.igrp.platform.process.management.area.application.commands.*;
 import cv.igrp.platform.process.management.area.application.queries.*;
 
 
-import cv.igrp.platform.process.management.area.application.dto.AreaListaPageDTO;
+import cv.igrp.platform.process.management.area.application.dto.AreaListPageDTO;
 import cv.igrp.platform.process.management.area.application.dto.AreaRequestDTO;
 import cv.igrp.platform.process.management.area.application.dto.AreaDTO;
-import cv.igrp.platform.process.management.area.application.dto.ProcessDefinitionListaPageDTO;
+import cv.igrp.platform.process.management.area.application.dto.ProcessDefinitionListPageDTO;
 import cv.igrp.platform.process.management.area.application.dto.ProcessDefinitionRequestDTO;
 import cv.igrp.platform.process.management.area.application.dto.ProcessDefinitionDTO;
 import java.util.List;
@@ -63,14 +63,14 @@ public class AreasController {
           content = @Content(
               mediaType = "application/json",
               schema = @Schema(
-                  implementation = AreaListaPageDTO.class,
+                  implementation = AreaListPageDTO.class,
                   type = "object")
           )
       )
     }
   )
   
-  public ResponseEntity<AreaListaPageDTO> listAreas(
+  public ResponseEntity<AreaListPageDTO> listAreas(
     @RequestParam(value = "code", required = false) String code,
     @RequestParam(value = "name", required = false) String name,
     @RequestParam(value = "applicationBase", required = false) String applicationBase,
@@ -84,7 +84,7 @@ public class AreasController {
 
       final var query = new ListAreasQuery(code, name, applicationBase, status, parentId, page, size);
 
-      ResponseEntity<AreaListaPageDTO> response = queryBus.handle(query);
+      ResponseEntity<AreaListPageDTO> response = queryBus.handle(query);
 
       LOGGER.debug("Operation finished");
 
@@ -253,14 +253,14 @@ public class AreasController {
           content = @Content(
               mediaType = "application/json",
               schema = @Schema(
-                  implementation = ProcessDefinitionListaPageDTO.class,
+                  implementation = ProcessDefinitionListPageDTO.class,
                   type = "object")
           )
       )
     }
   )
   
-  public ResponseEntity<ProcessDefinitionListaPageDTO> listProcessDefinitions(
+  public ResponseEntity<ProcessDefinitionListPageDTO> listProcessDefinitions(
     @RequestParam(value = "processKey", required = false) String processKey,
     @RequestParam(value = "status", required = false) String status,
     @RequestParam(value = "releaseId", required = false) String releaseId,
@@ -272,7 +272,7 @@ public class AreasController {
 
       final var query = new ListProcessDefinitionsQuery(processKey, status, releaseId, page, size, areaId);
 
-      ResponseEntity<ProcessDefinitionListaPageDTO> response = queryBus.handle(query);
+      ResponseEntity<ProcessDefinitionListPageDTO> response = queryBus.handle(query);
 
       LOGGER.debug("Operation finished");
 

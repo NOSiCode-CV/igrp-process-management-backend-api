@@ -1,7 +1,7 @@
 {
   "type": "dto",
   "module": "area",
-  "name": "ProcessDefinitionListaPage",
+  "name": "ProcessDefinitionListPage",
   "template": "classic",
   "enableCustonValidation": false,
   "extends": {
