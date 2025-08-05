@@ -71,6 +71,7 @@ public class ProcessDeploymentRepositoryImpl implements ProcessDeploymentReposit
     List<ProcessDeployment> content = definitions.stream()
         .map(def -> ProcessDeployment.builder()
             .id(def.getId())
+            .procReleaseId(def.getId() != null ? Code.create(def.getId()) : null)
             .key(Code.create(def.getKey()))
             .name(Name.create(def.getName()))
             .description(def.getDescription())
