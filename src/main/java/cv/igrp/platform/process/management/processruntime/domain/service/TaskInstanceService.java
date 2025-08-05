@@ -36,7 +36,7 @@ public class TaskInstanceService {
   }
 
 
-  public void createTaskInstancesByProcess(Code processNumber, Identifier processInstanceId,
+  public void createTaskInstancesByProcess(Identifier processInstanceId, Code processNumber,
                                            Code processType, Code applicationBase) {
 
       var activeTaskList = runtimeProcessEngineRepository
@@ -90,7 +90,7 @@ public class TaskInstanceService {
       taskActionService.completeTask(id.toString(),variables,null);
       taskInstance.complete(variables,note);
       var completedTask = save(taskInstance);
-      createTaskInstancesByProcess(taskInstance.getProcessNumber(), taskInstance.getProcessInstanceId(),
+      createTaskInstancesByProcess(taskInstance.getProcessInstanceId(), taskInstance.getProcessNumber(),
               taskInstance.getProcessType(), taskInstance.getApplicationBase());
       return completedTask;
   }
