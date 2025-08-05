@@ -23,7 +23,9 @@ public class ProcessInstanceMapper {
 
   public ProcessInstanceEntity toEntity(ProcessInstance processInstance) {
     ProcessInstanceEntity processInstanceEntity = new ProcessInstanceEntity();
-    processInstanceEntity.setNumber(processInstance.getNumber().toString());
+    processInstanceEntity.setNumber(processInstance.getNumber() != null ? processInstance.getNumber().getValue() : null);
+    processInstanceEntity.setObsCancel(processInstance.getObsCancel());
+    processInstanceEntity.setApplicationBase(processInstance.getApplicationBase() != null ? processInstance.getApplicationBase().getValue() : null);
     processInstanceEntity.setId(processInstance.getId().getValue());
     processInstanceEntity.setProcReleaseId(processInstance.getProcReleaseId().getValue());
     processInstanceEntity.setProcReleaseKey(processInstance.getProcReleaseKey().getValue());
