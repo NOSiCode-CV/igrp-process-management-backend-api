@@ -77,18 +77,8 @@ public class TaskInstance {
 
 
     public void create() {
-        if (this.status != TaskInstanceStatus.CREATED && this.status != TaskInstanceStatus.ASSIGNED) {
-            throw new IllegalStateException("The status of the task instance must be CREATED or ASSIGNED");
-        }
-        if (startedBy==null) {
-            throw new IllegalStateException("The started by (user) of the task cannot be null!");
-        }
-        if(this.status != TaskInstanceStatus.CREATED) {
-            if(this.assignedBy==null) {
-                throw new IllegalStateException("The signed by (user) of the task cannot be null!");
-            }
-            this.assignedAt = LocalDateTime.now();
-        }
+        this.status = TaskInstanceStatus.CREATED;
+        this.startedBy = Code.create("user4444create");//todo
         this.startedAt = LocalDateTime.now();
         createTaskInstanceEvent(TaskEventType.CREATE,null);
     }
@@ -97,7 +87,7 @@ public class TaskInstance {
     public void claim(String note) {
         this.status = TaskInstanceStatus.ASSIGNED;
         this.assignedAt = LocalDateTime.now();
-        this.assignedBy = Code.create("user456");//todo
+        this.assignedBy = Code.create("user45666assigne");//todo
         createTaskInstanceEvent(TaskEventType.CLAIM,note);
     }
 
@@ -124,7 +114,7 @@ public class TaskInstance {
     public void complete(Map<String,Object> variables, String note) {
         this.status = TaskInstanceStatus.COMPLETED;
         this.endedAt = LocalDateTime.now();
-        this.endedBy = Code.create("user789");//todo
+        this.endedBy = Code.create("user789complete");//todo
         this.variables = variables!=null ? variables : Map.of();
         createTaskInstanceEvent(TaskEventType.COMPLETE,note);
     }
@@ -137,7 +127,7 @@ public class TaskInstance {
             .eventType(eventType)
             .status(this.status)
             .performedAt(LocalDateTime.now())
-            .performedBy(Code.create("user1234")) //todo
+            .performedBy(Code.create("user1234event")) //todo
             .note(note)
             .build());
     }

@@ -17,11 +17,9 @@ import cv.nosi.igrp.runtime.core.engine.task.model.IGRPTaskStatus;
 import cv.nosi.igrp.runtime.core.engine.task.model.TaskInfo;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
-import java.util.Map;
 
 
 @Component
@@ -202,19 +200,11 @@ public class TaskInstanceMapper {
         .processType(null)     // Não disponível em TaskInfo
         .processInstanceId(Identifier.create(taskInfo.processInstanceId()))
         .processNumber(Code.create(taskInfo.processInstanceId()))   //Não disponível em TaskInfo
+        .externalId(Code.create(taskInfo.id()))
         .taskKey(Code.create(taskInfo.taskDefinitionKey()))
         .name(Name.create(taskInfo.name()))
         .searchTerms(null)     // Não disponível em TaskInfo
-        .status(TaskInstanceStatus.CREATED) // assumindo CREATED por default
         .startedAt(taskInfo.createdTime()!=null ? convertToLocalDateTime(taskInfo.createdTime()) : null)
-        .startedAt(null)
-        .startedBy(taskInfo.assignee() != null ? Code.create(taskInfo.assignee()) : null)
-        .assignedAt(null)      // Não disponível em TaskInfo
-        .assignedBy(null)      // Não disponível em TaskInfo
-        .endedAt(null)         // Não disponível em TaskInfo
-        .endedBy(null)         //Não disponível em TaskInfo
-        .taskVariables(Map.of()) // Não disponível em TaskInfo
-        .taskInstanceEvents(null) // Não disponível em TaskInfo
         .build();
   }
 
