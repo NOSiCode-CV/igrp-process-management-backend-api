@@ -13,7 +13,13 @@ import cv.igrp.platform.process.management.shared.domain.models.Name;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.TaskInstanceEntity;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.TaskInstanceEventEntity;
+import cv.nosi.igrp.runtime.core.engine.task.model.TaskInfo;
 import org.springframework.stereotype.Component;
+
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Map;
 
 
 @Component
@@ -186,6 +192,32 @@ public class TaskInstanceMapper {
     eventDto.setObs(event.getNote());
     eventDto.setStatus(event.getStatus());
     return eventDto;
+  }
+
+
+  public TaskInstance toModel(TaskInfo taskInfo) {
+    return TaskInstance.builder()
+        .applicationBase(null) // Não disponível em TaskInfo
+        .processType(null)     // Não disponível em TaskInfo
+        .processInstanceId( Identifier.create(taskInfo.getProcessInstanceId()))
+        .processNumber(null)   //Não disponível em TaskInfo
+        .taskKey( Code.create(taskInfo.getTaskDefinitionKey()))
+        .name( Name.create(taskInfo.getName()))
+        .searchTerms(null)     // Não disponível em TaskInfo
+        .status(TaskInstanceStatus.CREATED) // Assumimos CREATED por default
+        .startedAt(convertToLocalDateTime(taskInfo.getCreatedTime()))
+        .startedBy(taskInfo.getAssignee() != null ? Code.create(taskInfo.getAssignee()) : null)
+        .assignedAt(null)      // Não disponível em TaskInfo
+        .assignedBy(null)      // Não disponível em TaskInfo
+        .endedAt(null)         // Não disponível em TaskInfo
+        .endedBy(null)         //Não disponível em TaskInfo
+        .taskVariables(Map.of()) // Não disponível em TaskInfo
+        .taskInstanceEvents(null) // Não disponível em TaskInfo
+        .build();
+  }
+
+  private LocalDateTime convertToLocalDateTime(long millis) {
+    return LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), ZoneId.systemDefault());
   }
 
 
