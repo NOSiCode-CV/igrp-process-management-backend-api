@@ -58,7 +58,7 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
     LOGGER.info("Authenticated user: {}", SecurityContextHolder.getContext().getAuthentication().getName());
     try {
       var processInstance = processManagerAdapter.startProcess(processDefinitionId, businessKey, variables);
-      LOGGER.info("Process started with ID: {}", processInstance.getId());
+      LOGGER.info("Process started with ID: {}", processInstance.id());
       return processInstanceMapper.toModel(processInstance);
     } catch (Exception e) {
       LOGGER.error("Failed to start process", e);

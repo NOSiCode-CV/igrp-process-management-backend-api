@@ -23,7 +23,7 @@ public class ProcessInstanceMapper {
 
   public ProcessInstanceEntity toEntity(ProcessInstance processInstance) {
     ProcessInstanceEntity processInstanceEntity = new ProcessInstanceEntity();
-    processInstanceEntity.setNumber(processInstance.getNumber().toString());
+    processInstanceEntity.setNumber(processInstance.getNumber() != null ? processInstance.getNumber().getValue() : null);
     processInstanceEntity.setId(processInstance.getId().getValue());
     processInstanceEntity.setProcReleaseId(processInstance.getProcReleaseId().getValue());
     processInstanceEntity.setProcReleaseKey(processInstance.getProcReleaseKey().getValue());
@@ -120,20 +120,20 @@ public class ProcessInstanceMapper {
     }
 
     return ProcessInstance.builder()
-        .number(Code.create(processInstance.getId()))
-        .procReleaseId(processInstance.getProcessDefinitionId() != null ? Code.create(processInstance.getProcessDefinitionId()) : null)
-        .procReleaseKey(processInstance.getProcessDefinitionKey() != null ? Code.create(processInstance.getProcessDefinitionKey()) : null)
-        .businessKey(processInstance.getBusinessKey() != null ? Code.create(processInstance.getBusinessKey()) : null)
+        .number(Code.create(processInstance.id()))
+        .procReleaseId(processInstance.processDefinitionId() != null ? Code.create(processInstance.processDefinitionId()) : null)
+        .procReleaseKey(processInstance.processDefinitionKey() != null ? Code.create(processInstance.processDefinitionKey()) : null)
+        .businessKey(processInstance.businessKey() != null ? Code.create(processInstance.businessKey()) : null)
         .applicationBase(Code.create("igrp")) // ou mapeia de algum lado se houver contexto
-        .version(processInstance.getProcessDefinitionVersion() != null ? String.valueOf(processInstance.getProcessDefinitionVersion()) : null)
-        .startedBy(processInstance.getInitiator())
-        .startedAt(Optional.ofNullable(processInstance.getStartDate())
+        .version(processInstance.processDefinitionVersion() != null ? String.valueOf(processInstance.processDefinitionVersion()) : null)
+        .startedBy(processInstance.initiator())
+        .startedAt(Optional.ofNullable(processInstance.startDate())
             .map(d -> d.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime())
             .orElse(null))
-        .endedAt(Optional.ofNullable(processInstance.getCompletedDate())
+        .endedAt(Optional.ofNullable(processInstance.completedDate())
             .map(d -> d.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime())
             .orElse(null))
-        .status(mapStatus(processInstance.getStatus()))
+        .status(mapStatus(processInstance.status()))
         .variables(new HashMap<>()) // se houver alguma origem para as variáveis, mapeia aqui
         .build();
   }

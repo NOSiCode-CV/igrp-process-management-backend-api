@@ -8,6 +8,7 @@ import cv.igrp.platform.process.management.processruntime.domain.repository.Runt
 import cv.igrp.platform.process.management.shared.application.constants.ProcessInstanceStatus;
 import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
+import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 import org.springframework.stereotype.Service;
 
@@ -22,10 +23,14 @@ public class ProcessInstanceService {
   private final ProcessInstanceRepository processInstanceRepository;
   private final RuntimeProcessEngineRepository runtimeProcessEngineRepository;
 
+  private final TaskInstanceService taskInstanceService;
+
   public ProcessInstanceService(ProcessInstanceRepository processInstanceRepository,
-                                RuntimeProcessEngineRepository runtimeProcessEngineRepository) {
+                                RuntimeProcessEngineRepository runtimeProcessEngineRepository,
+                                TaskInstanceService taskInstanceService) {
     this.processInstanceRepository = processInstanceRepository;
     this.runtimeProcessEngineRepository = runtimeProcessEngineRepository;
+    this.taskInstanceService = taskInstanceService;
   }
 
   public PageableLista<ProcessInstance> getAllProcessInstances(ProcessInstanceFilter filter) {
@@ -53,19 +58,23 @@ public class ProcessInstanceService {
         variables
     );
 
-    processInstance.start(process.getNumber());
-
     if(processInstance.getStatus() == ProcessInstanceStatus.COMPLETED){
       processInstance.complete(
           processInstance.getEndedAt(),
           user
       );
+    }else{
+      processInstance.start(process.getNumber());
     }
 
     ProcessInstance persitedProcessInstance = processInstanceRepository.save(processInstance);
 
-    // TODO Chamar funcao de vences
-
+    taskInstanceService.createTaskInstancesByProcess(
+        persitedProcessInstance.getId(),
+        persitedProcessInstance.getNumber(),
+        null,
+        persitedProcessInstance.getApplicationBase()
+    );
 
     return persitedProcessInstance;
   }

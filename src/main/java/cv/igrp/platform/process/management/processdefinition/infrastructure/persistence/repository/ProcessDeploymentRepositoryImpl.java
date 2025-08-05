@@ -70,14 +70,14 @@ public class ProcessDeploymentRepositoryImpl implements ProcessDeploymentReposit
     // Mapear para ProcessDeployment
     List<ProcessDeployment> content = definitions.stream()
         .map(def -> ProcessDeployment.builder()
-            .id(def.getId())
-            .procReleaseId(def.getId() != null ? Code.create(def.getId()) : null)
-            .key(Code.create(def.getKey()))
-            .name(Name.create(def.getName()))
-            .description(def.getDescription())
-            .applicationBase(Code.create(def.getApplicationBase()))
-            .deploymentId(def.getDeploymentId())
-            .version( String.valueOf(def.getVersion()))
+            .id(def.id())
+            .procReleaseId(def.id() != null ? Code.create(def.id()) : null)
+            .key(Code.create(def.key()))
+            .name(Name.create(def.name()))
+            .description(def.description())
+            .applicationBase(Code.create(def.applicationBase()))
+            .deploymentId(def.deploymentId())
+            .version( String.valueOf(def.version()))
             .build())
         .toList();
 

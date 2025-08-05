@@ -77,15 +77,15 @@ public class ProcessDeploymentMapper {
 
   public ProcessDeployment toModel(IgrpProcessDefinitionRepresentation definition) {
     return ProcessDeployment.builder()
-        .key(Code.create(definition.getKey()))
-        .name(Name.create(definition.getName()))
-        .resourceName(Name.create(definition.getResourceName()))
-        .bpmnXml(BpmnXml.create(definition.getBpmnXml()))
-        .version(definition.getVersion())
-        .deploymentId(definition.getDeploymentId())
-        .deployed(definition.isDeployed())
-        .deployedAt(definition.getDeployedAt())
-        .applicationBase(Code.create(definition.getApplicationBase()))
+        .key(Code.create(definition.key()))
+        .name(Name.create(definition.name()))
+        .resourceName(Name.create(definition.resourceName()))
+        .bpmnXml(BpmnXml.create(definition.bpmnXml()))
+        .version(definition.version())
+        .deploymentId(definition.deploymentId())
+        .deployed(definition.deployed())
+        .deployedAt(definition.deployedAt())
+        .applicationBase(Code.create(definition.applicationBase()))
         .build();
   }
 
