@@ -13,12 +13,14 @@ import cv.igrp.platform.process.management.shared.domain.models.Name;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.TaskInstanceEntity;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.TaskInstanceEventEntity;
+import cv.nosi.igrp.runtime.core.engine.task.model.IGRPTaskStatus;
 import cv.nosi.igrp.runtime.core.engine.task.model.TaskInfo;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Date;
 import java.util.Map;
 
 
@@ -65,14 +67,13 @@ public class TaskInstanceMapper {
     eventEntity.setPerformedAt(taskInstanceEvent.getPerformedAt());
     eventEntity.setPerformedBy(taskInstanceEvent.getPerformedBy().getValue());
     eventEntity.setNote(taskInstanceEvent.getNote());
-    if(taskInstanceEvent.getTaskInstanceId()!=null) {
-        var taskInstanceEntity = new TaskInstanceEntity();
-        taskInstanceEntity.setId(taskInstanceEvent.getTaskInstanceId().getValue());
-        eventEntity.setTaskInstanceId(taskInstanceEntity);
+    if (taskInstanceEvent.getTaskInstanceId() != null) {
+      var taskInstanceEntity = new TaskInstanceEntity();
+      taskInstanceEntity.setId(taskInstanceEvent.getTaskInstanceId().getValue());
+      eventEntity.setTaskInstanceId(taskInstanceEntity);
     }
     return eventEntity;
   }
-
 
 
   public TaskInstance toModel(TaskInstanceEntity entity) {
@@ -89,7 +90,6 @@ public class TaskInstanceMapper {
         .processInstanceId(Identifier.create(entity.getProcessInstanceId().getId()))
         .build();
   }
-
 
 
   public TaskInstance toModelWithEvents(TaskInstanceEntity taskEntity) {
@@ -112,7 +112,6 @@ public class TaskInstanceMapper {
   }
 
 
-
   public TaskInstanceEvent toEventModel(TaskInstanceEventEntity eventEntity) {
     return TaskInstanceEvent.builder()
         .id(Identifier.create(eventEntity.getId()))
@@ -124,7 +123,6 @@ public class TaskInstanceMapper {
         .note(eventEntity.getNote())
         .build();
   }
-
 
 
   public TaskInstanceListaPageDTO toDTO(PageableLista<TaskInstance> taskInstances) {
@@ -143,7 +141,6 @@ public class TaskInstanceMapper {
   }
 
 
-
   public TaskInstanceListDTO toListDTO(TaskInstance model) {
     var dto = new TaskInstanceListDTO();
     dto.setId(model.getId().getValue());
@@ -156,7 +153,6 @@ public class TaskInstanceMapper {
     dto.setStartedAt(String.valueOf(model.getStartedAt()));
     return dto;
   }
-
 
 
   public TaskInstanceDTO toTaskDTO(TaskInstance taskInstance) {
@@ -196,17 +192,23 @@ public class TaskInstanceMapper {
 
 
   public TaskInstance toModel(TaskInfo taskInfo) {
+
+    if (taskInfo == null) {
+      return null;
+    }
+
     return TaskInstance.builder()
         .applicationBase(null) // Não disponível em TaskInfo
         .processType(null)     // Não disponível em TaskInfo
-        .processInstanceId( Identifier.create(taskInfo.getProcessInstanceId()))
-        .processNumber(null)   //Não disponível em TaskInfo
-        .taskKey( Code.create(taskInfo.getTaskDefinitionKey()))
-        .name( Name.create(taskInfo.getName()))
+        .processInstanceId(Identifier.create(taskInfo.processInstanceId()))
+        .processNumber(Code.create(taskInfo.processInstanceId()))   //Não disponível em TaskInfo
+        .taskKey(Code.create(taskInfo.taskDefinitionKey()))
+        .name(Name.create(taskInfo.name()))
         .searchTerms(null)     // Não disponível em TaskInfo
-        .status(TaskInstanceStatus.CREATED) // Assumimos CREATED por default
-        .startedAt(convertToLocalDateTime(taskInfo.getCreatedTime()))
-        .startedBy(taskInfo.getAssignee() != null ? Code.create(taskInfo.getAssignee()) : null)
+        .status(TaskInstanceStatus.CREATED) // assumindo CREATED por default
+        .startedAt(taskInfo.createdTime()!=null ? convertToLocalDateTime(taskInfo.createdTime()) : null)
+        .startedAt(null)
+        .startedBy(taskInfo.assignee() != null ? Code.create(taskInfo.assignee()) : null)
         .assignedAt(null)      // Não disponível em TaskInfo
         .assignedBy(null)      // Não disponível em TaskInfo
         .endedAt(null)         // Não disponível em TaskInfo
@@ -216,8 +218,19 @@ public class TaskInstanceMapper {
         .build();
   }
 
-  private LocalDateTime convertToLocalDateTime(long millis) {
-    return LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), ZoneId.systemDefault());
+  private LocalDateTime convertToLocalDateTime(Date createdTime) {
+    return createdTime.toInstant()
+        .atZone(ZoneId.systemDefault())
+        .toLocalDateTime();
+  }
+
+  private TaskInstanceStatus mapStatus(IGRPTaskStatus igrpTaskStatus) {
+    if (igrpTaskStatus == null) return TaskInstanceStatus.CREATED;
+    try {
+      return TaskInstanceStatus.valueOf(igrpTaskStatus.name());
+    } catch (IllegalArgumentException ex) {
+      return TaskInstanceStatus.CREATED;
+    }
   }
 
 

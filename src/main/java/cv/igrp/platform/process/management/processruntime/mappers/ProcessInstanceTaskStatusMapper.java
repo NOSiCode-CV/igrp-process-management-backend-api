@@ -2,9 +2,13 @@ package cv.igrp.platform.process.management.processruntime.mappers;
 
 import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceTaskStatusDTO;
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstanceTaskStatus;
+import cv.igrp.platform.process.management.shared.application.constants.ProcessInstanceStatus;
 import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Name;
+import cv.nosi.igrp.runtime.core.engine.process.model.IGRPProcessStatus;
+import cv.nosi.igrp.runtime.core.engine.task.model.IGRPTaskStatus;
+import cv.nosi.igrp.runtime.core.engine.task.model.ProcessTaskInfo;
 import cv.nosi.igrp.runtime.core.engine.task.model.TaskInfo;
 import org.springframework.stereotype.Component;
 
@@ -25,14 +29,22 @@ public class ProcessInstanceTaskStatusMapper {
     return processInstanceTaskStatusDTOList;
   }
 
-  public ProcessInstanceTaskStatus toModel(TaskInfo taskInfo){
+  public ProcessInstanceTaskStatus toModel(ProcessTaskInfo processTaskInfo){
     return ProcessInstanceTaskStatus.builder()
-        .taskKey(Code.create(taskInfo.getTaskDefinitionKey() != null ? taskInfo.getTaskDefinitionKey() : "UNKNOWN"))
-        .taskName(Name.create(taskInfo.getName() != null ? taskInfo.getName() : "UNKNOWN"))
-        // .status(...) // Não disponível no TaskInfo
-        .status(TaskInstanceStatus.CREATED) // status by default
-        .processInstanceId(Code.create(taskInfo.getProcessInstanceId() != null ? taskInfo.getProcessInstanceId() : "UNKNOWN"))
+        .taskKey(processTaskInfo.taskKey() != null ? Code.create(processTaskInfo.taskKey()) : null)
+        .taskName(processTaskInfo.taskName() != null ? Name.create(processTaskInfo.taskName()) : null)
+        .status(mapStatus(processTaskInfo.status()))
+        .processInstanceId(processTaskInfo.processInstanceId() != null ? Code.create(processTaskInfo.processInstanceId()) : null)
         .build();
+  }
+
+  private TaskInstanceStatus mapStatus(IGRPTaskStatus igrpTaskStatus) {
+    if (igrpTaskStatus == null) return TaskInstanceStatus.CREATED;
+    try {
+      return TaskInstanceStatus.valueOf(igrpTaskStatus.name());
+    } catch (IllegalArgumentException ex) {
+      return TaskInstanceStatus.CREATED;
+    }
   }
 
 }
