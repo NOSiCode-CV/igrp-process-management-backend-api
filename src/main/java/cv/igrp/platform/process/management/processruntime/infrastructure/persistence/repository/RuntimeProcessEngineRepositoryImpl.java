@@ -5,6 +5,7 @@ import cv.igrp.platform.process.management.processruntime.domain.models.ProcessI
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
 import cv.igrp.platform.process.management.processruntime.domain.repository.RuntimeProcessEngineRepository;
 import cv.igrp.platform.process.management.processruntime.mappers.ProcessInstanceMapper;
+import cv.igrp.platform.process.management.processruntime.mappers.ProcessInstanceTaskStatusMapper;
 import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
 import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
@@ -36,13 +37,16 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
 
   private final TaskInstanceMapper taskInstanceMapper;
 
+  private final ProcessInstanceTaskStatusMapper processInstanceTaskStatusMapper;
 
-  public RuntimeProcessEngineRepositoryImpl(ProcessManagerAdapter processManagerAdapter, TaskManager taskManagerAdapter, SecurityUtil securityUtil, ProcessInstanceMapper processInstanceMapper, TaskInstanceMapper taskInstanceMapper) {
+
+  public RuntimeProcessEngineRepositoryImpl(ProcessManagerAdapter processManagerAdapter, TaskManager taskManagerAdapter, SecurityUtil securityUtil, ProcessInstanceMapper processInstanceMapper, TaskInstanceMapper taskInstanceMapper, ProcessInstanceTaskStatusMapper processInstanceTaskStatusMapper) {
     this.processManagerAdapter = processManagerAdapter;
     this.taskManagerAdapter = taskManagerAdapter;
     this.securityUtil = securityUtil;
     this.processInstanceMapper = processInstanceMapper;
     this.taskInstanceMapper = taskInstanceMapper;
+    this.processInstanceTaskStatusMapper = processInstanceTaskStatusMapper;
   }
 
   @Override
@@ -85,15 +89,7 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
       var tasks = taskManagerAdapter.listTasks(filter);
 
       return tasks.stream()
-          .map(taskInfo -> {
-            return ProcessInstanceTaskStatus.builder()
-                .taskKey(Code.create(taskInfo.getTaskDefinitionKey() != null ? taskInfo.getTaskDefinitionKey() : "UNKNOWN"))
-                .taskName(Name.create(taskInfo.getName() != null ? taskInfo.getName() : "UNKNOWN"))
-                // .status(...) // Não disponível no TaskInfo
-                .status(TaskInstanceStatus.CREATED) // status by default
-                .processInstanceId(Code.create(taskInfo.getProcessInstanceId() != null ? taskInfo.getProcessInstanceId() : "UNKNOWN"))
-                .build();
-          })
+          .map(processInstanceTaskStatusMapper::toModel)
           .collect(Collectors.toList());
 
 

@@ -47,14 +47,12 @@ public class ProcessInstanceService {
     }
 
     var id = runtimeProcessEngineRepository.startProcessInstanceById(processDefinitionId.getValue(), businessKey.getValue(),variables);
-    //return processInstance;
+
     return processInstanceRepository.save(processInstance);
   }
 
   public List<ProcessInstanceTaskStatus> getProcessInstanceTaskStatus(UUID id) {
-    ProcessInstance processInstance = getProcessInstanceById(id);
-    //return runtimeProcessEngineRepository.getTaskStatus(processInstance.getNumber().getValue());
-    return null;
+    return runtimeProcessEngineRepository.getProcessInstanceTaskStatus(id.toString());
   }
 
 }
