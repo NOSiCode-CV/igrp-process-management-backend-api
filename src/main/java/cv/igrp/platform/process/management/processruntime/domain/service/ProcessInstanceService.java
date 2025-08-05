@@ -8,7 +8,6 @@ import cv.igrp.platform.process.management.processruntime.domain.repository.Runt
 import cv.igrp.platform.process.management.shared.application.constants.ProcessInstanceStatus;
 import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
-import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 import org.springframework.stereotype.Service;
 
@@ -72,7 +71,6 @@ public class ProcessInstanceService {
     taskInstanceService.createTaskInstancesByProcess(
         persitedProcessInstance.getId(),
         persitedProcessInstance.getNumber(),
-        null,
         persitedProcessInstance.getApplicationBase()
     );
 
@@ -80,7 +78,7 @@ public class ProcessInstanceService {
   }
 
   public List<ProcessInstanceTaskStatus> getProcessInstanceTaskStatus(UUID id) {
-    return runtimeProcessEngineRepository.getProcessInstanceTaskStatus(id.toString());
+      return runtimeProcessEngineRepository.getProcessInstanceTaskStatus(id.toString());
   }
 
 }

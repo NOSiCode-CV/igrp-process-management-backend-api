@@ -6,7 +6,6 @@ import cv.igrp.platform.process.management.processruntime.application.dto.TaskIn
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceListaPageDTO;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceEvent;
-import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import cv.igrp.platform.process.management.shared.domain.models.Name;
@@ -17,54 +16,56 @@ import cv.igrp.platform.process.management.shared.infrastructure.persistence.ent
 import cv.nosi.igrp.runtime.core.engine.task.model.TaskInfo;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Date;
+import static cv.igrp.platform.process.management.shared.util.DateUtil.utilDateToLocalDateTime;
 
 
 @Component
 public class TaskInstanceMapper {
 
 
+  public TaskInstance toModel(TaskInfo taskInfo) {
+    return TaskInstance.builder()
+        .processNumber(Code.create(taskInfo.processInstanceId()))
+        .taskKey(Code.create(taskInfo.taskDefinitionKey()))
+        .externalId(Code.create(taskInfo.id()))
+        .name(Name.create(taskInfo.name()))
+        .startedAt(utilDateToLocalDateTime.apply(taskInfo.createdTime()))
+        .build();
+  }
+
+
   public TaskInstanceEntity toNewTaskEntity(TaskInstance taskInstance) {
     var taskInstanceEntity = new TaskInstanceEntity();
-    taskInstanceEntity.setId(taskInstance.getId().getValue());
+    taskInstanceEntity.setProcessNumber(taskInstance.getProcessNumber().getValue());
     taskInstanceEntity.setTaskKey(taskInstance.getTaskKey().getValue());
     taskInstanceEntity.setExternalId(taskInstance.getExternalId().getValue());
     taskInstanceEntity.setName(taskInstance.getName().getValue());
+    taskInstanceEntity.setId(taskInstance.getId().getValue());
     taskInstanceEntity.setApplicationBase(taskInstance.getApplicationBase().getValue());
+    taskInstanceEntity.setStartedBy(taskInstance.getStartedBy().getValue());
+    taskInstanceEntity.setStartedAt(taskInstance.getStartedAt());
+    taskInstanceEntity.setStatus(taskInstance.getStatus());
+    taskInstanceEntity.setSearchTerms(taskInstance.getSearchTerms());
     if(taskInstance.getProcessInstanceId()!=null) {
         var processInstanceEntity = new ProcessInstanceEntity();
         processInstanceEntity.setId(taskInstance.getProcessInstanceId().getValue());
         taskInstanceEntity.setProcessInstanceId(processInstanceEntity);
     }
-    taskInstanceEntity.setProcessNumber(taskInstance.getProcessNumber().getValue());
-    taskInstanceEntity.setProcessType(taskInstance.getProcessType()!=null?taskInstance.getProcessType().getValue():null);
-    taskInstanceEntity.setStartedBy(taskInstance.getStartedBy().getValue());
-    taskInstanceEntity.setStartedAt(taskInstance.getStartedAt());
-    taskInstanceEntity.setAssignedBy(taskInstance.getAssignedBy().getValue());
-    taskInstanceEntity.setAssignedAt(taskInstance.getAssignedAt());
-    taskInstanceEntity.setStatus(taskInstance.getStatus());
-    taskInstanceEntity.setSearchTerms(taskInstance.getSearchTerms());
     return taskInstanceEntity;
   }
 
 
-  public TaskInstanceEntity toTaskEntity(TaskInstance taskInstance) {
-    var taskInstanceEntity = new TaskInstanceEntity();
-    taskInstanceEntity.setId(taskInstance.getId().getValue());
+  public void toTaskEntity(TaskInstance taskInstance,TaskInstanceEntity taskInstanceEntity) {
     taskInstanceEntity.setStatus(taskInstance.getStatus());
     taskInstanceEntity.setAssignedBy(taskInstance.getAssignedBy().getValue());
     taskInstanceEntity.setAssignedAt(taskInstance.getAssignedAt());
     taskInstanceEntity.setEndedBy(taskInstance.getEndedBy().getValue());
     taskInstanceEntity.setEndedAt(taskInstance.getEndedAt());
     taskInstanceEntity.setSearchTerms(taskInstance.getSearchTerms());
-    return taskInstanceEntity;
   }
 
 
   public TaskInstanceEventEntity toTaskEventEntity(TaskInstanceEvent taskInstanceEvent) {
-
     var eventEntity = new TaskInstanceEventEntity();
     eventEntity.setId(taskInstanceEvent.getId().getValue());
     eventEntity.setEventType(taskInstanceEvent.getEventType());
@@ -73,43 +74,53 @@ public class TaskInstanceMapper {
     eventEntity.setPerformedBy(taskInstanceEvent.getPerformedBy().getValue());
     eventEntity.setNote(taskInstanceEvent.getNote());
     if (taskInstanceEvent.getTaskInstanceId() != null) {
-      var taskInstanceEntity = new TaskInstanceEntity();
-      taskInstanceEntity.setId(taskInstanceEvent.getTaskInstanceId().getValue());
-      eventEntity.setTaskInstanceId(taskInstanceEntity);
+        var taskInstanceEntity = new TaskInstanceEntity();
+        taskInstanceEntity.setId(taskInstanceEvent.getTaskInstanceId().getValue());
+        eventEntity.setTaskInstanceId(taskInstanceEntity);
     }
     return eventEntity;
   }
 
 
-  public TaskInstance toModel(TaskInstanceEntity entity) {
+  public TaskInstance toModel(TaskInstanceEntity taskInstanceEntity) {
     return TaskInstance.builder()
-        .id(Identifier.create(entity.getId()))
-        .processType(Code.create(entity.getProcessInstanceId().getProcReleaseKey()))
-        .processNumber(Code.create(entity.getProcessInstanceId().getNumber()))
-        .taskKey(Code.create(entity.getTaskKey()))
-        .name(Name.create(entity.getName()))
-        .status(entity.getStatus())
-        .startedBy(Code.create(entity.getStartedBy()))
-        .startedAt(entity.getStartedAt())
-        .searchTerms(entity.getSearchTerms())
-        .processInstanceId(Identifier.create(entity.getProcessInstanceId().getId()))
+        .processNumber(Code.create(taskInstanceEntity.getProcessInstanceId().getNumber()))
+        .taskKey(Code.create(taskInstanceEntity.getTaskKey()))
+        .externalId(Code.create(taskInstanceEntity.getExternalId()))
+        .name(Name.create(taskInstanceEntity.getName()))
+        .id(Identifier.create(taskInstanceEntity.getId()))
+        .processInstanceId(Identifier.create(taskInstanceEntity.getProcessInstanceId().getId()))
+        .processType(Code.create(taskInstanceEntity.getProcessInstanceId().getProcReleaseKey()))
+        .applicationBase(Code.create(taskInstanceEntity.getApplicationBase()))
+        .status(taskInstanceEntity.getStatus())
+        .startedAt(taskInstanceEntity.getStartedAt())
+        .startedBy(Code.create(taskInstanceEntity.getStartedBy()))
+        .assignedAt(taskInstanceEntity.getAssignedAt())
+        .assignedBy(taskInstanceEntity.getAssignedBy()==null?null:Code.create(taskInstanceEntity.getAssignedBy()))
+        .endedAt(taskInstanceEntity.getEndedAt())
+        .endedBy(taskInstanceEntity.getEndedBy()==null?null:Code.create(taskInstanceEntity.getEndedBy()))
+        .searchTerms(taskInstanceEntity.getSearchTerms())
         .build();
   }
 
 
-  public TaskInstance toModelWithEvents(TaskInstanceEntity taskEntity) {
+  public TaskInstance toModelWithEvents(TaskInstanceEntity taskInstanceEntity) {
     return TaskInstance.builder()
-        .id(Identifier.create(taskEntity.getId()))
-        .processType(Code.create(taskEntity.getProcessInstanceId().getProcReleaseKey()))
-        .processNumber(Code.create(taskEntity.getProcessInstanceId().getNumber()))
-        .taskKey(Code.create(taskEntity.getTaskKey()))
-        .name(Name.create(taskEntity.getName()))
-        .status(taskEntity.getStatus())
-        .startedBy(Code.create(taskEntity.getStartedBy()))
-        .startedAt(taskEntity.getStartedAt())
-        .searchTerms(taskEntity.getSearchTerms())
-        .processInstanceId(Identifier.create(taskEntity.getProcessInstanceId().getId()))
-        .taskInstanceEvents(taskEntity.getTaskinstanceevents()
+        .processNumber(Code.create(taskInstanceEntity.getProcessInstanceId().getNumber()))
+        .taskKey(Code.create(taskInstanceEntity.getTaskKey()))
+        .externalId(Code.create(taskInstanceEntity.getExternalId()))
+        .name(Name.create(taskInstanceEntity.getName()))
+        .id(Identifier.create(taskInstanceEntity.getId()))
+        .processInstanceId(Identifier.create(taskInstanceEntity.getProcessInstanceId().getId()))
+        .processType(Code.create(taskInstanceEntity.getProcessInstanceId().getProcReleaseKey()))
+        .applicationBase(Code.create(taskInstanceEntity.getApplicationBase()))
+        .status(taskInstanceEntity.getStatus())
+        .startedAt(taskInstanceEntity.getStartedAt())
+        .startedBy(Code.create(taskInstanceEntity.getStartedBy()))
+        .assignedAt(taskInstanceEntity.getAssignedAt())
+        .searchTerms(taskInstanceEntity.getSearchTerms())
+        .processInstanceId(Identifier.create(taskInstanceEntity.getProcessInstanceId().getId()))
+        .taskInstanceEvents(taskInstanceEntity.getTaskinstanceevents()
             .stream()
             .map(this::toEventModel)
             .toList())
@@ -130,7 +141,7 @@ public class TaskInstanceMapper {
   }
 
 
-  public TaskInstanceListaPageDTO toDTO(PageableLista<TaskInstance> taskInstances) {
+  public TaskInstanceListaPageDTO toTaskInstanceListaPageDTO(PageableLista<TaskInstance> taskInstances) {
     var listDto = new TaskInstanceListaPageDTO();
     listDto.setTotalElements(taskInstances.getTotalElements());
     listDto.setTotalPages(taskInstances.getTotalPages());
@@ -140,13 +151,13 @@ public class TaskInstanceMapper {
     listDto.setLast(taskInstances.isLast());
     listDto.setContent(taskInstances.getContent()
         .stream()
-        .map(this::toListDTO)
+        .map(this::toTaskInstanceListDTO)
         .toList());
     return listDto;
   }
 
 
-  public TaskInstanceListDTO toListDTO(TaskInstance model) {
+  public TaskInstanceListDTO toTaskInstanceListDTO(TaskInstance model) {
     var dto = new TaskInstanceListDTO();
     dto.setId(model.getId().getValue());
     dto.setStatus(model.getStatus());
@@ -160,21 +171,21 @@ public class TaskInstanceMapper {
   }
 
 
-  public TaskInstanceDTO toTaskDTO(TaskInstance taskInstance) {
+  public TaskInstanceDTO toTaskInstanceDTO(TaskInstance taskInstance) {
     var dto = new TaskInstanceDTO();
+    dto.setProcessNumber(taskInstance.getProcessNumber().getValue());
+    dto.setTaskKey(taskInstance.getTaskKey().getValue());
     dto.setId(taskInstance.getId().getValue());
+    dto.setName(taskInstance.getName().getValue());
+    dto.setExternalId(taskInstance.getExternalId().getValue());
     dto.setProcessInstanceId(taskInstance.getProcessInstanceId().getValue());
     dto.setProcessType(taskInstance.getProcessType().getValue());
     dto.setApplicationBase(taskInstance.getApplicationBase().getValue());
-    dto.setProcessNumber(taskInstance.getProcessNumber().getValue());
-    dto.setTaskKey(taskInstance.getTaskKey().getValue());
-    dto.setName(taskInstance.getName().getValue());
-    dto.setExternalId(taskInstance.getExternalId().getValue());
-    dto.setUser(taskInstance.getAssignedBy().getValue());
-    dto.setSearchTerms(taskInstance.getSearchTerms());
     dto.setStartedAt(taskInstance.getStartedAt());
     dto.setStartedBy(taskInstance.getStartedBy().getValue());
-    dto.setStatus(TaskInstanceStatus.CREATED);
+    dto.setStatus(taskInstance.getStatus());
+    dto.setUser(taskInstance.getAssignedBy()!=null?taskInstance.getAssignedBy().getValue():null);
+    dto.setSearchTerms(taskInstance.getSearchTerms());
     dto.setTaskInstanceEvents(taskInstance.getTaskInstanceEvents()
         .stream()
         .map(this::toEventListDTO)
@@ -193,24 +204,6 @@ public class TaskInstanceMapper {
     eventDto.setObs(event.getNote());
     eventDto.setStatus(event.getStatus());
     return eventDto;
-  }
-
-
-  public TaskInstance toModel(TaskInfo taskInfo) {
-    return TaskInstance.builder()
-        .processInstanceId(Identifier.create(taskInfo.processInstanceId()))
-        .externalId(Code.create(taskInfo.id()))
-        .taskKey(Code.create(taskInfo.taskDefinitionKey()))
-        .name(Name.create(taskInfo.name()))
-        .startedAt(taskInfo.createdTime()!=null ? convertToLocalDateTime(taskInfo.createdTime()) : null)
-        .build();
-  }
-
-
-  private LocalDateTime convertToLocalDateTime(Date createdTime) {
-    return createdTime.toInstant()
-        .atZone(ZoneId.systemDefault())
-        .toLocalDateTime();
   }
 
 

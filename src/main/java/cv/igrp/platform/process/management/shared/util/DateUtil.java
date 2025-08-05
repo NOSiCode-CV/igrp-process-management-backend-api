@@ -3,8 +3,10 @@ package cv.igrp.platform.process.management.shared.util;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+import java.util.Date;
 import java.util.Locale;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -40,6 +42,8 @@ public class DateUtil { // todo class to be removed
   public static final Function<LocalDate, String> dateToFullString = date -> ofNullable(date).map(d->d.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL).withLocale(new Locale("pt", "PT")))).orElse("");
 
   public static final Function<LocalDateTime, String> localDateTimeToString = obj -> ofNullable(obj).map(DD_MM_YYYY_HH_MM::format).orElse("");
+
+  public static final Function<Date, LocalDateTime> utilDateToLocalDateTime = date -> ofNullable(date).map(d->d.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()).orElse(null);
 
   public static final BiFunction<LocalDateTime, DateTimeFormatter, String> biLocalDateTimeToString = (obj, formatter) -> ofNullable(obj).map(formatter::format).orElse("");
 }

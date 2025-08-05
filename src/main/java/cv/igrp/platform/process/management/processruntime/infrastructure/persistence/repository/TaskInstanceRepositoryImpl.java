@@ -4,6 +4,7 @@ import cv.igrp.platform.process.management.processruntime.domain.models.TaskInst
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceFilter;
 import cv.igrp.platform.process.management.processruntime.domain.repository.TaskInstanceRepository;
 import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
+import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.TaskInstanceEntity;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.repository.TaskInstanceEntityRepository;
@@ -43,15 +44,18 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
   public TaskInstance create(TaskInstance taskInstance) {
       return taskMapper.toModel(
           taskInstanceEntityRepository.save(
-              taskMapper.toNewTaskEntity(taskInstance)));
+              taskMapper.toNewTaskEntity(taskInstance))); // todo tratar colisoes de ID
   }
 
 
   @Override
   public TaskInstance update(TaskInstance taskInstance) {
-    return taskMapper.toModelWithEvents(
-        taskInstanceEntityRepository.save(
-            taskMapper.toTaskEntity(taskInstance)));
+      var taskInstanceEntity = taskInstanceEntityRepository
+          .findById(taskInstance.getId().getValue())
+          .orElseThrow(() -> IgrpResponseStatusException.notFound(
+              "No Task Instance found with id: " + taskInstance.getId().getValue()));
+      taskMapper.toTaskEntity(taskInstance,taskInstanceEntity);
+      return taskMapper.toModelWithEvents(taskInstanceEntityRepository.save(taskInstanceEntity));
   }
 
 

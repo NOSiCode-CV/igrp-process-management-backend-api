@@ -41,7 +41,7 @@ public class CompleteTaskCommandHandler implements CommandHandler<CompleteTaskCo
 
         LOGGER.info("End of CompleteTask id: {}",command.getId());
 
-        return ResponseEntity.ok(taskInstanceMapper.toTaskDTO(taskInstanceResp));
+        return ResponseEntity.ok(taskInstanceMapper.toTaskInstanceDTO(taskInstanceResp));
     }
 
 }
