@@ -52,7 +52,8 @@ public class ProcessInstanceService {
   }
 
   public List<ProcessInstanceTaskStatus> getProcessInstanceTaskStatus(UUID id) {
-    return runtimeProcessEngineRepository.getProcessInstanceTaskStatus(id.toString());
+    ProcessInstance processInstance = getProcessInstanceById(id);
+    return runtimeProcessEngineRepository.getProcessInstanceTaskStatus(processInstance.getNumber().getValue());
   }
 
 }
