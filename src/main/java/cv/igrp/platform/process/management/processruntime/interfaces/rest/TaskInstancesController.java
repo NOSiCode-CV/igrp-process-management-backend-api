@@ -416,12 +416,12 @@ public class TaskInstancesController {
   )
 
   public ResponseEntity<List<ConfigParameterDTO>> listTaskInstanceStatus(
-    @RequestParam(value = "status") String status)
+    )
   {
 
       LOGGER.debug("Operation started");
 
-      final var query = new ListTaskInstanceStatusQuery(status);
+      final var query = new ListTaskInstanceStatusQuery();
 
       ResponseEntity<List<ConfigParameterDTO>> response = queryBus.handle(query);
 

@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class ListTaskInstancesQueryHandler implements QueryHandler<ListTaskInstancesQuery, ResponseEntity<TaskInstanceListaPageDTO>>{
@@ -31,6 +32,7 @@ public class ListTaskInstancesQueryHandler implements QueryHandler<ListTaskInsta
     }
 
     @IgrpQueryHandler
+    @Transactional(readOnly = true)
     public ResponseEntity<TaskInstanceListaPageDTO> handle(ListTaskInstancesQuery query) {
         TaskInstanceFilter filter = TaskInstanceFilter.builder()
            .processNumber(query.getProcessNumber() != null ? Code.create(query.getProcessNumber()) : null)

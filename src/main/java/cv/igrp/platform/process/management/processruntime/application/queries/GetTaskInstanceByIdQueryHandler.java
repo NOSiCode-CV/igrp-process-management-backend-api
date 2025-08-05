@@ -9,27 +9,29 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
 @Component
 public class GetTaskInstanceByIdQueryHandler implements QueryHandler<GetTaskInstanceByIdQuery, ResponseEntity<TaskInstanceDTO>>{
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(GetTaskInstanceByIdQueryHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GetTaskInstanceByIdQueryHandler.class);
 
-  private final TaskInstanceService taskInstanceService;
-  private final TaskInstanceMapper taskInstanceMapper;
+    private final TaskInstanceService taskInstanceService;
+    private final TaskInstanceMapper taskInstanceMapper;
 
-  public GetTaskInstanceByIdQueryHandler(TaskInstanceService taskInstanceService,
-                                       TaskInstanceMapper taskMapper) {
-    this.taskInstanceService = taskInstanceService;
-    this.taskInstanceMapper = taskMapper;
-  }
+    public GetTaskInstanceByIdQueryHandler(TaskInstanceService taskInstanceService,
+                                     TaskInstanceMapper taskMapper) {
+        this.taskInstanceService = taskInstanceService;
+        this.taskInstanceMapper = taskMapper;
+    }
 
-   @IgrpQueryHandler
-  public ResponseEntity<TaskInstanceDTO> handle(GetTaskInstanceByIdQuery query) {
-     final var taskInstance =  taskInstanceService.getById(UUID.fromString(query.getId()));
-     return ResponseEntity.ok(taskInstanceMapper.toTaskInstanceDTO(taskInstance));
-  }
+    @IgrpQueryHandler
+    @Transactional(readOnly = true)
+    public ResponseEntity<TaskInstanceDTO> handle(GetTaskInstanceByIdQuery query) {
+        final var taskInstance =  taskInstanceService.getById(UUID.fromString(query.getId()));
+        return ResponseEntity.ok(taskInstanceMapper.toTaskInstanceDTO(taskInstance));
+    }
 
 }

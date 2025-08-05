@@ -420,15 +420,7 @@
             }
           }
         }
-      },
-      "requestParams": [
-        {
-          "type": "string",
-          "name": "status",
-          "description": "Status of the task",
-          "isRequired": true
-        }
-      ]
+      }
     },
     {
       "actionName": "listTaskInstanceEventType",

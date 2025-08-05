@@ -93,7 +93,8 @@ public class TaskInstanceService {
       createTaskInstancesByProcess(
           taskInstance.getProcessInstanceId(),
           taskInstance.getProcessNumber(),
-          taskInstance.getApplicationBase());
+          taskInstance.getApplicationBase()
+      );
       return completedTask;
   }
 
