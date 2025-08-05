@@ -77,6 +77,15 @@ public class TaskInstance {
 
 
     public void create() {
+        if(processInstanceId==null) {
+          throw new IllegalStateException("The processInstanceId cannot be null!");
+        }
+        if(processNumber==null) {
+          throw new IllegalStateException("The processNumber cannot be null!");
+        }
+        if(applicationBase==null) {
+          throw new IllegalStateException("The applicationBase cannot be null!");
+        }
         this.status = TaskInstanceStatus.CREATED;
         if(startedAt==null)
             this.startedAt = LocalDateTime.now();
