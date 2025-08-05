@@ -11,7 +11,6 @@ import cv.igrp.platform.process.management.shared.security.SecurityUtil;
 import cv.nosi.igrp.runtime.core.engine.process.ProcessManagerAdapter;
 import cv.nosi.igrp.runtime.core.engine.task.TaskActionService;
 import cv.nosi.igrp.runtime.core.engine.task.TaskQueryService;
-import cv.nosi.igrp.runtime.core.engine.task.model.TaskFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -62,8 +61,8 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
       LOGGER.info("Process started with ID: {}", processInstance.getId());
       return processInstanceMapper.toModel(processInstance);
     } catch (Exception e) {
-      LOGGER.error("Erro ao iniciar processo", e);
-      throw new RuntimeException("Falha ao iniciar processo", e);
+      LOGGER.error("Failed to start process", e);
+      throw new RuntimeException("Failed to start process", e);
     }
   }
 
@@ -75,8 +74,8 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
           .map(processInstanceMapper::toModel)
           .orElse(null);
     } catch (Exception e) {
-      LOGGER.error("Erro ao obter a instância de processo com ID: {}", processInstanceId, e);
-      throw new RuntimeException("Falha ao obter instância de processo", e);
+      LOGGER.error("Failed to retrieve process instance with ID: {}", processInstanceId, e);
+      throw new RuntimeException("Failed to retrieve process instance", e);
     }
   }
 
@@ -93,8 +92,8 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
 
 
     } catch (Exception e) {
-      LOGGER.error("Erro ao obter tarefas da instância: {}", processInstanceId, e);
-      throw new RuntimeException("Erro ao obter tarefas", e);
+      LOGGER.error("Failed to retrieve task list for process instance ID: {}", processInstanceId, e);
+      throw new RuntimeException("Failed to retrieve task list", e);
     }
   }
 
@@ -107,8 +106,8 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
           .collect(Collectors.toList());
 
     } catch (Exception e) {
-      LOGGER.error("Erro ao obter tarefas da instância: {}", processInstanceId, e);
-      throw new RuntimeException("Erro ao obter tarefas", e);
+      LOGGER.error("Failed to retrieve active tasks for process instance ID: {}", processInstanceId, e);
+      throw new RuntimeException("Failed to retrieve active tasks", e);
     }
   }
 
