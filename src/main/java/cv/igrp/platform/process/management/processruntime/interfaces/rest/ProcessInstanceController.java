@@ -22,7 +22,7 @@ import cv.igrp.platform.process.management.processruntime.application.commands.*
 import cv.igrp.platform.process.management.processruntime.application.queries.*;
 
 
-import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceListaPageDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceListPageDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.StartProcessRequestDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceDTO;
 import java.util.List;
@@ -61,14 +61,14 @@ public class ProcessInstanceController {
           content = @Content(
               mediaType = "application/json",
               schema = @Schema(
-                  implementation = ProcessInstanceListaPageDTO.class,
+                  implementation = ProcessInstanceListPageDTO.class,
                   type = "object")
           )
       )
     }
   )
   
-  public ResponseEntity<ProcessInstanceListaPageDTO> listProcessInstances(
+  public ResponseEntity<ProcessInstanceListPageDTO> listProcessInstances(
     @RequestParam(value = "number", required = false) String number,
     @RequestParam(value = "procReleaseKey", required = false) String procReleaseKey,
     @RequestParam(value = "procReleaseId", required = false) String procReleaseId,
@@ -83,7 +83,7 @@ public class ProcessInstanceController {
 
       final var query = new ListProcessInstancesQuery(number, procReleaseKey, procReleaseId, status, searchTerms, applicationBase, page, size);
 
-      ResponseEntity<ProcessInstanceListaPageDTO> response = queryBus.handle(query);
+      ResponseEntity<ProcessInstanceListPageDTO> response = queryBus.handle(query);
 
       LOGGER.debug("Operation finished");
 

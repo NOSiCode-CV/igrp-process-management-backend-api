@@ -16,10 +16,10 @@ import cv.igrp.framework.stereotype.IgrpQueryHandler;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import cv.igrp.platform.process.management.area.application.dto.AreaListaPageDTO;
+import cv.igrp.platform.process.management.area.application.dto.AreaListPageDTO;
 
 @Component
-public class ListAreasQueryHandler implements QueryHandler<ListAreasQuery, ResponseEntity<AreaListaPageDTO>>{
+public class ListAreasQueryHandler implements QueryHandler<ListAreasQuery, ResponseEntity<AreaListPageDTO>>{
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ListAreasQueryHandler.class);
 
@@ -32,7 +32,7 @@ public class ListAreasQueryHandler implements QueryHandler<ListAreasQuery, Respo
   }
 
   @IgrpQueryHandler
-  public ResponseEntity<AreaListaPageDTO> handle(ListAreasQuery query) {
+  public ResponseEntity<AreaListPageDTO> handle(ListAreasQuery query) {
     AreaFilter filter = AreaFilter.builder()
         .name(query.getName() != null ? Name.create(query.getName()) : null)
         .applicationBase(query.getApplicationBase() != null ? Code.create(query.getApplicationBase()) : null)

@@ -1,7 +1,7 @@
 package cv.igrp.platform.process.management.processruntime.mappers;
 
 import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceDTO;
-import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceListaPageDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceListPageDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.StartProcessRequestDTO;
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstance;
 import cv.igrp.platform.process.management.shared.application.constants.ProcessInstanceStatus;
@@ -30,7 +30,7 @@ public class ProcessInstanceMapper {
     processInstanceEntity.setApplicationBase(processInstance.getApplicationBase().getValue());
     processInstanceEntity.setVersion(processInstance.getVersion());
     processInstanceEntity.setStatus(processInstance.getStatus());
-    processInstanceEntity.setBusinessKey(processInstance.getBusinessKey().getValue());
+    processInstanceEntity.setBusinessKey(processInstance.getBusinessKey() != null ? processInstance.getBusinessKey().getValue() : null);
     processInstanceEntity.setStartedAt(processInstance.getStartedAt());
     processInstanceEntity.setStartedBy(processInstance.getStartedBy());
     processInstanceEntity.setCanceledAt(processInstance.getCanceledAt());
@@ -45,7 +45,7 @@ public class ProcessInstanceMapper {
         .id(Identifier.create(processInstanceEntity.getId()))
         .number(Code.create(processInstanceEntity.getNumber()))
         .procReleaseKey(Code.create(processInstanceEntity.getProcReleaseKey()))
-        .businessKey(Code.create(processInstanceEntity.getBusinessKey()))
+        .businessKey(processInstanceEntity.getBusinessKey() != null ? Code.create(processInstanceEntity.getBusinessKey()) : null)
         .procReleaseId(Code.create(processInstanceEntity.getProcReleaseId()))
         .status(processInstanceEntity.getStatus())
         .searchTerms(processInstanceEntity.getSearchTerms())
@@ -97,8 +97,8 @@ public class ProcessInstanceMapper {
     return processInstanceDTO;
   }
 
-  public ProcessInstanceListaPageDTO toDTO(PageableLista<ProcessInstance> processInstances) {
-    ProcessInstanceListaPageDTO dto = new ProcessInstanceListaPageDTO();
+  public ProcessInstanceListPageDTO toDTO(PageableLista<ProcessInstance> processInstances) {
+    ProcessInstanceListPageDTO dto = new ProcessInstanceListPageDTO();
     dto.setTotalElements(processInstances.getTotalElements());
     dto.setTotalPages(processInstances.getTotalPages());
     dto.setPageNumber(processInstances.getPageNumber());

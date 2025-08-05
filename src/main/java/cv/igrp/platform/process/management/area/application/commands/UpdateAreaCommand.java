@@ -14,7 +14,7 @@ public class UpdateAreaCommand implements Command {
 
   
   private AreaRequestDTO arearequestdto;
-  @NotBlank(message = "The field <id> is required.")
+  @NotBlank(message = "The field <id> is required")
   private String id;
 
 }

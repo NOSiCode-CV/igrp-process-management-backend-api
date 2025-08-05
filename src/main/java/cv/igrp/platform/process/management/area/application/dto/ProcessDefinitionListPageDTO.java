@@ -1,7 +1,7 @@
 /* THIS FILE WAS GENERATED AUTOMATICALLY BY iGRP STUDIO. */
 /* DO NOT MODIFY IT BECAUSE IT COULD BE REWRITTEN AT ANY TIME. */
 
-package cv.igrp.platform.process.management.processruntime.application.dto;
+package cv.igrp.platform.process.management.area.application.dto;
 
 import cv.igrp.framework.stereotype.IgrpDTO;
 import jakarta.validation.*;
@@ -9,7 +9,7 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceDTO;
+import cv.igrp.platform.process.management.area.application.dto.ProcessDefinitionDTO;
 import cv.igrp.platform.process.management.shared.application.dto.PageDTO;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,10 +20,10 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @IgrpDTO
-public class ProcessInstanceListaPageDTO extends PageDTO {
+public class ProcessDefinitionListPageDTO extends PageDTO {
 
   
   @Valid
-  private List<ProcessInstanceDTO> content = new ArrayList<>();
+  private List<ProcessDefinitionDTO> content = new ArrayList<>();
 
 }

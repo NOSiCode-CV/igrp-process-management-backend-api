@@ -15,7 +15,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "ProcessInstanceListaPageDTO",
+                "type": "ProcessInstanceListPageDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",

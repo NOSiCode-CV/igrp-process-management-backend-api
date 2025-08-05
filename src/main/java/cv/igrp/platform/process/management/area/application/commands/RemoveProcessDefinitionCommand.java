@@ -12,9 +12,9 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class RemoveProcessDefinitionCommand implements Command {
 
-  @NotBlank(message = "The field <areaId> is required.")
+  @NotBlank(message = "The field <areaId> is required")
   private String areaId;
-  @NotBlank(message = "The field <processDefinitionId> is required.")
+  @NotBlank(message = "The field <processDefinitionId> is required")
   private String processDefinitionId;
 
 }
