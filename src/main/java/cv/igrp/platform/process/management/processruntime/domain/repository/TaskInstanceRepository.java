@@ -11,6 +11,8 @@ public interface TaskInstanceRepository {
 
   Optional<TaskInstance> findById(UUID id);
 
+  Optional<TaskInstance> findByIdWihEvents(UUID id);
+
   TaskInstance create(TaskInstance taskInstance);
 
   TaskInstance update(TaskInstance taskInstance);

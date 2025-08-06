@@ -301,47 +301,6 @@
       ]
     },
     {
-      "actionName": "getTaskHistory",
-      "path": "{id}/history",
-      "method": "GET",
-      "responses": {
-        "200": {
-          "name": "OK",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "TaskInstanceHistoryDTO",
-                "objectType": "dto",
-                "name": "data",
-                "collectionType": "none",
-                "module": "processruntime"
-              }
-            }
-          }
-        }
-      },
-      "requestParams": [
-        {
-          "type": "integer",
-          "name": "page",
-          "isRequired": true
-        },
-        {
-          "type": "integer",
-          "name": "size",
-          "isRequired": true
-        }
-      ],
-      "pathVariables": [
-        {
-          "name": "id",
-          "type": "string",
-          "isRequired": true,
-          "description": "ID of the Task Instance"
-        }
-      ]
-    },
-    {
       "actionName": "getAllMyTasks",
       "path": "me",
       "method": "GET",

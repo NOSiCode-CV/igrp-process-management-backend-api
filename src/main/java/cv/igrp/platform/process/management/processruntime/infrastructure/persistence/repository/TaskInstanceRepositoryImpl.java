@@ -36,6 +36,12 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
 
   @Override
   public Optional<TaskInstance> findById(UUID id) {
+    return taskInstanceEntityRepository.findById(id).map(taskMapper::toModel);
+  }
+
+
+  @Override
+  public Optional<TaskInstance> findByIdWihEvents(UUID id) {
       return taskInstanceEntityRepository.findById(id).map(taskMapper::toModelWithEvents);
   }
 
