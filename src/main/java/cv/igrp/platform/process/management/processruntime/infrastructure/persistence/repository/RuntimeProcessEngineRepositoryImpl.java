@@ -110,8 +110,8 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
 
   @Override
   public void completeTask(String taskInstanceId, Map<String, Object> variables) {
-
-    taskActionService.completeTask(taskInstanceId, variables, "user");
+    securityUtil.logInAs("demo@nosi.cv");
+    taskActionService.completeTask(taskInstanceId, variables, "demo@nosi.cv");
   }
 
 
