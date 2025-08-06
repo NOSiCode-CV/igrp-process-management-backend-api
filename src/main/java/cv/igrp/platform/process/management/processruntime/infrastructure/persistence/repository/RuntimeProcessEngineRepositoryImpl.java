@@ -68,15 +68,11 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
 
   @Override
   public ProcessInstance getProcessInstanceById(String processInstanceId) {
-    try {
       return processManagerAdapter
           .getProcessInstance(processInstanceId)
           .map(processInstanceMapper::toModel)
-          .orElse(null);
-    } catch (Exception e) {
-      LOGGER.error("Failed to retrieve process instance with ID: {}", processInstanceId, e);
-      throw new RuntimeException("Failed to retrieve process instance", e);
-    }
+          .orElseThrow(()-> new IllegalArgumentException("Process instance not found: " + processInstanceId));
+
   }
 
   @Override
