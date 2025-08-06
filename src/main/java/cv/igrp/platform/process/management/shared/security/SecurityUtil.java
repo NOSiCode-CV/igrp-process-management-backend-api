@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class SecurityUtil {
 
+
     public void logInAs(String username) {
         UserDetails userDetails = User.withUsername(username)
             .password("password")

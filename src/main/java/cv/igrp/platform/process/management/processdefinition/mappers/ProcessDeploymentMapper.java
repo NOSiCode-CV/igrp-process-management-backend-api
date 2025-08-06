@@ -31,7 +31,6 @@ public class ProcessDeploymentMapper {
 
   public ProcessDeploymentDTO toDTO(ProcessDeployment model){
     ProcessDeploymentDTO dto = new ProcessDeploymentDTO();
-    dto.setId(model.getProcReleaseId().getValue());
     dto.setDeploymentId(model.getDeploymentId());
     dto.setBpmnXml(model.getBpmnXml().toString());
     dto.setName(model.getName().getValue());

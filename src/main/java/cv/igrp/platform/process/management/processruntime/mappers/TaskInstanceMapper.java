@@ -61,9 +61,9 @@ public class TaskInstanceMapper {
 
   public void toTaskEntity(TaskInstance taskInstance,TaskInstanceEntity taskInstanceEntity) {
     taskInstanceEntity.setStatus(taskInstance.getStatus());
-    taskInstanceEntity.setAssignedBy(taskInstance.getAssignedBy().getValue());
+    taskInstanceEntity.setAssignedBy(taskInstance.getAssignedBy() != null ? taskInstance.getAssignedBy().getValue() : null);
     taskInstanceEntity.setAssignedAt(taskInstance.getAssignedAt());
-    taskInstanceEntity.setEndedBy(taskInstance.getEndedBy().getValue());
+    taskInstanceEntity.setEndedBy(taskInstance.getEndedBy() != null ? taskInstance.getEndedBy().getValue() : null);
     taskInstanceEntity.setEndedAt(taskInstance.getEndedAt());
     taskInstanceEntity.setSearchTerms(taskInstance.getSearchTerms());
   }
@@ -104,7 +104,7 @@ public class TaskInstanceMapper {
         .name(Name.create(taskInstanceEntity.getName()))
         .id(Identifier.create(taskInstanceEntity.getId()))
         .processInstanceId(Identifier.create(taskInstanceEntity.getProcessInstanceId().getId()))
-        .processType(Code.create(taskInstanceEntity.getProcessType()))
+        .processType(taskInstanceEntity.getProcessType() != null ? Code.create(taskInstanceEntity.getProcessType()) : null)
         .applicationBase(Code.create(taskInstanceEntity.getApplicationBase()))
         .status(taskInstanceEntity.getStatus())
         .startedAt(taskInstanceEntity.getStartedAt())
