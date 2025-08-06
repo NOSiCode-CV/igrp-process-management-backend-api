@@ -16,6 +16,8 @@ import cv.igrp.platform.process.management.shared.infrastructure.persistence.ent
 import cv.nosi.igrp.runtime.core.engine.task.model.TaskInfo;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+
 import static cv.igrp.platform.process.management.shared.util.DateUtil.utilDateToLocalDateTime;
 
 
@@ -186,10 +188,9 @@ public class TaskInstanceMapper {
     dto.setStatus(taskInstance.getStatus());
     dto.setUser(taskInstance.getAssignedBy()!=null?taskInstance.getAssignedBy().getValue():null);
     dto.setSearchTerms(taskInstance.getSearchTerms());
-    dto.setTaskInstanceEvents(taskInstance.getTaskInstanceEvents()
-        .stream()
-        .map(this::toEventListDTO)
-        .toList());
+    dto.setTaskInstanceEvents(new ArrayList<>());
+    taskInstance.getTaskInstanceEvents()
+        .forEach(e->dto.getTaskInstanceEvents().add(toEventListDTO(e)));
     return dto;
   }
 
