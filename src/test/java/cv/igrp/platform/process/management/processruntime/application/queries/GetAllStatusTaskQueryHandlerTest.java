@@ -9,8 +9,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 public class GetAllStatusTaskQueryHandlerTest {
 
-  @InjectMocks
-  private GetAllStatusTaskQueryHandler getAllStatusTaskQueryHandler;
+ /* @InjectMocks
+  private GetAllStatusTaskQueryHandler getAllStatusTaskQueryHandler;*/
 
   @BeforeEach
   void setUp() {
