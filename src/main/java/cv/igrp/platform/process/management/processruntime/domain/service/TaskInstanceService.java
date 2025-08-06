@@ -2,6 +2,7 @@ package cv.igrp.platform.process.management.processruntime.domain.service;
 
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceFilter;
+import cv.igrp.platform.process.management.processruntime.domain.repository.ProcessInstanceRepository;
 import cv.igrp.platform.process.management.processruntime.domain.repository.RuntimeProcessEngineRepository;
 import cv.igrp.platform.process.management.processruntime.domain.repository.TaskInstanceEventRepository;
 import cv.igrp.platform.process.management.processruntime.domain.repository.TaskInstanceRepository;
@@ -20,17 +21,17 @@ public class TaskInstanceService {
   private final TaskInstanceRepository taskInstanceRepository;
   private final TaskInstanceEventRepository taskInstanceEventRepository;
   private final RuntimeProcessEngineRepository runtimeProcessEngineRepository;
-  private final ProcessInstanceService processInstanceService;
+  private final ProcessInstanceRepository processInstanceRepository;
 
   public TaskInstanceService(TaskInstanceRepository taskInstanceRepository,
                              TaskInstanceEventRepository taskInstanceEventRepository,
                              RuntimeProcessEngineRepository runtimeProcessEngineRepository,
-                             ProcessInstanceService processInstanceService) {
+                             ProcessInstanceRepository processInstanceRepository) {
 
       this.taskInstanceRepository = taskInstanceRepository;
       this.taskInstanceEventRepository = taskInstanceEventRepository;
       this.runtimeProcessEngineRepository = runtimeProcessEngineRepository;
-    this.processInstanceService = processInstanceService;
+      this.processInstanceRepository = processInstanceRepository;
   }
 
 
@@ -46,7 +47,6 @@ public class TaskInstanceService {
 
       activeTaskList.forEach(t->this.createTask(t.withIdentity(applicationBase,processInstanceId)));
   }
-
 
 
   private void createTask(TaskInstance taskInstance) {
@@ -93,8 +93,9 @@ public class TaskInstanceService {
 
       var taskInstance = getById(id);
 
-      var processInstance  = processInstanceService.
-        getProcessInstanceById(taskInstance.getProcessInstanceId().getValue());
+      var processInstance  = processInstanceRepository
+          .findById(taskInstance.getProcessInstanceId().getValue())
+          .orElseThrow(() -> IgrpResponseStatusException.notFound("No Process Instance found with id: " + id));
 
       runtimeProcessEngineRepository.completeTask(id.toString(),variables);
       taskInstance.complete();
@@ -110,8 +111,8 @@ public class TaskInstanceService {
       var activityProcess = runtimeProcessEngineRepository
           .getProcessInstanceById(processInstance.getNumber().getValue());
 
-      processInstanceService.changeProcessInstanceStatus(
-          processInstance,
+      processInstanceRepository.updateStatus(
+          processInstance.getId().getValue(),
           activityProcess.getStatus()
       );
 
