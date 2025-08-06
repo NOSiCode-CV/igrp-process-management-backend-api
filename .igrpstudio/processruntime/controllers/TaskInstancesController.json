@@ -261,6 +261,20 @@
       "actionName": "completeTask",
       "path": "{id}",
       "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "CompleteTaskDTO",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "processruntime",
+              "description": "Complete Task request data"
+            }
+          }
+        }
+      },
       "responses": {
         "200": {
           "name": "OK",
@@ -277,18 +291,6 @@
           }
         }
       },
-      "requestParams": [
-        {
-          "type": "string",
-          "name": "user",
-          "isRequired": true
-        },
-        {
-          "type": "string",
-          "name": "note",
-          "isRequired": false
-        }
-      ],
       "pathVariables": [
         {
           "name": "id",

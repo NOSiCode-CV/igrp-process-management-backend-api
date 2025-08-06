@@ -1,0 +1,23 @@
+{
+  "type": "dto",
+  "module": "processruntime",
+  "name": "CompleteTaskDTO",
+  "template": "classic",
+  "enableCustonValidation": false,
+  "attributes": [
+    {
+      "name": "variables",
+      "objectType": "dto",
+      "type": "TaskVariableDTO",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false,
+      "module": "processruntime"
+    }
+  ],
+  "id": "d2lxc81bwc"
+}
