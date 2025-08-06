@@ -82,4 +82,15 @@ public class ProcessInstanceService {
     return runtimeProcessEngineRepository.getProcessInstanceTaskStatus(processInstance.getNumber().getValue());
   }
 
+  public void changeProcessInstanceStatus(ProcessInstance processInstance, ProcessInstanceStatus newStatus) {
+    final String user = "demo@nosi.cv";
+    if(newStatus == ProcessInstanceStatus.COMPLETED){
+      processInstance.complete(
+          processInstance.getEndedAt(),
+          user
+      );
+      processInstanceRepository.save(processInstance);
+    }
+  }
+
 }
