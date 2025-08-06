@@ -1,14 +1,11 @@
 package cv.igrp.platform.process.management.processruntime.infrastructure.persistence.repository;
 
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceEvent;
-import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceFilter;
 import cv.igrp.platform.process.management.processruntime.domain.repository.TaskInstanceEventRepository;
 import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
-import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.repository.TaskInstanceEventEntityRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -33,17 +30,6 @@ public class TaskInstanceEventRepositoryImpl implements TaskInstanceEventReposit
   @Override
   public void save(TaskInstanceEvent taskInstanceEvent) {
     taskInstanceEventEntityRepository.save(taskMapper.toTaskEventEntity(taskInstanceEvent));
-  }
-
-
-  @Override
-  public List<TaskInstanceEvent> findAll(TaskInstanceFilter filter) {
-      throw new IllegalStateException("to be implemented"); // todo
-  }
-
-  @Override
-  public PageableLista<TaskInstanceEvent> getTaskHistory(TaskInstanceFilter filter) {
-      throw new IllegalStateException("to be implemented"); // todo
   }
 
 

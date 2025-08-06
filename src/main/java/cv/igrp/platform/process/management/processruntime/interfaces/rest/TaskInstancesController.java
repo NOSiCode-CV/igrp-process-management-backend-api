@@ -9,7 +9,6 @@ import cv.igrp.framework.stereotype.IgrpController;
 import cv.igrp.platform.process.management.processruntime.application.commands.*;
 import cv.igrp.platform.process.management.processruntime.application.dto.CompleteTaskDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceDTO;
-import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceHistoryDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceListaPageDTO;
 import cv.igrp.platform.process.management.processruntime.application.queries.*;
 import cv.igrp.platform.process.management.shared.application.dto.ConfigParameterDTO;
@@ -311,44 +310,6 @@ public class TaskInstancesController {
        LOGGER.debug("Operation finished");
 
         return ResponseEntity.status(response.getStatusCode())
-              .headers(response.getHeaders())
-              .body(response.getBody());
-  }
-
-  @GetMapping(
-    value = "{id}/history"
-  )
-  @Operation(
-    summary = "GET method to handle operations for getTaskHistory",
-    description = "GET method to handle operations for getTaskHistory",
-    responses = {
-      @ApiResponse(
-          responseCode = "200",
-          description = "",
-          content = @Content(
-              mediaType = "application/json",
-              schema = @Schema(
-                  implementation = TaskInstanceHistoryDTO.class,
-                  type = "object")
-          )
-      )
-    }
-  )
-
-  public ResponseEntity<TaskInstanceHistoryDTO> getTaskHistory(
-    @RequestParam(value = "page") Integer page,
-    @RequestParam(value = "size") Integer size, @PathVariable(value = "id") String id)
-  {
-
-      LOGGER.debug("Operation started");
-
-      final var query = new GetTaskHistoryQuery(page, size, id);
-
-      ResponseEntity<TaskInstanceHistoryDTO> response = queryBus.handle(query);
-
-      LOGGER.debug("Operation finished");
-
-      return ResponseEntity.status(response.getStatusCode())
               .headers(response.getHeaders())
               .body(response.getBody());
   }

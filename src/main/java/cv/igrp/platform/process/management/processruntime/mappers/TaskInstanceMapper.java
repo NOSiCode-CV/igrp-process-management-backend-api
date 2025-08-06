@@ -44,6 +44,8 @@ public class TaskInstanceMapper {
     taskInstanceEntity.setName(taskInstance.getName().getValue());
     taskInstanceEntity.setId(taskInstance.getId().getValue());
     taskInstanceEntity.setApplicationBase(taskInstance.getApplicationBase().getValue());
+    taskInstanceEntity.setProcessType(taskInstance.getProcessType()!=null
+        ? taskInstance.getProcessType().getValue() : null);
     taskInstanceEntity.setStartedBy(taskInstance.getStartedBy().getValue());
     taskInstanceEntity.setStartedAt(taskInstance.getStartedAt());
     taskInstanceEntity.setStatus(taskInstance.getStatus());
@@ -85,6 +87,16 @@ public class TaskInstanceMapper {
 
 
   public TaskInstance toModel(TaskInstanceEntity taskInstanceEntity) {
+    return toModel(taskInstanceEntity, false);
+  }
+
+
+  public TaskInstance toModelWithEvents(TaskInstanceEntity taskInstanceEntity) {
+    return toModel(taskInstanceEntity, true);
+  }
+
+
+  public TaskInstance toModel(TaskInstanceEntity taskInstanceEntity, boolean withEvents) {
     return TaskInstance.builder()
         .processNumber(Code.create(taskInstanceEntity.getProcessInstanceId().getNumber()))
         .taskKey(Code.create(taskInstanceEntity.getTaskKey()))
@@ -92,7 +104,7 @@ public class TaskInstanceMapper {
         .name(Name.create(taskInstanceEntity.getName()))
         .id(Identifier.create(taskInstanceEntity.getId()))
         .processInstanceId(Identifier.create(taskInstanceEntity.getProcessInstanceId().getId()))
-        .processType(Code.create(taskInstanceEntity.getProcessInstanceId().getProcReleaseKey()))
+        .processType(Code.create(taskInstanceEntity.getProcessType()))
         .applicationBase(Code.create(taskInstanceEntity.getApplicationBase()))
         .status(taskInstanceEntity.getStatus())
         .startedAt(taskInstanceEntity.getStartedAt())
@@ -102,31 +114,10 @@ public class TaskInstanceMapper {
         .endedAt(taskInstanceEntity.getEndedAt())
         .endedBy(taskInstanceEntity.getEndedBy()==null?null:Code.create(taskInstanceEntity.getEndedBy()))
         .searchTerms(taskInstanceEntity.getSearchTerms())
-        .build();
-  }
-
-
-  public TaskInstance toModelWithEvents(TaskInstanceEntity taskInstanceEntity) {
-    return TaskInstance.builder()
-        .processNumber(Code.create(taskInstanceEntity.getProcessInstanceId().getNumber()))
-        .taskKey(Code.create(taskInstanceEntity.getTaskKey()))
-        .externalId(Code.create(taskInstanceEntity.getExternalId()))
-        .name(Name.create(taskInstanceEntity.getName()))
-        .id(Identifier.create(taskInstanceEntity.getId()))
-        .processInstanceId(Identifier.create(taskInstanceEntity.getProcessInstanceId().getId()))
-        .processType(Code.create(taskInstanceEntity.getProcessInstanceId().getProcReleaseKey()))
-        .applicationBase(Code.create(taskInstanceEntity.getApplicationBase()))
-        .status(taskInstanceEntity.getStatus())
-        .startedAt(taskInstanceEntity.getStartedAt())
-        .startedBy(Code.create(taskInstanceEntity.getStartedBy()))
-        .assignedAt(taskInstanceEntity.getAssignedAt())
-        .searchTerms(taskInstanceEntity.getSearchTerms())
-        .processInstanceId(Identifier.create(taskInstanceEntity.getProcessInstanceId().getId()))
-        .taskInstanceEvents(taskInstanceEntity.getTaskinstanceevents()
-            .stream()
-            .map(this::toEventModel)
-            .toList())
-        .build();
+        .taskInstanceEvents( withEvents ?
+            taskInstanceEntity.getTaskinstanceevents().stream().map(this::toEventModel).toList()
+            : new ArrayList<>()
+        ).build();
   }
 
 

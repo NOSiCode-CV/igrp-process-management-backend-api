@@ -16,7 +16,8 @@
       "isEmail": false,
       "isUrl": false,
       "primaryKey": false,
-      "module": "processruntime"
+      "module": "processruntime",
+      "collectionType": "list"
     }
   ],
   "id": "d2lxc81bwc"
