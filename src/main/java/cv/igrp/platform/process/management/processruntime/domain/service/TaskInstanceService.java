@@ -93,11 +93,10 @@ public class TaskInstanceService {
 
       var taskInstance = getById(id);
 
-      var processInstance  = processInstanceRepository
-          .findById(taskInstance.getProcessInstanceId().getValue())
-          .orElseThrow(() -> IgrpResponseStatusException.notFound("No Process Instance found with id: " + id));
+      runtimeProcessEngineRepository.completeTask(
+          id.toString(),
+          variables);
 
-      runtimeProcessEngineRepository.completeTask(id.toString(),variables);
       taskInstance.complete();
 
       var completedTask = save(taskInstance);
@@ -109,10 +108,10 @@ public class TaskInstanceService {
       );
 
       var activityProcess = runtimeProcessEngineRepository
-          .getProcessInstanceById(processInstance.getNumber().getValue());
+          .getProcessInstanceById(taskInstance.getProcessNumber().getValue());
 
       processInstanceRepository.updateStatus(
-          processInstance.getId().getValue(),
+          taskInstance.getProcessInstanceId().getValue(),
           activityProcess.getStatus()
       );
 
