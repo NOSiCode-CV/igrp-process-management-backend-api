@@ -27,7 +27,6 @@ import java.util.UUID;
 public class TaskInstanceEventEntity extends AuditEntity {
 
     @Id
-    //@GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", unique = true, nullable = false)
     private UUID id;
 

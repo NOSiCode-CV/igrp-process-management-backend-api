@@ -28,7 +28,6 @@ import java.util.UUID;
 public class TaskInstanceEntity extends AuditEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", unique = true, nullable = false)
     private UUID id;
 
@@ -47,7 +46,7 @@ public class TaskInstanceEntity extends AuditEntity {
     @JoinColumn(name = "process_instance_id", referencedColumnName = "id")
     private ProcessInstanceEntity processInstanceId;
     @NotBlank(message = "processNumber is mandatory")
-    @Column(name="processnumber", nullable = false, length=200)
+    @Column(name="process_number", nullable = false, length=200)
     private String processNumber;
 
 

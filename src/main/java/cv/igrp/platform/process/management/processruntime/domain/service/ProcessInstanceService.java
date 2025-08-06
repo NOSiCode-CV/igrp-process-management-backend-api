@@ -66,19 +66,20 @@ public class ProcessInstanceService {
       processInstance.start(process.getNumber());
     }
 
-    ProcessInstance persitedProcessInstance = processInstanceRepository.save(processInstance);
+    ProcessInstance persistedProcessInstance = processInstanceRepository.save(processInstance);
 
     taskInstanceService.createTaskInstancesByProcess(
-        persitedProcessInstance.getId(),
-        persitedProcessInstance.getNumber(),
-        persitedProcessInstance.getApplicationBase()
+        persistedProcessInstance.getId(),
+        persistedProcessInstance.getNumber(),
+        persistedProcessInstance.getApplicationBase()
     );
 
-    return persitedProcessInstance;
+    return persistedProcessInstance;
   }
 
   public List<ProcessInstanceTaskStatus> getProcessInstanceTaskStatus(UUID id) {
-      return runtimeProcessEngineRepository.getProcessInstanceTaskStatus(id.toString());
+    ProcessInstance processInstance = getProcessInstanceById(id);
+    return runtimeProcessEngineRepository.getProcessInstanceTaskStatus(processInstance.getNumber().getValue());
   }
 
 }

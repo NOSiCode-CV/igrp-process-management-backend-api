@@ -122,11 +122,11 @@ public class TaskInstance {
     }
 
 
-    public void complete(Map<String,Object> variables, String note) {
+    public void complete() {
         this.status = TaskInstanceStatus.COMPLETED;
         this.endedAt = LocalDateTime.now();
         this.endedBy = Code.create("user789complete");//todo
-        createTaskInstanceEvent(TaskEventType.COMPLETE,note);
+        createTaskInstanceEvent(TaskEventType.COMPLETE,null);
     }
 
 

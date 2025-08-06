@@ -10,7 +10,6 @@ import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponse
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
-import cv.nosi.igrp.runtime.core.engine.task.TaskActionService;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -22,17 +21,14 @@ public class TaskInstanceService {
   private final TaskInstanceRepository taskInstanceRepository;
   private final TaskInstanceEventRepository taskInstanceEventRepository;
   private final RuntimeProcessEngineRepository runtimeProcessEngineRepository;
-  private final TaskActionService taskActionService;
 
   public TaskInstanceService(TaskInstanceRepository taskInstanceRepository,
                              TaskInstanceEventRepository taskInstanceEventRepository,
-                             RuntimeProcessEngineRepository runtimeProcessEngineRepository,
-                             TaskActionService taskActionService) {
+                             RuntimeProcessEngineRepository runtimeProcessEngineRepository) {
 
       this.taskInstanceRepository = taskInstanceRepository;
       this.taskInstanceEventRepository = taskInstanceEventRepository;
       this.runtimeProcessEngineRepository = runtimeProcessEngineRepository;
-      this.taskActionService = taskActionService;
   }
 
 
@@ -85,10 +81,10 @@ public class TaskInstanceService {
   }
 
 
-  public TaskInstance completeTask(UUID id, Map<String,Object> variables, String note) {
+  public TaskInstance completeTask(UUID id, Map<String,Object> variables) {
       var taskInstance = getById(id);
-      taskActionService.completeTask(id.toString(),variables,null);
-      taskInstance.complete(variables,note);
+      runtimeProcessEngineRepository.completeTask(id.toString(),variables);
+      taskInstance.complete();
       var completedTask = save(taskInstance);
       createTaskInstancesByProcess(
           taskInstance.getProcessInstanceId(),

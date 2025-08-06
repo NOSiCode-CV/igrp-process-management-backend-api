@@ -7,6 +7,7 @@ import cv.igrp.framework.core.domain.CommandBus;
 import cv.igrp.framework.core.domain.QueryBus;
 import cv.igrp.framework.stereotype.IgrpController;
 import cv.igrp.platform.process.management.processruntime.application.commands.*;
+import cv.igrp.platform.process.management.processruntime.application.dto.CompleteTaskDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceHistoryDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceListaPageDTO;
@@ -17,6 +18,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -296,14 +298,13 @@ public class TaskInstancesController {
     }
   )
 
-  public ResponseEntity<TaskInstanceDTO> completeTask(
-    @RequestParam(value = "user") String user,
-    @RequestParam(value = "note", required = false) String note, @PathVariable(value = "id") String id)
+  public ResponseEntity<TaskInstanceDTO> completeTask(@Valid @RequestBody CompleteTaskDTO completeTaskRequest
+    , @PathVariable(value = "id") String id)
   {
 
       LOGGER.debug("Operation started");
 
-      final var command = new CompleteTaskCommand(user, note, id);
+      final var command = new CompleteTaskCommand(completeTaskRequest, id);
 
        ResponseEntity<TaskInstanceDTO> response = commandBus.send(command);
 
