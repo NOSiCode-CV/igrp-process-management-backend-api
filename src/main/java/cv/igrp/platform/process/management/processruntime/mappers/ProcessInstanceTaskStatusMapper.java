@@ -25,6 +25,7 @@ public class ProcessInstanceTaskStatusMapper {
       processInstanceTaskStatusDTO.setTaskKey(processInstanceTaskStatus.getTaskKey().getValue());
       processInstanceTaskStatusDTO.setStatus(processInstanceTaskStatus.getStatus());
       processInstanceTaskStatusDTO.setName(processInstanceTaskStatus.getTaskName().getValue());
+      processInstanceTaskStatusDTOList.add(processInstanceTaskStatusDTO);
     }
     return processInstanceTaskStatusDTOList;
   }
