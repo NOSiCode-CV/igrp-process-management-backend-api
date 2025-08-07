@@ -47,6 +47,8 @@ public class TaskInstanceMapper {
   public TaskInstanceEntity toNewTaskEntity(TaskInstance taskInstance) {
     var taskInstanceEntity = new TaskInstanceEntity();
     taskInstanceEntity.setProcessNumber(taskInstance.getProcessNumber().getValue());
+    taskInstanceEntity.setBusinessKey(taskInstance.getBusinessKey()!=null
+        ? taskInstance.getBusinessKey().getValue() : null);
     taskInstanceEntity.setTaskKey(taskInstance.getTaskKey().getValue());
     taskInstanceEntity.setExternalId(taskInstance.getExternalId().getValue());
     taskInstanceEntity.setName(taskInstance.getName().getValue());
@@ -62,7 +64,6 @@ public class TaskInstanceMapper {
         var processInstanceEntity = new ProcessInstanceEntity();
         processInstanceEntity.setId(taskInstance.getProcessInstanceId().getValue());
         taskInstanceEntity.setProcessInstanceId(processInstanceEntity);
-        taskInstanceEntity.setBusinessKey(processInstanceEntity.getBusinessKey());
     }
     return taskInstanceEntity;
   }
