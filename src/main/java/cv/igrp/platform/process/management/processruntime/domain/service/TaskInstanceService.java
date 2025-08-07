@@ -91,9 +91,10 @@ public class TaskInstanceService {
       var taskInstance = getById(id);
 
       runtimeProcessEngineRepository.completeTask(
-          taskInstance.getProcessNumber().getValue(),
+          taskInstance.getExternalId().getValue(),
           variables
       );
+
       taskInstance.complete();
 
       var completedTask = save(taskInstance);
