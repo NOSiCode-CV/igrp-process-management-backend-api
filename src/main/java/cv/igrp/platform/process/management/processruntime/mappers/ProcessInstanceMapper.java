@@ -39,12 +39,14 @@ public class ProcessInstanceMapper {
     processInstanceEntity.setStartedBy(processInstance.getStartedBy());
     processInstanceEntity.setObsCancel(processInstance.getObsCancel());
     processInstanceEntity.setSearchTerms(processInstance.getSearchTerms());
+    processInstanceEntity.setName(processInstance.getName());
     return processInstanceEntity;
   }
 
   public ProcessInstance toModel(ProcessInstanceEntity processInstanceEntity) {
     return ProcessInstance.builder()
         .id(Identifier.create(processInstanceEntity.getId()))
+        .name(processInstanceEntity.getName())
         .number(Code.create(processInstanceEntity.getNumber()))
         .procReleaseKey(Code.create(processInstanceEntity.getProcReleaseKey()))
         .businessKey(processInstanceEntity.getBusinessKey() != null ? Code.create(processInstanceEntity.getBusinessKey()) : null)

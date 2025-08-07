@@ -112,12 +112,12 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
   public void completeTask(String taskInstanceId, Map<String, Object> variables) {
     securityUtil.logInAs("demo@nosi.cv");
 
-    /*
-    taskActionService.claimTask(
+
+    /*taskActionService.claimTask(
         taskInstanceId,
         "demo@nosi.cv"
-    );
-    */
+    );*/
+
     taskActionService.completeTask(taskInstanceId, variables, "user");
   }
 
