@@ -2,7 +2,7 @@ package cv.igrp.platform.process.management.processruntime.infrastructure.persis
 
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceEvent;
 import cv.igrp.platform.process.management.processruntime.domain.repository.TaskInstanceEventRepository;
-import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
+import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceEventMapper;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.repository.TaskInstanceEventEntityRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,23 +13,24 @@ import java.util.UUID;
 public class TaskInstanceEventRepositoryImpl implements TaskInstanceEventRepository {
 
   private final TaskInstanceEventEntityRepository taskInstanceEventEntityRepository;
-  private final TaskInstanceMapper taskMapper;
+  private final TaskInstanceEventMapper eventMapper;
 
   public TaskInstanceEventRepositoryImpl(TaskInstanceEventEntityRepository taskInstanceEventEntityRepository,
-                                         TaskInstanceMapper taskMapper) {
+                                         TaskInstanceEventMapper eventMapper) {
       this.taskInstanceEventEntityRepository = taskInstanceEventEntityRepository;
-      this.taskMapper = taskMapper;
+      this.eventMapper = eventMapper;
   }
 
 
   @Override
   public Optional<TaskInstanceEvent> findById(UUID id) {
-      return taskInstanceEventEntityRepository.findById(id).map(taskMapper::toEventModel);
+      return taskInstanceEventEntityRepository.findById(id).map(eventMapper::toEventModel);
   }
+
 
   @Override
   public void save(TaskInstanceEvent taskInstanceEvent) {
-    taskInstanceEventEntityRepository.save(taskMapper.toTaskEventEntity(taskInstanceEvent));
+    taskInstanceEventEntityRepository.save(eventMapper.toEventEntity(taskInstanceEvent));
   }
 
 
