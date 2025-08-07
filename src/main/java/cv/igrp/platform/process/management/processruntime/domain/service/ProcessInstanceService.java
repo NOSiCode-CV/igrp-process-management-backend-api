@@ -76,6 +76,7 @@ public class ProcessInstanceService {
         persistedProcessInstance.getId(),
         persistedProcessInstance.getNumber(),
         persistedProcessInstance.getName(),
+        persistedProcessInstance.getBusinessKey(),
         persistedProcessInstance.getApplicationBase()
     );
 

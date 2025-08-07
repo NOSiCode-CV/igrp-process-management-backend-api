@@ -39,6 +39,7 @@ public class TaskInstanceService {
   public void createTaskInstancesByProcess(Identifier processInstanceId,
                                            Code processNumber,
                                            String processType,
+                                           Code businessKey,
                                            Code applicationBase) {
 
       final var activeTaskList = runtimeProcessEngineRepository
@@ -47,6 +48,7 @@ public class TaskInstanceService {
       activeTaskList.forEach(t->this.createTask(t.withIdentity(
           applicationBase,
           Code.create(processType),
+          businessKey,
           processInstanceId))
       );
   }
@@ -115,6 +117,7 @@ public class TaskInstanceService {
         taskInstance.getProcessInstanceId(),
         taskInstance.getProcessNumber(),
         activityProcess.getName(),
+        processInstance.getBusinessKey(),
         taskInstance.getApplicationBase()
     );
 

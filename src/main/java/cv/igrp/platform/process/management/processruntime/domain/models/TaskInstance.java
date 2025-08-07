@@ -156,6 +156,7 @@ public class TaskInstance {
 
     public TaskInstance withIdentity(Code applicationBase,
                                      Code processName,
+                                     Code businessKey,
                                      Identifier processInstanceId) {
         return TaskInstance.builder()
             .processNumber(this.processNumber)
@@ -166,6 +167,7 @@ public class TaskInstance {
             .startedAt(this.startedAt)
             .applicationBase(applicationBase)
             .processName(processName)
+            .businessKey(businessKey)
             .processInstanceId(processInstanceId)
             .build();
     }
