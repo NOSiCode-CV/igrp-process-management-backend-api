@@ -75,6 +75,7 @@ public class ProcessInstanceService {
     taskInstanceService.createTaskInstancesByProcess(
         persistedProcessInstance.getId(),
         persistedProcessInstance.getNumber(),
+        persistedProcessInstance.getName(),
         persistedProcessInstance.getApplicationBase()
     );
 

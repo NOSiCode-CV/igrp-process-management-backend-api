@@ -28,13 +28,19 @@
       "requestParams": [
         {
           "type": "string",
+          "name": "processInstanceId",
+          "description": "Process Instance Id",
+          "isRequired": false
+        },
+        {
+          "type": "string",
           "name": "processNumber",
           "description": "Process Number",
           "isRequired": false
         },
         {
           "type": "string",
-          "name": "processKey",
+          "name": "processName",
           "description": "Process Definition Key",
           "isRequired": false
         },
@@ -281,15 +287,21 @@
       "requestParams": [
         {
           "type": "string",
-          "name": "processNumber",
-          "isRequired": false,
-          "description": "Process Number"
+          "name": "processInstanceId",
+          "description": "Process Instance Id",
+          "isRequired": false
         },
         {
           "type": "string",
-          "name": "processKey",
+          "name": "processNumber",
           "isRequired": false,
-          "description": "Process Definition Key"
+          "description": "Process Number or Business Key"
+        },
+        {
+          "type": "string",
+          "name": "processName",
+          "isRequired": false,
+          "description": "Process Name"
         },
         {
           "type": "string",

@@ -13,10 +13,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ListTaskInstancesQuery implements Query {
 
+  @NotBlank(message = "The field <processInstanceId> is required.")
+  private String processInstanceId;
   @NotBlank(message = "The field <processNumber> is required.")
   private String processNumber;
-  @NotBlank(message = "The field <processKey> is required.")
-  private String processKey;
+  @NotBlank(message = "The field <processName> is required.")
+  private String processName;
   @NotBlank(message = "The field <user> is required.")
   private String user;
   @NotBlank(message = "The field <status> is required.")

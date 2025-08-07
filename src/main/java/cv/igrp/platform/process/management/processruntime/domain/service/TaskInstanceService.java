@@ -38,12 +38,17 @@ public class TaskInstanceService {
 
   public void createTaskInstancesByProcess(Identifier processInstanceId,
                                            Code processNumber,
+                                           String processType,
                                            Code applicationBase) {
 
       final var activeTaskList = runtimeProcessEngineRepository
           .getActiveTaskInstances(processNumber.getValue());
 
-      activeTaskList.forEach(t->this.createTask(t.withIdentity(applicationBase,processInstanceId)));
+      activeTaskList.forEach(t->this.createTask(t.withIdentity(
+          applicationBase,
+          Code.create(processType),
+          processInstanceId))
+      );
   }
 
 
@@ -99,18 +104,19 @@ public class TaskInstanceService {
         taskInstance.getExternalId().getValue(),
         variables
     );
-    taskInstance.complete();
 
+    var activityProcess = runtimeProcessEngineRepository
+        .getProcessInstanceById(processInstance.getNumber().getValue());
+
+    taskInstance.complete();
     var completedTask = save(taskInstance);
 
     createTaskInstancesByProcess(
         taskInstance.getProcessInstanceId(),
         taskInstance.getProcessNumber(),
+        activityProcess.getName(),
         taskInstance.getApplicationBase()
     );
-
-    var activityProcess = runtimeProcessEngineRepository
-        .getProcessInstanceById(processInstance.getNumber().getValue());
 
     if(activityProcess.getStatus() == ProcessInstanceStatus.COMPLETED){
       processInstance.complete(
@@ -124,11 +130,9 @@ public class TaskInstanceService {
   }
 
 
-
   private TaskInstance save(TaskInstance taskInstance) {
-      var completedTask =taskInstanceRepository.update(taskInstance);
       taskInstanceEventRepository.save(taskInstance.getTaskInstanceEvents().getFirst());
-      return completedTask;
+      return taskInstanceRepository.update(taskInstance);
   }
 
 

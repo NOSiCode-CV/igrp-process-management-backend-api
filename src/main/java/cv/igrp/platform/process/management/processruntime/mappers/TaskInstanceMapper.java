@@ -166,4 +166,33 @@ public class TaskInstanceMapper {
   }
 
 
+  public TaskInstanceFilter toFilter(ListTaskInstancesQuery query) {
+    return TaskInstanceFilter.builder()
+        .processInstanceId(query.getProcessInstanceId() != null ? Identifier.create(query.getProcessInstanceId()) : null)
+        .processNumber(query.getProcessNumber() != null ? Code.create(query.getProcessNumber()) : null)
+        .processName(query.getProcessName() != null ? query.getProcessName().trim() : null)
+        .user(query.getUser() != null ? Code.create(query.getUser()) : null)
+        .status(query.getStatus() != null ? TaskInstanceStatus.valueOf(query.getStatus()) : null)
+        .dateFrom(DateUtil.stringToLocalDate.apply(query.getDateFrom()))
+        .dateTo(DateUtil.stringToLocalDate.apply(query.getDateTo()))
+        .page(query.getPage())
+        .size(query.getSize())
+        .build();
+  }
+
+  public TaskInstanceFilter toFilter(GetAllMyTasksQuery query) {
+    return TaskInstanceFilter.builder()
+        .processInstanceId(query.getProcessInstanceId() != null ? Identifier.create(query.getProcessInstanceId()) : null)
+        .processNumber(query.getProcessNumber() != null ? Code.create(query.getProcessNumber()) : null)
+        .processName(query.getProcessName() != null ? query.getProcessName().trim() : null)
+        //.user(query.getUser() != null ? Code.create(query.getUser()) : null) todo current user
+        .status(query.getStatus() != null ? TaskInstanceStatus.valueOf(query.getStatus()) : null)
+        .dateFrom(DateUtil.stringToLocalDate.apply(query.getDateFrom()))
+        .dateTo(DateUtil.stringToLocalDate.apply(query.getDateTo()))
+        .page(query.getPage())
+        .size(query.getSize())
+        .build();
+  }
+
+
 }

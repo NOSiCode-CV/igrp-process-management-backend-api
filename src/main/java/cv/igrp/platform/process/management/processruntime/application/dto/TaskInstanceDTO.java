@@ -28,15 +28,6 @@ public class TaskInstanceDTO {
   private UUID id ;
 
 
-  private UUID processInstanceId ;
-
-
-  private String processType ;
-
-
-  private String processNumber ;
-
-
   private String taskKey ;
 
 
@@ -44,6 +35,18 @@ public class TaskInstanceDTO {
 
 
   private String externalId ;
+
+
+  private String businessKey ;
+
+
+  private UUID processInstanceId ;
+
+
+  private String processNumber ;
+
+
+  private String processName ;
 
 
   private String applicationBase ;

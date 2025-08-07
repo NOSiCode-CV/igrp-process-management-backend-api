@@ -8,6 +8,8 @@ import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponse
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.TaskInstanceEntity;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.repository.TaskInstanceEntityRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -22,6 +24,8 @@ import java.util.UUID;
 
 @Repository
 public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(TaskInstanceRepositoryImpl.class);
 
   private final TaskInstanceEntityRepository taskInstanceEntityRepository;
   private final TaskInstanceMapper taskMapper;
@@ -50,7 +54,7 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
   public TaskInstance create(TaskInstance taskInstance) {
       return taskMapper.toModel(
           taskInstanceEntityRepository.save(
-              taskMapper.toNewTaskEntity(taskInstance))); // todo tratar colisoes de ID
+              taskMapper.toNewTaskEntity(taskInstance)));
   }
 
 
@@ -94,16 +98,24 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
 
   private Specification<TaskInstanceEntity> buildSpecification(TaskInstanceFilter filter) {
 
+      LOGGER.debug("Filter: {}",filter);
+
       Specification<TaskInstanceEntity> spec = (root, query, builder) -> null;
+
+      if (filter.getProcessInstanceId() != null) {
+          spec = spec.and((root, query, cb) ->
+              cb.equal(root.get("processInstanceId").get("id"), filter.getProcessInstanceId().getValue()));
+      }
 
       if (filter.getProcessNumber() != null) {
           spec = spec.and((root, query, cb) ->
-              cb.equal(root.get("processInstanceId").get("number"), filter.getProcessNumber().getValue()));
+            cb.or(cb.equal(root.get("processNumber"), filter.getProcessNumber().getValue()),
+                  cb.equal(root.get("businessKey"),filter.getProcessNumber().getValue())));
       }
 
-      if (filter.getProcessKey() != null) {
+      if (filter.getProcessName() != null) {
           spec = spec.and((root, query, cb) ->
-              cb.equal(root.get("processInstanceId").get("procReleaseKey"), filter.getProcessKey().getValue()));
+              cb.like(root.get("processName"), "%"+ filter.getProcessName() +"%"));
       }
 
       if (filter.getStatus() != null) {
