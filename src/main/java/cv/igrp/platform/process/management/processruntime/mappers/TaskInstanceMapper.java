@@ -181,12 +181,12 @@ public class TaskInstanceMapper {
         .build();
   }
 
-  public TaskInstanceFilter toFilter(GetAllMyTasksQuery query) {
+  public TaskInstanceFilter toFilter(GetAllMyTasksQuery query, Code user) {
     return TaskInstanceFilter.builder()
+        .user(user)
         .processInstanceId(query.getProcessInstanceId() != null ? Identifier.create(query.getProcessInstanceId()) : null)
         .processNumber(query.getProcessNumber() != null ? Code.create(query.getProcessNumber()) : null)
         .processName(query.getProcessName() != null ? query.getProcessName().trim() : null)
-        //.user(query.getUser() != null ? Code.create(query.getUser()) : null) todo current user
         .status(query.getStatus() != null ? TaskInstanceStatus.valueOf(query.getStatus()) : null)
         .dateFrom(DateUtil.stringToLocalDate.apply(query.getDateFrom()))
         .dateTo(DateUtil.stringToLocalDate.apply(query.getDateTo()))
