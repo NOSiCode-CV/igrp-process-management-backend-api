@@ -51,6 +51,13 @@
         "PENDING",
         "Pendente"
       ]
+    },
+    {
+      "name": "CURRENT",
+      "attributes": [
+        "CURRENT",
+        "Atual"
+      ]
     }
   ],
   "attributes": [

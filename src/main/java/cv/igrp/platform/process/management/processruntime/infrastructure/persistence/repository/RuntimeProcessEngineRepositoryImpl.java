@@ -68,7 +68,6 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
 
   @Override
   public ProcessInstance getProcessInstanceById(String processInstanceId) {
-    securityUtil.logInAs("joao");
       return processManagerAdapter
           .getProcessInstance(processInstanceId)
           .map(processInstanceMapper::toModel)
@@ -81,7 +80,7 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
     try {
 
 
-      var tasks = taskQueryService.getAllTasks(processInstanceId);
+      var tasks = taskQueryService.getUserTaskProgress(processInstanceId);
 
       return tasks.stream()
           .map(processInstanceTaskStatusMapper::toModel)
@@ -111,7 +110,7 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
 
   @Override
   public void completeTask(String taskInstanceId, Map<String, Object> variables) {
-    securityUtil.logInAs("demo@nosi.cv");
+    securityUtil.logInAs("igrp@nosi.cv");
     taskActionService.completeTask(taskInstanceId, variables, "user");
   }
 

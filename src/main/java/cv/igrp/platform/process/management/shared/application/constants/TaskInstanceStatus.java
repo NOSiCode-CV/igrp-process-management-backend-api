@@ -19,7 +19,8 @@ public enum TaskInstanceStatus implements IgrpEnum<String> {
   COMPLETED("COMPLETED", "Completo"),
   CANCELLED("CANCELLED", "Cancelado"),
   DELETED("DELETED", "Eliminado"),
-  PENDING("PENDING", "Pendente");
+  PENDING("PENDING", "Pendente"),
+  CURRENT("CURRENT", "Atual");
 
   private final String code;
   private final String description;
