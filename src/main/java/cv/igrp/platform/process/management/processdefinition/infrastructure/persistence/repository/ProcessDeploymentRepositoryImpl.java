@@ -46,8 +46,6 @@ public class ProcessDeploymentRepositoryImpl implements ProcessDeploymentReposit
 
     var deployedRepresentation  = (IgrpProcessDefinitionRepresentation) processDefinitionAdapter.deploy(processDefinitionRepresentation);
 
-    //System.out.println("deployedRepresentation:: "+deployedRepresentation);
-
     return processDeploymentMapper.toModel(deployedRepresentation);
   }
 

@@ -14,7 +14,8 @@ public class SecurityUtil {
     public void logInAs(String username) {
         UserDetails userDetails = User.withUsername(username)
             .password("password")
-            .roles("ACTIVITI_ADMIN", "ACTIVITI_USER") // ACTIVITI_ADMIN
+            //.roles("ACTIVITI_ADMIN", "ACTIVITI_USER") // ACTIVITI_ADMIN
+            .authorities("GROUP_group1", "GROUP_group2", "ROLE_ACTIVITI_USER")
             .build();
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(
