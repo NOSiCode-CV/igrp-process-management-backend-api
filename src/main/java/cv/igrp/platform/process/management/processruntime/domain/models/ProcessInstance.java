@@ -70,7 +70,7 @@ public class ProcessInstance {
     this.variables = variables == null ? new HashMap<>() : variables;
   }
 
-  public void start(Code processInstanceId){
+  public void start(Code processInstanceId, String version){
     if(this.status != ProcessInstanceStatus.CREATED && this.status != ProcessInstanceStatus.SUSPENDED){
       throw new IllegalStateException("The status of the process instance must be CREATED or SUSPENDED");
     }
@@ -80,6 +80,7 @@ public class ProcessInstance {
     this.status = ProcessInstanceStatus.RUNNING;
     this.startedAt = LocalDateTime.now();
     this.number = processInstanceId;
+    this.version = version == null || version.isBlank() ? "1.0" : version;
   }
 
   public void complete(LocalDateTime endedAt, String endedBy){

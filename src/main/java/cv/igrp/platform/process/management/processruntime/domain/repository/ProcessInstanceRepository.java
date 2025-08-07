@@ -17,6 +17,4 @@ public interface ProcessInstanceRepository {
 
   Optional<ProcessInstance> findById(UUID id);
 
-  void updateStatus(UUID id, ProcessInstanceStatus newStatus);
-
 }

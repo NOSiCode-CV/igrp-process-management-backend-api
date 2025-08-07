@@ -31,12 +31,14 @@ public class ProcessInstanceMapper {
     processInstanceEntity.setVersion(processInstance.getVersion());
     processInstanceEntity.setStatus(processInstance.getStatus());
     processInstanceEntity.setBusinessKey(processInstance.getBusinessKey() != null ? processInstance.getBusinessKey().getValue() : null);
-    processInstanceEntity.setStartedAt(processInstance.getStartedAt());
-    processInstanceEntity.setStartedBy(processInstance.getStartedBy());
     processInstanceEntity.setCanceledAt(processInstance.getCanceledAt());
     processInstanceEntity.setCanceledBy(processInstance.getCanceledBy());
     processInstanceEntity.setEndedAt(processInstance.getEndedAt());
     processInstanceEntity.setEndedBy(processInstance.getEndedBy());
+    processInstanceEntity.setStartedAt(processInstance.getStartedAt());
+    processInstanceEntity.setStartedBy(processInstance.getStartedBy());
+    processInstanceEntity.setObsCancel(processInstance.getObsCancel());
+    processInstanceEntity.setSearchTerms(processInstance.getSearchTerms());
     return processInstanceEntity;
   }
 
@@ -58,6 +60,7 @@ public class ProcessInstanceMapper {
         .canceledBy(processInstanceEntity.getCanceledBy())
         .obsCancel(processInstanceEntity.getObsCancel())
         .applicationBase(Code.create(processInstanceEntity.getApplicationBase()))
+
         .build();
   }
 

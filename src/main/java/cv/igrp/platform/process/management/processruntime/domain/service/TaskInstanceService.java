@@ -6,6 +6,7 @@ import cv.igrp.platform.process.management.processruntime.domain.repository.Proc
 import cv.igrp.platform.process.management.processruntime.domain.repository.RuntimeProcessEngineRepository;
 import cv.igrp.platform.process.management.processruntime.domain.repository.TaskInstanceEventRepository;
 import cv.igrp.platform.process.management.processruntime.domain.repository.TaskInstanceRepository;
+import cv.igrp.platform.process.management.shared.application.constants.ProcessInstanceStatus;
 import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
@@ -95,7 +96,7 @@ public class TaskInstanceService {
         .orElseThrow(() -> IgrpResponseStatusException.notFound("No Process Instance found with id: " + id));
 
     runtimeProcessEngineRepository.completeTask(
-        taskInstance.getProcessNumber().getValue(),
+        taskInstance.getExternalId().getValue(),
         variables
     );
     taskInstance.complete();
@@ -111,10 +112,13 @@ public class TaskInstanceService {
     var activityProcess = runtimeProcessEngineRepository
         .getProcessInstanceById(processInstance.getNumber().getValue());
 
-    processInstanceRepository.updateStatus(
-        processInstance.getId().getValue(),
-        activityProcess.getStatus()
-    );
+    if(activityProcess.getStatus() == ProcessInstanceStatus.COMPLETED){
+      processInstance.complete(
+          activityProcess.getEndedAt(),
+          activityProcess.getEndedBy() != null ? activityProcess.getEndedBy() : "demo"
+      );
+      processInstanceRepository.save(processInstance);
+    }
 
     return completedTask;
   }

@@ -106,9 +106,4 @@ public class ProcessInstanceRepositoryImpl implements ProcessInstanceRepository 
     return processInstanceEntityRepository.findById(id).map(mapper::toModel);
   }
 
-  @Override
-  public void updateStatus(UUID id, ProcessInstanceStatus newStatus) {
-
-  }
-
 }
