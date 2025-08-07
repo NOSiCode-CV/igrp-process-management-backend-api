@@ -53,12 +53,14 @@
         {
           "type": "string",
           "name": "dateFrom",
-          "isRequired": false
+          "isRequired": false,
+          "description": "Data de"
         },
         {
           "type": "string",
           "name": "dateTo",
-          "isRequired": false
+          "isRequired": false,
+          "description": "Data até"
         },
         {
           "type": "integer",
@@ -122,13 +124,9 @@
       "requestParams": [
         {
           "type": "string",
-          "name": "user",
-          "isRequired": true
-        },
-        {
-          "type": "string",
           "name": "note",
-          "isRequired": false
+          "isRequired": false,
+          "description": "Comment on task claim"
         }
       ],
       "pathVariables": [
@@ -161,13 +159,9 @@
       "requestParams": [
         {
           "type": "string",
-          "name": "user",
-          "isRequired": true
-        },
-        {
-          "type": "string",
           "name": "note",
-          "isRequired": false
+          "description": "Comment on task unclaim",
+          "isRequired": true
         }
       ],
       "pathVariables": [
@@ -201,51 +195,14 @@
         {
           "type": "string",
           "name": "user",
-          "isRequired": true
-        },
-        {
-          "type": "string",
-          "name": "note",
-          "isRequired": false
-        }
-      ],
-      "pathVariables": [
-        {
-          "name": "id",
-          "type": "string",
           "isRequired": true,
-          "description": "ID of the task instance"
-        }
-      ]
-    },
-    {
-      "actionName": "unAssignTask",
-      "path": "{id}/unassign",
-      "method": "POST",
-      "responses": {
-        "204": {
-          "name": "OK",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "string",
-                "name": "data",
-                "collectionType": "none"
-              }
-            }
-          }
-        }
-      },
-      "requestParams": [
-        {
-          "type": "string",
-          "name": "user",
-          "isRequired": true
+          "description": "User receiving the task"
         },
         {
           "type": "string",
           "name": "note",
-          "isRequired": false
+          "isRequired": false,
+          "description": "Assignment note"
         }
       ],
       "pathVariables": [

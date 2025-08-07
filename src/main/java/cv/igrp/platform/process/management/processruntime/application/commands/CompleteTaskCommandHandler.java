@@ -35,14 +35,13 @@ public class CompleteTaskCommandHandler implements CommandHandler<CompleteTaskCo
         LOGGER.info("Start of CompleteTask id: {}",command.getId());
 
         final var variables = new HashMap<String,Object>();
+
         if(command.getCompletetaskdto().getVariables()!=null
             && !command.getCompletetaskdto().getVariables().isEmpty())
         {
             command.getCompletetaskdto().getVariables().forEach(
-                v->variables.put(v.getName(), v.getValue()));
+                v -> variables.put(v.getName(), v.getValue()));
         }
-
-
 
         final var taskInstanceResp =  taskInstanceService.completeTask(
             UUID.fromString(command.getId()),

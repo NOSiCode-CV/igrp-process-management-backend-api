@@ -31,7 +31,8 @@ public class UnClaimTaskCommandHandler implements CommandHandler<UnClaimTaskComm
 
         taskInstanceService.unClaimTask(
             UUID.fromString(command.getId()),
-            command.getNote());
+            command.getNote()
+        );
 
         LOGGER.info("End of UnClaimTask id: {}",command.getId());
 

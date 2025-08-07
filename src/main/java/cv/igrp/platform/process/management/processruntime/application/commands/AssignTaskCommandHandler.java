@@ -33,7 +33,8 @@ public class AssignTaskCommandHandler implements CommandHandler<AssignTaskComman
         taskInstanceService.assignTask(
             UUID.fromString(command.getId()),
             Code.create(command.getUser()),
-            command.getNote());
+            command.getNote()
+        );
 
         LOGGER.info("End of AssignTask id: {}",command.getId());
 

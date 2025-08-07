@@ -6,7 +6,10 @@ package cv.igrp.platform.process.management.processruntime.interfaces.rest;
 import cv.igrp.framework.core.domain.CommandBus;
 import cv.igrp.framework.core.domain.QueryBus;
 import cv.igrp.framework.stereotype.IgrpController;
-import cv.igrp.platform.process.management.processruntime.application.commands.*;
+import cv.igrp.platform.process.management.processruntime.application.commands.AssignTaskCommand;
+import cv.igrp.platform.process.management.processruntime.application.commands.ClaimTaskCommand;
+import cv.igrp.platform.process.management.processruntime.application.commands.CompleteTaskCommand;
+import cv.igrp.platform.process.management.processruntime.application.commands.UnClaimTaskCommand;
 import cv.igrp.platform.process.management.processruntime.application.dto.CompleteTaskDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceListaPageDTO;
@@ -146,13 +149,12 @@ public class TaskInstancesController {
   )
 
   public ResponseEntity<String> claimTask(
-    @RequestParam(value = "user") String user,
     @RequestParam(value = "note", required = false) String note, @PathVariable(value = "id") String id)
   {
 
       LOGGER.debug("Operation started");
 
-      final var command = new ClaimTaskCommand(user, note, id);
+      final var command = new ClaimTaskCommand(note, id);
 
        ResponseEntity<String> response = commandBus.send(command);
 
@@ -184,13 +186,12 @@ public class TaskInstancesController {
   )
 
   public ResponseEntity<String> unClaimTask(
-    @RequestParam(value = "user") String user,
-    @RequestParam(value = "note", required = false) String note, @PathVariable(value = "id") String id)
+    @RequestParam(value = "note") String note, @PathVariable(value = "id") String id)
   {
 
       LOGGER.debug("Operation started");
 
-      final var command = new UnClaimTaskCommand(user, note, id);
+      final var command = new UnClaimTaskCommand(note, id);
 
        ResponseEntity<String> response = commandBus.send(command);
 
@@ -229,44 +230,6 @@ public class TaskInstancesController {
       LOGGER.debug("Operation started");
 
       final var command = new AssignTaskCommand(user, note, id);
-
-       ResponseEntity<String> response = commandBus.send(command);
-
-       LOGGER.debug("Operation finished");
-
-        return ResponseEntity.status(response.getStatusCode())
-              .headers(response.getHeaders())
-              .body(response.getBody());
-  }
-
-  @PostMapping(
-    value = "{id}/unassign"
-  )
-  @Operation(
-    summary = "POST method to handle operations for unAssignTask",
-    description = "POST method to handle operations for unAssignTask",
-    responses = {
-      @ApiResponse(
-          responseCode = "204",
-          description = "",
-          content = @Content(
-              mediaType = "application/json",
-              schema = @Schema(
-                  implementation = String.class,
-                  type = "String")
-          )
-      )
-    }
-  )
-
-  public ResponseEntity<String> unAssignTask(
-    @RequestParam(value = "user") String user,
-    @RequestParam(value = "note", required = false) String note, @PathVariable(value = "id") String id)
-  {
-
-      LOGGER.debug("Operation started");
-
-      final var command = new UnAssignTaskCommand(user, note, id);
 
        ResponseEntity<String> response = commandBus.send(command);
 
