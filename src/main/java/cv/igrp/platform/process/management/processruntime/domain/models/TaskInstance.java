@@ -143,7 +143,7 @@ public class TaskInstance {
             .status(this.status)
             .performedAt(LocalDateTime.now())
             .performedBy(Code.create("user1234event")) //todo
-            .note(note)
+            .note(note!=null && !note.isBlank() ? note.trim() : null)
             .build());
     }
 
