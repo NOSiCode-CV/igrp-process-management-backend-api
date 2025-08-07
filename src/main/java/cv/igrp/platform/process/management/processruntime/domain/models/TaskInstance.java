@@ -5,6 +5,7 @@ import cv.igrp.platform.process.management.shared.application.constants.TaskInst
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import cv.igrp.platform.process.management.shared.domain.models.Name;
+import cv.igrp.platform.process.management.shared.util.TempUtil;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -96,7 +97,7 @@ public class TaskInstance {
         this.status = TaskInstanceStatus.CREATED;
         if(startedAt==null)
             this.startedAt = LocalDateTime.now();
-        this.startedBy = Code.create("user4444create");//todo
+        this.startedBy = TempUtil.getCurrentUser();//todo remove
         createTaskInstanceEvent(TaskEventType.CREATE,null);
     }
 
@@ -104,7 +105,7 @@ public class TaskInstance {
     public void claim(String note) {
         this.status = TaskInstanceStatus.ASSIGNED;
         this.assignedAt = LocalDateTime.now();
-        this.assignedBy = Code.create("user45666assigne");//todo
+        this.assignedBy = TempUtil.getCurrentUser();//todo remove
         createTaskInstanceEvent(TaskEventType.CLAIM,note);
     }
 
@@ -131,7 +132,7 @@ public class TaskInstance {
     public void complete() {
         this.status = TaskInstanceStatus.COMPLETED;
         this.endedAt = LocalDateTime.now();
-        this.endedBy = Code.create("user789complete");//todo
+        this.endedBy = TempUtil.getCurrentUser();//todo remove
         createTaskInstanceEvent(TaskEventType.COMPLETE,null);
     }
 
@@ -148,7 +149,7 @@ public class TaskInstance {
             .eventType(eventType)
             .status(this.status)
             .performedAt(LocalDateTime.now())
-            .performedBy(Code.create("user1234event")) //todo
+            .performedBy(TempUtil.getCurrentUser()) //todo remove
             .note(note!=null && !note.isBlank() ? note.trim() : null)
             .build());
     }

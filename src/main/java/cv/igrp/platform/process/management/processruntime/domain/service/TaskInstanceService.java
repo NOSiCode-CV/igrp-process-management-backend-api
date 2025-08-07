@@ -45,7 +45,7 @@ public class TaskInstanceService {
       final var activeTaskList = runtimeProcessEngineRepository
           .getActiveTaskInstances(processNumber.getValue());
 
-      activeTaskList.forEach(t->this.createTask(t.withIdentity(
+      activeTaskList.forEach( t->this.createTask( t.withIdentity(
           applicationBase,
           Code.create(processType),
           businessKey,
