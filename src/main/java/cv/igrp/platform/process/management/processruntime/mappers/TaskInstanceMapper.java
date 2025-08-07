@@ -3,13 +3,18 @@ package cv.igrp.platform.process.management.processruntime.mappers;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceListDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceListaPageDTO;
+import cv.igrp.platform.process.management.processruntime.application.queries.GetAllMyTasksQuery;
+import cv.igrp.platform.process.management.processruntime.application.queries.ListTaskInstancesQuery;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
+import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceFilter;
+import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import cv.igrp.platform.process.management.shared.domain.models.Name;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.ProcessInstanceEntity;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.TaskInstanceEntity;
+import cv.igrp.platform.process.management.shared.util.DateUtil;
 import cv.nosi.igrp.runtime.core.engine.task.model.TaskInfo;
 import org.springframework.stereotype.Component;
 
@@ -47,8 +52,8 @@ public class TaskInstanceMapper {
     taskInstanceEntity.setName(taskInstance.getName().getValue());
     taskInstanceEntity.setId(taskInstance.getId().getValue());
     taskInstanceEntity.setApplicationBase(taskInstance.getApplicationBase().getValue());
-    taskInstanceEntity.setProcessType(taskInstance.getProcessType()!=null
-        ? taskInstance.getProcessType().getValue() : null);
+    taskInstanceEntity.setProcessName(taskInstance.getProcessName()!=null
+        ? taskInstance.getProcessName().getValue() : null);
     taskInstanceEntity.setStartedBy(taskInstance.getStartedBy().getValue());
     taskInstanceEntity.setStartedAt(taskInstance.getStartedAt());
     taskInstanceEntity.setStatus(taskInstance.getStatus());
@@ -57,6 +62,7 @@ public class TaskInstanceMapper {
         var processInstanceEntity = new ProcessInstanceEntity();
         processInstanceEntity.setId(taskInstance.getProcessInstanceId().getValue());
         taskInstanceEntity.setProcessInstanceId(processInstanceEntity);
+        taskInstanceEntity.setBusinessKey(processInstanceEntity.getBusinessKey());
     }
     return taskInstanceEntity;
   }
@@ -90,7 +96,7 @@ public class TaskInstanceMapper {
         .name(Name.create(taskInstanceEntity.getName()))
         .id(Identifier.create(taskInstanceEntity.getId()))
         .processInstanceId(Identifier.create(taskInstanceEntity.getProcessInstanceId().getId()))
-        .processType(taskInstanceEntity.getProcessType() != null ? Code.create(taskInstanceEntity.getProcessType()) : null)
+        .processName(taskInstanceEntity.getProcessName() != null ? Code.create(taskInstanceEntity.getProcessName()) : null)
         .applicationBase(Code.create(taskInstanceEntity.getApplicationBase()))
         .status(taskInstanceEntity.getStatus())
         .startedAt(taskInstanceEntity.getStartedAt())
@@ -143,9 +149,10 @@ public class TaskInstanceMapper {
     dto.setTaskKey(taskInstance.getTaskKey().getValue());
     dto.setId(taskInstance.getId().getValue());
     dto.setName(taskInstance.getName().getValue());
+    dto.setBusinessKey(taskInstance.getBusinessKey()!=null ? taskInstance.getBusinessKey().getValue() : null);
     dto.setExternalId(taskInstance.getExternalId().getValue());
     dto.setProcessInstanceId(taskInstance.getProcessInstanceId().getValue());
-    dto.setProcessType(taskInstance.getProcessType() != null ? taskInstance.getProcessType().getValue() : null);
+    dto.setProcessName(taskInstance.getProcessName() != null ? taskInstance.getProcessName().getValue() : null);
     dto.setApplicationBase(taskInstance.getApplicationBase().getValue());
     dto.setStartedAt(taskInstance.getStartedAt());
     dto.setStartedBy(taskInstance.getStartedBy().getValue());

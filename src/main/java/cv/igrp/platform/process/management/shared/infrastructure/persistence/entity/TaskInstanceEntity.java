@@ -55,6 +55,10 @@ public class TaskInstanceEntity extends AuditEntity {
     private String applicationBase;
 
 
+    @Column(name="business_key")
+    private String businessKey;
+
+
     @Column(name="name", length=100)
     private String name;
 
@@ -93,8 +97,8 @@ public class TaskInstanceEntity extends AuditEntity {
     private TaskInstanceStatus status;
 
 
-    @Column(name="process_type", length=100)
-    private String processType;
+    @Column(name="process_name", length=100)
+    private String processName;
 
      @OneToMany(mappedBy = "taskInstanceId")
 private List<TaskInstanceEventEntity> taskinstanceevents;

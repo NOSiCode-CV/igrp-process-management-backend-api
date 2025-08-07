@@ -16,14 +16,15 @@ import java.util.Objects;
 
 @Getter
 public class TaskInstance {
+  private final Code applicationBase;
+  private final Code processName;
+  private final Identifier processInstanceId;
   private final Code processNumber;
-  private final Code externalId;
+  private final Code businessKey;
   private final Code taskKey;
   private final Name name;
   private final Identifier id;
-  private final Identifier processInstanceId;
-  private final Code processType;
-  private final Code applicationBase;
+  private final Code externalId;
   private TaskInstanceStatus status;
   private LocalDateTime startedAt;
   private Code startedBy;
@@ -37,14 +38,15 @@ public class TaskInstance {
 
     @Builder
     public TaskInstance(
+        Code applicationBase,
+        Code processName,
+        Identifier processInstanceId,
         Code processNumber,
-        Code externalId,
+        Code businessKey,
         Code taskKey,
         Name name,
         Identifier id,
-        Identifier processInstanceId,
-        Code processType,
-        Code applicationBase,
+        Code externalId,
         TaskInstanceStatus status,
         LocalDateTime startedAt,
         Code startedBy,
@@ -61,8 +63,9 @@ public class TaskInstance {
       this.externalId = Objects.requireNonNull(externalId, "External Id cannot be null!");
       this.name = Objects.requireNonNull(name, "The Name of the task cannot be null!");
       this.id = id == null ? Identifier.generate() : id;
+      this.businessKey = businessKey;
       this.processInstanceId = processInstanceId;
-      this.processType = processType;
+      this.processName = processName;
       this.applicationBase = applicationBase;
       this.status = status;
       this.startedAt = startedAt;
@@ -78,14 +81,17 @@ public class TaskInstance {
 
 
     public void create() {
+        if(applicationBase==null) {
+          throw new IllegalStateException("ApplicationBase cannot be null!");
+        }
+        if(processName ==null) {
+          throw new IllegalStateException("Process Name cannot be null!");
+        }
         if(processInstanceId==null) {
           throw new IllegalStateException("ProcessInstanceId cannot be null!");
         }
         if(processNumber==null) {
           throw new IllegalStateException("ProcessNumber cannot be null!");
-        }
-        if(applicationBase==null) {
-          throw new IllegalStateException("ApplicationBase cannot be null!");
         }
         this.status = TaskInstanceStatus.CREATED;
         if(startedAt==null)
@@ -148,7 +154,9 @@ public class TaskInstance {
     }
 
 
-    public TaskInstance withIdentity(Code applicationBase, Identifier processInstanceId) {
+    public TaskInstance withIdentity(Code applicationBase,
+                                     Code processName,
+                                     Identifier processInstanceId) {
         return TaskInstance.builder()
             .processNumber(this.processNumber)
             .taskKey(this.taskKey)
@@ -156,8 +164,9 @@ public class TaskInstance {
             .name(this.name)
             .id(this.id)
             .startedAt(this.startedAt)
-            .processInstanceId(processInstanceId)
             .applicationBase(applicationBase)
+            .processName(processName)
+            .processInstanceId(processInstanceId)
             .build();
     }
 }
