@@ -5,13 +5,16 @@ import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 @Getter
+@ToString
 public class ProcessInstance {
 
   private final Identifier id;
@@ -30,8 +33,8 @@ public class ProcessInstance {
   private String canceledBy;
   private String obsCancel;
   private ProcessInstanceStatus status;
-
   private Map<String, Object> variables;
+  private String name;
 
   @Builder
   public ProcessInstance(Identifier id,
@@ -50,12 +53,14 @@ public class ProcessInstance {
                          String canceledBy,
                          String obsCancel,
                          ProcessInstanceStatus status,
-                         Map<String, Object> variables) {
+                         Map<String, Object> variables,
+                         String name
+                         ) {
     this.id = id == null ? Identifier.generate() : id;
     this.procReleaseKey = Objects.requireNonNull(procReleaseKey, "Process release key cannot be null");
     this.procReleaseId = Objects.requireNonNull(procReleaseId, "Process release id cannot be null");
     this.number = number;
-    this.businessKey = businessKey;
+    this.businessKey = businessKey == null ? Code.create(generateBusinessKey()) : businessKey;
     this.applicationBase = Objects.requireNonNull(applicationBase, "Application base cannot be null");;
     this.version = version;
     this.searchTerms = searchTerms;
@@ -68,9 +73,10 @@ public class ProcessInstance {
     this.obsCancel = obsCancel;
     this.status = status == null ? ProcessInstanceStatus.CREATED : status;
     this.variables = variables == null ? new HashMap<>() : variables;
+    this.name = name;
   }
 
-  public void start(Code processInstanceId, String version){
+  public void start(Code processInstanceId, String version, String processName){
     if(this.status != ProcessInstanceStatus.CREATED && this.status != ProcessInstanceStatus.SUSPENDED){
       throw new IllegalStateException("The status of the process instance must be CREATED or SUSPENDED");
     }
@@ -81,6 +87,7 @@ public class ProcessInstance {
     this.startedAt = LocalDateTime.now();
     this.number = processInstanceId;
     this.version = version == null || version.isBlank() ? "1.0" : version;
+    this.name = processName;
   }
 
   public void complete(LocalDateTime endedAt, String endedBy){
@@ -90,6 +97,10 @@ public class ProcessInstance {
     this.status = ProcessInstanceStatus.COMPLETED;
     this.endedBy = endedBy;
     this.endedAt = endedAt == null ? LocalDateTime.now() : endedAt;
+  }
+
+  public static String generateBusinessKey(){
+    return UUID.randomUUID().toString();
   }
 
 }

@@ -64,7 +64,8 @@ public class ProcessInstanceRepositoryImpl implements ProcessInstanceRepository 
 
     if (filter.getNumber() != null) {
       spec = spec.and((root, query, cb) -> {
-        return cb.equal(root.get("number"), filter.getNumber().getValue());
+        String value = filter.getNumber().getValue();
+        return cb.or(cb.equal(root.get("number"), value),  cb.equal(root.get("businessKey"), value));
       });
     }
 

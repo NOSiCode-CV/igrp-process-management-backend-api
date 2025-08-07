@@ -138,6 +138,7 @@ public class ProcessInstanceMapper {
             .orElse(null))
         .status(mapStatus(processInstance.status()))
         .variables(new HashMap<>()) // se houver alguma origem para as variáveis, mapeia aqui
+        .name(processInstance.name() != null ? processInstance.name()  :  processInstance.processDefinitionName())
         .build();
   }
 

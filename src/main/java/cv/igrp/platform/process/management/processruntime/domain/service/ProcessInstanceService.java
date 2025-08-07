@@ -59,11 +59,15 @@ public class ProcessInstanceService {
 
     if(processInstance.getStatus() == ProcessInstanceStatus.COMPLETED){
       processInstance.complete(
-          processInstance.getEndedAt(),
-          processInstance.getEndedBy() != null ? processInstance.getEndedBy() : user
+          process.getEndedAt(),
+          process.getEndedBy() != null ? process.getEndedBy() : user
       );
     }else{
-      processInstance.start(process.getNumber(), process.getVersion());
+      processInstance.start(
+          process.getNumber(),
+          process.getVersion(),
+          process.getName()
+      );
     }
 
     ProcessInstance persistedProcessInstance = processInstanceRepository.save(processInstance);
