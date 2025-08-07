@@ -1,18 +1,15 @@
 package cv.igrp.platform.process.management.processruntime.mappers;
 
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceDTO;
-import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceEventListDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceListDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceListaPageDTO;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
-import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceEvent;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import cv.igrp.platform.process.management.shared.domain.models.Name;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.ProcessInstanceEntity;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.TaskInstanceEntity;
-import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.TaskInstanceEventEntity;
 import cv.nosi.igrp.runtime.core.engine.task.model.TaskInfo;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +20,12 @@ import static cv.igrp.platform.process.management.shared.util.DateUtil.utilDateT
 
 @Component
 public class TaskInstanceMapper {
+
+  private final TaskInstanceEventMapper eventMapper;
+
+  public TaskInstanceMapper(TaskInstanceEventMapper eventMapper) {
+    this.eventMapper = eventMapper;
+  }
 
 
   public TaskInstance toModel(TaskInfo taskInfo) {
@@ -69,23 +72,6 @@ public class TaskInstanceMapper {
   }
 
 
-  public TaskInstanceEventEntity toTaskEventEntity(TaskInstanceEvent taskInstanceEvent) {
-    var eventEntity = new TaskInstanceEventEntity();
-    eventEntity.setId(taskInstanceEvent.getId().getValue());
-    eventEntity.setEventType(taskInstanceEvent.getEventType());
-    eventEntity.setStatus(taskInstanceEvent.getStatus());
-    eventEntity.setPerformedAt(taskInstanceEvent.getPerformedAt());
-    eventEntity.setPerformedBy(taskInstanceEvent.getPerformedBy().getValue());
-    eventEntity.setNote(taskInstanceEvent.getNote());
-    if (taskInstanceEvent.getTaskInstanceId() != null) {
-        var taskInstanceEntity = new TaskInstanceEntity();
-        taskInstanceEntity.setId(taskInstanceEvent.getTaskInstanceId().getValue());
-        eventEntity.setTaskInstanceId(taskInstanceEntity);
-    }
-    return eventEntity;
-  }
-
-
   public TaskInstance toModel(TaskInstanceEntity taskInstanceEntity) {
     return toModel(taskInstanceEntity, false);
   }
@@ -115,22 +101,9 @@ public class TaskInstanceMapper {
         .endedBy(taskInstanceEntity.getEndedBy()==null?null:Code.create(taskInstanceEntity.getEndedBy()))
         .searchTerms(taskInstanceEntity.getSearchTerms())
         .taskInstanceEvents( withEvents ?
-            taskInstanceEntity.getTaskinstanceevents().stream().map(this::toEventModel).toList()
+            taskInstanceEntity.getTaskinstanceevents().stream().map(eventMapper::toEventModel).toList()
             : new ArrayList<>()
         ).build();
-  }
-
-
-  public TaskInstanceEvent toEventModel(TaskInstanceEventEntity eventEntity) {
-    return TaskInstanceEvent.builder()
-        .id(Identifier.create(eventEntity.getId()))
-        .taskInstanceId(Identifier.create(eventEntity.getTaskInstanceId().getId()))
-        .eventType(eventEntity.getEventType())
-        .status(eventEntity.getStatus())
-        .performedAt(eventEntity.getPerformedAt())
-        .performedBy(Code.create(eventEntity.getPerformedBy()))
-        .note(eventEntity.getNote())
-        .build();
   }
 
 
@@ -181,21 +154,8 @@ public class TaskInstanceMapper {
     dto.setSearchTerms(taskInstance.getSearchTerms());
     dto.setTaskInstanceEvents(new ArrayList<>());
     taskInstance.getTaskInstanceEvents()
-        .forEach(e->dto.getTaskInstanceEvents().add(toEventListDTO(e)));
+        .forEach(e->dto.getTaskInstanceEvents().add(eventMapper.toEventListDTO(e)));
     return dto;
-  }
-
-
-  public TaskInstanceEventListDTO toEventListDTO(TaskInstanceEvent event) {
-    var eventDto = new TaskInstanceEventListDTO();
-    eventDto.setId(event.getId().getValue());
-    eventDto.setTaskInstanceId(event.getTaskInstanceId().getValue());
-    eventDto.setEventType(event.getEventType().getCode());
-    eventDto.setPerformedAt(event.getPerformedAt());
-    eventDto.setPerformedBy(event.getPerformedBy().getValue());
-    eventDto.setObs(event.getNote());
-    eventDto.setStatus(event.getStatus());
-    return eventDto;
   }
 
 
