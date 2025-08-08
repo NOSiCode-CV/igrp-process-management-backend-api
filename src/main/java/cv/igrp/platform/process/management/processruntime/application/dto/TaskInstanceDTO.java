@@ -21,7 +21,7 @@ import java.util.UUID;
 
 
 @IgrpDTO
-public class TaskInstanceDTO {
+public class TaskInstanceDTO  {
 
 
 
@@ -31,13 +31,13 @@ public class TaskInstanceDTO {
   private String taskKey ;
 
 
+  private String formKey ;
+
+
   private String name ;
 
 
   private String externalId ;
-
-
-  private String businessKey ;
 
 
   private UUID processInstanceId ;
@@ -46,13 +46,16 @@ public class TaskInstanceDTO {
   private String processNumber ;
 
 
+  private String businessKey ;
+
+
   private String processName ;
 
 
   private String applicationBase ;
 
 
-  private String user ;
+  private String assignedBy ;
 
 
   private String searchTerms ;

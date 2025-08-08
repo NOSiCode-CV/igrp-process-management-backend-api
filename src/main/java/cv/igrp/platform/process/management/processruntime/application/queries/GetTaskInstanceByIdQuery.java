@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class GetTaskInstanceByIdQuery implements Query {
 
-  @NotBlank(message = "The field <id> is required.")
+  @NotBlank(message = "The field <id> is required")
   private String id;
 
 }

@@ -17,15 +17,17 @@ import java.util.Objects;
 
 @Getter
 public class TaskInstance {
-  private final Code applicationBase;
-  private final Code processName;
+  private final Identifier id;
+  private final Code taskKey;
+  private final Code formKey;
+  private final Name name;
+  private final Code externalId;
   private final Identifier processInstanceId;
   private final Code processNumber;
+  private final Code processName;
   private final Code businessKey;
-  private final Code taskKey;
-  private final Name name;
-  private final Identifier id;
-  private final Code externalId;
+  private final Code applicationBase;
+  private final String searchTerms;
   private TaskInstanceStatus status;
   private LocalDateTime startedAt;
   private Code startedBy;
@@ -33,21 +35,22 @@ public class TaskInstance {
   private Code assignedBy;
   private LocalDateTime endedAt;
   private Code endedBy;
-  private final String searchTerms;
   private final Map<String,Object> variables;
   private final List<TaskInstanceEvent> taskInstanceEvents;
 
     @Builder
     public TaskInstance(
-        Code applicationBase,
-        Code processName,
+        Identifier id,
+        Code taskKey,
+        Code formKey,
+        Name name,
+        Code externalId,
         Identifier processInstanceId,
+        Code processName,
         Code processNumber,
         Code businessKey,
-        Code taskKey,
-        Name name,
-        Identifier id,
-        Code externalId,
+        Code applicationBase,
+        String searchTerms,
         TaskInstanceStatus status,
         LocalDateTime startedAt,
         Code startedBy,
@@ -55,19 +58,20 @@ public class TaskInstance {
         Code assignedBy,
         LocalDateTime endedAt,
         Code endedBy,
-        String searchTerms,
         Map<String,Object> taskVariables,
         List<TaskInstanceEvent> taskInstanceEvents)
     {
-      this.processNumber = Objects.requireNonNull(processNumber, "ProcessNumber cannot be null!");
-      this.taskKey = Objects.requireNonNull(taskKey, "Task Key Id cannot be null!");
-      this.externalId = Objects.requireNonNull(externalId, "External Id cannot be null!");
-      this.name = Objects.requireNonNull(name, "The Name of the task cannot be null!");
       this.id = id == null ? Identifier.generate() : id;
-      this.businessKey = businessKey;
+      this.taskKey = Objects.requireNonNull(taskKey, "Task Key Id cannot be null!");
+      this.formKey = formKey;
+      this.name = Objects.requireNonNull(name, "The Name of the task cannot be null!");
+      this.externalId = Objects.requireNonNull(externalId, "External Id cannot be null!");
       this.processInstanceId = processInstanceId;
+      this.processNumber = Objects.requireNonNull(processNumber, "ProcessNumber cannot be null!");
       this.processName = processName;
+      this.businessKey = businessKey;
       this.applicationBase = applicationBase;
+      this.searchTerms = searchTerms;
       this.status = status;
       this.startedAt = startedAt;
       this.startedBy = startedBy;
@@ -75,7 +79,6 @@ public class TaskInstance {
       this.assignedBy = assignedBy;
       this.endedAt = endedAt;
       this.endedBy = endedBy;
-      this.searchTerms = searchTerms;
       this.variables = taskVariables!=null ? taskVariables : Map.of();
       this.taskInstanceEvents = taskInstanceEvents != null ? taskInstanceEvents : new ArrayList<>();
     }

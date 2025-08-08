@@ -14,7 +14,7 @@ public class CompleteTaskCommand implements Command {
 
 
   private CompleteTaskDTO completetaskdto;
-  @NotBlank(message = "The field <id> is required.")
+  @NotBlank(message = "The field <id> is required")
   private String id;
 
 }

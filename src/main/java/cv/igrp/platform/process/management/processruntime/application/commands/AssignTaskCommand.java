@@ -12,11 +12,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AssignTaskCommand implements Command {
 
-  @NotBlank(message = "The field <user> is required.")
+  @NotBlank(message = "The field <user> is required")
   private String user;
-  @NotBlank(message = "The field <note> is required.")
+  @NotBlank(message = "The field <note> is required")
   private String note;
-  @NotBlank(message = "The field <id> is required.")
+  @NotBlank(message = "The field <id> is required")
   private String id;
 
 }

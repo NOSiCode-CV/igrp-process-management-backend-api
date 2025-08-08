@@ -2,7 +2,7 @@ package cv.igrp.platform.process.management.processruntime.application.queries;
 
 import cv.igrp.framework.core.domain.QueryHandler;
 import cv.igrp.framework.stereotype.IgrpQueryHandler;
-import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceListaPageDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceListPageDTO;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
 import cv.igrp.platform.process.management.processruntime.domain.service.TaskInstanceService;
 import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-public class GetAllMyTasksQueryHandler implements QueryHandler<GetAllMyTasksQuery, ResponseEntity<TaskInstanceListaPageDTO>>{
+public class GetAllMyTasksQueryHandler implements QueryHandler<GetAllMyTasksQuery, ResponseEntity<TaskInstanceListPageDTO>>{
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GetAllMyTasksQueryHandler.class);
 
@@ -30,7 +30,7 @@ public class GetAllMyTasksQueryHandler implements QueryHandler<GetAllMyTasksQuer
 
     @IgrpQueryHandler
     @Transactional(readOnly = true)
-    public ResponseEntity<TaskInstanceListaPageDTO> handle(GetAllMyTasksQuery query) {
+    public ResponseEntity<TaskInstanceListPageDTO> handle(GetAllMyTasksQuery query) {
          PageableLista<TaskInstance> taskInstances =  taskInstanceService
              .getAllMyTasks( taskInstanceMapper.toFilter(
                  query,

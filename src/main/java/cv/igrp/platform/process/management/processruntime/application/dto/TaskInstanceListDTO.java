@@ -17,29 +17,38 @@ import java.util.UUID;
 
 
 @IgrpDTO
-public class TaskInstanceListDTO {
+public class TaskInstanceListDTO  {
 
 
 
   private UUID id ;
 
 
-  private TaskInstanceStatus status ;
-
-
-  private String statusDesc ;
-
-
   private String taskKey ;
+
+
+  private String formKey ;
 
 
   private String name ;
 
 
+  private String processInstanceId ;
+
+
   private String processNumber ;
 
 
-  private String processType ;
+  private String processName ;
+
+
+  private String assignedBy ;
+
+
+  private TaskInstanceStatus status ;
+
+
+  private String statusDesc ;
 
 
   private String startedAt ;

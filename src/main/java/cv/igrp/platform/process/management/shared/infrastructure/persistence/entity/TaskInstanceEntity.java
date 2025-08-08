@@ -9,7 +9,10 @@ import cv.igrp.platform.process.management.shared.config.AuditEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.envers.Audited;
 
 import java.time.LocalDateTime;
@@ -19,7 +22,6 @@ import java.util.UUID;
 @Audited
 @Getter
 @Setter
-@ToString
 @IgrpEntity
 @Entity
 @NoArgsConstructor
@@ -40,6 +42,18 @@ public class TaskInstanceEntity extends AuditEntity {
     private String externalId;
 
 
+    @Column(name="form_key")
+    private String formKey;
+
+
+    @Column(name="business_key")
+    private String businessKey;
+
+
+    @Column(name="name", length=100)
+    private String name;
+
+
 
 
   @ManyToOne(fetch = FetchType.LAZY)
@@ -50,17 +64,13 @@ public class TaskInstanceEntity extends AuditEntity {
     private String processNumber;
 
 
+    @Column(name="process_name", length=100)
+    private String processName;
+
+
     @NotBlank(message = "applicationBase is mandatory")
     @Column(name="application_base", nullable = false)
     private String applicationBase;
-
-
-    @Column(name="business_key")
-    private String businessKey;
-
-
-    @Column(name="name", length=100)
-    private String name;
 
 
     @Column(name="started_at")
@@ -95,10 +105,6 @@ public class TaskInstanceEntity extends AuditEntity {
     @Enumerated(EnumType.STRING)
     @Column(name="status", nullable = false)
     private TaskInstanceStatus status;
-
-
-    @Column(name="process_name", length=100)
-    private String processName;
 
      @OneToMany(mappedBy = "taskInstanceId")
 private List<TaskInstanceEventEntity> taskinstanceevents;

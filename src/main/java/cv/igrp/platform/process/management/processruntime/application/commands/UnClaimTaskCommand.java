@@ -12,9 +12,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UnClaimTaskCommand implements Command {
 
-  @NotBlank(message = "The field <note> is required.")
+  @NotBlank(message = "The field <note> is required")
   private String note;
-  @NotBlank(message = "The field <id> is required.")
+  @NotBlank(message = "The field <id> is required")
   private String id;
 
 }

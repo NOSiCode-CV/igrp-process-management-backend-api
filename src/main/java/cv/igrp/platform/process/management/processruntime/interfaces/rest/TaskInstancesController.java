@@ -11,8 +11,9 @@ import cv.igrp.platform.process.management.processruntime.application.commands.C
 import cv.igrp.platform.process.management.processruntime.application.commands.CompleteTaskCommand;
 import cv.igrp.platform.process.management.processruntime.application.commands.UnClaimTaskCommand;
 import cv.igrp.platform.process.management.processruntime.application.dto.CompleteTaskDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceListPageDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceDTO;
-import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceListaPageDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceListPageDTO;
 import cv.igrp.platform.process.management.processruntime.application.queries.*;
 import cv.igrp.platform.process.management.shared.application.dto.ConfigParameterDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -60,14 +61,14 @@ public class TaskInstancesController {
           content = @Content(
               mediaType = "application/json",
               schema = @Schema(
-                  implementation = TaskInstanceListaPageDTO.class,
+                  implementation = ProcessInstanceListPageDTO.class,
                   type = "object")
           )
       )
     }
   )
 
-  public ResponseEntity<TaskInstanceListaPageDTO> listTaskInstances(
+  public ResponseEntity<ProcessInstanceListPageDTO> listTaskInstances(
     @RequestParam(value = "processInstanceId", required = false) String processInstanceId,
     @RequestParam(value = "processNumber", required = false) String processNumber,
     @RequestParam(value = "processName", required = false) String processName,
@@ -83,7 +84,7 @@ public class TaskInstancesController {
 
       final var query = new ListTaskInstancesQuery(processInstanceId, processNumber, processName, user, status, dateFrom, dateTo, page, size);
 
-      ResponseEntity<TaskInstanceListaPageDTO> response = queryBus.handle(query);
+      ResponseEntity<ProcessInstanceListPageDTO> response = queryBus.handle(query);
 
       LOGGER.debug("Operation finished");
 
@@ -291,14 +292,14 @@ public class TaskInstancesController {
           content = @Content(
               mediaType = "application/json",
               schema = @Schema(
-                  implementation = TaskInstanceListaPageDTO.class,
+                  implementation = TaskInstanceListPageDTO.class,
                   type = "object")
           )
       )
     }
   )
 
-  public ResponseEntity<TaskInstanceListaPageDTO> getAllMyTasks(
+  public ResponseEntity<TaskInstanceListPageDTO> getAllMyTasks(
     @RequestParam(value = "processInstanceId", required = false) String processInstanceId,
     @RequestParam(value = "processNumber", required = false) String processNumber,
     @RequestParam(value = "processName", required = false) String processName,
@@ -313,7 +314,7 @@ public class TaskInstancesController {
 
       final var query = new GetAllMyTasksQuery(processInstanceId, processNumber, processName, status, dateFrom, dateTo, page, size);
 
-      ResponseEntity<TaskInstanceListaPageDTO> response = queryBus.handle(query);
+      ResponseEntity<TaskInstanceListPageDTO> response = queryBus.handle(query);
 
       LOGGER.debug("Operation finished");
 

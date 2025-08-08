@@ -18,20 +18,7 @@
       "primaryKey": false
     },
     {
-      "name": "status",
-      "objectType": "enum",
-      "type": "TaskInstanceStatus",
-      "required": false,
-      "before": false,
-      "after": false,
-      "positive": false,
-      "isEmail": false,
-      "isUrl": false,
-      "primaryKey": false,
-      "module": "shared"
-    },
-    {
-      "name": "statusDesc",
+      "name": "taskKey",
       "objectType": "java",
       "type": "string",
       "required": false,
@@ -43,7 +30,7 @@
       "primaryKey": false
     },
     {
-      "name": "taskKey",
+      "name": "formKey",
       "objectType": "java",
       "type": "string",
       "required": false,
@@ -67,6 +54,18 @@
       "primaryKey": false
     },
     {
+      "name": "processInstanceId",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    },
+    {
       "name": "processNumber",
       "objectType": "java",
       "type": "string",
@@ -79,7 +78,44 @@
       "primaryKey": false
     },
     {
-      "name": "processType",
+      "name": "processName",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    },
+    {
+      "name": "assignedBy",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    },
+    {
+      "name": "status",
+      "objectType": "enum",
+      "type": "TaskInstanceStatus",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false,
+      "module": "shared"
+    },
+    {
+      "name": "statusDesc",
       "objectType": "java",
       "type": "string",
       "required": false,
