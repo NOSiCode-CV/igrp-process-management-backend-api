@@ -83,7 +83,7 @@ class GetAllMyTasksQueryHandlerTest {
     when(taskInstanceService.getAllMyTasks(any(TaskInstanceFilter.class)))
         .thenReturn(pageableListaMock);
 
-    when(taskInstanceMapper.toTaskInstanceListaPageDTO(pageableListaMock))
+    when(taskInstanceMapper.toTaskInstanceListPageDTO(pageableListaMock))
         .thenReturn(pageDTO);
   }
 
@@ -98,7 +98,7 @@ class GetAllMyTasksQueryHandlerTest {
 
     verify(taskInstanceMapper).toFilter(eq(query),eq(TempUtil.getCurrentUser()));
     verify(taskInstanceService).getAllMyTasks(any(TaskInstanceFilter.class));
-    verify(taskInstanceMapper).toTaskInstanceListaPageDTO(pageableListaMock);
+    verify(taskInstanceMapper).toTaskInstanceListPageDTO(pageableListaMock);
   }
 
 }

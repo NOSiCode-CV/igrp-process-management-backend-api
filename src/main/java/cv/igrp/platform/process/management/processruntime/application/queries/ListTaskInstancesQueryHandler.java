@@ -32,7 +32,7 @@ public class ListTaskInstancesQueryHandler implements QueryHandler<ListTaskInsta
     public ResponseEntity<TaskInstanceListPageDTO> handle(ListTaskInstancesQuery query) {
         PageableLista<TaskInstance> taskInstances =  taskInstanceService
             .getAllTaskInstances(taskInstanceMapper.toFilter(query));
-        return ResponseEntity.ok(taskInstanceMapper.toTaskInstanceListaPageDTO(taskInstances));
+        return ResponseEntity.ok(taskInstanceMapper.toTaskInstanceListPageDTO(taskInstances));
     }
 
 }

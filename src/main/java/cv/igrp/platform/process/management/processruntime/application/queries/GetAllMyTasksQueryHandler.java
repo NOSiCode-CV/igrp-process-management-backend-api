@@ -36,7 +36,7 @@ public class GetAllMyTasksQueryHandler implements QueryHandler<GetAllMyTasksQuer
                  query,
                  TempUtil.getCurrentUser() //todo remove
              ));
-         return ResponseEntity.ok(taskInstanceMapper.toTaskInstanceListaPageDTO(taskInstances));
+         return ResponseEntity.ok(taskInstanceMapper.toTaskInstanceListPageDTO(taskInstances));
     }
 
 }
