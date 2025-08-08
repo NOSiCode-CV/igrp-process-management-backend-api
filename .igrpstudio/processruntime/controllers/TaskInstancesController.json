@@ -15,7 +15,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "TaskInstanceListaPageDTO",
+                "type": "ProcessInstanceListPageDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",
@@ -274,7 +274,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "TaskInstanceListaPageDTO",
+                "type": "TaskInstanceListPageDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",
