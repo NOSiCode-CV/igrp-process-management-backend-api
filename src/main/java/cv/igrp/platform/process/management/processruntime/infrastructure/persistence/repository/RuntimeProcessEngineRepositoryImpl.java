@@ -121,4 +121,19 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
     taskActionService.completeTask(taskInstanceId, variables, "user");
   }
 
+  @Override
+  public void claimTask(String taskInstanceId, String userId) {
+
+  }
+
+  @Override
+  public void unClaimTask(String taskInstanceId) {
+
+  }
+
+  @Override
+  public void assignTask(String taskId, String userId, String reason) {
+
+  }
+
 }

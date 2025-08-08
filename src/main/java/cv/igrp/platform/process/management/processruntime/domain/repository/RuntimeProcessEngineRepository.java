@@ -11,16 +11,18 @@ public interface RuntimeProcessEngineRepository {
 
   ProcessInstance startProcessInstanceById(String processDefinitionId, String businessKey, Map<String, Object> variables);
 
-  // Process Instance Details (with diagram with current stage/task)
   ProcessInstance getProcessInstanceById(String processInstanceId);
 
   List<ProcessInstanceTaskStatus> getProcessInstanceTaskStatus(String processInstanceId);
 
-  // list of available Tasks
   List<TaskInstance> getActiveTaskInstances(String processInstanceId);
 
-  // Execute/Complete Task
   void completeTask(String taskInstanceId, Map<String, Object> variables);
 
+  void claimTask(String taskInstanceId, String userId);
+
+  void unClaimTask(String taskInstanceId);
+
+  void assignTask(String taskId, String userId, String reason);
 
 }
