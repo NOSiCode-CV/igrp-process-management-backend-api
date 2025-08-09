@@ -1,41 +1,106 @@
 package cv.igrp.platform.process.management.processruntime.application.queries;
 
-import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
-
+import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceListPageDTO;
+import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
+import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceFilter;
+import cv.igrp.platform.process.management.processruntime.domain.service.TaskInstanceService;
+import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
+import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
+import cv.igrp.platform.process.management.shared.domain.models.Code;
+import cv.igrp.platform.process.management.shared.domain.models.Identifier;
+import cv.igrp.platform.process.management.shared.domain.models.Name;
+import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
+import cv.igrp.platform.process.management.shared.util.TempUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import cv.igrp.platform.process.management.processruntime.application.queries.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class ListTaskInstancesQueryHandlerTest {
+class ListTaskInstancesQueryHandlerTest {
+
+  @Mock
+  private TaskInstanceService taskInstanceService;
+
+  @Mock
+  private TaskInstanceMapper taskInstanceMapper;
 
   @InjectMocks
   private ListTaskInstancesQueryHandler listTaskInstancesQueryHandler;
 
+  private ListTaskInstancesQuery query;
+  private PageableLista<TaskInstance> pageableListaMock;
+  private TaskInstanceListPageDTO pageDTO;
+
   @BeforeEach
   void setUp() {
-    // TODO: Initialize mock dependencies if needed
+
+    query = new ListTaskInstancesQuery();
+
+    List<TaskInstance> content = List.of(
+        TaskInstance.builder().processNumber(Code.create("proc_num_test"))
+            .taskKey(Code.create("task_key_test"))
+            .externalId(Code.create(UUID.randomUUID().toString()))
+            .name(Name.create("My task Name"))
+            .id(Identifier.create(UUID.randomUUID()))
+            .processInstanceId(Identifier.create(UUID.randomUUID()))
+            .processName(Code.create("My Pro test v1"))
+            .applicationBase(Code.create("app_test"))
+            .status(TaskInstanceStatus.CREATED)
+            .startedAt(LocalDateTime.now())
+            .startedBy(TempUtil.getCurrentUser())
+            .searchTerms("abc")
+            .build()
+    );
+
+    pageableListaMock = new PageableLista<>(
+        0,      // pageNumber
+        10,     // pageSize
+        1L,     // totalElements
+        1,      // totalPages
+        true,   // last
+        true,   // first
+        content // content
+    );
+
+    pageDTO = new TaskInstanceListPageDTO();
+
+    when(taskInstanceMapper.toFilter(eq(query)))
+        .thenReturn(TaskInstanceFilter.builder().status(TaskInstanceStatus.CREATED).build());
+
+    when(taskInstanceService.getAllTaskInstances(any(TaskInstanceFilter.class)))
+        .thenReturn(pageableListaMock);
+
+    when(taskInstanceMapper.toTaskInstanceListPageDTO(pageableListaMock))
+        .thenReturn(pageDTO);
+
   }
 
   @Test
   void testHandleListTaskInstancesQuery() {
-    // TODO: Implement unit test for handle method
-    // Example:
-    // Given
-    // ListTaskInstancesQuery query = new ListTaskInstancesQuery(...);
-    //
-    // When
-    // ResponseEntity<TaskInstanceListaPageDTO> response = listTaskInstancesQueryHandler.handle(query);
-    //
-    // Then
-    // assertNotNull(response);
-    // assertEquals(..., response.getBody());
+
+    ResponseEntity<TaskInstanceListPageDTO> response = listTaskInstancesQueryHandler.handle(query);
+
+    assertNotNull(response);
+    assertEquals(pageDTO, response.getBody());
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+
+    verify(taskInstanceMapper).toFilter(eq(query));
+    verify(taskInstanceService).getAllTaskInstances(any(TaskInstanceFilter.class));
+    verify(taskInstanceMapper).toTaskInstanceListPageDTO(pageableListaMock);
+
   }
 
 }
