@@ -69,5 +69,8 @@ public class ProcessInstanceDTO  {
   
   
   private String applicationBase ;
+  
+  
+  private String name ;
 
 }

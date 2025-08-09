@@ -7,13 +7,10 @@ import cv.igrp.platform.process.management.processruntime.domain.repository.Proc
 import cv.igrp.platform.process.management.processruntime.domain.repository.RuntimeProcessEngineRepository;
 import cv.igrp.platform.process.management.shared.application.constants.ProcessInstanceStatus;
 import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -42,61 +39,41 @@ public class ProcessInstanceService {
   }
 
   public ProcessInstance startProcessInstance(ProcessInstance processInstance) {
-    Map<String, Object> variables = processInstance.getVariables();
-    Code businessKey = processInstance.getBusinessKey();
-    Code processDefinitionId = processInstance.getProcReleaseId();
+
     final String user = "demo@nosi.cv";
 
-    if (variables == null) {
-      variables = Collections.emptyMap();
-    }
-
     var process = runtimeProcessEngineRepository.startProcessInstanceById(
-        processDefinitionId.getValue(),
-        businessKey != null ?  businessKey.getValue() : null,
-        variables
+        processInstance.getProcReleaseId().getValue(),
+        processInstance.getBusinessKey().getValue(),
+        processInstance.getVariables()
     );
 
-    if(processInstance.getStatus() == ProcessInstanceStatus.COMPLETED){
-      processInstance.complete(
+    processInstance.start(process.getNumber(), process.getVersion(), process.getName(), user);
+
+    ProcessInstance runningProcessInstance = processInstanceRepository.save(processInstance);
+
+    taskInstanceService.createTaskInstancesByProcess(
+        runningProcessInstance.getId(),
+        runningProcessInstance.getNumber(),
+        runningProcessInstance.getName(),
+        runningProcessInstance.getBusinessKey(),
+        runningProcessInstance.getApplicationBase()
+    );
+
+    if(process.getStatus() == ProcessInstanceStatus.COMPLETED){
+      runningProcessInstance.complete(
           process.getEndedAt(),
           process.getEndedBy() != null ? process.getEndedBy() : user
       );
-    }else{
-      processInstance.start(
-          process.getNumber(),
-          process.getVersion(),
-          process.getName()
-      );
+      return processInstanceRepository.save(runningProcessInstance);
     }
 
-    ProcessInstance persistedProcessInstance = processInstanceRepository.save(processInstance);
-
-    taskInstanceService.createTaskInstancesByProcess(
-        persistedProcessInstance.getId(),
-        persistedProcessInstance.getNumber(),
-        persistedProcessInstance.getName(),
-        persistedProcessInstance.getBusinessKey(),
-        persistedProcessInstance.getApplicationBase()
-    );
-
-    return persistedProcessInstance;
+    return runningProcessInstance;
   }
 
   public List<ProcessInstanceTaskStatus> getProcessInstanceTaskStatus(UUID id) {
     ProcessInstance processInstance = getProcessInstanceById(id);
     return runtimeProcessEngineRepository.getProcessInstanceTaskStatus(processInstance.getNumber().getValue());
-  }
-
-  public void changeProcessInstanceStatus(ProcessInstance processInstance, ProcessInstanceStatus newStatus) {
-    final String user = "demo@nosi.cv";
-    if(newStatus == ProcessInstanceStatus.COMPLETED){
-      processInstance.complete(
-          processInstance.getEndedAt(),
-          user
-      );
-      processInstanceRepository.save(processInstance);
-    }
   }
 
 }

@@ -105,8 +105,8 @@ public class ProcessDefinitionController {
   public ResponseEntity<ProcessDeploymentListPageDTO> listDeployments(
     @RequestParam(value = "applicationBase", required = false) String applicationBase,
     @RequestParam(value = "processName", required = false) String processName,
-    @RequestParam(value = "page", defaultValue = "0") String page,
-    @RequestParam(value = "size", defaultValue = "20") String size)
+    @RequestParam(value = "page", defaultValue = "0") Integer page,
+    @RequestParam(value = "size", defaultValue = "20") Integer size)
   {
 
       LOGGER.debug("Operation started");

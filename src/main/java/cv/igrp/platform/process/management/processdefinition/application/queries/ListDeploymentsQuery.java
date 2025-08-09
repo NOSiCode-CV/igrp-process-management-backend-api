@@ -13,13 +13,13 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class ListDeploymentsQuery implements Query {
 
-  @NotBlank(message = "The field <applicationBase> is required.")
+  @NotBlank(message = "The field <applicationBase> is required")
   private String applicationBase;
-  @NotBlank(message = "The field <processName> is required.")
+  @NotBlank(message = "The field <processName> is required")
   private String processName;
-  @NotBlank(message = "The field <page> is required.")
-  private String page;
-  @NotBlank(message = "The field <size> is required.")
-  private String size;
+  @NotNull(message = "The field <page> is required")
+  private Integer page;
+  @NotNull(message = "The field <size> is required")
+  private Integer size;
 
 }

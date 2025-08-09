@@ -1,6 +1,8 @@
 package cv.igrp.platform.process.management.shared.domain.exceptions;
 
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import cv.igrp.platform.process.management.processdefinition.domain.exception.ProcessDeploymentException;
+import cv.igrp.platform.process.management.processruntime.domain.exception.RuntimeProcessEngineException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.postgresql.util.PSQLException;
@@ -193,5 +195,24 @@ public class GlobalExceptionHandler {
         return (cause == null || cause == throwable) ? throwable : getRootCause(cause);
     }
 
+  @ExceptionHandler(RuntimeProcessEngineException.class)
+  public ProblemDetail handleRuntimeProcessEngineException(RuntimeProcessEngineException ex) {
+
+    var problemDetail = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+
+    problemDetail.setTitle(ex.getMessage());
+
+    return problemDetail;
+  }
+
+  @ExceptionHandler(ProcessDeploymentException.class)
+  public ProblemDetail handleProcessDeploymentException(ProcessDeploymentException ex) {
+
+    var problemDetail = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+
+    problemDetail.setTitle(ex.getMessage());
+
+    return problemDetail;
+  }
 
 }

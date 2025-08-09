@@ -30,17 +30,12 @@ public class ListDeploymentsQueryHandler implements QueryHandler<ListDeployments
 
   @IgrpQueryHandler
   public ResponseEntity<ProcessDeploymentListPageDTO> handle(ListDeploymentsQuery query) {
-
-    var pageNumber=  Integer.parseInt(query.getPage());
-    var pageSize = Integer.parseInt(query.getPage());
-
     var filter = ProcessDeploymentFilter.builder()
         .processName(query.getProcessName()!=null ? query.getProcessName() : null)
         .applicationBase(query.getApplicationBase() != null ? Code.create(query.getApplicationBase()) : null)
-        .pageNumber(pageNumber)
-        .pageSize(pageSize)
+        .pageNumber(query.getPage())
+        .pageSize(query.getSize())
         .build();
-
     PageableLista<ProcessDeployment> deployments = processDeploymentService.getAllDeployments(filter);
     return ResponseEntity.ok(mapper.toDTO(deployments));
   }

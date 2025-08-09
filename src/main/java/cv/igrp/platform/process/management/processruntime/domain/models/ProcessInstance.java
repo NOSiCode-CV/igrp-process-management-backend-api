@@ -76,11 +76,11 @@ public class ProcessInstance {
     this.name = name;
   }
 
-  public void start(Code processInstanceId, String version, String processName){
+  public void start(Code processInstanceId, String version, String processName, String startedBy){
     if(this.status != ProcessInstanceStatus.CREATED && this.status != ProcessInstanceStatus.SUSPENDED){
       throw new IllegalStateException("The status of the process instance must be CREATED or SUSPENDED");
     }
-    if(this.startedBy == null || this.startedBy.isBlank()){
+    if(startedBy == null || startedBy.isBlank()){
       throw new IllegalStateException("The started by (user) of the process instance cannot be null or blank");
     }
     this.status = ProcessInstanceStatus.RUNNING;
@@ -88,6 +88,7 @@ public class ProcessInstance {
     this.number = processInstanceId;
     this.version = version == null || version.isBlank() ? "1.0" : version;
     this.name = processName;
+    this.startedBy = startedBy;
   }
 
   public void complete(LocalDateTime endedAt, String endedBy){

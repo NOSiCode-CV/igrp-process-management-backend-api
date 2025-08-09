@@ -76,7 +76,6 @@ public class ProcessInstanceMapper {
         .procReleaseKey(Code.create(startProcessRequestDTO.getProcessKey()))
         .businessKey(startProcessRequestDTO.getBusinessKey() != null ? Code.create(startProcessRequestDTO.getBusinessKey()) : null)
         .applicationBase(Code.create(startProcessRequestDTO.getApplicationBase()))
-        .startedBy("user")
         .variables(vars)
         .build();
   }
@@ -99,6 +98,7 @@ public class ProcessInstanceMapper {
     processInstanceDTO.setObsCancel(processInstance.getObsCancel());
     processInstanceDTO.setApplicationBase(processInstance.getApplicationBase().getValue());
     processInstanceDTO.setBusinessKey(processInstance.getBusinessKey() != null ? processInstance.getBusinessKey().getValue() : null);
+    processInstanceDTO.setName(processInstance.getName());
     return processInstanceDTO;
   }
 

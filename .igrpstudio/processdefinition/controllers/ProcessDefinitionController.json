@@ -70,19 +70,22 @@
         {
           "type": "string",
           "name": "processName",
-          "isRequired": false
+          "isRequired": false,
+          "description": "Process Name"
         },
         {
-          "type": "string",
+          "type": "integer",
           "name": "page",
           "value": "0",
-          "isRequired": true
+          "isRequired": true,
+          "description": "Current Page"
         },
         {
-          "type": "string",
+          "type": "integer",
           "name": "size",
           "value": "20",
-          "isRequired": true
+          "isRequired": true,
+          "description": "Page Size"
         }
       ]
     }

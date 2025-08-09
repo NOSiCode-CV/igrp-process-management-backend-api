@@ -30,12 +30,10 @@ public class StartProcessInstanceCommandHandler implements CommandHandler<StartP
   @IgrpCommandHandler
   @Transactional
   public ResponseEntity<ProcessInstanceDTO> handle(StartProcessInstanceCommand command) {
-    var processInstance = mapper.toModel(command.getStartprocessrequestdto());
-    System.out.println("processInstance: " + processInstance);
-    ProcessInstance process = processInstanceService.startProcessInstance(processInstance);
-
-    System.out.println("Process started: " + process);
-    return ResponseEntity.status(201).body(mapper.toDTO(process));
+    ProcessInstance processInstance = mapper.toModel(command.getStartprocessrequestdto());
+    return ResponseEntity
+        .status(201)
+        .body(mapper.toDTO(processInstanceService.startProcessInstance(processInstance)));
   }
 
 }
