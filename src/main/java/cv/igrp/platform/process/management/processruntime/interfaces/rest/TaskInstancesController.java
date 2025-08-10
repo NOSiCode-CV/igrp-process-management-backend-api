@@ -3,31 +3,30 @@
 
 package cv.igrp.platform.process.management.processruntime.interfaces.rest;
 
-import cv.igrp.framework.core.domain.CommandBus;
-import cv.igrp.framework.core.domain.QueryBus;
 import cv.igrp.framework.stereotype.IgrpController;
-import cv.igrp.platform.process.management.processruntime.application.commands.AssignTaskCommand;
-import cv.igrp.platform.process.management.processruntime.application.commands.ClaimTaskCommand;
-import cv.igrp.platform.process.management.processruntime.application.commands.CompleteTaskCommand;
-import cv.igrp.platform.process.management.processruntime.application.commands.UnClaimTaskCommand;
-import cv.igrp.platform.process.management.processruntime.application.dto.CompleteTaskDTO;
-import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceListPageDTO;
-import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceDTO;
-import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceListPageDTO;
-import cv.igrp.platform.process.management.processruntime.application.queries.*;
-import cv.igrp.platform.process.management.shared.application.dto.ConfigParameterDTO;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import cv.igrp.framework.core.domain.CommandBus;
+import cv.igrp.framework.core.domain.QueryBus;
+import cv.igrp.platform.process.management.processruntime.application.commands.*;
+import cv.igrp.platform.process.management.processruntime.application.queries.*;
 
+
+import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceListPageDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.CompleteTaskDTO;
 import java.util.List;
+import cv.igrp.platform.process.management.shared.application.dto.ConfigParameterDTO;
 
 @IgrpController
 @RestController
@@ -37,11 +36,11 @@ public class TaskInstancesController {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TaskInstancesController.class);
 
-
+  
   private final CommandBus commandBus;
   private final QueryBus queryBus;
 
-
+  
   public TaskInstancesController(
     CommandBus commandBus, QueryBus queryBus
   ) {
@@ -61,14 +60,14 @@ public class TaskInstancesController {
           content = @Content(
               mediaType = "application/json",
               schema = @Schema(
-                  implementation = ProcessInstanceListPageDTO.class,
+                  implementation = TaskInstanceListPageDTO.class,
                   type = "object")
           )
       )
     }
   )
-
-  public ResponseEntity<ProcessInstanceListPageDTO> listTaskInstances(
+  
+  public ResponseEntity<TaskInstanceListPageDTO> listTaskInstances(
     @RequestParam(value = "processInstanceId", required = false) String processInstanceId,
     @RequestParam(value = "processNumber", required = false) String processNumber,
     @RequestParam(value = "processName", required = false) String processName,
@@ -84,7 +83,7 @@ public class TaskInstancesController {
 
       final var query = new ListTaskInstancesQuery(processInstanceId, processNumber, processName, user, status, dateFrom, dateTo, page, size);
 
-      ResponseEntity<ProcessInstanceListPageDTO> response = queryBus.handle(query);
+      ResponseEntity<TaskInstanceListPageDTO> response = queryBus.handle(query);
 
       LOGGER.debug("Operation finished");
 
@@ -112,7 +111,7 @@ public class TaskInstancesController {
       )
     }
   )
-
+  
   public ResponseEntity<TaskInstanceDTO> getTaskInstanceById(
     @PathVariable(value = "id") String id)
   {
@@ -149,7 +148,7 @@ public class TaskInstancesController {
       )
     }
   )
-
+  
   public ResponseEntity<String> claimTask(
     @RequestParam(value = "note", required = false) String note, @PathVariable(value = "id") String id)
   {
@@ -186,7 +185,7 @@ public class TaskInstancesController {
       )
     }
   )
-
+  
   public ResponseEntity<String> unClaimTask(
     @RequestParam(value = "note") String note, @PathVariable(value = "id") String id)
   {
@@ -223,7 +222,7 @@ public class TaskInstancesController {
       )
     }
   )
-
+  
   public ResponseEntity<String> assignTask(
     @RequestParam(value = "user") String user,
     @RequestParam(value = "note", required = false) String note, @PathVariable(value = "id") String id)
@@ -261,7 +260,7 @@ public class TaskInstancesController {
       )
     }
   )
-
+  
   public ResponseEntity<TaskInstanceDTO> completeTask(@Valid @RequestBody CompleteTaskDTO completeTaskRequest
     , @PathVariable(value = "id") String id)
   {
@@ -298,7 +297,7 @@ public class TaskInstancesController {
       )
     }
   )
-
+  
   public ResponseEntity<TaskInstanceListPageDTO> getAllMyTasks(
     @RequestParam(value = "processInstanceId", required = false) String processInstanceId,
     @RequestParam(value = "processNumber", required = false) String processNumber,
@@ -342,7 +341,7 @@ public class TaskInstancesController {
       )
     }
   )
-
+  
   public ResponseEntity<List<ConfigParameterDTO>> listTaskInstanceStatus(
     )
   {
@@ -379,7 +378,7 @@ public class TaskInstancesController {
       )
     }
   )
-
+  
   public ResponseEntity<List<ConfigParameterDTO>> listTaskInstanceEventType(
     )
   {

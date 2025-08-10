@@ -199,6 +199,18 @@
       "primaryKey": false,
       "collectionType": "list",
       "module": "processruntime"
+    },
+    {
+      "name": "statusDesc",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
     }
   ],
   "id": "ll93o55sni"
