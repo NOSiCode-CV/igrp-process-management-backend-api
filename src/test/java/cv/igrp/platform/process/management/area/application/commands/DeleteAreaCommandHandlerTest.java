@@ -1,40 +1,44 @@
 package cv.igrp.platform.process.management.area.application.commands;
 
-import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
+import java.util.UUID;
+
+import cv.igrp.platform.process.management.area.domain.service.AreaService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
-import cv.igrp.platform.process.management.area.application.commands.*;
-import cv.igrp.platform.process.management.area.application.commands.*;
+
 
 @ExtendWith(MockitoExtension.class)
-public class DeleteAreaCommandHandlerTest {
+class DeleteAreaCommandHandlerTest {
 
-    @InjectMocks
-    private DeleteAreaCommandHandler deleteAreaCommandHandler;
+  @Mock
+  private AreaService areaService;
 
-    @BeforeEach
-    void setUp() {
-      // TODO: initialize mock dependencies if needed
-    }
+  @InjectMocks
+  private DeleteAreaCommandHandler handler;
 
-    @Test
-    void testHandle() {
-        // TODO: Implement unit test for handle method
-        // Example:
-        // Given
-        // DeleteAreaCommand command = new DeleteAreaCommand(...);
-        //
-        // When
-        // ResponseEntity<String> response = deleteAreaCommandHandler.handle(command);
-        //
-        // Then
-        // assertNotNull(response);
-        // assertEquals(..., response.getBody());
-    }
+  @BeforeEach
+  void setUp() {
+
+  }
+
+  @Test
+  void testHandle_callsDeleteAndReturnsNoContent() {
+    String id = UUID.randomUUID().toString();
+    DeleteAreaCommand command = new DeleteAreaCommand(id);
+
+    ResponseEntity<String> response = handler.handle(command);
+
+    verify(areaService, times(1)).deleteArea(UUID.fromString(id));
+    assertEquals(204, response.getStatusCode().value());
+    assertNull(response.getBody());
+  }
+
 }
