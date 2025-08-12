@@ -2,6 +2,7 @@ package cv.igrp.platform.process.management.processdefinition.domain.filter;
 
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 @Getter

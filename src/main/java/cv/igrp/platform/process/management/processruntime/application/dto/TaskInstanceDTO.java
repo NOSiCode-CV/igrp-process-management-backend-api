@@ -44,6 +44,9 @@ public class TaskInstanceDTO  {
   private UUID processInstanceId ;
   
   
+  private String processKey ;
+  
+  
   private String processNumber ;
   
   

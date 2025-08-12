@@ -43,6 +43,9 @@ public class TaskInstanceListDTO  {
   private String processName ;
   
   
+  private String processKey ;
+  
+  
   private String assignedBy ;
   
   

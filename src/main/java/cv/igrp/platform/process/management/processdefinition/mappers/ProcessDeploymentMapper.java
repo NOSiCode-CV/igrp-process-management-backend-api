@@ -9,10 +9,10 @@ import cv.igrp.platform.process.management.processdefinition.domain.models.Proce
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Name;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
+import cv.igrp.platform.process.management.shared.domain.models.ResourceName;
 import cv.nosi.igrp.runtime.core.engine.process.model.IgrpProcessDefinitionRepresentation;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Component
@@ -23,7 +23,7 @@ public class ProcessDeploymentMapper {
         .bpmnXml(BpmnXml.create(dto.getBpmnXml()))
         .name(Name.create(dto.getName()))
         .description(dto.getDescription())
-        .resourceName(Name.create(dto.getResourceName()))
+        .resourceName(ResourceName.create(dto.getResourceName()))
         .key(Code.create(dto.getKey()))
         .applicationBase(Code.create(dto.getApplicationBase()))
         .build();
@@ -78,7 +78,7 @@ public class ProcessDeploymentMapper {
     return ProcessDeployment.builder()
         .key(Code.create(definition.key()))
         .name(Name.create(definition.name()))
-        .resourceName(Name.create(definition.resourceName()))
+        .resourceName(ResourceName.create(definition.resourceName()))
         .bpmnXml(BpmnXml.create(definition.bpmnXml()))
         .version(definition.version())
         .deploymentId(definition.deploymentId())
@@ -87,6 +87,5 @@ public class ProcessDeploymentMapper {
         .applicationBase(Code.create(definition.applicationBase()))
         .build();
   }
-
 
 }

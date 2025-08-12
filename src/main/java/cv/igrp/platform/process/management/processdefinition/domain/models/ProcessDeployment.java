@@ -3,9 +3,11 @@ package cv.igrp.platform.process.management.processdefinition.domain.models;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import cv.igrp.platform.process.management.shared.domain.models.Name;
+import cv.igrp.platform.process.management.shared.domain.models.ResourceName;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -16,7 +18,7 @@ public class ProcessDeployment {
   private Code key;
   private Name name;
   private String description;
-  private Name resourceName;
+  private ResourceName resourceName;
   private BpmnXml bpmnXml;
   private String version ;
   private String bpmnUrl ;
@@ -34,7 +36,7 @@ public class ProcessDeployment {
                            Code key,
                            Name name,
                            String description,
-                           Name resourceName,
+                           ResourceName resourceName,
                            BpmnXml bpmnXml,
                            String version,
                            String bpmnUrl,
