@@ -102,6 +102,7 @@ public class TaskInstanceMapper {
         .processNumber(Code.create(taskInstanceEntity.getProcessInstanceId().getNumber()))
         .businessKey(taskInstanceEntity.getBusinessKey() != null ? Code.create(taskInstanceEntity.getBusinessKey()) : null)
         .processName(taskInstanceEntity.getProcessName() != null ? Code.create(taskInstanceEntity.getProcessName()) : null)
+        .processKey(taskInstanceEntity.getProcessInstanceId().getProcReleaseKey() != null ? Code.create(taskInstanceEntity.getProcessInstanceId().getProcReleaseKey()) : null)
         .applicationBase(Code.create(taskInstanceEntity.getApplicationBase()))
         .status(taskInstanceEntity.getStatus())
         .searchTerms(taskInstanceEntity.getSearchTerms())
@@ -140,14 +141,16 @@ public class TaskInstanceMapper {
     dto.setTaskKey(model.getTaskKey().getValue());
     dto.setFormKey(model.getFormKey()!=null ? model.getFormKey().getValue() : null);
     dto.setName(model.getName().getValue());
-    dto.setProcessInstanceId(model.getProcessInstanceId().getValue().toString());
     dto.setProcessNumber(model.getProcessNumber().getValue());
+    dto.setProcessInstanceId(model.getProcessInstanceId().getValue().toString());
     dto.setBusinessKey(model.getBusinessKey() != null ? model.getBusinessKey().getValue() : null);
     dto.setProcessName(model.getProcessName() != null ? model.getProcessName().getValue() : null);
+    dto.setProcessKey(model.getProcessKey() != null ? model.getProcessKey().getValue() : null);
     dto.setAssignedBy(model.getAssignedBy()!=null ? model.getAssignedBy().getValue(): null);
     dto.setStatus(model.getStatus());
     dto.setStatusDesc(model.getStatus().getDescription());
     dto.setStartedAt(String.valueOf(model.getStartedAt()));
+    dto.setProcessKey(model.getProcessKey() != null ? model.getProcessKey().getValue() : null);
     return dto;
   }
 
@@ -161,6 +164,7 @@ public class TaskInstanceMapper {
     dto.setExternalId(taskInstance.getExternalId().getValue());
     dto.setProcessInstanceId(taskInstance.getProcessInstanceId().getValue());
     dto.setProcessNumber(taskInstance.getProcessNumber().getValue());
+    dto.setProcessKey(taskInstance.getProcessKey() != null ? taskInstance.getProcessKey().getValue() : null);
     dto.setBusinessKey(taskInstance.getBusinessKey()!=null ? taskInstance.getBusinessKey().getValue() : null);
     dto.setProcessName(taskInstance.getProcessName() != null ? taskInstance.getProcessName().getValue() : null);
     dto.setApplicationBase(taskInstance.getApplicationBase().getValue());

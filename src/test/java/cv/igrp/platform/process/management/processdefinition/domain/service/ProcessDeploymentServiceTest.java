@@ -14,6 +14,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -54,13 +56,31 @@ class ProcessDeploymentServiceTest {
   }
 
   @Test
-  void getAllDeployments_shouldDelegateToRepository() {
-    /*
+  void getAllDeployments_shouldReturnPageableLista() {
     // Arrange
     ProcessDeploymentFilter filter = ProcessDeploymentFilter.builder()
         .build();
 
-    PageableLista<ProcessDeployment> expectedPage = mock(PageableLista.class);
+    ProcessDeployment processDeployment = ProcessDeployment.builder()
+        .key(Code.create("invoice-process-key"))
+        .name(Name.create("Invoice Process"))
+        .description("Invoice Process sample")
+        .resourceName(ResourceName.create("invoicing.bpmn20.xml"))
+        .bpmnXml(BpmnXml.create("<definitions>...</definitions>"))
+        .applicationBase(Code.create("igrp-app"))
+        .deployed(true)
+        .deployedAt(java.time.LocalDateTime.now())
+        .build();
+
+    PageableLista<ProcessDeployment> expectedPage = PageableLista.<ProcessDeployment>builder()
+        .pageNumber(0)
+        .pageSize(10)
+        .totalElements(1L)
+        .totalPages(1)
+        .first(true)
+        .last(true)
+        .content(List.of(processDeployment))
+        .build();
 
     when(processDeploymentRepository.findAll(filter)).thenReturn(expectedPage);
 
@@ -69,8 +89,27 @@ class ProcessDeploymentServiceTest {
 
     // Assert
     verify(processDeploymentRepository).findAll(filter);
-    assertSame(expectedPage, result);
-     */
+
+    // Assertions
+    assertNotNull(result);
+    assertEquals(0, result.getPageNumber());
+    assertEquals(10, result.getPageSize());
+    assertEquals(1L, result.getTotalElements());
+    assertEquals(1, result.getTotalPages());
+    assertTrue(result.isFirst());
+    assertTrue(result.isLast());
+    assertEquals(1, result.getContent().size());
+
+    ProcessDeployment actualProcessDeployment  = result.getContent().getFirst();
+    assertEquals(processDeployment, actualProcessDeployment);
+    assertEquals(processDeployment.getKey(), actualProcessDeployment.getKey());
+    assertEquals(processDeployment.getName(), actualProcessDeployment.getName());
+    assertEquals(processDeployment.getDescription(), actualProcessDeployment.getDescription());
+    assertEquals(processDeployment.getResourceName(), actualProcessDeployment.getResourceName());
+    assertEquals(processDeployment.getBpmnXml(), actualProcessDeployment.getBpmnXml());
+    assertEquals(processDeployment.getApplicationBase(), actualProcessDeployment.getApplicationBase());
+    assertTrue(actualProcessDeployment.isDeployed());
+    assertNotNull(actualProcessDeployment.getDeployedAt());
   }
 
 }

@@ -25,6 +25,7 @@ public class TaskInstance {
   private final Identifier processInstanceId;
   private final Code processNumber;
   private final Code processName;
+  private final Code processKey;
   private final Code businessKey;
   private final Code applicationBase;
   private final String searchTerms;
@@ -48,6 +49,7 @@ public class TaskInstance {
         Identifier processInstanceId,
         Code processName,
         Code processNumber,
+        Code processKey,
         Code businessKey,
         Code applicationBase,
         String searchTerms,
@@ -81,6 +83,7 @@ public class TaskInstance {
       this.endedBy = endedBy;
       this.variables = taskVariables!=null ? taskVariables : Map.of();
       this.taskInstanceEvents = taskInstanceEvents != null ? taskInstanceEvents : new ArrayList<>();
+      this.processKey = processKey;
     }
 
 
