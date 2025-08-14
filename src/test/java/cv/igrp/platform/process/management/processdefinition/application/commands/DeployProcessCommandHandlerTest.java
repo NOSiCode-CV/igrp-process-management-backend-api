@@ -28,13 +28,11 @@ class DeployProcessCommandHandlerTest {
   @Mock
   private ProcessDeploymentService processDeploymentService;
 
-  private ProcessDeploymentMapper mapper;
-
   DeployProcessCommandHandler handler;
 
   @BeforeEach
   void setup() {
-    mapper = new ProcessDeploymentMapper();
+    ProcessDeploymentMapper mapper = new ProcessDeploymentMapper();
     handler = new DeployProcessCommandHandler(processDeploymentService, mapper);
   }
 

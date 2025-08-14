@@ -8,6 +8,7 @@ import cv.igrp.platform.process.management.processdefinition.mappers.ProcessDepl
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Name;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
+import cv.igrp.platform.process.management.shared.domain.models.ResourceName;
 import cv.nosi.igrp.runtime.core.engine.process.ProcessDefinitionAdapter;
 import cv.nosi.igrp.runtime.core.engine.process.ProcessManagerAdapter;
 import cv.nosi.igrp.runtime.core.engine.process.model.IgrpProcessDefinitionRepresentation;
@@ -72,6 +73,8 @@ public class ProcessDeploymentRepositoryImpl implements ProcessDeploymentReposit
             .applicationBase(Code.create(def.applicationBase()))
             .deploymentId(def.deploymentId())
             .version( String.valueOf(def.version()))
+            .resourceName(ResourceName.create(def.resourceName()))
+            .deployed(!def.suspended())
             .build())
         .toList();
 

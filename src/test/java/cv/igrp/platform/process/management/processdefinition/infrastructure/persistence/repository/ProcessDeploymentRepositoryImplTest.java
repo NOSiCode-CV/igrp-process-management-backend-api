@@ -12,6 +12,8 @@ import cv.igrp.platform.process.management.shared.domain.models.ResourceName;
 import cv.nosi.igrp.runtime.core.engine.process.ProcessDefinitionAdapter;
 import cv.nosi.igrp.runtime.core.engine.process.ProcessManagerAdapter;
 import cv.nosi.igrp.runtime.core.engine.process.model.IgrpProcessDefinitionRepresentation;
+import cv.nosi.igrp.runtime.core.engine.process.model.ProcessDefinition;
+import cv.nosi.igrp.runtime.core.engine.process.model.ProcessFilter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -57,6 +59,7 @@ class ProcessDeploymentRepositoryImplTest {
 
   @Test
   void deploy_shouldReturnMappedModel_whenAdapterSucceeds() {
+
     // Arrange
     IgrpProcessDefinitionRepresentation representation =
         IgrpProcessDefinitionRepresentation.builder()
@@ -85,6 +88,7 @@ class ProcessDeploymentRepositoryImplTest {
     assertTrue(result.isDeployed());
 
     verify(processDefinitionAdapter).deploy(any(IgrpProcessDefinitionRepresentation.class));
+
   }
 
   @Test
@@ -108,34 +112,46 @@ class ProcessDeploymentRepositoryImplTest {
 
   @Test
   void getAllDeployments_shouldReturnMappedList() {
+
     // Arrange
-    /*ProcessDeploymentFilter filter = ProcessDeploymentFilter.builder()
+    ProcessDeploymentFilter filter = ProcessDeploymentFilter.builder()
         .build();
 
+    ProcessDefinition processDefinition = new ProcessDefinition(
+        "12345",
+        "Invoicing Process",
+        "invoicing.bpmn20.xml",
+        "invoice_process_key",
+        1,
+        "98765",
+        "Invoicing Process Description",
+        "igrp-app",
+        false
+    );
 
-    PageableLista<ProcessDeployment> pageableList = PageableLista.builder()
-        .
-        .content(List.of(deployment))
-        .build();
-
-    when(repository.findAll(filter)).thenReturn(pageableList);
+    when(processManagerAdapter.getDeployedProcesses(any(ProcessFilter.class)))
+        .thenReturn(List.of(processDefinition));
 
     // Act
-    PageableLista<ProcessDeployment> result = service.getAllDeployments(filter);
+    PageableLista<ProcessDeployment> result = repository.findAll(filter);
 
     // Assert
     assertNotNull(result);
     assertEquals(1, result.getContent().size());
 
-    ProcessDeployment item = result.getContent().get(0);
-    assertEquals("key1", item.getKey().getValue());
-    assertEquals("name1", item.getName().getValue());
-    assertEquals("desc", item.getDescription());
-    assertEquals("APP", item.getApplicationBase().getValue());
+    ProcessDeployment item = result.getContent().getFirst();
 
-    verify(repository).findAll(filter);
-    */
+    assertEquals(processDefinition.key(), item.getKey().getValue());
+    assertEquals(processDefinition.name(), item.getName().getValue());
+    assertEquals(processDefinition.description(), item.getDescription());
+    assertEquals(processDefinition.applicationBase(), item.getApplicationBase().getValue());
+    assertEquals(processDefinition.resourceName(), item.getResourceName().getValue());
+    assertEquals(String.valueOf(processDefinition.version()), item.getVersion());
+    assertEquals(processDefinition.deploymentId(), item.getDeploymentId());
+    assertTrue(item.isDeployed());
+
+    verify(processManagerAdapter).getDeployedProcesses(any(ProcessFilter.class));
+
   }
-
 
 }
