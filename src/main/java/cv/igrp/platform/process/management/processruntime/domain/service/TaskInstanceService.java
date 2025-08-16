@@ -77,6 +77,11 @@ public class TaskInstanceService {
       var taskInstance = getById(id);
       taskInstance.claim(note);
       this.save(taskInstance);
+      // Call the process engine to claim a task
+      runtimeProcessEngineRepository.claimTask(
+          taskInstance.getExternalId().getValue(),
+          taskInstance.getAssignedBy().getValue()
+      );
   }
 
 
@@ -84,6 +89,12 @@ public class TaskInstanceService {
       var taskInstance = getById(id);
       taskInstance.assign(user,note);
       this.save(taskInstance);
+      // Call the process engine to assign a task
+      runtimeProcessEngineRepository.assignTask(
+          taskInstance.getExternalId().getValue(),
+          user.getValue(),
+          note
+      );
   }
 
 
@@ -91,6 +102,10 @@ public class TaskInstanceService {
       var taskInstance = getById(id);
       taskInstance.unClaim(note);
       this.save(taskInstance);
+      // Call the process engine to claim a task
+      runtimeProcessEngineRepository.unClaimTask(
+          taskInstance.getExternalId().getValue()
+      );
   }
 
 

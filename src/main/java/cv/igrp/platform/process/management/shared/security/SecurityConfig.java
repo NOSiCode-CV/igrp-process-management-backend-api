@@ -1,8 +1,7 @@
 package cv.igrp.platform.process.management.shared.security;
 
-import org.activiti.core.common.spring.security.policies.SecurityPoliciesManager;
-import org.activiti.engine.ProcessEngineConfiguration;
-import org.activiti.engine.impl.cfg.StandaloneProcessEngineConfiguration;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +14,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.TokenExchangeOAuth2AuthorizedClientProvider;
@@ -22,7 +22,9 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
 /**
@@ -41,10 +43,19 @@ public class SecurityConfig {
 
   @Bean
   public UserDetailsService userDetailsService() {
-    return username -> User.withUsername(username)
-        .password("{noop}password")
-        .roles("USER","ACTIVITI_USER")
-        .build();
+    InMemoryUserDetailsManager userDetailsManager = new InMemoryUserDetailsManager();
+
+    UserDetails userDetails = User.withUsername("demo@nosi.cv")
+        .password("dummy")
+        .authorities(
+            "GROUP_group1",
+            "GROUP_group2",
+            "ROLE_ACTIVITI_USER" // ACTIVITI_ADMIN
+        ) .build();
+
+    userDetailsManager.createUser(userDetails);
+
+    return userDetailsManager;
   }
 
 
@@ -57,7 +68,8 @@ public class SecurityConfig {
    * @throws Exception if an error occurs while configuring the security
    */
   @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+  public SecurityFilterChain securityFilterChain(HttpSecurity http,
+                                                 @Autowired(required = false) CustomAuthenticationFilter customAuthenticationFilter) throws Exception {
 
         /*
           Creates and configures a CORS filter.
@@ -83,6 +95,9 @@ public class SecurityConfig {
       // Disable security in development mode
       http.csrf(AbstractHttpConfigurer::disable); // Disable CSRF protection
       http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+
+      http.addFilterAt(customAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
       return http.build();
     }
 
@@ -144,6 +159,12 @@ public class SecurityConfig {
   @Bean
   public OAuth2AuthorizedClientProvider tokenExchange() {
     return new TokenExchangeOAuth2AuthorizedClientProvider();
+  }
+
+  @Bean
+  @Profile({"development", "staging"})
+  public CustomAuthenticationFilter customAuthenticationFilter(UserDetailsService userDetailsService) {
+    return new CustomAuthenticationFilter(userDetailsService);
   }
 
 }

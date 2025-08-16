@@ -8,7 +8,6 @@ import cv.igrp.platform.process.management.processruntime.domain.repository.Runt
 import cv.igrp.platform.process.management.processruntime.mappers.ProcessInstanceMapper;
 import cv.igrp.platform.process.management.processruntime.mappers.ProcessInstanceTaskStatusMapper;
 import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
-import cv.igrp.platform.process.management.shared.security.SecurityUtil;
 import cv.nosi.igrp.runtime.core.engine.process.ProcessManagerAdapter;
 import cv.nosi.igrp.runtime.core.engine.task.TaskActionService;
 import cv.nosi.igrp.runtime.core.engine.task.TaskQueryService;
@@ -32,7 +31,6 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
   private static final Logger LOGGER = LoggerFactory.getLogger(RuntimeProcessEngineRepositoryImpl.class);
 
   private final ProcessManagerAdapter processManagerAdapter;
-  private final SecurityUtil securityUtil;
   private final ProcessInstanceMapper processInstanceMapper;
   private final TaskInstanceMapper taskInstanceMapper;
   private final TaskActionService taskActionService;
@@ -41,7 +39,6 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
 
   public RuntimeProcessEngineRepositoryImpl(
       ProcessManagerAdapter processManagerAdapter,
-      SecurityUtil securityUtil,
       ProcessInstanceMapper processInstanceMapper,
       TaskInstanceMapper taskInstanceMapper,
       TaskActionService taskActionService,
@@ -49,7 +46,6 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
       TaskQueryService taskQueryService
   ) {
     this.processManagerAdapter = processManagerAdapter;
-    this.securityUtil = securityUtil;
     this.processInstanceMapper = processInstanceMapper;
     this.taskInstanceMapper = taskInstanceMapper;
     this.taskActionService = taskActionService;
@@ -59,7 +55,6 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
 
   @Override
   public ProcessInstance startProcessInstanceById(String processDefinitionId, String businessKey, Map<String, Object> variables) {
-    securityUtil.logInAs("joao");
     LOGGER.info("Authenticated user: {}", SecurityContextHolder.getContext().getAuthentication().getName());
     try {
       var processInstance = processManagerAdapter.startProcess(processDefinitionId, businessKey, variables);
@@ -114,7 +109,6 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
 
   @Override
   public void completeTask(String taskInstanceId, Map<String, Object> variables) {
-    securityUtil.logInAs("demo@nosi.cv");
     try {
       taskActionService.completeTask(taskInstanceId, variables, "user");
     } catch (Exception e) {
@@ -125,7 +119,6 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
 
   @Override
   public void claimTask(String taskInstanceId, String userId) {
-    securityUtil.logInAs("demo@nosi.cv");
     try {
       taskActionService.claimTask(taskInstanceId, userId);
     } catch (Exception e) {
@@ -136,7 +129,6 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
 
   @Override
   public void unClaimTask(String taskInstanceId) {
-    securityUtil.logInAs("demo@nosi.cv");
     try {
       taskActionService.unclaimTask(taskInstanceId);
     } catch (Exception e) {
@@ -147,7 +139,6 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
 
   @Override
   public void assignTask(String taskId, String userId, String reason) {
-    securityUtil.logInAs("demo@nosi.cv");
     try {
       taskActionService.assignTask(taskId, userId, reason);
     } catch (Exception e) {
