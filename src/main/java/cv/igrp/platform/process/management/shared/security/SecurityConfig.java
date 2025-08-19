@@ -45,7 +45,7 @@ public class SecurityConfig {
   public UserDetailsService userDetailsService() {
     InMemoryUserDetailsManager userDetailsManager = new InMemoryUserDetailsManager();
 
-    UserDetails userDetails = User.withUsername("demo@nosi.cv")
+    UserDetails userDemo = User.withUsername("demo@nosi.cv")
         .password("dummy")
         .authorities(
             "GROUP_group1",
@@ -53,7 +53,15 @@ public class SecurityConfig {
             "ROLE_ACTIVITI_USER" // ACTIVITI_ADMIN
         ) .build();
 
-    userDetailsManager.createUser(userDetails);
+    UserDetails userIgrp = User.withUsername("igrp@nosi.cv")
+        .password("dummy")
+        .authorities(
+            "ROLE_ACTIVITI_USER"
+        )
+        .build();
+
+    userDetailsManager.createUser(userDemo);
+    userDetailsManager.createUser(userIgrp);
 
     return userDetailsManager;
   }

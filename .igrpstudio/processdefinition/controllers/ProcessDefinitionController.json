@@ -88,6 +88,108 @@
           "description": "Page Size"
         }
       ]
+    },
+    {
+      "actionName": "createArtifact",
+      "path": "{id}/artifacts",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "collectionType": "none",
+              "name": "data",
+              "type": "ProcessArtifactRequestDTO",
+              "objectType": "dto",
+              "module": "processdefinition",
+              "description": "Project Artifact Data"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "OK",
+          "description": "Persisted Project Artifact",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProcessArtifactDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "processdefinition"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true,
+          "description": "ID of Process Definition"
+        }
+      ]
+    },
+    {
+      "actionName": "deleteArtifact",
+      "path": "artifacts/{id}",
+      "method": "DELETE",
+      "responses": {
+        "204": {
+          "name": "OK",
+          "description": "No Content",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true,
+          "description": "ID of an artifact"
+        }
+      ]
+    },
+    {
+      "actionName": "getArtifactsByProcessDefinitionId",
+      "path": "{id}/artifacts",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "description": "List of Process Artifacts",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProcessArtifactDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "processdefinition"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true,
+          "description": "ID of the Process Definition"
+        }
+      ]
     }
   ],
   "id": "o9isd9wv95-CONTROLLER"

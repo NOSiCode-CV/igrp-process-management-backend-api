@@ -25,6 +25,9 @@ import cv.igrp.platform.process.management.processdefinition.application.queries
 import cv.igrp.platform.process.management.processdefinition.application.dto.ProcessDeploymentRequestDTO;
 import cv.igrp.platform.process.management.processdefinition.application.dto.ProcessDeploymentDTO;
 import cv.igrp.platform.process.management.processdefinition.application.dto.ProcessDeploymentListPageDTO;
+import cv.igrp.platform.process.management.processdefinition.application.dto.ProcessArtifactRequestDTO;
+import cv.igrp.platform.process.management.processdefinition.application.dto.ProcessArtifactDTO;
+import java.util.List;
 
 @IgrpController
 @RestController
@@ -114,6 +117,117 @@ public class ProcessDefinitionController {
       final var query = new ListDeploymentsQuery(applicationBase, processName, page, size);
 
       ResponseEntity<ProcessDeploymentListPageDTO> response = queryBus.handle(query);
+
+      LOGGER.debug("Operation finished");
+
+      return ResponseEntity.status(response.getStatusCode())
+              .headers(response.getHeaders())
+              .body(response.getBody());
+  }
+
+  @PostMapping(
+    value = "{id}/artifacts"
+  )
+  @Operation(
+    summary = "POST method to handle operations for createArtifact",
+    description = "POST method to handle operations for createArtifact",
+    responses = {
+      @ApiResponse(
+          responseCode = "201",
+          description = "Persisted Project Artifact",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = ProcessArtifactDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<ProcessArtifactDTO> createArtifact(@Valid @RequestBody ProcessArtifactRequestDTO createArtifactRequest
+    , @PathVariable(value = "id") String id)
+  {
+
+      LOGGER.debug("Operation started");
+
+      final var command = new CreateArtifactCommand(createArtifactRequest, id);
+
+       ResponseEntity<ProcessArtifactDTO> response = commandBus.send(command);
+
+       LOGGER.debug("Operation finished");
+
+        return ResponseEntity.status(response.getStatusCode())
+              .headers(response.getHeaders())
+              .body(response.getBody());
+  }
+
+  @DeleteMapping(
+    value = "artifacts/{id}"
+  )
+  @Operation(
+    summary = "DELETE method to handle operations for deleteArtifact",
+    description = "DELETE method to handle operations for deleteArtifact",
+    responses = {
+      @ApiResponse(
+          responseCode = "204",
+          description = "No Content",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = String.class,
+                  type = "String")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<String> deleteArtifact(
+    @PathVariable(value = "id") String id)
+  {
+
+      LOGGER.debug("Operation started");
+
+      final var command = new DeleteArtifactCommand(id);
+
+       ResponseEntity<String> response = commandBus.send(command);
+
+       LOGGER.debug("Operation finished");
+
+        return ResponseEntity.status(response.getStatusCode())
+              .headers(response.getHeaders())
+              .body(response.getBody());
+  }
+
+  @GetMapping(
+    value = "{id}/artifacts"
+  )
+  @Operation(
+    summary = "GET method to handle operations for getArtifactsByProcessDefinitionId",
+    description = "GET method to handle operations for getArtifactsByProcessDefinitionId",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          description = "List of Process Artifacts",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = ProcessArtifactDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<List<ProcessArtifactDTO>> getArtifactsByProcessDefinitionId(
+    @PathVariable(value = "id") String id)
+  {
+
+      LOGGER.debug("Operation started");
+
+      final var query = new GetArtifactsByProcessDefinitionIdQuery(id);
+
+      ResponseEntity<List<ProcessArtifactDTO>> response = queryBus.handle(query);
 
       LOGGER.debug("Operation finished");
 

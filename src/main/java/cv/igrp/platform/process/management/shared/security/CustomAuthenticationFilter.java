@@ -27,7 +27,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {
 
-    UserDetails userDetails = userDetailsService.loadUserByUsername("demo@nosi.cv");
+    UserDetails userDetails = userDetailsService.loadUserByUsername("igrp@nosi.cv");
 
     Authentication authentication = new UsernamePasswordAuthenticationToken(
         userDetails, null, userDetails.getAuthorities());
