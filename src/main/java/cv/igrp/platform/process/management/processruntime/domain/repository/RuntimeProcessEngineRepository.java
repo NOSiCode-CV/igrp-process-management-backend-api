@@ -110,7 +110,7 @@ public interface RuntimeProcessEngineRepository {
    * @return a map of variable names to values (never {@code null}, may be empty)
    * @throws RuntimeProcessEngineException if the variable cannot be retrieved
    */
-  Map<String, Object> getTaskVariable(String taskInstanceId)
+  Map<String, Object> getTaskVariables(String taskInstanceId)
       throws RuntimeProcessEngineException;
 
   /**

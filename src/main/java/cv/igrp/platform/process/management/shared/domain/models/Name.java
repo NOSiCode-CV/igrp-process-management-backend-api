@@ -1,6 +1,7 @@
 package cv.igrp.platform.process.management.shared.domain.models;
 
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.text.Normalizer;
@@ -8,6 +9,7 @@ import java.util.regex.Pattern;
 
 
 @Getter
+@EqualsAndHashCode(of = "normalizedName")
 public final class Name {
 
     private final String value;
