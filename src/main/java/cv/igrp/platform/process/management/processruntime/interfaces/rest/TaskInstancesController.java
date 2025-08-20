@@ -3,30 +3,32 @@
 
 package cv.igrp.platform.process.management.processruntime.interfaces.rest;
 
+import cv.igrp.framework.core.domain.CommandBus;
+import cv.igrp.framework.core.domain.QueryBus;
 import cv.igrp.framework.stereotype.IgrpController;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.http.HttpStatus;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import cv.igrp.platform.process.management.processruntime.application.commands.AssignTaskCommand;
+import cv.igrp.platform.process.management.processruntime.application.commands.ClaimTaskCommand;
+import cv.igrp.platform.process.management.processruntime.application.commands.CompleteTaskCommand;
+import cv.igrp.platform.process.management.processruntime.application.commands.UnClaimTaskCommand;
+import cv.igrp.platform.process.management.processruntime.application.dto.CompleteTaskDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceListPageDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.TaskVariableDTO;
+import cv.igrp.platform.process.management.processruntime.application.queries.*;
+import cv.igrp.platform.process.management.shared.application.dto.ConfigParameterDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import cv.igrp.framework.core.domain.CommandBus;
-import cv.igrp.framework.core.domain.QueryBus;
-import cv.igrp.platform.process.management.processruntime.application.commands.*;
-import cv.igrp.platform.process.management.processruntime.application.queries.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-
-import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceListPageDTO;
-import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceDTO;
-import cv.igrp.platform.process.management.processruntime.application.dto.CompleteTaskDTO;
 import java.util.List;
-import cv.igrp.platform.process.management.shared.application.dto.ConfigParameterDTO;
+import java.util.Set;
 
 @IgrpController
 @RestController
@@ -36,11 +38,11 @@ public class TaskInstancesController {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TaskInstancesController.class);
 
-  
+
   private final CommandBus commandBus;
   private final QueryBus queryBus;
 
-  
+
   public TaskInstancesController(
     CommandBus commandBus, QueryBus queryBus
   ) {
@@ -66,7 +68,7 @@ public class TaskInstancesController {
       )
     }
   )
-  
+
   public ResponseEntity<TaskInstanceListPageDTO> listTaskInstances(
     @RequestParam(value = "processInstanceId", required = false) String processInstanceId,
     @RequestParam(value = "processNumber", required = false) String processNumber,
@@ -111,7 +113,7 @@ public class TaskInstancesController {
       )
     }
   )
-  
+
   public ResponseEntity<TaskInstanceDTO> getTaskInstanceById(
     @PathVariable(value = "id") String id)
   {
@@ -137,19 +139,19 @@ public class TaskInstancesController {
     description = "POST method to handle operations for claimTask",
     responses = {
       @ApiResponse(
-          responseCode = "204",
+          responseCode = "200",
           description = "",
           content = @Content(
               mediaType = "application/json",
               schema = @Schema(
-                  implementation = String.class,
-                  type = "String")
+                  implementation = TaskInstanceDTO.class,
+                  type = "object")
           )
       )
     }
   )
-  
-  public ResponseEntity<String> claimTask(
+
+  public ResponseEntity<TaskInstanceDTO> claimTask(
     @RequestParam(value = "note", required = false) String note, @PathVariable(value = "id") String id)
   {
 
@@ -157,7 +159,7 @@ public class TaskInstancesController {
 
       final var command = new ClaimTaskCommand(note, id);
 
-       ResponseEntity<String> response = commandBus.send(command);
+       ResponseEntity<TaskInstanceDTO> response = commandBus.send(command);
 
        LOGGER.debug("Operation finished");
 
@@ -174,19 +176,19 @@ public class TaskInstancesController {
     description = "POST method to handle operations for unClaimTask",
     responses = {
       @ApiResponse(
-          responseCode = "204",
+          responseCode = "200",
           description = "",
           content = @Content(
               mediaType = "application/json",
               schema = @Schema(
-                  implementation = String.class,
-                  type = "String")
+                  implementation = TaskInstanceDTO.class,
+                  type = "object")
           )
       )
     }
   )
-  
-  public ResponseEntity<String> unClaimTask(
+
+  public ResponseEntity<TaskInstanceDTO> unClaimTask(
     @RequestParam(value = "note") String note, @PathVariable(value = "id") String id)
   {
 
@@ -194,7 +196,7 @@ public class TaskInstancesController {
 
       final var command = new UnClaimTaskCommand(note, id);
 
-       ResponseEntity<String> response = commandBus.send(command);
+       ResponseEntity<TaskInstanceDTO> response = commandBus.send(command);
 
        LOGGER.debug("Operation finished");
 
@@ -211,19 +213,19 @@ public class TaskInstancesController {
     description = "POST method to handle operations for assignTask",
     responses = {
       @ApiResponse(
-          responseCode = "204",
+          responseCode = "200",
           description = "",
           content = @Content(
               mediaType = "application/json",
               schema = @Schema(
-                  implementation = String.class,
-                  type = "String")
+                  implementation = TaskInstanceDTO.class,
+                  type = "object")
           )
       )
     }
   )
-  
-  public ResponseEntity<String> assignTask(
+
+  public ResponseEntity<TaskInstanceDTO> assignTask(
     @RequestParam(value = "user") String user,
     @RequestParam(value = "note", required = false) String note, @PathVariable(value = "id") String id)
   {
@@ -232,7 +234,7 @@ public class TaskInstancesController {
 
       final var command = new AssignTaskCommand(user, note, id);
 
-       ResponseEntity<String> response = commandBus.send(command);
+       ResponseEntity<TaskInstanceDTO> response = commandBus.send(command);
 
        LOGGER.debug("Operation finished");
 
@@ -260,7 +262,7 @@ public class TaskInstancesController {
       )
     }
   )
-  
+
   public ResponseEntity<TaskInstanceDTO> completeTask(@Valid @RequestBody CompleteTaskDTO completeTaskRequest
     , @PathVariable(value = "id") String id)
   {
@@ -297,7 +299,7 @@ public class TaskInstancesController {
       )
     }
   )
-  
+
   public ResponseEntity<TaskInstanceListPageDTO> getAllMyTasks(
     @RequestParam(value = "processInstanceId", required = false) String processInstanceId,
     @RequestParam(value = "processNumber", required = false) String processNumber,
@@ -341,7 +343,7 @@ public class TaskInstancesController {
       )
     }
   )
-  
+
   public ResponseEntity<List<ConfigParameterDTO>> listTaskInstanceStatus(
     )
   {
@@ -378,7 +380,7 @@ public class TaskInstancesController {
       )
     }
   )
-  
+
   public ResponseEntity<List<ConfigParameterDTO>> listTaskInstanceEventType(
     )
   {
@@ -388,6 +390,43 @@ public class TaskInstancesController {
       final var query = new ListTaskInstanceEventTypeQuery();
 
       ResponseEntity<List<ConfigParameterDTO>> response = queryBus.handle(query);
+
+      LOGGER.debug("Operation finished");
+
+      return ResponseEntity.status(response.getStatusCode())
+              .headers(response.getHeaders())
+              .body(response.getBody());
+  }
+
+  @GetMapping(
+    value = "{id}/variables"
+  )
+  @Operation(
+    summary = "GET method to handle operations for getTaskVariablesById",
+    description = "GET method to handle operations for getTaskVariablesById",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          description = "",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = TaskVariableDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+
+  public ResponseEntity<Set<TaskVariableDTO>> getTaskVariablesById(
+    @PathVariable(value = "id") String id)
+  {
+
+      LOGGER.debug("Operation started");
+
+      final var query = new GetTaskVariablesByIdQuery(id);
+
+      ResponseEntity<Set<TaskVariableDTO>> response = queryBus.handle(query);
 
       LOGGER.debug("Operation finished");
 

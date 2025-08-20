@@ -114,14 +114,16 @@
       "path": "{id}/claim",
       "method": "POST",
       "responses": {
-        "204": {
+        "200": {
           "name": "OK",
           "content": {
             "application/json": {
               "schema": {
-                "type": "string",
+                "type": "TaskInstanceDTO",
+                "objectType": "dto",
                 "name": "data",
-                "collectionType": "none"
+                "collectionType": "none",
+                "module": "processruntime"
               }
             }
           }
@@ -149,14 +151,16 @@
       "path": "{id}/unclaim",
       "method": "POST",
       "responses": {
-        "204": {
+        "200": {
           "name": "OK",
           "content": {
             "application/json": {
               "schema": {
-                "type": "string",
+                "type": "TaskInstanceDTO",
+                "objectType": "dto",
                 "name": "data",
-                "collectionType": "none"
+                "collectionType": "none",
+                "module": "processruntime"
               }
             }
           }
@@ -184,14 +188,16 @@
       "path": "{id}/assign",
       "method": "POST",
       "responses": {
-        "204": {
+        "200": {
           "name": "OK",
           "content": {
             "application/json": {
               "schema": {
-                "type": "string",
+                "type": "TaskInstanceDTO",
+                "objectType": "dto",
                 "name": "data",
-                "collectionType": "none"
+                "collectionType": "none",
+                "module": "processruntime"
               }
             }
           }
@@ -372,6 +378,34 @@
           }
         }
       }
+    },
+    {
+      "actionName": "getTaskVariablesById",
+      "path": "{id}/variables",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TaskVariableDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "set",
+                "module": "processruntime"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
     }
   ],
   "id": "s7o1wob8tj-CONTROLLER"

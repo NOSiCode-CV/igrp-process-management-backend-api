@@ -3,6 +3,7 @@ package cv.igrp.platform.process.management.processruntime.mappers;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceListDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceListPageDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.TaskVariableDTO;
 import cv.igrp.platform.process.management.processruntime.application.queries.GetAllMyTasksQuery;
 import cv.igrp.platform.process.management.processruntime.application.queries.ListTaskInstancesQuery;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
@@ -19,6 +20,9 @@ import cv.nosi.igrp.runtime.core.engine.task.model.TaskInfo;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static cv.igrp.platform.process.management.shared.util.DateUtil.utilDateToLocalDateTime;
 
@@ -195,6 +199,7 @@ public class TaskInstanceMapper {
         .build();
   }
 
+
   public TaskInstanceFilter toFilter(GetAllMyTasksQuery query, Code user) {
     return TaskInstanceFilter.builder()
         .user(user)
@@ -207,6 +212,14 @@ public class TaskInstanceMapper {
         .page(query.getPage())
         .size(query.getSize())
         .build();
+  }
+
+
+  public Set<TaskVariableDTO> toTaskVariableListDTO(Map<String,Object> variables) {
+    return variables ==null ? Set.of()
+        : variables.entrySet().stream()
+        .map(e-> new TaskVariableDTO(e.getKey(),e.getValue()))
+        .collect(Collectors.toSet());
   }
 
 

@@ -164,4 +164,10 @@ public class TaskInstanceService {
   }
 
 
+  public Map<String,Object> getTaskVariables(UUID id){
+    var taskInstance = getById(id);
+    return runtimeProcessEngineRepository.getTaskVariable(taskInstance.getExternalId().getValue());
+  }
+
+
 }
