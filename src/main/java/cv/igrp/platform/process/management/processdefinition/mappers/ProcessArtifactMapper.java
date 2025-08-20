@@ -5,6 +5,7 @@ import cv.igrp.platform.process.management.processdefinition.application.dto.Pro
 import cv.igrp.platform.process.management.processdefinition.domain.models.ProcessArtifact;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
+import cv.igrp.platform.process.management.shared.domain.models.Name;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.ProcessArtifactEntity;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +16,7 @@ public class ProcessArtifactMapper {
 
   public ProcessArtifact toModel(ProcessArtifactRequestDTO dto, String processDefinitionId) {
     return ProcessArtifact.builder()
-        .name(dto.getName())
+        .name(Name.create(dto.getName()))
         .processDefinitionId(Code.create(processDefinitionId))
         .key(Code.create(dto.getKey()))
         .formKey(Code.create(dto.getFormKey()))
@@ -25,7 +26,7 @@ public class ProcessArtifactMapper {
   public ProcessArtifactDTO toDTO(ProcessArtifact model) {
     ProcessArtifactDTO dto = new ProcessArtifactDTO();
     dto.setId(model.getId().getValue());
-    dto.setName(model.getName());
+    dto.setName(model.getName().getValue());
     dto.setProcessDefinitionId(model.getProcessDefinitionId().getValue());
     dto.setKey(model.getKey().getValue());
     dto.setFormKey(model.getFormKey().getValue());
@@ -34,18 +35,18 @@ public class ProcessArtifactMapper {
 
   public ProcessArtifactEntity toEntity(ProcessArtifact model) {
     ProcessArtifactEntity entity = new ProcessArtifactEntity();
-    entity.setId(model.getId().getValue());
-    entity.setName(model.getName());
+    entity.setName(model.getName().getValue());
     entity.setProcessDefinitionId(model.getProcessDefinitionId().getValue());
     entity.setKey(model.getKey().getValue());
     entity.setFormKey(model.getFormKey().getValue());
+    entity.setId(model.getId().getValue());
     return entity;
   }
 
   public ProcessArtifact toModel(ProcessArtifactEntity entity) {
     return ProcessArtifact.builder()
         .id(Identifier.create(entity.getId()))
-        .name(entity.getName())
+        .name(Name.create(entity.getName()))
         .processDefinitionId(Code.create(entity.getProcessDefinitionId()))
         .key(Code.create(entity.getKey()))
         .formKey(Code.create(entity.getFormKey()))

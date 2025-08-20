@@ -25,7 +25,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
-@ExtendWith(MockitoExtension.class)
 class ListDeploymentsQueryHandlerTest {
 
   @Mock

@@ -2,6 +2,7 @@ package cv.igrp.platform.process.management.processdefinition.domain.models;
 
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
+import cv.igrp.platform.process.management.shared.domain.models.Name;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -11,14 +12,14 @@ import java.util.Objects;
 public class ProcessArtifact {
 
   private final Identifier id;
-  private final String name;
+  private final Name name;
   private final Code key;
   private final Code formKey;
   private final Code processDefinitionId;
 
   @Builder
   public ProcessArtifact(Identifier id,
-                         String name,
+                         Name name,
                          Code key,
                          Code formKey,
                          Code processDefinitionId) {

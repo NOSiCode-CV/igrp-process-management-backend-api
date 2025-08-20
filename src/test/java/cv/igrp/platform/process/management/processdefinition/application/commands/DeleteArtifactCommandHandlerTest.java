@@ -3,38 +3,47 @@ package cv.igrp.platform.process.management.processdefinition.application.comman
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+import cv.igrp.platform.process.management.processdefinition.domain.service.ProcessArtifactService;
+import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
-import cv.igrp.platform.process.management.processdefinition.application.commands.*;
-import cv.igrp.platform.process.management.processdefinition.application.commands.*;
+
+import java.util.UUID;
 
 @ExtendWith(MockitoExtension.class)
 public class DeleteArtifactCommandHandlerTest {
 
-    @InjectMocks
-    private DeleteArtifactCommandHandler deleteArtifactCommandHandler;
+  @Mock
+  private ProcessArtifactService processArtifactService;
 
-    @BeforeEach
-    void setUp() {
-      // TODO: initialize mock dependencies if needed
-    }
+  @InjectMocks
+  private DeleteArtifactCommandHandler handler;
 
-    @Test
-    void testHandle() {
-        // TODO: Implement unit test for handle method
-        // Example:
-        // Given
-        // DeleteArtifactCommand command = new DeleteArtifactCommand(...);
-        //
-        // When
-        // ResponseEntity<String> response = deleteArtifactCommandHandler.handle(command);
-        //
-        // Then
-        // assertNotNull(response);
-        // assertEquals(..., response.getBody());
-    }
+  @BeforeEach
+  void setUp() {
+
+  }
+
+  @Test
+  void handle_ShouldDeleteArtifact_AndReturnNoContent() {
+    // Arrange
+    String artifactId = UUID.randomUUID().toString();
+    DeleteArtifactCommand command = new DeleteArtifactCommand(artifactId);
+
+    // Act
+    ResponseEntity<String> response = handler.handle(command);
+
+    // Assert
+    verify(processArtifactService).deleteArtifact(Identifier.create(artifactId));
+
+    assertEquals(204, response.getStatusCode().value());
+    assertNull(response.getBody());
+
+  }
+
 }

@@ -147,4 +147,14 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
     }
   }
 
+  @Override
+  public Map<String, Object> getTaskVariable(String taskInstanceId) throws RuntimeProcessEngineException {
+    return Map.of();
+  }
+
+  @Override
+  public Map<String, Object> getProcessVariables(String processInstanceId) throws RuntimeProcessEngineException {
+    return Map.of();
+  }
+
 }

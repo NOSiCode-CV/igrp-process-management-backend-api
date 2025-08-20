@@ -103,4 +103,24 @@ public interface RuntimeProcessEngineRepository {
    */
   void assignTask(String taskId, String userId, String reason) throws RuntimeProcessEngineException;
 
+  /**
+   * Retrieves all variables associated with a task.
+   *
+   * @param taskInstanceId the unique identifier of the task instance
+   * @return a map of variable names to values (never {@code null}, may be empty)
+   * @throws RuntimeProcessEngineException if the variable cannot be retrieved
+   */
+  Map<String, Object> getTaskVariable(String taskInstanceId)
+      throws RuntimeProcessEngineException;
+
+  /**
+   * Retrieves all variables associated with a process instance.
+   *
+   * @param processInstanceId the unique identifier of the process instance
+   * @return a map of variable names to values (never {@code null}, may be empty)
+   * @throws RuntimeProcessEngineException if the variables cannot be retrieved
+   */
+  Map<String, Object> getProcessVariables(String processInstanceId)
+      throws RuntimeProcessEngineException;
+
 }
