@@ -1,19 +1,21 @@
 package cv.igrp.platform.process.management.processdefinition.infrastructure.persistence.repository;
 
+import cv.igrp.framework.runtime.core.engine.process.ProcessDefinitionAdapter;
+import cv.igrp.framework.runtime.core.engine.process.ProcessManagerAdapter;
+import cv.igrp.framework.runtime.core.engine.process.model.IgrpProcessDefinitionRepresentation;
+import cv.igrp.framework.runtime.core.engine.process.model.ProcessDefinition;
+import cv.igrp.framework.runtime.core.engine.process.model.ProcessFilter;
+import cv.igrp.framework.runtime.core.engine.task.TaskQueryService;
 import cv.igrp.platform.process.management.processdefinition.domain.exception.ProcessDeploymentException;
 import cv.igrp.platform.process.management.processdefinition.domain.filter.ProcessDeploymentFilter;
 import cv.igrp.platform.process.management.processdefinition.domain.models.BpmnXml;
+import cv.igrp.platform.process.management.processdefinition.domain.models.ProcessArtifact;
 import cv.igrp.platform.process.management.processdefinition.domain.models.ProcessDeployment;
 import cv.igrp.platform.process.management.processdefinition.mappers.ProcessDeploymentMapper;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Name;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 import cv.igrp.platform.process.management.shared.domain.models.ResourceName;
-import cv.nosi.igrp.runtime.core.engine.process.ProcessDefinitionAdapter;
-import cv.nosi.igrp.runtime.core.engine.process.ProcessManagerAdapter;
-import cv.nosi.igrp.runtime.core.engine.process.model.IgrpProcessDefinitionRepresentation;
-import cv.nosi.igrp.runtime.core.engine.process.model.ProcessDefinition;
-import cv.nosi.igrp.runtime.core.engine.process.model.ProcessFilter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,13 +42,17 @@ class ProcessDeploymentRepositoryImplTest {
 
   private ProcessDeployment deployment;
 
+  @Mock
+  private TaskQueryService taskQueryService;
+
   @BeforeEach
   void setUp() {
     ProcessDeploymentMapper processDeploymentMapper = new ProcessDeploymentMapper();
     repository = new ProcessDeploymentRepositoryImpl(
         processDefinitionAdapter,
         processDeploymentMapper,
-        processManagerAdapter
+        processManagerAdapter,
+        taskQueryService
     );
     deployment = ProcessDeployment.builder()
         .key(Code.create("deployment_process_key"))
@@ -151,6 +157,37 @@ class ProcessDeploymentRepositoryImplTest {
     assertTrue(item.isDeployed());
 
     verify(processManagerAdapter).getDeployedProcesses(any(ProcessFilter.class));
+
+  }
+
+  @Test
+  void findAllArtifacts_shouldReturnMappedArtifacts() {
+    // Arrange
+    String processDefinitionId = "123456789";
+    cv.igrp.framework.runtime.core.engine.task.model.ProcessArtifact artifact1 =
+        new cv.igrp.framework.runtime.core.engine.task.model.ProcessArtifact(
+            "task_1",
+            "Task 1",
+            "/path/to/form/task_1"
+        );
+
+    when(taskQueryService.getProcessArtifacts(processDefinitionId))
+        .thenReturn(List.of(artifact1));
+
+    // Act
+    List<ProcessArtifact> result = repository.findAllArtifacts(processDefinitionId);
+
+    // Assert
+    assertNotNull(result);
+    assertEquals(1, result.size());
+
+    ProcessArtifact actualArtifact = result.getFirst();
+    assertEquals("task_1", actualArtifact.getKey().getValue());
+    assertEquals("/path/to/form/task_1", actualArtifact.getFormKey().getValue());
+    assertEquals("Task 1", actualArtifact.getName().getValue());
+    assertEquals(processDefinitionId, actualArtifact.getProcessDefinitionId().getValue());
+
+    verify(taskQueryService).getProcessArtifacts(processDefinitionId);
 
   }
 

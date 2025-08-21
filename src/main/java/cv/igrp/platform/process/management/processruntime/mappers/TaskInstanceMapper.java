@@ -1,5 +1,6 @@
 package cv.igrp.platform.process.management.processruntime.mappers;
 
+import cv.igrp.framework.runtime.core.engine.task.model.TaskInfo;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceListDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceListPageDTO;
@@ -16,7 +17,6 @@ import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.ProcessInstanceEntity;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.TaskInstanceEntity;
 import cv.igrp.platform.process.management.shared.util.DateUtil;
-import cv.nosi.igrp.runtime.core.engine.task.model.TaskInfo;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

@@ -126,21 +126,15 @@
             <artifactId>stereotype</artifactId>
             <version>0.1.0-beta.1</version>
         </dependency>
-        <!--
-    <dependency>
-        <groupId>cv.nosi.igrp</groupId>
-        <artifactId>runtime-activiti</artifactId>
-        <version>0.1.0-beta.1</version>
-    </dependency>
--->
+
         <dependency>
-            <groupId>cv.nosi.igrp</groupId>
+            <groupId>cv.igrp.framework</groupId>
             <artifactId>runtime-core</artifactId>
             <version>0.1.0-beta.1</version>
         </dependency>
 
         <dependency>
-            <groupId>cv.nosi.igrp</groupId>
+            <groupId>cv.igrp.framework</groupId>
             <artifactId>runtime-activiti</artifactId>
             <version>0.1.0-beta.1</version>
         </dependency>
@@ -160,13 +154,11 @@
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
 
-        <!-- pom.xml -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
-
 
     </dependencies>
 
@@ -183,10 +175,12 @@
     </dependencyManagement>
     <build>
         <plugins>
+
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -200,6 +194,72 @@
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>org.owasp</groupId>
+                <artifactId>dependency-check-maven</artifactId>
+                <configuration>
+                    <outputDirectory>${project.build.directory}/reports</outputDirectory>
+                    <failBuildOnCVSS>10</failBuildOnCVSS>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <excludes>
+                        <exclude>**/*DTO.class</exclude>
+                        <exclude>**/*Command.class</exclude>
+                        <exclude>**/*Query.class</exclude>
+                        <exclude>**/controller/**</exclude>
+                        <exclude>**/config/**</exclude>
+                        <exclude>**/spring/**</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <failOnError>false</failOnError>
+                    <additionalJOption>-Xdoclint:none</additionalJOption>
+                </configuration>
+            </plugin>
+
         </plugins>
+
     </build>
+
 </project>

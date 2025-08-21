@@ -236,4 +236,41 @@ public class ProcessDefinitionController {
               .body(response.getBody());
   }
 
+  @GetMapping(
+    value = "{id}/deploy-artifacts"
+  )
+  @Operation(
+    summary = "GET method to handle operations for getDeployedArtifactsByProcessDefinitionId",
+    description = "GET method to handle operations for getDeployedArtifactsByProcessDefinitionId",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          description = "List of Deployed Process Artifact",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = ProcessArtifactDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<List<ProcessArtifactDTO>> getDeployedArtifactsByProcessDefinitionId(
+    @PathVariable(value = "id") String id)
+  {
+
+      LOGGER.debug("Operation started");
+
+      final var query = new GetDeployedArtifactsByProcessDefinitionIdQuery(id);
+
+      ResponseEntity<List<ProcessArtifactDTO>> response = queryBus.handle(query);
+
+      LOGGER.debug("Operation finished");
+
+      return ResponseEntity.status(response.getStatusCode())
+              .headers(response.getHeaders())
+              .body(response.getBody());
+  }
+
 }

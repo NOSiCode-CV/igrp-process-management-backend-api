@@ -1,7 +1,14 @@
 package cv.igrp.platform.process.management.processdefinition.infrastructure.persistence.repository;
 
+import cv.igrp.framework.runtime.core.engine.process.ProcessDefinitionAdapter;
+import cv.igrp.framework.runtime.core.engine.process.ProcessManagerAdapter;
+import cv.igrp.framework.runtime.core.engine.process.model.IgrpProcessDefinitionRepresentation;
+import cv.igrp.framework.runtime.core.engine.process.model.ProcessDefinition;
+import cv.igrp.framework.runtime.core.engine.process.model.ProcessFilter;
+import cv.igrp.framework.runtime.core.engine.task.TaskQueryService;
 import cv.igrp.platform.process.management.processdefinition.domain.exception.ProcessDeploymentException;
 import cv.igrp.platform.process.management.processdefinition.domain.filter.ProcessDeploymentFilter;
+import cv.igrp.platform.process.management.processdefinition.domain.models.ProcessArtifact;
 import cv.igrp.platform.process.management.processdefinition.domain.models.ProcessDeployment;
 import cv.igrp.platform.process.management.processdefinition.domain.repository.ProcessDeploymentRepository;
 import cv.igrp.platform.process.management.processdefinition.mappers.ProcessDeploymentMapper;
@@ -9,11 +16,6 @@ import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Name;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 import cv.igrp.platform.process.management.shared.domain.models.ResourceName;
-import cv.nosi.igrp.runtime.core.engine.process.ProcessDefinitionAdapter;
-import cv.nosi.igrp.runtime.core.engine.process.ProcessManagerAdapter;
-import cv.nosi.igrp.runtime.core.engine.process.model.IgrpProcessDefinitionRepresentation;
-import cv.nosi.igrp.runtime.core.engine.process.model.ProcessDefinition;
-import cv.nosi.igrp.runtime.core.engine.process.model.ProcessFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -33,10 +35,16 @@ public class ProcessDeploymentRepositoryImpl implements ProcessDeploymentReposit
   private  final ProcessDeploymentMapper processDeploymentMapper;
   private final ProcessManagerAdapter processManagerAdapter;
 
-  public ProcessDeploymentRepositoryImpl(ProcessDefinitionAdapter processDefinitionAdapter, ProcessDeploymentMapper processDeploymentMapper, ProcessManagerAdapter processManagerAdapter) {
+  private final TaskQueryService taskQueryService;
+
+  public ProcessDeploymentRepositoryImpl(ProcessDefinitionAdapter processDefinitionAdapter,
+                                         ProcessDeploymentMapper processDeploymentMapper,
+                                         ProcessManagerAdapter processManagerAdapter,
+                                         TaskQueryService taskQueryService) {
     this.processDefinitionAdapter = processDefinitionAdapter;
     this.processDeploymentMapper = processDeploymentMapper;
     this.processManagerAdapter = processManagerAdapter;
+    this.taskQueryService = taskQueryService;
   }
 
   @Override
@@ -90,6 +98,17 @@ public class ProcessDeploymentRepositoryImpl implements ProcessDeploymentReposit
     processFilter.setName(filter.getProcessName()!=null && !filter.getProcessName().isBlank() ? filter.getProcessName() : null );
     processFilter.setApplicationBase(filter.getApplicationBase() != null ? filter.getApplicationBase().getValue() : null);
     return processFilter;
+  }
+
+  @Override
+  public List<ProcessArtifact> findAllArtifacts(String processDefinitionId) {
+    List<cv.igrp.framework.runtime.core.engine.task.model.ProcessArtifact> artifacts = taskQueryService.getProcessArtifacts(processDefinitionId);
+    return artifacts.stream().map(artifact -> ProcessArtifact.builder()
+        .formKey(Code.create(artifact.formKey() != null ? artifact.formKey() : "NOT_SET"))
+        .name(Name.create(artifact.taskName() != null ? artifact.taskName() : "NOT_SET"))
+        .key(Code.create(artifact.taskKey()))
+        .processDefinitionId(Code.create(processDefinitionId))
+        .build()).toList();
   }
 
 }

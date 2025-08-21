@@ -1,5 +1,6 @@
 package cv.igrp.platform.process.management.processruntime.mappers;
 
+import cv.igrp.framework.runtime.core.engine.process.model.IGRPProcessStatus;
 import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceListPageDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.StartProcessRequestDTO;
@@ -9,7 +10,6 @@ import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.ProcessInstanceEntity;
-import cv.nosi.igrp.runtime.core.engine.process.model.IGRPProcessStatus;
 import org.springframework.stereotype.Component;
 
 import java.time.ZoneId;
@@ -118,7 +118,7 @@ public class ProcessInstanceMapper {
     return dto;
   }
 
-  public ProcessInstance toModel(cv.nosi.igrp.runtime.core.engine.process.model.ProcessInstance processInstance) {
+  public ProcessInstance toModel(cv.igrp.framework.runtime.core.engine.process.model.ProcessInstance processInstance) {
 
     if (processInstance == null) {
       return null;

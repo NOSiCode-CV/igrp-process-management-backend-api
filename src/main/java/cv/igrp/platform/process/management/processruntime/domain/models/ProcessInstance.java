@@ -92,7 +92,7 @@ public class ProcessInstance {
   }
 
   public void complete(LocalDateTime endedAt, String endedBy){
-    if(this.endedBy == null || this.endedBy.isBlank()){
+    if(endedBy == null || endedBy.isBlank()){
       throw new IllegalStateException("The endedBy (user) of the process instance cannot be null or blank");
     }
     this.status = ProcessInstanceStatus.COMPLETED;

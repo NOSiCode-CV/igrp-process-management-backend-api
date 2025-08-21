@@ -190,6 +190,36 @@
           "description": "ID of the Process Definition"
         }
       ]
+    },
+    {
+      "actionName": "getDeployedArtifactsByProcessDefinitionId",
+      "path": "{id}/deploy-artifacts",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "description": "List of Deployed Process Artifact",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProcessArtifactDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "processdefinition"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true,
+          "description": "ID of the Process Definition"
+        }
+      ]
     }
   ],
   "id": "o9isd9wv95-CONTROLLER"

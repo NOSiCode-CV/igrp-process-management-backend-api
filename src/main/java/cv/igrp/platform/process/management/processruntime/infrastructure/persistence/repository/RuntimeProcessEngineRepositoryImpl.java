@@ -1,5 +1,10 @@
 package cv.igrp.platform.process.management.processruntime.infrastructure.persistence.repository;
 
+import cv.igrp.framework.runtime.core.engine.process.ProcessManagerAdapter;
+import cv.igrp.framework.runtime.core.engine.process.model.ProcessVariableInstance;
+import cv.igrp.framework.runtime.core.engine.task.TaskActionService;
+import cv.igrp.framework.runtime.core.engine.task.TaskQueryService;
+import cv.igrp.framework.runtime.core.engine.task.model.TaskVariableInstance;
 import cv.igrp.platform.process.management.processruntime.domain.exception.RuntimeProcessEngineException;
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstance;
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstanceTaskStatus;
@@ -8,11 +13,6 @@ import cv.igrp.platform.process.management.processruntime.domain.repository.Runt
 import cv.igrp.platform.process.management.processruntime.mappers.ProcessInstanceMapper;
 import cv.igrp.platform.process.management.processruntime.mappers.ProcessInstanceTaskStatusMapper;
 import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
-import cv.nosi.igrp.runtime.core.engine.process.ProcessManagerAdapter;
-import cv.nosi.igrp.runtime.core.engine.process.model.ProcessVariableInstance;
-import cv.nosi.igrp.runtime.core.engine.task.TaskActionService;
-import cv.nosi.igrp.runtime.core.engine.task.TaskQueryService;
-import cv.nosi.igrp.runtime.core.engine.task.model.TaskVariableInstance;
 import org.activiti.api.task.runtime.TaskRuntime;
 import org.activiti.engine.RuntimeService;
 import org.slf4j.Logger;

@@ -1,15 +1,12 @@
 package cv.igrp.platform.process.management.processruntime.mappers;
 
+import cv.igrp.framework.runtime.core.engine.task.model.IGRPTaskStatus;
+import cv.igrp.framework.runtime.core.engine.task.model.ProcessTaskInfo;
 import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceTaskStatusDTO;
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstanceTaskStatus;
-import cv.igrp.platform.process.management.shared.application.constants.ProcessInstanceStatus;
 import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Name;
-import cv.nosi.igrp.runtime.core.engine.process.model.IGRPProcessStatus;
-import cv.nosi.igrp.runtime.core.engine.task.model.IGRPTaskStatus;
-import cv.nosi.igrp.runtime.core.engine.task.model.ProcessTaskInfo;
-import cv.nosi.igrp.runtime.core.engine.task.model.TaskInfo;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

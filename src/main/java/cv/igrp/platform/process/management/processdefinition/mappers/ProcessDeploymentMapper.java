@@ -1,5 +1,6 @@
 package cv.igrp.platform.process.management.processdefinition.mappers;
 
+import cv.igrp.framework.runtime.core.engine.process.model.IgrpProcessDefinitionRepresentation;
 import cv.igrp.platform.process.management.processdefinition.application.dto.ProcessDeploymentDTO;
 import cv.igrp.platform.process.management.processdefinition.application.dto.ProcessDeploymentListDTO;
 import cv.igrp.platform.process.management.processdefinition.application.dto.ProcessDeploymentListPageDTO;
@@ -10,7 +11,6 @@ import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Name;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 import cv.igrp.platform.process.management.shared.domain.models.ResourceName;
-import cv.nosi.igrp.runtime.core.engine.process.model.IgrpProcessDefinitionRepresentation;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
