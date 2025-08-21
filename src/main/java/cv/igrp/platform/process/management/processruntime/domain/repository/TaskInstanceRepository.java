@@ -13,9 +13,9 @@ public interface TaskInstanceRepository {
 
   Optional<TaskInstance> findByIdWihEvents(UUID id);
 
-  TaskInstance create(TaskInstance taskInstance);
+  void create(TaskInstance taskInstance);
 
-  TaskInstance update(TaskInstance taskInstance);
+  void update(TaskInstance taskInstance);
 
   PageableLista<TaskInstance> findAll(TaskInstanceFilter filter);
 }

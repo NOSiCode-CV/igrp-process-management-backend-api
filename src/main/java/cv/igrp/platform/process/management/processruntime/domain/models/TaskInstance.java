@@ -39,30 +39,30 @@ public class TaskInstance {
   private final Map<String,Object> variables;
   private final List<TaskInstanceEvent> taskInstanceEvents;
 
-    @Builder
-    public TaskInstance(
-        Identifier id,
-        Code taskKey,
-        Code formKey,
-        Name name,
-        Code externalId,
-        Identifier processInstanceId,
-        Code processName,
-        Code processNumber,
-        Code processKey,
-        Code businessKey,
-        Code applicationBase,
-        String searchTerms,
-        TaskInstanceStatus status,
-        LocalDateTime startedAt,
-        Code startedBy,
-        LocalDateTime assignedAt,
-        Code assignedBy,
-        LocalDateTime endedAt,
-        Code endedBy,
-        Map<String,Object> taskVariables,
-        List<TaskInstanceEvent> taskInstanceEvents)
-    {
+  @Builder
+  public TaskInstance(
+      Identifier id,
+      Code taskKey,
+      Code formKey,
+      Name name,
+      Code externalId,
+      Identifier processInstanceId,
+      Code processName,
+      Code processNumber,
+      Code processKey,
+      Code businessKey,
+      Code applicationBase,
+      String searchTerms,
+      TaskInstanceStatus status,
+      LocalDateTime startedAt,
+      Code startedBy,
+      LocalDateTime assignedAt,
+      Code assignedBy,
+      LocalDateTime endedAt,
+      Code endedBy,
+      Map<String,Object> taskVariables,
+      List<TaskInstanceEvent> taskInstanceEvents
+  ) {
       this.id = id == null ? Identifier.generate() : id;
       this.taskKey = Objects.requireNonNull(taskKey, "Task Key Id cannot be null!");
       this.formKey = formKey;
@@ -84,98 +84,97 @@ public class TaskInstance {
       this.variables = taskVariables!=null ? taskVariables : Map.of();
       this.taskInstanceEvents = taskInstanceEvents != null ? taskInstanceEvents : new ArrayList<>();
       this.processKey = processKey;
-    }
+  }
 
 
-    public void create() {
-        if(applicationBase==null) {
-          throw new IllegalStateException("ApplicationBase cannot be null!");
-        }
-        if(processName ==null) {
-          throw new IllegalStateException("Process Name cannot be null!");
-        }
-        if(processInstanceId==null) {
-          throw new IllegalStateException("ProcessInstanceId cannot be null!");
-        }
-        if(processNumber==null) {
-          throw new IllegalStateException("ProcessNumber cannot be null!");
-        }
-        this.status = TaskInstanceStatus.CREATED;
-        if(startedAt==null)
-            this.startedAt = LocalDateTime.now();
-        this.startedBy = TempUtil.getCurrentUser();//todo remove
-        createTaskInstanceEvent(TaskEventType.CREATE,null);
-    }
+  public void create() {
+      if(applicationBase==null) {
+        throw new IllegalStateException("ApplicationBase cannot be null!");
+      }
+      if(processName ==null) {
+        throw new IllegalStateException("Process Name cannot be null!");
+      }
+      if(processInstanceId==null) {
+        throw new IllegalStateException("ProcessInstanceId cannot be null!");
+      }
+      if(processNumber==null) {
+        throw new IllegalStateException("ProcessNumber cannot be null!");
+      }
+      this.status = TaskInstanceStatus.CREATED;
+      if(startedAt==null)
+          this.startedAt = LocalDateTime.now();
+      this.startedBy = TempUtil.getCurrentUser();//todo remove
+      createTaskInstanceEvent(TaskEventType.CREATE,null);
+  }
 
 
-    public void claim(String note) {
-        this.status = TaskInstanceStatus.ASSIGNED;
-        this.assignedAt = LocalDateTime.now();
-        this.assignedBy = TempUtil.getCurrentUser();//todo remove
-        createTaskInstanceEvent(TaskEventType.CLAIM,note);
-    }
+  public void claim(String note) {
+      this.status = TaskInstanceStatus.ASSIGNED;
+      this.assignedAt = LocalDateTime.now();
+      this.assignedBy = TempUtil.getCurrentUser();//todo remove
+      createTaskInstanceEvent(TaskEventType.CLAIM,note);
+  }
 
 
-    public void assign(Code user, String note) {
-        if(user==null) {
-          throw new IllegalStateException("The assigned by (user) cannot be null!");
-        }
-        this.status = TaskInstanceStatus.ASSIGNED;
-        this.assignedAt = LocalDateTime.now();
-        this.assignedBy = user;
-        createTaskInstanceEvent(TaskEventType.ASSIGN,note);
-    }
+  public void assign(Code user, String note) {
+      if(user==null) {
+        throw new IllegalStateException("The assigned by (user) cannot be null!");
+      }
+      this.status = TaskInstanceStatus.ASSIGNED;
+      this.assignedAt = LocalDateTime.now();
+      this.assignedBy = user;
+      createTaskInstanceEvent(TaskEventType.ASSIGN,note);
+  }
 
 
-    public void unClaim(String note) {
-        this.status = TaskInstanceStatus.CREATED;
-        this.assignedAt = null;
-        this.assignedBy = null;
-        createTaskInstanceEvent(TaskEventType.UNCLAIM,note);
-    }
+  public void unClaim(String note) {
+      this.status = TaskInstanceStatus.CREATED;
+      this.assignedAt = null;
+      this.assignedBy = null;
+      createTaskInstanceEvent(TaskEventType.UNCLAIM,note);
+  }
 
 
-    public void complete() {
-        this.status = TaskInstanceStatus.COMPLETED;
-        this.endedAt = LocalDateTime.now();
-        this.endedBy = TempUtil.getCurrentUser();//todo remove
-        createTaskInstanceEvent(TaskEventType.COMPLETE,null);
-    }
+  public void complete() {
+      this.status = TaskInstanceStatus.COMPLETED;
+      this.endedAt = LocalDateTime.now();
+      this.endedBy = TempUtil.getCurrentUser();//todo remove
+      createTaskInstanceEvent(TaskEventType.COMPLETE,null);
+  }
 
 
-    private void createTaskInstanceEvent(TaskEventType eventType, String note) {
-
-        if(!this.taskInstanceEvents.isEmpty())
-            this.taskInstanceEvents.clear();
-
-        this.taskInstanceEvents.add(
-            TaskInstanceEvent.builder()
-            .taskInstanceId(Identifier.generate())
-            .taskInstanceId(this.id)
-            .eventType(eventType)
-            .status(this.status)
-            .performedAt(LocalDateTime.now())
-            .performedBy(TempUtil.getCurrentUser()) //todo remove
-            .note(note!=null && !note.isBlank() ? note.trim() : null)
-            .build());
-    }
+  private void createTaskInstanceEvent(TaskEventType eventType, String note) {
+      this.taskInstanceEvents.add(
+          TaskInstanceEvent.builder()
+          .taskInstanceId(Identifier.generate())
+          .taskInstanceId(this.id)
+          .eventType(eventType)
+          .status(this.status)
+          .performedAt(LocalDateTime.now())
+          .performedBy(TempUtil.getCurrentUser()) //todo remove
+          .note(note!=null && !note.isBlank() ? note.trim() : null)
+          .build());
+  }
 
 
-    public TaskInstance withIdentity(Code applicationBase,
-                                     Code processName,
-                                     Code businessKey,
-                                     Identifier processInstanceId) {
-        return TaskInstance.builder()
-            .processNumber(this.processNumber)
-            .taskKey(this.taskKey)
-            .externalId(this.externalId)
-            .name(this.name)
-            .id(this.id)
-            .startedAt(this.startedAt)
-            .applicationBase(applicationBase)
-            .processName(processName)
-            .businessKey(businessKey)
-            .processInstanceId(processInstanceId)
-            .build();
-    }
+  public TaskInstance withIdentity(Code applicationBase,
+                                   Code processName,
+                                   Code businessKey,
+                                   Identifier processInstanceId,
+                                   Code formKey
+  ) {
+      return TaskInstance.builder()
+          .processNumber(this.processNumber)
+          .taskKey(this.taskKey)
+          .externalId(this.externalId)
+          .name(this.name)
+          .startedAt(this.startedAt)
+          .id(this.id)
+          .formKey(formKey!=null ? formKey : this.formKey)
+          .applicationBase(applicationBase)
+          .processName(processName)
+          .businessKey(businessKey)
+          .processInstanceId(processInstanceId)
+          .build();
+  }
 }

@@ -39,11 +39,11 @@ public class TaskInstanceMapper {
 
   public TaskInstance toModel(TaskInfo taskInfo) {
     return TaskInstance.builder()
-        .externalId(Code.create(taskInfo.id()))
+        .processNumber(Code.create(taskInfo.processInstanceId()))
         .taskKey(Code.create(taskInfo.taskDefinitionKey()))
+        .externalId(Code.create(taskInfo.id()))
         .formKey(taskInfo.formKey()!=null ? Code.create(taskInfo.formKey()) : null)
         .name(Name.create(taskInfo.name()))
-        .processNumber(Code.create(taskInfo.processInstanceId()))
         .startedAt(utilDateToLocalDateTime.apply(taskInfo.createdTime()))
         .build();
   }
@@ -216,8 +216,7 @@ public class TaskInstanceMapper {
 
 
   public Set<TaskVariableDTO> toTaskVariableListDTO(Map<String,Object> variables) {
-    return variables ==null ? Set.of()
-        : variables.entrySet().stream()
+    return variables==null ? Set.of() : variables.entrySet().stream()
         .map(e-> new TaskVariableDTO(e.getKey(),e.getValue()))
         .collect(Collectors.toSet());
   }

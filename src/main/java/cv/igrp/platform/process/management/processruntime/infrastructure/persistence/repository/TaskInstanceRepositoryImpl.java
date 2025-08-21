@@ -51,21 +51,19 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
 
 
   @Override
-  public TaskInstance create(TaskInstance taskInstance) {
-      return taskMapper.toModel(
-          taskInstanceEntityRepository.save(
-              taskMapper.toNewTaskEntity(taskInstance)));
+  public void create(TaskInstance taskInstance) {
+      taskInstanceEntityRepository.save(taskMapper.toNewTaskEntity(taskInstance));
   }
 
 
   @Override
-  public TaskInstance update(TaskInstance taskInstance) {
+  public void update(TaskInstance taskInstance) {
       var taskInstanceEntity = taskInstanceEntityRepository
           .findById(taskInstance.getId().getValue())
           .orElseThrow(() -> IgrpResponseStatusException.notFound(
               "No Task Instance found with id: " + taskInstance.getId().getValue()));
       taskMapper.toTaskEntity(taskInstance,taskInstanceEntity);
-      return taskMapper.toModelWithEvents(taskInstanceEntityRepository.save(taskInstanceEntity));
+      taskInstanceEntityRepository.save(taskInstanceEntity);
   }
 
 
