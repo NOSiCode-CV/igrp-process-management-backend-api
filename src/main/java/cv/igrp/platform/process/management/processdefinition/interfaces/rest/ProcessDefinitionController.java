@@ -237,7 +237,7 @@ public class ProcessDefinitionController {
   }
 
   @GetMapping(
-    value = "{id}/deploy-artifacts"
+    value = "{id}/deployed-artifacts"
   )
   @Operation(
     summary = "GET method to handle operations for getDeployedArtifactsByProcessDefinitionId",

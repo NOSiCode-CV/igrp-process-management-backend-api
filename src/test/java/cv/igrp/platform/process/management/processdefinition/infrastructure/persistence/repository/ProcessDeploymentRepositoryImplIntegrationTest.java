@@ -4,6 +4,7 @@ package cv.igrp.platform.process.management.processdefinition.infrastructure.per
 import cv.igrp.platform.process.management.IgrpPlatformProcessManagementApplication;
 import cv.igrp.platform.process.management.processdefinition.domain.filter.ProcessDeploymentFilter;
 import cv.igrp.platform.process.management.processdefinition.domain.models.BpmnXml;
+import cv.igrp.platform.process.management.processdefinition.domain.models.ProcessArtifact;
 import cv.igrp.platform.process.management.processdefinition.domain.models.ProcessDeployment;
 import cv.igrp.platform.process.management.processdefinition.domain.repository.ProcessDeploymentRepository;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -35,7 +37,7 @@ public class ProcessDeploymentRepositoryImplIntegrationTest {
   @Autowired
   private ProcessDeploymentRepository processDeploymentRepository;
 
-  private ProcessDeployment deployment;
+  private ProcessDeployment deployedProcess;
 
   @BeforeEach
   public void beforeEach() throws Exception {
@@ -43,25 +45,25 @@ public class ProcessDeploymentRepositoryImplIntegrationTest {
     String bpmnXml = Files.readString(Paths.get(getClass().getClassLoader()
         .getResource("bpmn/sample.bpmn20.xml").toURI()));
 
-    deployment = ProcessDeployment.builder()
+    ProcessDeployment deployment = ProcessDeployment.builder()
         .key(Code.create("deployment_process_key"))
-        .name(Name.create("Invoicing sample"))
+        .name(Name.create("inscricao-contribuinte"))
         .resourceName(ResourceName.create("sample.bpmn20.xml"))
         .bpmnXml(BpmnXml.create(bpmnXml))
         .applicationBase(Code.create("igrp-app"))
         .build();
+
+    deployedProcess = processDeploymentRepository.deploy(deployment);
+
   }
 
   @Test
-  public void deploy() throws Exception {
-
-    // Act
-    ProcessDeployment deployedProcess = processDeploymentRepository.deploy(deployment);
+  public void deploy() {
 
     // Assert
     assertNotNull(deployedProcess);
     assertEquals("deployment_process_key", deployedProcess.getKey().getValue());
-    assertEquals("Invoicing sample", deployedProcess.getName().getValue());
+    assertEquals("inscricao-contribuinte", deployedProcess.getName().getValue());
     assertEquals("sample.bpmn20.xml", deployedProcess.getResourceName().getValue());
     assertNotNull(deployedProcess.getDeploymentId());
     assertTrue(deployedProcess.isDeployed());
@@ -75,13 +77,35 @@ public class ProcessDeploymentRepositoryImplIntegrationTest {
         .build();
 
     // Act
-    processDeploymentRepository.deploy(deployment);
-
     PageableLista<ProcessDeployment> result = processDeploymentRepository.findAll(filter);
 
     // Asserts
     assertNotNull(result);
     assertEquals(1, result.getContent().size());
+
+  }
+
+  @Test
+  public void findAllArtifacts() {
+    // Arrange
+    ProcessDeploymentFilter dummy = ProcessDeploymentFilter.builder()
+        .build();
+    List<ProcessDeployment> deployments = processDeploymentRepository
+        .findAll(dummy)
+        .getContent();
+
+    String processDefinitionId = deployments.getFirst().getId();
+
+    // Act
+    List<ProcessArtifact> artifacts = processDeploymentRepository.findAllArtifacts(processDefinitionId);
+
+    // Assert
+    assertNotNull(artifacts);
+    assertEquals(3, artifacts.size());
+    ProcessArtifact actualArtifact = artifacts.getFirst();
+    assertEquals(processDefinitionId, actualArtifact.getProcessDefinitionId().getValue());
+    assertNotNull(actualArtifact.getKey());
+    assertNotNull(actualArtifact.getFormKey());
 
   }
 

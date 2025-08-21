@@ -193,7 +193,7 @@
     },
     {
       "actionName": "getDeployedArtifactsByProcessDefinitionId",
-      "path": "{id}/deploy-artifacts",
+      "path": "{id}/deployed-artifacts",
       "method": "GET",
       "responses": {
         "200": {

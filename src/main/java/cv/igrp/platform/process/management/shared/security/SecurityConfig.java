@@ -50,7 +50,7 @@ public class SecurityConfig {
         .authorities(
             "GROUP_group1",
             "GROUP_group2",
-            "ROLE_ACTIVITI_USER" // ACTIVITI_ADMIN
+            "ROLE_ACTIVITI_USER" // ACTIVITI_ADMIN, ACTIVITI_USER
         ) .build();
 
     UserDetails userIgrp = User.withUsername("igrp@nosi.cv")

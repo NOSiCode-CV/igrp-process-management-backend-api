@@ -1,5 +1,5 @@
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsd="http://www.w3.org/2001/XMLSchema" id="model-885ca707-5cba-48a5-9166-88266d81dbe0" name="inscricao-contribuinte" targetNamespace="http://bpmn.io/schema/bpmn" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd">
-    <process id="Process_incricao_contribuinte" name="inscricao-contribuinte" isExecutable="true">
+    <process id="deployment_process_key" name="inscricao-contribuinte" isExecutable="true">
         <documentation>Inscrição de Contribuinte</documentation>
         <startEvent id="Event_1">
             <outgoing>SequenceFlow_15p3rw8</outgoing>
@@ -24,8 +24,8 @@
             <outgoing>SequenceFlow_0hxw2oj</outgoing>
         </userTask>
     </process>
-    <bpmndi:BPMNDiagram id="BPMNDiagram_Process_incricao_contribuinte">
-        <bpmndi:BPMNPlane id="BPMNPlane_Process_incricao_contribuinte" bpmnElement="Process_incricao_contribuinte">
+    <bpmndi:BPMNDiagram id="BPMNDiagram_deployment_process_key">
+        <bpmndi:BPMNPlane id="BPMNPlane_deployment_process_key" bpmnElement="deployment_process_key">
             <bpmndi:BPMNShape id="BPMNShape_Event_1" bpmnElement="Event_1">
                 <omgdc:Bounds x="132" y="92" width="36" height="36" />
             </bpmndi:BPMNShape>

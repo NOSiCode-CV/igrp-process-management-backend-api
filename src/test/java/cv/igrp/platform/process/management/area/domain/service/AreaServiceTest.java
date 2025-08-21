@@ -48,11 +48,16 @@ class AreaServiceTest {
   void setUp() {
     areaId = UUID.randomUUID();
     area = Area.builder()
-        .id(Identifier.generate())
+        .code(Code.create("area_1"))
+        .name(Name.create("Area 1"))
+        .id(Identifier.create(areaId))
         .status(Status.ACTIVE)
+        .applicationBase(Code.create("igrp-app"))
+        .description("Area 1")
         .build();
     areaProcess = AreaProcess.builder()
         .id(Identifier.generate())
+        .processKey(Code.create("invoicing_process_1"))
         .releaseId(Code.create("123456"))
         .status(Status.ACTIVE)
         .build();
@@ -119,6 +124,7 @@ class AreaServiceTest {
     Area updated = Area.builder()
         .code(Code.create("new_code"))
         .name(Name.create("New Name"))
+        .applicationBase(Code.create("igrp-app"))
         .build();
     when(areaRepository.findById(areaId)).thenReturn(Optional.of(area));
     when(areaRepository.save(area)).thenReturn(area);
