@@ -17,23 +17,23 @@ import java.util.UUID;
 @Component
 public class GetTaskVariablesByIdQueryHandler implements QueryHandler<GetTaskVariablesByIdQuery, ResponseEntity<Set<TaskVariableDTO>>>{
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(GetTaskVariablesByIdQueryHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GetTaskVariablesByIdQueryHandler.class);
 
 
-  private final TaskInstanceService taskInstanceService;
-  private final TaskInstanceMapper taskInstanceMapper;
+    private final TaskInstanceService taskInstanceService;
+    private final TaskInstanceMapper taskInstanceMapper;
 
-  public GetTaskVariablesByIdQueryHandler(TaskInstanceService taskInstanceService,
-                                          TaskInstanceMapper taskInstanceMapper) {
-    this.taskInstanceService = taskInstanceService;
-    this.taskInstanceMapper = taskInstanceMapper;
-  }
+    public GetTaskVariablesByIdQueryHandler(TaskInstanceService taskInstanceService,
+                                            TaskInstanceMapper taskInstanceMapper) {
+        this.taskInstanceService = taskInstanceService;
+        this.taskInstanceMapper = taskInstanceMapper;
+    }
 
-  @IgrpQueryHandler
-  @Transactional(readOnly = true)
-  public ResponseEntity<Set<TaskVariableDTO>> handle(GetTaskVariablesByIdQuery query) {
-    return ResponseEntity.ok(taskInstanceMapper.toTaskVariableListDTO(
-        taskInstanceService.getTaskVariables(UUID.fromString(query.getId()))));
-  }
+    @IgrpQueryHandler
+    @Transactional(readOnly = true)
+    public ResponseEntity<Set<TaskVariableDTO>> handle(GetTaskVariablesByIdQuery query) {
+        return ResponseEntity.ok(taskInstanceMapper.toTaskVariableListDTO(
+            taskInstanceService.getTaskVariables(UUID.fromString(query.getId()))));
+    }
 
 }
