@@ -11,6 +11,7 @@ import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponse
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
+import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.ProcessArtifactEntity;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.repository.ProcessArtifactEntityRepository;
 import org.springframework.stereotype.Service;
 
@@ -52,7 +53,7 @@ public class TaskInstanceService {
 
       final var artifactAssociations = processArtifactEntityRepository
           .findAllByProcessDefinitionId(processInstanceId.getValue().toString())
-          .stream().collect( Collectors.toMap( a->a.getKey(), a->Code.create(a.getFormKey())));
+          .stream().collect( Collectors.toMap(ProcessArtifactEntity::getKey, a->Code.create(a.getFormKey())));
 
       activeTaskList.forEach( t-> this.createTask( t.withIdentity(
           applicationBase,
@@ -84,7 +85,7 @@ public class TaskInstanceService {
 
 
   public void claimTask(UUID id,String note) {
-      var taskInstance = getById(id);
+      var taskInstance = getByIdWihEvents(id);
       taskInstance.claim(note);
       this.save(taskInstance);
       // Call the process engine to claim a task
@@ -96,7 +97,7 @@ public class TaskInstanceService {
 
 
   public void assignTask(UUID id, Code user, String note) {
-      var taskInstance = getById(id);
+      var taskInstance = getByIdWihEvents(id);
       taskInstance.assign(user,note);
       this.save(taskInstance);
       // Call the process engine to assign a task
@@ -109,7 +110,7 @@ public class TaskInstanceService {
 
 
   public void unClaimTask(UUID id, String note) {
-      var taskInstance = getById(id);
+      var taskInstance = getByIdWihEvents(id);
       taskInstance.unClaim(note);
       this.save(taskInstance);
       // Call the process engine to claim a task
@@ -121,46 +122,47 @@ public class TaskInstanceService {
 
   public TaskInstance completeTask(UUID id, Map<String,Object> variables) {
 
-    var taskInstance = getById(id);
+      var taskInstance = getByIdWihEvents(id);
 
-    var processInstance  = processInstanceRepository
-        .findById(taskInstance.getProcessInstanceId().getValue())
-        .orElseThrow(() -> IgrpResponseStatusException.notFound("No Process Instance found with id: " + id));
+      var processInstance  = processInstanceRepository
+          .findById(taskInstance.getProcessInstanceId().getValue())
+          .orElseThrow(() -> IgrpResponseStatusException.notFound("No Process Instance found with id: " + id));
 
-    runtimeProcessEngineRepository.completeTask(
-        taskInstance.getExternalId().getValue(),
-        variables
-    );
-
-    var activityProcess = runtimeProcessEngineRepository
-        .getProcessInstanceById(processInstance.getNumber().getValue());
-
-    taskInstance.complete();
-    var completedTask = save(taskInstance);
-
-    createTaskInstancesByProcess(
-        taskInstance.getProcessInstanceId(),
-        taskInstance.getProcessNumber(),
-        activityProcess.getName(),
-        processInstance.getBusinessKey(),
-        taskInstance.getApplicationBase()
-    );
-
-    if(activityProcess.getStatus() == ProcessInstanceStatus.COMPLETED){
-      processInstance.complete(
-          activityProcess.getEndedAt(),
-          activityProcess.getEndedBy() != null ? activityProcess.getEndedBy() : "demo"
+      runtimeProcessEngineRepository.completeTask(
+          taskInstance.getExternalId().getValue(),
+          variables
       );
-      processInstanceRepository.save(processInstance);
-    }
 
-    return completedTask;
+      var activityProcess = runtimeProcessEngineRepository
+          .getProcessInstanceById(processInstance.getNumber().getValue());
+
+      taskInstance.complete();
+      var completedTask = save(taskInstance);
+
+      createTaskInstancesByProcess(
+          taskInstance.getProcessInstanceId(),
+          taskInstance.getProcessNumber(),
+          activityProcess.getName(),
+          processInstance.getBusinessKey(),
+          taskInstance.getApplicationBase()
+      );
+
+      if(activityProcess.getStatus() == ProcessInstanceStatus.COMPLETED){
+          processInstance.complete(
+              activityProcess.getEndedAt(),
+              activityProcess.getEndedBy() != null ? activityProcess.getEndedBy() : "demo"
+          );
+          processInstanceRepository.save(processInstance);
+      }
+
+      return completedTask;
   }
 
 
   private TaskInstance save(TaskInstance taskInstance) {
-      taskInstanceEventRepository.save(taskInstance.getTaskInstanceEvents().getFirst());
-      return taskInstanceRepository.update(taskInstance);
+      taskInstanceEventRepository.save(taskInstance.getTaskInstanceEvents().getLast());
+      taskInstanceRepository.update(taskInstance);
+      return taskInstance;
   }
 
 

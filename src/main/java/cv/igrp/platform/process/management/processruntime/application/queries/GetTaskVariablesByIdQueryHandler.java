@@ -29,6 +29,7 @@ public class GetTaskVariablesByIdQueryHandler implements QueryHandler<GetTaskVar
         this.taskInstanceMapper = taskInstanceMapper;
     }
 
+
     @IgrpQueryHandler
     @Transactional(readOnly = true)
     public ResponseEntity<Set<TaskVariableDTO>> handle(GetTaskVariablesByIdQuery query) {

@@ -144,10 +144,6 @@ public class TaskInstance {
 
 
   private void createTaskInstanceEvent(TaskEventType eventType, String note) {
-
-      if(!this.taskInstanceEvents.isEmpty())
-          this.taskInstanceEvents.clear();
-
       this.taskInstanceEvents.add(
           TaskInstanceEvent.builder()
           .taskInstanceId(Identifier.generate())

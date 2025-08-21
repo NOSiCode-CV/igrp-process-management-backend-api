@@ -30,7 +30,7 @@ public class TaskInstanceEventRepositoryImpl implements TaskInstanceEventReposit
 
   @Override
   public void save(TaskInstanceEvent taskInstanceEvent) {
-    taskInstanceEventEntityRepository.save(eventMapper.toEventEntity(taskInstanceEvent));
+      taskInstanceEventEntityRepository.save(eventMapper.toEventEntity(taskInstanceEvent));
   }
 
 
