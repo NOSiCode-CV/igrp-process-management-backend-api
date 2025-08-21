@@ -11,10 +11,12 @@ import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponse
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
+import cv.igrp.platform.process.management.shared.infrastructure.persistence.repository.ProcessArtifactEntityRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class TaskInstanceService {
@@ -23,16 +25,19 @@ public class TaskInstanceService {
   private final TaskInstanceEventRepository taskInstanceEventRepository;
   private final RuntimeProcessEngineRepository runtimeProcessEngineRepository;
   private final ProcessInstanceRepository processInstanceRepository;
+  private final ProcessArtifactEntityRepository processArtifactEntityRepository;
 
   public TaskInstanceService(TaskInstanceRepository taskInstanceRepository,
                              TaskInstanceEventRepository taskInstanceEventRepository,
                              RuntimeProcessEngineRepository runtimeProcessEngineRepository,
-                             ProcessInstanceRepository processInstanceRepository) {
+                             ProcessInstanceRepository processInstanceRepository,
+                             ProcessArtifactEntityRepository processArtifactEntityRepository) {
 
       this.taskInstanceRepository = taskInstanceRepository;
       this.taskInstanceEventRepository = taskInstanceEventRepository;
       this.runtimeProcessEngineRepository = runtimeProcessEngineRepository;
       this.processInstanceRepository = processInstanceRepository;
+      this.processArtifactEntityRepository = processArtifactEntityRepository;
   }
 
 
@@ -45,11 +50,16 @@ public class TaskInstanceService {
       final var activeTaskList = runtimeProcessEngineRepository
           .getActiveTaskInstances(processNumber.getValue());
 
-      activeTaskList.forEach( t->this.createTask( t.withIdentity(
+      final var artifactAssociations = processArtifactEntityRepository
+          .findAllByProcessDefinitionId(processInstanceId.getValue().toString())
+          .stream().collect( Collectors.toMap( a->a.getKey(), a->Code.create(a.getFormKey())));
+
+      activeTaskList.forEach( t-> this.createTask( t.withIdentity(
           applicationBase,
           Code.create(processType),
           businessKey,
-          processInstanceId))
+          processInstanceId,
+          artifactAssociations.get(t.getTaskKey().toString())))
       );
   }
 
@@ -165,8 +175,8 @@ public class TaskInstanceService {
 
 
   public Map<String,Object> getTaskVariables(UUID id){
-    var taskInstance = getById(id);
-    return runtimeProcessEngineRepository.getTaskVariable(taskInstance.getExternalId().getValue());
+      var taskInstance = getById(id);
+      return runtimeProcessEngineRepository.getTaskVariables(taskInstance.getExternalId().getValue());
   }
 
 
