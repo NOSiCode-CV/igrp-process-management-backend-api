@@ -5,6 +5,7 @@ import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
 
@@ -13,13 +14,14 @@ public class TaskInstanceFilter {
   private final Identifier processInstanceId;
   private final Code processNumber;
   private final String processName;
-  private final Code user;
   private final TaskInstanceStatus status;
   private final String searchTerms;
   private final LocalDate dateFrom;
   private final LocalDate dateTo;
   private final Integer page;
   private final Integer size;
+  @Setter
+  private Code user;
 
   @Builder
   private TaskInstanceFilter(

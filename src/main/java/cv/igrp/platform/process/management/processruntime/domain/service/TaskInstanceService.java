@@ -1,5 +1,6 @@
 package cv.igrp.platform.process.management.processruntime.domain.service;
 
+import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstance;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceFilter;
 import cv.igrp.platform.process.management.processruntime.domain.repository.ProcessInstanceRepository;
@@ -13,6 +14,7 @@ import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.ProcessArtifactEntity;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.repository.ProcessArtifactEntityRepository;
+import cv.igrp.platform.process.management.shared.security.SecurityUtil;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -42,11 +44,16 @@ public class TaskInstanceService {
   }
 
 
-  public void createTaskInstancesByProcess(Identifier processInstanceId,
-                                           Code processNumber,
-                                           String processType,
-                                           Code businessKey,
-                                           Code applicationBase) {
+  public void createTaskInstancesByProcess(ProcessInstance processInstance) {
+
+      this.createNextTaskInstances(processInstance.getId(), processInstance.getNumber(),
+          processInstance.getName(), processInstance.getBusinessKey(),
+          processInstance.getApplicationBase(), Code.create(processInstance.getStartedBy()));
+  }
+
+
+  private void createNextTaskInstances(Identifier processInstanceId, Code processNumber,
+                                      String processName, Code businessKey, Code applicationBase, Code user) {
 
       final var activeTaskList = runtimeProcessEngineRepository
           .getActiveTaskInstances(processNumber.getValue());
@@ -55,12 +62,8 @@ public class TaskInstanceService {
           .findAllByProcessDefinitionId(processInstanceId.getValue().toString())
           .stream().collect( Collectors.toMap(ProcessArtifactEntity::getKey, a->Code.create(a.getFormKey())));
 
-      activeTaskList.forEach( t-> this.createTask( t.withIdentity(
-          applicationBase,
-          Code.create(processType),
-          businessKey,
-          processInstanceId,
-          artifactAssociations.get(t.getTaskKey().toString())))
+      activeTaskList.forEach( t-> this.createTask( t.withIdentity(applicationBase, Code.create(processName),
+          businessKey, processInstanceId, artifactAssociations.get(t.getTaskKey().toString()), user))
       );
   }
 
@@ -84,9 +87,9 @@ public class TaskInstanceService {
   }
 
 
-  public void claimTask(UUID id,String note) {
+  public void claimTask(UUID id, String note) {
       var taskInstance = getByIdWihEvents(id);
-      taskInstance.claim(note);
+      taskInstance.claim(SecurityUtil.getCurrentUser(),note);
       this.save(taskInstance);
       // Call the process engine to claim a task
       runtimeProcessEngineRepository.claimTask(
@@ -96,14 +99,14 @@ public class TaskInstanceService {
   }
 
 
-  public void assignTask(UUID id, Code user, String note) {
+  public void assignTask(UUID id, Code userToAssign, String note) {
       var taskInstance = getByIdWihEvents(id);
-      taskInstance.assign(user,note);
+      taskInstance.assign(SecurityUtil.getCurrentUser(), userToAssign,note);
       this.save(taskInstance);
       // Call the process engine to assign a task
       runtimeProcessEngineRepository.assignTask(
           taskInstance.getExternalId().getValue(),
-          user.getValue(),
+          userToAssign.getValue(),
           note
       );
   }
@@ -111,7 +114,7 @@ public class TaskInstanceService {
 
   public void unClaimTask(UUID id, String note) {
       var taskInstance = getByIdWihEvents(id);
-      taskInstance.unClaim(note);
+      taskInstance.unClaim(SecurityUtil.getCurrentUser(),note);
       this.save(taskInstance);
       // Call the process engine to claim a task
       runtimeProcessEngineRepository.unClaimTask(
@@ -136,21 +139,24 @@ public class TaskInstanceService {
       var activityProcess = runtimeProcessEngineRepository
           .getProcessInstanceById(processInstance.getNumber().getValue());
 
-      taskInstance.complete();
+      final var user = SecurityUtil.getCurrentUser();
+
+      taskInstance.complete(user);
       var completedTask = save(taskInstance);
 
-      createTaskInstancesByProcess(
+      createNextTaskInstances(
           taskInstance.getProcessInstanceId(),
           taskInstance.getProcessNumber(),
           activityProcess.getName(),
           processInstance.getBusinessKey(),
-          taskInstance.getApplicationBase()
+          taskInstance.getApplicationBase(),
+          user
       );
 
       if(activityProcess.getStatus() == ProcessInstanceStatus.COMPLETED){
           processInstance.complete(
               activityProcess.getEndedAt(),
-              activityProcess.getEndedBy() != null ? activityProcess.getEndedBy() : "demo"
+              activityProcess.getEndedBy() != null ? activityProcess.getEndedBy() : user.getValue()
           );
           processInstanceRepository.save(processInstance);
       }
@@ -172,11 +178,12 @@ public class TaskInstanceService {
 
 
   public PageableLista<TaskInstance> getAllMyTasks(TaskInstanceFilter filter) {
+      filter.setUser(SecurityUtil.getCurrentUser());
       return taskInstanceRepository.findAll(filter);
   }
 
 
-  public Map<String,Object> getTaskVariables(UUID id){
+  public Map<String,Object> getTaskVariables(UUID id) {
       var taskInstance = getById(id);
       return runtimeProcessEngineRepository.getTaskVariables(taskInstance.getExternalId().getValue());
   }

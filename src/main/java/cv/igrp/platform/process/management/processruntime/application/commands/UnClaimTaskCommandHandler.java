@@ -20,7 +20,7 @@ public class UnClaimTaskCommandHandler implements CommandHandler<UnClaimTaskComm
     private final TaskInstanceService taskInstanceService;
 
     public UnClaimTaskCommandHandler(TaskInstanceService taskInstanceService) {
-    this.taskInstanceService = taskInstanceService;
+        this.taskInstanceService = taskInstanceService;
     }
 
     @IgrpCommandHandler

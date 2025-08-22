@@ -23,7 +23,7 @@ public class CompleteTaskCommandHandler implements CommandHandler<CompleteTaskCo
     private final TaskInstanceMapper taskInstanceMapper;
 
     public CompleteTaskCommandHandler(TaskInstanceService taskInstanceService,
-                                         TaskInstanceMapper taskInstanceMapper) {
+                                      TaskInstanceMapper taskInstanceMapper) {
         this.taskInstanceService = taskInstanceService;
         this.taskInstanceMapper = taskInstanceMapper;
     }

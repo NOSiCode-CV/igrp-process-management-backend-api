@@ -7,17 +7,26 @@ import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import cv.igrp.platform.process.management.shared.domain.models.Name;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 
+import java.security.Principal;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
 class TaskInstanceTest {
 
   private TaskInstance task;
 
+  @Mock
+  private Principal principal;
+
+
   @BeforeEach
   void setUp() {
+    when(principal.getName()).thenReturn("current-user");
+
     task = TaskInstance.builder()
         .id(Identifier.generate())
         .taskKey(Code.create("T1"))
@@ -48,7 +57,7 @@ class TaskInstanceTest {
   @Test
   void testClaim_ShouldGenerateClaimEvent() {
     task.create();
-    task.claim("Claiming task");
+    task.claim(Code.create("current-user"),"Claiming task");
 
     assertEquals(TaskInstanceStatus.ASSIGNED, task.getStatus());
     assertEquals(1, task.getTaskInstanceEvents().size());
@@ -60,13 +69,13 @@ class TaskInstanceTest {
 
   @Test
   void testAssign_ShouldThrowIfUserIsNull() {
-    assertThrows(IllegalStateException.class, () -> task.assign(null, "note"));
+    assertThrows(IllegalStateException.class, () -> task.assign(Code.create("current-user"), Code.create("demo@nosi.cv"),"note"));
   }
 
   @Test
   void testComplete_ShouldGenerateCompleteEvent() {
     task.create();
-    task.complete();
+    task.complete(Code.create("current-user"));
 
     assertEquals(TaskInstanceStatus.COMPLETED, task.getStatus());
     assertNotNull(task.getEndedAt());

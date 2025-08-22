@@ -5,7 +5,6 @@ import cv.igrp.platform.process.management.shared.application.constants.TaskInst
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import cv.igrp.platform.process.management.shared.domain.models.Name;
-import cv.igrp.platform.process.management.shared.util.TempUtil;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -28,7 +27,7 @@ public class TaskInstance {
   private final String searchTerms;
   private TaskInstanceStatus status;
   private LocalDateTime startedAt;
-  private Code startedBy;
+  private final Code startedBy;
   private LocalDateTime assignedAt;
   private Code assignedBy;
   private LocalDateTime endedAt;
@@ -97,50 +96,49 @@ public class TaskInstance {
       if(processNumber==null) {
         throw new IllegalStateException("ProcessNumber cannot be null!");
       }
+      if(startedBy==null) {
+        throw new IllegalStateException("User cannot be null!");
+      }
       this.status = TaskInstanceStatus.CREATED;
       if(startedAt==null)
           this.startedAt = LocalDateTime.now();
-      this.startedBy = TempUtil.getCurrentUser();//todo remove
-      createTaskInstanceEvent(TaskEventType.CREATE,null);
+      createTaskInstanceEvent(TaskEventType.CREATE,this.startedBy,null);
   }
 
 
-  public void claim(String note) {
+  public void claim(Code user, String note) {
+      this.assignedBy = Objects.requireNonNull(user, "User cannot be null!");
       this.status = TaskInstanceStatus.ASSIGNED;
       this.assignedAt = LocalDateTime.now();
-      this.assignedBy = TempUtil.getCurrentUser();//todo remove
-      createTaskInstanceEvent(TaskEventType.CLAIM,note);
+      createTaskInstanceEvent(TaskEventType.CLAIM,user,note);
   }
 
 
-  public void assign(Code user, String note) {
-      if(user==null) {
-        throw new IllegalStateException("The assigned by (user) cannot be null!");
-      }
+  public void assign(Code user, Code userToAssign, String note) {
+      this.assignedBy = Objects.requireNonNull(userToAssign, "User to Assign cannot be null!");
       this.status = TaskInstanceStatus.ASSIGNED;
       this.assignedAt = LocalDateTime.now();
-      this.assignedBy = user;
-      createTaskInstanceEvent(TaskEventType.ASSIGN,note);
+      createTaskInstanceEvent(TaskEventType.ASSIGN,user,note);
   }
 
 
-  public void unClaim(String note) {
+  public void unClaim(Code user, String note) {
       this.status = TaskInstanceStatus.CREATED;
       this.assignedAt = null;
       this.assignedBy = null;
-      createTaskInstanceEvent(TaskEventType.UNCLAIM,note);
+      createTaskInstanceEvent(TaskEventType.UNCLAIM, user, note);
   }
 
 
-  public void complete() {
-      this.status = TaskInstanceStatus.COMPLETED;
+  public void complete(Code user) {
+      this.endedBy = Objects.requireNonNull(user, "Current User cannot be null!");
       this.endedAt = LocalDateTime.now();
-      this.endedBy = TempUtil.getCurrentUser();//todo remove
-      createTaskInstanceEvent(TaskEventType.COMPLETE,null);
+      this.status = TaskInstanceStatus.COMPLETED;
+      createTaskInstanceEvent(TaskEventType.COMPLETE,user,null);
   }
 
 
-  private void createTaskInstanceEvent(TaskEventType eventType, String note) {
+  private void createTaskInstanceEvent(TaskEventType eventType, Code user, String note) {
       this.taskInstanceEvents.add(
           TaskInstanceEvent.builder()
           .taskInstanceId(Identifier.generate())
@@ -148,7 +146,7 @@ public class TaskInstance {
           .eventType(eventType)
           .status(this.status)
           .performedAt(LocalDateTime.now())
-          .performedBy(TempUtil.getCurrentUser()) //todo remove
+          .performedBy(Objects.requireNonNull(user, "Performing User cannot be null!"))
           .note(note!=null && !note.isBlank() ? note.trim() : null)
           .build());
   }
@@ -158,7 +156,8 @@ public class TaskInstance {
                                    Code processName,
                                    Code businessKey,
                                    Identifier processInstanceId,
-                                   Code formKey
+                                   Code formKey,
+                                   Code user
   ) {
       return TaskInstance.builder()
           .id(this.id)
@@ -172,6 +171,7 @@ public class TaskInstance {
           .processName(processName)
           .businessKey(businessKey)
           .processInstanceId(processInstanceId)
+          .startedBy(user)
           .build();
   }
 }

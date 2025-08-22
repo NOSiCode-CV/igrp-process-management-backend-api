@@ -200,9 +200,8 @@ public class TaskInstanceMapper {
   }
 
 
-  public TaskInstanceFilter toFilter(GetAllMyTasksQuery query, Code user) {
+  public TaskInstanceFilter toFilter(GetAllMyTasksQuery query) {
     return TaskInstanceFilter.builder()
-        .user(user)
         .processInstanceId(query.getProcessInstanceId() != null ? Identifier.create(query.getProcessInstanceId()) : null)
         .processNumber(query.getProcessNumber() != null ? Code.create(query.getProcessNumber()) : null)
         .processName(query.getProcessName() != null ? query.getProcessName().trim() : null)

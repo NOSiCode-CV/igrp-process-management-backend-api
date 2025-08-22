@@ -52,13 +52,7 @@ public class ProcessInstanceService {
 
     ProcessInstance runningProcessInstance = processInstanceRepository.save(processInstance);
 
-    taskInstanceService.createTaskInstancesByProcess(
-        runningProcessInstance.getId(),
-        runningProcessInstance.getNumber(),
-        runningProcessInstance.getName(),
-        runningProcessInstance.getBusinessKey(),
-        runningProcessInstance.getApplicationBase()
-    );
+    taskInstanceService.createTaskInstancesByProcess(runningProcessInstance);
 
     if(process.getStatus() == ProcessInstanceStatus.COMPLETED){
       runningProcessInstance.complete(

@@ -10,7 +10,6 @@ import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import cv.igrp.platform.process.management.shared.domain.models.Name;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
-import cv.igrp.platform.process.management.shared.util.TempUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -60,7 +59,7 @@ class ListTaskInstancesQueryHandlerTest {
             .applicationBase(Code.create("app_test"))
             .status(TaskInstanceStatus.CREATED)
             .startedAt(LocalDateTime.now())
-            .startedBy(TempUtil.getCurrentUser())
+            .startedBy(Code.create("demo@nosi.cv"))
             .searchTerms("abc")
             .build()
     );

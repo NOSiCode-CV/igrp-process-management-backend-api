@@ -21,7 +21,7 @@ public class AssignTaskCommandHandler implements CommandHandler<AssignTaskComman
     private final TaskInstanceService taskInstanceService;
 
     public AssignTaskCommandHandler(TaskInstanceService taskInstanceService) {
-    this.taskInstanceService = taskInstanceService;
+        this.taskInstanceService = taskInstanceService;
     }
 
     @IgrpCommandHandler

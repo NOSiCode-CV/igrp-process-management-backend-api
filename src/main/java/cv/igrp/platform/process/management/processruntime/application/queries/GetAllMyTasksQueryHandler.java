@@ -7,7 +7,6 @@ import cv.igrp.platform.process.management.processruntime.domain.models.TaskInst
 import cv.igrp.platform.process.management.processruntime.domain.service.TaskInstanceService;
 import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
-import cv.igrp.platform.process.management.shared.util.TempUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +22,7 @@ public class GetAllMyTasksQueryHandler implements QueryHandler<GetAllMyTasksQuer
     private final TaskInstanceMapper taskInstanceMapper;
 
     public GetAllMyTasksQueryHandler(TaskInstanceService taskInstanceService,
-                                         TaskInstanceMapper taskInstanceMapper) {
+                                     TaskInstanceMapper taskInstanceMapper) {
         this.taskInstanceService = taskInstanceService;
         this.taskInstanceMapper = taskInstanceMapper;
     }
@@ -31,11 +30,7 @@ public class GetAllMyTasksQueryHandler implements QueryHandler<GetAllMyTasksQuer
     @IgrpQueryHandler
     @Transactional(readOnly = true)
     public ResponseEntity<TaskInstanceListPageDTO> handle(GetAllMyTasksQuery query) {
-         PageableLista<TaskInstance> taskInstances =  taskInstanceService
-             .getAllMyTasks( taskInstanceMapper.toFilter(
-                 query,
-                 TempUtil.getCurrentUser() //todo remove
-             ));
+         PageableLista<TaskInstance> taskInstances =  taskInstanceService.getAllMyTasks( taskInstanceMapper.toFilter(query));
          return ResponseEntity.ok(taskInstanceMapper.toTaskInstanceListPageDTO(taskInstances));
     }
 
