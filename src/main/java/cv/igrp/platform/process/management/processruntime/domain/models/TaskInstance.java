@@ -10,10 +10,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @Getter
 public class TaskInstance {
@@ -81,7 +78,7 @@ public class TaskInstance {
       this.assignedBy = assignedBy;
       this.endedAt = endedAt;
       this.endedBy = endedBy;
-      this.variables = taskVariables!=null ? taskVariables : Map.of();
+      this.variables = taskVariables!=null ? taskVariables : new HashMap<>();
       this.taskInstanceEvents = taskInstanceEvents != null ? taskInstanceEvents : new ArrayList<>();
       this.processKey = processKey;
   }
@@ -164,12 +161,12 @@ public class TaskInstance {
                                    Code formKey
   ) {
       return TaskInstance.builder()
-          .processNumber(this.processNumber)
+          .id(this.id)
           .taskKey(this.taskKey)
           .externalId(this.externalId)
           .name(this.name)
+          .processNumber(this.processNumber)
           .startedAt(this.startedAt)
-          .id(this.id)
           .formKey(formKey!=null ? formKey : this.formKey)
           .applicationBase(applicationBase)
           .processName(processName)

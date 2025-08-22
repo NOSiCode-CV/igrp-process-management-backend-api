@@ -116,8 +116,8 @@ public class TaskInstanceMapper {
         .assignedBy(taskInstanceEntity.getAssignedBy()==null?null:Code.create(taskInstanceEntity.getAssignedBy()))
         .endedAt(taskInstanceEntity.getEndedAt())
         .endedBy(taskInstanceEntity.getEndedBy()==null?null:Code.create(taskInstanceEntity.getEndedBy()))
-        .taskInstanceEvents( withEvents ?
-            taskInstanceEntity.getTaskinstanceevents().stream().map(eventMapper::toEventModel).toList()
+        .taskInstanceEvents( withEvents
+            ? new ArrayList<>(taskInstanceEntity.getTaskinstanceevents().stream().map(eventMapper::toEventModel).toList())
             : new ArrayList<>()
         ).build();
   }
