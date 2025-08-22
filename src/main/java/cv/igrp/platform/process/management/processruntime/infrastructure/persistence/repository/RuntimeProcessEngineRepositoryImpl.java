@@ -119,7 +119,7 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
       taskActionService.completeTask(taskInstanceId, variables, "user");
     } catch (Exception e) {
       LOGGER.error("Failed to complete task: {}", taskInstanceId, e);
-      throw new RuntimeProcessEngineException("Failed to complete task", e);
+      throw new RuntimeProcessEngineException("Failed to complete task. " + e.getMessage(), e);
     }
   }
 
@@ -129,7 +129,7 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
       taskActionService.claimTask(taskInstanceId, userId);
     } catch (Exception e) {
       LOGGER.error("Failed to claim task: {}", taskInstanceId, e);
-      throw new RuntimeProcessEngineException("Failed to claim task", e);
+      throw new RuntimeProcessEngineException("Failed to claim task. " + e.getMessage() , e);
     }
   }
 
@@ -139,7 +139,7 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
       taskActionService.unclaimTask(taskInstanceId);
     } catch (Exception e) {
       LOGGER.error("Failed to unclaim task: {}", taskInstanceId, e);
-      throw new RuntimeProcessEngineException("Failed to unclaim task", e);
+      throw new RuntimeProcessEngineException("Failed to unclaim task. " + e.getMessage(), e);
     }
   }
 
@@ -149,7 +149,7 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
       taskActionService.assignTask(taskId, userId, reason);
     } catch (Exception e) {
       LOGGER.error("Failed to assign task: {}", taskId, e);
-      throw new RuntimeProcessEngineException("Failed to assign task", e);
+      throw new RuntimeProcessEngineException("Failed to assign task. " + e.getMessage(), e);
     }
   }
 
