@@ -1,40 +1,66 @@
 package cv.igrp.platform.process.management.processruntime.application.commands;
 
-import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
-
+import cv.igrp.platform.process.management.processruntime.domain.service.TaskInstanceService;
+import cv.igrp.platform.process.management.shared.domain.models.Code;
+import cv.igrp.platform.process.management.shared.security.UserContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
-import cv.igrp.platform.process.management.processruntime.application.commands.*;
-import cv.igrp.platform.process.management.processruntime.application.commands.*;
+
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class UnClaimTaskCommandHandlerTest {
 
-    @InjectMocks
-    private UnClaimTaskCommandHandler unClaimTaskCommandHandler;
+  @Mock
+  private TaskInstanceService taskInstanceService;
 
-    @BeforeEach
-    void setUp() {
-      // TODO: initialize mock dependencies if needed
-    }
+  @Mock
+  private UserContext userContext;
 
-    @Test
-    void testHandle() {
-        // TODO: Implement unit test for handle method
-        // Example:
-        // Given
-        // UnClaimTaskCommand command = new UnClaimTaskCommand(...);
-        //
-        // When
-        // ResponseEntity<String> response = unClaimTaskCommandHandler.handle(command);
-        //
-        // Then
-        // assertNotNull(response);
-        // assertEquals(..., response.getBody());
-    }
+  @InjectMocks
+  private UnClaimTaskCommandHandler unClaimTaskCommandHandler;
+
+  private UUID taskId;
+  private String note;
+
+  @BeforeEach
+  void setUp() {
+    taskId = UUID.randomUUID();
+    note = "This is a note";
+    when(userContext.getCurrentUser()).thenReturn(Code.create("current-user"));
+  }
+
+  @Test
+  void handle_shouldCallClaimTaskServiceAndReturnNoContent() {
+    // Given
+    UnClaimTaskCommand command = new UnClaimTaskCommand();
+    command.setId(taskId.toString());
+    command.setNote(note);
+
+    // When
+    ResponseEntity<String> response = unClaimTaskCommandHandler.handle(command);
+
+    // Then
+    assertNotNull(response);
+    assertEquals(204, response.getStatusCodeValue()); // noContent
+
+    // Checks if the service was called with the correct parameters
+    verify(taskInstanceService).unClaimTask(
+        eq(Code.create("current-user")),
+        eq(taskId),
+        eq(note)
+    );
+
+    // Any other interaction
+    verifyNoMoreInteractions(taskInstanceService, userContext);
+  }
 }

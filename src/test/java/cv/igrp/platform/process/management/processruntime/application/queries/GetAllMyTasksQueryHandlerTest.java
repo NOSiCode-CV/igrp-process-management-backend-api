@@ -2,17 +2,34 @@ package cv.igrp.platform.process.management.processruntime.application.queries;
 
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceListPageDTO;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
+import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceFilter;
 import cv.igrp.platform.process.management.processruntime.domain.service.TaskInstanceService;
 import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
+import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
+import cv.igrp.platform.process.management.shared.domain.models.Code;
+import cv.igrp.platform.process.management.shared.domain.models.Identifier;
+import cv.igrp.platform.process.management.shared.domain.models.Name;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
+import cv.igrp.platform.process.management.shared.security.UserContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
-import java.security.Principal;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class GetAllMyTasksQueryHandlerTest {
@@ -24,7 +41,7 @@ class GetAllMyTasksQueryHandlerTest {
   private TaskInstanceMapper taskInstanceMapper;
 
   @Mock
-  private Principal principal;
+  private UserContext userContext;
 
   @InjectMocks
   private GetAllMyTasksQueryHandler getAllMyTasksQueryHandler;
@@ -36,60 +53,65 @@ class GetAllMyTasksQueryHandlerTest {
   @BeforeEach
   void setUp() {
 
-//    when(principal.getName()).thenReturn("current-user");
-//
-//    query = new GetAllMyTasksQuery();
-//
-//    List<TaskInstance> content = List.of(
-//        TaskInstance.builder().processNumber(Code.create("proc_num_test"))
-//        .taskKey(Code.create("task_key_test"))
-//        .externalId(Code.create(UUID.randomUUID().toString()))
-//        .name(Name.create("My task Name"))
-//        .id(Identifier.create(UUID.randomUUID()))
-//        .processInstanceId(Identifier.create(UUID.randomUUID()))
-//        .processName(Code.create("My Pro test v1"))
-//        .applicationBase(Code.create("app_test"))
-//        .status(TaskInstanceStatus.CREATED)
-//        .startedAt(LocalDateTime.now())
-//        .startedBy(Code.create("current-user"))
-//        .searchTerms("abc")
-//        .build()
-//    );
-//
-//    pageableListaMock = new PageableLista<>(
-//        0,      // pageNumber
-//        10,     // pageSize
-//        1L,     // totalElements
-//        1,      // totalPages
-//        true,   // last
-//        true,   // first
-//        content // content
-//    );
-//
-//    pageDTO = new TaskInstanceListPageDTO();
-//
-//    when(taskInstanceMapper.toFilter(eq(query),eq(Code.create("current-user"))))
-//        .thenReturn(TaskInstanceFilter.builder().status(TaskInstanceStatus.CREATED).build());
-//
-//    when(taskInstanceService.getAllMyTasks(any(TaskInstanceFilter.class)))
-//        .thenReturn(pageableListaMock);
-//
-//    when(taskInstanceMapper.toTaskInstanceListPageDTO(pageableListaMock))
-//        .thenReturn(pageDTO);
+    query = new GetAllMyTasksQuery();
+
+    // Mock do usuário logado
+    when(userContext.getCurrentUser()).thenReturn(Code.create("current-user"));
+
+    // Mock do conteúdo
+    List<TaskInstance> content = List.of(
+        TaskInstance.builder()
+            .processNumber(Code.create("proc_num_test"))
+            .taskKey(Code.create("task_key_test"))
+            .externalId(Code.create(UUID.randomUUID().toString()))
+            .name(Name.create("My task Name"))
+            .id(Identifier.create(UUID.randomUUID()))
+            .processInstanceId(Identifier.create(UUID.randomUUID()))
+            .processName(Code.create("My Pro test v1"))
+            .applicationBase(Code.create("app_test"))
+            .status(TaskInstanceStatus.CREATED)
+            .startedAt(LocalDateTime.now())
+            .startedBy(Code.create("current-user"))
+            .searchTerms("abc")
+            .build()
+    );
+
+    pageableListaMock = new PageableLista<>(
+        0,      // pageNumber
+        10,     // pageSize
+        1L,     // totalElements
+        1,      // totalPages
+        true,   // last
+        true,   // first
+        content // content
+    );
+
+    pageDTO = new TaskInstanceListPageDTO();
+
+    // Mocks do mapper
+    when(taskInstanceMapper.toFilter(eq(query)))
+        .thenReturn(TaskInstanceFilter.builder()
+            .user(Code.create("current-user"))
+            .status(TaskInstanceStatus.CREATED).build());
+
+    when(taskInstanceService.getAllTaskInstances(any(TaskInstanceFilter.class)))
+        .thenReturn(pageableListaMock);
+
+    when(taskInstanceMapper.toTaskInstanceListPageDTO(pageableListaMock))
+        .thenReturn(pageDTO);
   }
 
   @Test
   void testHandleGetAllMyTasksQuery() {
 
-//    ResponseEntity<TaskInstanceListPageDTO> response = getAllMyTasksQueryHandler.handle(query);
-//
-//    assertNotNull(response);
-//    assertEquals(pageDTO, response.getBody());
-//    assertEquals(HttpStatus.OK, response.getStatusCode());
-//
-//    verify(taskInstanceMapper).toFilter(eq(query),eq(Code.create("current-user")));
-//    verify(taskInstanceService).getAllMyTasks(any(TaskInstanceFilter.class));
-//    verify(taskInstanceMapper).toTaskInstanceListPageDTO(pageableListaMock);
-  }
+    ResponseEntity<TaskInstanceListPageDTO> response = getAllMyTasksQueryHandler.handle(query);
 
+    assertNotNull(response);
+    assertEquals(pageDTO, response.getBody());
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+
+    verify(taskInstanceMapper).toFilter(eq(query));
+    verify(taskInstanceService).getAllTaskInstances(any(TaskInstanceFilter.class));
+    verify(taskInstanceMapper).toTaskInstanceListPageDTO(pageableListaMock);
+  }
 }

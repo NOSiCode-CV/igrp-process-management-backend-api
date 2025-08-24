@@ -1,34 +1,88 @@
 package cv.igrp.platform.process.management.processruntime.application.commands;
 
+import cv.igrp.platform.process.management.processruntime.application.dto.CompleteTaskDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.TaskVariableDTO;
+import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
+import cv.igrp.platform.process.management.processruntime.domain.service.TaskInstanceService;
+import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
+import cv.igrp.platform.process.management.shared.domain.models.Code;
+import cv.igrp.platform.process.management.shared.security.UserContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.ResponseEntity;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class CompleteTaskCommandHandlerTest {
 
-    @InjectMocks
-    private CompleteTaskCommandHandler completeTaskCommandHandler;
+  @Mock
+  private TaskInstanceService taskInstanceService;
 
-    @BeforeEach
-    void setUp() {
-      // TODO: initialize mock dependencies if needed
-    }
+  @Mock
+  private TaskInstanceMapper taskInstanceMapper;
 
-    @Test
-    void testHandle() {
-        // TODO: Implement unit test for handle method
-        // Example:
-        // Given
-        // CompleteTaskCommand command = new CompleteTaskCommand(...);
-        //
-        // When
-        // ResponseEntity<TaskInstanceDTO> response = completeTaskCommandHandler.handle(command);
-        //
-        // Then
-        // assertNotNull(response);
-        // assertEquals(..., response.getBody());
-    }
+  @Mock
+  private UserContext userContext;
+
+  @InjectMocks
+  private CompleteTaskCommandHandler completeTaskCommandHandler;
+
+  private UUID taskId;
+  private Map<String,Object> variables;
+
+  @BeforeEach
+  void setUp() {
+    taskId = UUID.randomUUID();
+    variables = new HashMap<>();
+    variables.put("nome", "Maria");
+    variables.put("idade", Integer.valueOf(35));
+
+    when(userContext.getCurrentUser()).thenReturn(Code.create("current-user"));
+  }
+
+  @Test
+  void handle_shouldCompleteTaskAndReturnDTO() {
+    // Given
+    CompleteTaskDTO dto = new CompleteTaskDTO();
+    dto.setVariables(variables.entrySet().stream()
+        .map(e -> new TaskVariableDTO(e.getKey(), e.getValue()))
+        .toList());
+
+    CompleteTaskCommand command = new CompleteTaskCommand();
+    command.setId(taskId.toString());
+    command.setCompletetaskdto(dto);
+
+    TaskInstance taskInstance = mock(TaskInstance.class);
+    TaskInstanceDTO taskInstanceDTO = new TaskInstanceDTO();
+
+    when(taskInstanceService.completeTask(eq(Code.create("current-user")), eq(taskId), anyMap()))
+        .thenReturn(taskInstance);
+    when(taskInstanceMapper.toTaskInstanceDTO(taskInstance)).thenReturn(taskInstanceDTO);
+
+    // When
+    ResponseEntity<TaskInstanceDTO> response = completeTaskCommandHandler.handle(command);
+
+    // Then
+    assertNotNull(response);
+    assertEquals(200, response.getStatusCodeValue());
+    assertEquals(taskInstanceDTO, response.getBody());
+
+    verify(taskInstanceService).completeTask(eq(Code.create("current-user")), eq(taskId), anyMap());
+    verify(taskInstanceMapper).toTaskInstanceDTO(taskInstance);
+    verify(userContext).getCurrentUser();
+    verifyNoMoreInteractions(taskInstanceService, taskInstanceMapper, userContext);
+  }
 }
