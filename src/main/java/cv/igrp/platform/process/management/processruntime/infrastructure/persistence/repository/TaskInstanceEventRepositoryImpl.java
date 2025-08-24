@@ -17,20 +17,20 @@ public class TaskInstanceEventRepositoryImpl implements TaskInstanceEventReposit
 
   public TaskInstanceEventRepositoryImpl(TaskInstanceEventEntityRepository taskInstanceEventEntityRepository,
                                          TaskInstanceEventMapper eventMapper) {
-      this.taskInstanceEventEntityRepository = taskInstanceEventEntityRepository;
-      this.eventMapper = eventMapper;
+    this.taskInstanceEventEntityRepository = taskInstanceEventEntityRepository;
+    this.eventMapper = eventMapper;
   }
 
 
   @Override
   public Optional<TaskInstanceEvent> findById(UUID id) {
-      return taskInstanceEventEntityRepository.findById(id).map(eventMapper::toEventModel);
+    return taskInstanceEventEntityRepository.findById(id).map(eventMapper::toEventModel);
   }
 
 
   @Override
   public void save(TaskInstanceEvent taskInstanceEvent) {
-      taskInstanceEventEntityRepository.save(eventMapper.toEventEntity(taskInstanceEvent));
+    taskInstanceEventEntityRepository.save(eventMapper.toEventEntity(taskInstanceEvent));
   }
 
 

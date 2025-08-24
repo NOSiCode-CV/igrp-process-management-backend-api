@@ -145,8 +145,7 @@ public class TaskInstance {
           .taskInstanceId(this.id)
           .eventType(eventType)
           .status(this.status)
-          .performedAt(LocalDateTime.now())
-          .performedBy(Objects.requireNonNull(user, "Performing User cannot be null!"))
+          .performedBy(user)
           .note(note!=null && !note.isBlank() ? note.trim() : null)
           .build());
   }

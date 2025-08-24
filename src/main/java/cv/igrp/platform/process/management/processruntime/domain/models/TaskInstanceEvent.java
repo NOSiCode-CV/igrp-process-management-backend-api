@@ -32,19 +32,16 @@ public class TaskInstanceEvent {
                 TaskInstanceStatus status
     ) {
         this.id = id == null ? Identifier.generate() : id;
-        this.taskInstanceId = taskInstanceId;
+        this.taskInstanceId = Objects.requireNonNull(taskInstanceId, "TaskInstanceId cannot be null");
         this.eventType = Objects.requireNonNull(eventType, "EventType cannot be null");
-        this.performedAt = Objects.requireNonNull(performedAt, "PerformedAt cannot be null");
+        this.performedAt = performedAt;
         this.performedBy = Objects.requireNonNull(performedBy, "PerformedBy cannot be null");
         this.note = note!=null && !note.isBlank() ? note.trim() : null;
         this.status = Objects.requireNonNull(status, "Status cannot be null");
     }
 
 
-    public void validate() {
-        if(this.performedBy == null) {
-            throw new IllegalStateException("The performed by (user) of the task instance event cannot be null or blank");
-        }
+    public void create() {
         this.performedAt = LocalDateTime.now();
     }
 
