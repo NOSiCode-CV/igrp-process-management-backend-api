@@ -55,9 +55,9 @@ public class UnClaimTaskCommandHandlerTest {
 
     // Checks if the service was called with the correct parameters
     verify(taskInstanceService).unClaimTask(
-        eq(Code.create("current-user")),
         eq(taskId),
-        eq(note)
+        eq(note),
+        eq(Code.create("current-user"))
     );
 
     // Any other interaction

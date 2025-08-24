@@ -68,7 +68,7 @@ public class CompleteTaskCommandHandlerTest {
     TaskInstance taskInstance = mock(TaskInstance.class);
     TaskInstanceDTO taskInstanceDTO = new TaskInstanceDTO();
 
-    when(taskInstanceService.completeTask(eq(Code.create("current-user")), eq(taskId), anyMap()))
+    when(taskInstanceService.completeTask(eq(taskId), anyMap(),eq(Code.create("current-user"))))
         .thenReturn(taskInstance);
     when(taskInstanceMapper.toTaskInstanceDTO(taskInstance)).thenReturn(taskInstanceDTO);
 
@@ -80,7 +80,7 @@ public class CompleteTaskCommandHandlerTest {
     assertEquals(200, response.getStatusCodeValue());
     assertEquals(taskInstanceDTO, response.getBody());
 
-    verify(taskInstanceService).completeTask(eq(Code.create("current-user")), eq(taskId), anyMap());
+    verify(taskInstanceService).completeTask(eq(taskId), anyMap(),eq(Code.create("current-user")));
     verify(taskInstanceMapper).toTaskInstanceDTO(taskInstance);
     verify(userContext).getCurrentUser();
     verifyNoMoreInteractions(taskInstanceService, taskInstanceMapper, userContext);

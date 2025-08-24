@@ -33,10 +33,10 @@ public class ClaimTaskCommandHandler implements CommandHandler<ClaimTaskCommand,
     LOGGER.info("Start of ClaimTask id: {}",command.getId());
 
     taskInstanceService.claimTask(
-        userContext.getCurrentUser(),
         UUID.fromString(command.getId()),
-        command.getNote()
-    );
+        command.getNote(),
+        userContext.getCurrentUser()
+        );
 
     LOGGER.info("End of ClaimTask id: {}",command.getId());
 

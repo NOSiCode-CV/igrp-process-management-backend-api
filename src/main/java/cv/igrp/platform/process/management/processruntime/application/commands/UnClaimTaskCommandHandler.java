@@ -33,10 +33,10 @@ public class UnClaimTaskCommandHandler implements CommandHandler<UnClaimTaskComm
     LOGGER.info("Start of UnClaimTask id: {}",command.getId());
 
     taskInstanceService.unClaimTask(
-        userContext.getCurrentUser(),
         UUID.fromString(command.getId()),
-        command.getNote()
-    );
+        command.getNote(),
+        userContext.getCurrentUser()
+        );
 
     LOGGER.info("End of UnClaimTask id: {}",command.getId());
 

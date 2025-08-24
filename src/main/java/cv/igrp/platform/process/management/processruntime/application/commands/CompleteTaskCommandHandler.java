@@ -47,10 +47,10 @@ public class CompleteTaskCommandHandler implements CommandHandler<CompleteTaskCo
         }
 
         final var taskInstanceResp =  taskInstanceService.completeTask(
-            userContext.getCurrentUser(),
             UUID.fromString(command.getId()),
-            variables
-        );
+            variables,
+            userContext.getCurrentUser()
+            );
 
         LOGGER.info("End of CompleteTask id: {}",command.getId());
 
