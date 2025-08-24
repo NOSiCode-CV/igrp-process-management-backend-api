@@ -1,18 +1,32 @@
 package cv.igrp.platform.process.management.processruntime.domain.service;
 
+import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstance;
+import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
+import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceEvent;
+import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceFilter;
 import cv.igrp.platform.process.management.processruntime.domain.repository.ProcessInstanceRepository;
 import cv.igrp.platform.process.management.processruntime.domain.repository.RuntimeProcessEngineRepository;
 import cv.igrp.platform.process.management.processruntime.domain.repository.TaskInstanceEventRepository;
 import cv.igrp.platform.process.management.processruntime.domain.repository.TaskInstanceRepository;
+import cv.igrp.platform.process.management.shared.application.constants.ProcessInstanceStatus;
+import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.platform.process.management.shared.domain.models.Code;
+import cv.igrp.platform.process.management.shared.domain.models.Identifier;
+import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
+import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.ProcessArtifactEntity;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.repository.ProcessArtifactEntityRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.security.Principal;
+import java.util.*;
 
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 class TaskInstanceServiceTest {
 
@@ -44,7 +58,7 @@ class TaskInstanceServiceTest {
   }
 
 
-  /*@Test
+  @Test
   void testCreateTaskInstancesByProcess() {
     // Arrange
     Identifier processInstanceId = Identifier.create(UUID.randomUUID());
@@ -64,7 +78,7 @@ class TaskInstanceServiceTest {
 
     // Mock runtime active tasks
     TaskInstance mockTask = mock(TaskInstance.class);
-    when(mockTask.withIdentity(any(), any(), any(), any(), any(), any()))
+    when(mockTask.withProperties(any(), any(), any(), any(), any(), any()))
         .thenReturn(mockTask);
     when(mockTask.getTaskKey()).thenReturn(Code.create("task-1"));
     when(mockTask.getTaskInstanceEvents())
@@ -84,7 +98,7 @@ class TaskInstanceServiceTest {
 
     // Assert
     verify(mockTask, times(1)).create();
-    verify(mockTask, times(1)).withIdentity(
+    verify(mockTask, times(1)).withProperties(
         eq(applicationBase),
         eq(Code.create(processName)),
         eq(businessKey),
@@ -137,7 +151,7 @@ class TaskInstanceServiceTest {
 
     when(taskInstanceService.getByIdWihEvents(taskId)).thenReturn(mockTask);
 
-    taskInstanceService.claimTask(taskId, Code.create("current-user"), note);
+    taskInstanceService.claimTask(Code.create("current-user"), taskId, note);
 
     verify(mockTask, times(1)).claim(Code.create("current-user"),note);
 
@@ -163,7 +177,7 @@ class TaskInstanceServiceTest {
 
     when(taskInstanceService.getByIdWihEvents(taskId)).thenReturn(mockTask);
 
-    taskInstanceService.assignTask(taskId, Code.create("current-user"), userToAssign, note);
+    taskInstanceService.assignTask(Code.create("current-user"), taskId, userToAssign, note);
 
     verify(mockTask, times(1)).assign(Code.create("current-user"), userToAssign, note);
 
@@ -188,7 +202,7 @@ class TaskInstanceServiceTest {
 
     when(taskInstanceService.getByIdWihEvents(taskId)).thenReturn(mockTask);
 
-    taskInstanceService.unClaimTask(taskId, Code.create("current-user"), note);
+    taskInstanceService.unClaimTask(Code.create("current-user"), taskId, note);
 
     verify(mockTask, times(1)).unClaim(Code.create("current-user"), note);
 
@@ -202,7 +216,7 @@ class TaskInstanceServiceTest {
 
 
   @Test
-  void completeTask_shouldCompleteAndCreateNextTasks() {/*
+  void completeTask_shouldCompleteAndCreateNextTasks() {
     // Arrange
     UUID taskId = UUID.randomUUID();
     Map<String,Object> variables = Map.of("key","value");
@@ -244,10 +258,11 @@ class TaskInstanceServiceTest {
     // Spy para verificar createTask()
     TaskInstanceService spyService = spy(taskInstanceService);
 
-    doNothing().when(spyService).createTask(any(TaskInstance.class));
+    verify(taskInstanceRepository).create(any(TaskInstance.class));
+    verify(taskInstanceEventRepository).save(any());
 
     // Act
-    TaskInstance result = spyService.completeTask(taskId, Code.create("current-user"), variables);
+    TaskInstance result = spyService.completeTask(Code.create("current-user"), taskId, variables);
 
     // Assert
     verify(runtimeProcessEngineRepository, times(1)).completeTask("EXT-123", variables);
@@ -256,10 +271,11 @@ class TaskInstanceServiceTest {
     verify(taskInstanceEventRepository, times(1)).save(any());
 
     // Verifica que as tasks ativas foram criadas
-    verify(spyService, times(1)).createTask(any(TaskInstance.class));
+    verify(taskInstanceRepository).create(any(TaskInstance.class));
+    verify(taskInstanceEventRepository).save(any());
 
-    assertEquals(mockTask, result);*/
-  /*}
+    assertEquals(mockTask, result);
+  }
 
 
   @Test
@@ -279,30 +295,6 @@ class TaskInstanceServiceTest {
     when(taskInstanceRepository.findAll(filter)).thenReturn(expected);
 
     PageableLista<TaskInstance> result = taskInstanceService.getAllTaskInstances(filter);
-
-    assertEquals(expected, result);
-    verify(taskInstanceRepository, times(1)).findAll(filter);
-  }
-
-
-  @Test
-  void getAllMyTasks_shouldReturnPageableList() {
-
-    TaskInstanceFilter filter = TaskInstanceFilter.builder()
-        .user(Code.create("current-user")).page(0).size(10).build();
-    PageableLista<TaskInstance> expected = PageableLista.<TaskInstance>builder()
-        .pageNumber(0)
-        .pageSize(10)
-        .totalElements(0L)
-        .totalPages(0)
-        .content(List.of())
-        .first(true)
-        .last(true)
-        .build();
-
-    when(taskInstanceRepository.findAll(filter)).thenReturn(expected);
-
-    PageableLista<TaskInstance> result = taskInstanceService.getAllMyTasks(filter);
 
     assertEquals(expected, result);
     verify(taskInstanceRepository, times(1)).findAll(filter);
@@ -331,5 +323,5 @@ class TaskInstanceServiceTest {
     verify(mockTask, times(1)).getExternalId();
     verify(runtimeProcessEngineRepository, times(1)).getTaskVariables("EXT-001");
   }
-*/
+
 }
