@@ -5,6 +5,7 @@ import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceDTO;
 import cv.igrp.platform.process.management.processruntime.domain.service.TaskInstanceService;
 import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
+import cv.igrp.platform.process.management.shared.security.UserContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -21,11 +22,13 @@ public class CompleteTaskCommandHandler implements CommandHandler<CompleteTaskCo
 
     private final TaskInstanceService taskInstanceService;
     private final TaskInstanceMapper taskInstanceMapper;
+  private final UserContext userContext;
 
     public CompleteTaskCommandHandler(TaskInstanceService taskInstanceService,
-                                      TaskInstanceMapper taskInstanceMapper) {
+                                      TaskInstanceMapper taskInstanceMapper, UserContext userContext) {
         this.taskInstanceService = taskInstanceService;
         this.taskInstanceMapper = taskInstanceMapper;
+      this.userContext = userContext;
     }
 
     @IgrpCommandHandler
@@ -44,6 +47,7 @@ public class CompleteTaskCommandHandler implements CommandHandler<CompleteTaskCo
         }
 
         final var taskInstanceResp =  taskInstanceService.completeTask(
+            userContext.getCurrentUser(),
             UUID.fromString(command.getId()),
             variables
         );

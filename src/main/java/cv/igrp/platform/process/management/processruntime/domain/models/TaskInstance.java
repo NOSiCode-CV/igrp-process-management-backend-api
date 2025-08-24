@@ -152,11 +152,11 @@ public class TaskInstance {
   }
 
 
-  public TaskInstance withIdentity(Code applicationBase,
+  public TaskInstance withProperties(Code applicationBase,
                                    Code processName,
                                    Code businessKey,
                                    Identifier processInstanceId,
-                                   Code formKey,
+                                   Code formKey, // if present overrides activity formKey
                                    Code user
   ) {
       return TaskInstance.builder()
