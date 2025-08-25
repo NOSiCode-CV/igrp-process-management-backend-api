@@ -139,10 +139,10 @@ public class TaskInstancesController {
     description = "POST method to handle operations for claimTask",
     responses = {
       @ApiResponse(
-          responseCode = "200",
+          responseCode = "204",
           description = "",
           content = @Content(
-              mediaType = "application/json",
+              mediaType = "",
               schema = @Schema(
                   implementation = TaskInstanceDTO.class,
                   type = "object")
@@ -151,7 +151,7 @@ public class TaskInstancesController {
     }
   )
 
-  public ResponseEntity<TaskInstanceDTO> claimTask(
+  public ResponseEntity<?> claimTask(
     @RequestParam(value = "note", required = false) String note, @PathVariable(value = "id") String id)
   {
 
@@ -159,7 +159,7 @@ public class TaskInstancesController {
 
       final var command = new ClaimTaskCommand(note, id);
 
-       ResponseEntity<TaskInstanceDTO> response = commandBus.send(command);
+       ResponseEntity<?> response = commandBus.send(command);
 
        LOGGER.debug("Operation finished");
 
@@ -176,10 +176,10 @@ public class TaskInstancesController {
     description = "POST method to handle operations for unClaimTask",
     responses = {
       @ApiResponse(
-          responseCode = "200",
+          responseCode = "204",
           description = "",
           content = @Content(
-              mediaType = "application/json",
+              mediaType = "",
               schema = @Schema(
                   implementation = TaskInstanceDTO.class,
                   type = "object")
@@ -188,7 +188,7 @@ public class TaskInstancesController {
     }
   )
 
-  public ResponseEntity<TaskInstanceDTO> unClaimTask(
+  public ResponseEntity<?> unClaimTask(
     @RequestParam(value = "note") String note, @PathVariable(value = "id") String id)
   {
 
@@ -196,7 +196,7 @@ public class TaskInstancesController {
 
       final var command = new UnClaimTaskCommand(note, id);
 
-       ResponseEntity<TaskInstanceDTO> response = commandBus.send(command);
+       ResponseEntity<?> response = commandBus.send(command);
 
        LOGGER.debug("Operation finished");
 
@@ -213,10 +213,10 @@ public class TaskInstancesController {
     description = "POST method to handle operations for assignTask",
     responses = {
       @ApiResponse(
-          responseCode = "200",
+          responseCode = "204",
           description = "",
           content = @Content(
-              mediaType = "application/json",
+              mediaType = "",
               schema = @Schema(
                   implementation = TaskInstanceDTO.class,
                   type = "object")
@@ -225,7 +225,7 @@ public class TaskInstancesController {
     }
   )
 
-  public ResponseEntity<TaskInstanceDTO> assignTask(
+  public ResponseEntity<?> assignTask(
     @RequestParam(value = "user") String user,
     @RequestParam(value = "note", required = false) String note, @PathVariable(value = "id") String id)
   {
@@ -234,7 +234,7 @@ public class TaskInstancesController {
 
       final var command = new AssignTaskCommand(user, note, id);
 
-       ResponseEntity<TaskInstanceDTO> response = commandBus.send(command);
+       ResponseEntity<?> response = commandBus.send(command);
 
        LOGGER.debug("Operation finished");
 

@@ -114,10 +114,10 @@
       "path": "{id}/claim",
       "method": "POST",
       "responses": {
-        "200": {
-          "name": "OK",
+        "204": {
+          "name": "nocontent",
           "content": {
-            "application/json": {
+            "": {
               "schema": {
                 "type": "TaskInstanceDTO",
                 "objectType": "dto",
@@ -151,10 +151,10 @@
       "path": "{id}/unclaim",
       "method": "POST",
       "responses": {
-        "200": {
-          "name": "OK",
+        "204": {
+          "name": "nocontent",
           "content": {
-            "application/json": {
+            "": {
               "schema": {
                 "type": "TaskInstanceDTO",
                 "objectType": "dto",
@@ -188,10 +188,10 @@
       "path": "{id}/assign",
       "method": "POST",
       "responses": {
-        "200": {
-          "name": "OK",
+        "204": {
+          "name": "nocontent",
           "content": {
-            "application/json": {
+            "": {
               "schema": {
                 "type": "TaskInstanceDTO",
                 "objectType": "dto",
