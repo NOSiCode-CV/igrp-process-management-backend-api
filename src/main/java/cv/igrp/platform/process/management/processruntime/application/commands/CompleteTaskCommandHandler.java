@@ -18,43 +18,44 @@ import java.util.UUID;
 @Component
 public class CompleteTaskCommandHandler implements CommandHandler<CompleteTaskCommand, ResponseEntity<TaskInstanceDTO>> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CompleteTaskCommandHandler.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CompleteTaskCommandHandler.class);
 
-    private final TaskInstanceService taskInstanceService;
-    private final TaskInstanceMapper taskInstanceMapper;
+  private final TaskInstanceService taskInstanceService;
+  private final TaskInstanceMapper taskInstanceMapper;
   private final UserContext userContext;
 
-    public CompleteTaskCommandHandler(TaskInstanceService taskInstanceService,
-                                      TaskInstanceMapper taskInstanceMapper, UserContext userContext) {
-        this.taskInstanceService = taskInstanceService;
-        this.taskInstanceMapper = taskInstanceMapper;
-      this.userContext = userContext;
+  public CompleteTaskCommandHandler(TaskInstanceService taskInstanceService,
+                                    TaskInstanceMapper taskInstanceMapper, UserContext userContext) {
+    this.taskInstanceService = taskInstanceService;
+    this.taskInstanceMapper = taskInstanceMapper;
+    this.userContext = userContext;
+  }
+
+
+  @IgrpCommandHandler
+  @Transactional
+  public ResponseEntity<TaskInstanceDTO> handle(CompleteTaskCommand command) {
+
+    final var currentUser = userContext.getCurrentUser();
+
+    LOGGER.info("User [{}] started completing task [{}]", currentUser.getValue(), command.getId());
+
+    final var variables = new HashMap<String,Object>();
+
+    if(command.getCompletetaskdto().getVariables()!=null && !command.getCompletetaskdto().getVariables().isEmpty()) {
+        command.getCompletetaskdto().getVariables().forEach( v -> variables.put(v.getName(), v.getValue()));
     }
 
-    @IgrpCommandHandler
-    @Transactional
-    public ResponseEntity<TaskInstanceDTO> handle(CompleteTaskCommand command) {
+    final var taskInstanceResp =  taskInstanceService.completeTask(
+        UUID.fromString(command.getId()),
+        currentUser,
+        variables
+    );
 
-        LOGGER.info("Start of CompleteTask id: {}",command.getId());
+    LOGGER.info("User [{}] finished completing task [{}]", currentUser.getValue(), command.getId());
 
-        final var variables = new HashMap<String,Object>();
+    return ResponseEntity.ok(taskInstanceMapper.toTaskInstanceDTO(taskInstanceResp));
 
-        if(command.getCompletetaskdto().getVariables()!=null
-            && !command.getCompletetaskdto().getVariables().isEmpty())
-        {
-            command.getCompletetaskdto().getVariables().forEach(
-                v -> variables.put(v.getName(), v.getValue()));
-        }
-
-        final var taskInstanceResp =  taskInstanceService.completeTask(
-            UUID.fromString(command.getId()),
-            variables,
-            userContext.getCurrentUser()
-            );
-
-        LOGGER.info("End of CompleteTask id: {}",command.getId());
-
-        return ResponseEntity.ok(taskInstanceMapper.toTaskInstanceDTO(taskInstanceResp));
-    }
+  }
 
 }

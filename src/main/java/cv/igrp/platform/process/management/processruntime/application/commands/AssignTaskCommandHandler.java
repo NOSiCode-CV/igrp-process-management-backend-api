@@ -31,18 +31,21 @@ public class AssignTaskCommandHandler implements CommandHandler<AssignTaskComman
   @Transactional
   public ResponseEntity<String> handle(AssignTaskCommand command) {
 
-    LOGGER.info("Start of AssignTask id: {}",command.getId());
+    final var currentUser = userContext.getCurrentUser();
+
+    LOGGER.info("User [{}] started assigning task [{}] to user [{}]", currentUser.getValue(), command.getId(), command.getUser());
 
     taskInstanceService.assignTask(
         UUID.fromString(command.getId()),
+        currentUser,
         Code.create(command.getUser()),
-        command.getNote(),
-        userContext.getCurrentUser()
-        );
+        command.getNote()
+    );
 
-    LOGGER.info("End of AssignTask id: {}",command.getId());
+    LOGGER.info("User [{}] finished assigning task [{}] to user [{}]", currentUser.getValue(), command.getId(), command.getUser());
 
     return ResponseEntity.noContent().build();
+
   }
 
 }

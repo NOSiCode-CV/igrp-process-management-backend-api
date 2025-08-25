@@ -34,10 +34,19 @@ public class GetAllMyTasksQueryHandler implements QueryHandler<GetAllMyTasksQuer
   @IgrpQueryHandler
   @Transactional(readOnly = true)
   public ResponseEntity<TaskInstanceListPageDTO> handle(GetAllMyTasksQuery query) {
-    final var filter =taskInstanceMapper.toFilter(query);
-    filter.setUser(userContext.getCurrentUser());
-    PageableLista<TaskInstance> taskInstances =  taskInstanceService.getAllTaskInstances(filter);
+
+    final var filter = taskInstanceMapper.toFilter(query);
+    final var currentUser = userContext.getCurrentUser();
+    filter.setUser(currentUser);
+
+    LOGGER.debug("User [{}] requested all his tasks with filter [{}]", currentUser.getValue(), filter);
+
+    PageableLista<TaskInstance> taskInstances = taskInstanceService.getAllTaskInstances(filter);
+
+    LOGGER.debug("User [{}] retrieved [{}] of his tasks", currentUser.getValue(), taskInstances.getTotalElements());
+
     return ResponseEntity.ok(taskInstanceMapper.toTaskInstanceListPageDTO(taskInstances));
+
   }
 
 }

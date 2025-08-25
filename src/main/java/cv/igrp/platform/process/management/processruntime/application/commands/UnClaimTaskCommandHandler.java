@@ -26,21 +26,25 @@ public class UnClaimTaskCommandHandler implements CommandHandler<UnClaimTaskComm
     this.userContext = userContext;
   }
 
+
   @IgrpCommandHandler
   @Transactional
   public ResponseEntity<String> handle(UnClaimTaskCommand command) {
 
-    LOGGER.info("Start of UnClaimTask id: {}",command.getId());
+    final var currentUser = userContext.getCurrentUser();
+
+    LOGGER.info("User [{}] started unclaiming task [{}]", currentUser.getValue(), command.getId());
 
     taskInstanceService.unClaimTask(
         UUID.fromString(command.getId()),
-        command.getNote(),
-        userContext.getCurrentUser()
-        );
+        currentUser,
+        command.getNote()
+    );
 
-    LOGGER.info("End of UnClaimTask id: {}",command.getId());
+    LOGGER.info("User [{}] finished unclaiming task [{}]", currentUser.getValue(), command.getId());
 
     return ResponseEntity.noContent().build();
+
   }
 
 }

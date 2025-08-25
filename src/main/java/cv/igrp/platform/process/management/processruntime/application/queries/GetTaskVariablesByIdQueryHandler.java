@@ -5,6 +5,7 @@ import cv.igrp.framework.stereotype.IgrpQueryHandler;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskVariableDTO;
 import cv.igrp.platform.process.management.processruntime.domain.service.TaskInstanceService;
 import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
+import cv.igrp.platform.process.management.shared.security.UserContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -17,24 +18,36 @@ import java.util.UUID;
 @Component
 public class GetTaskVariablesByIdQueryHandler implements QueryHandler<GetTaskVariablesByIdQuery, ResponseEntity<Set<TaskVariableDTO>>>{
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GetTaskVariablesByIdQueryHandler.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(GetTaskVariablesByIdQueryHandler.class);
+
+  private final TaskInstanceService taskInstanceService;
+  private final TaskInstanceMapper taskInstanceMapper;
+  private final UserContext userContext;
+
+  public GetTaskVariablesByIdQueryHandler(TaskInstanceService taskInstanceService,
+                                          TaskInstanceMapper taskInstanceMapper,
+                                          UserContext userContext) {
+    this.taskInstanceService = taskInstanceService;
+    this.taskInstanceMapper = taskInstanceMapper;
+    this.userContext = userContext;
+  }
 
 
-    private final TaskInstanceService taskInstanceService;
-    private final TaskInstanceMapper taskInstanceMapper;
+  @IgrpQueryHandler
+  @Transactional(readOnly = true)
+  public ResponseEntity<Set<TaskVariableDTO>> handle(GetTaskVariablesByIdQuery query) {
 
-    public GetTaskVariablesByIdQueryHandler(TaskInstanceService taskInstanceService,
-                                            TaskInstanceMapper taskInstanceMapper) {
-        this.taskInstanceService = taskInstanceService;
-        this.taskInstanceMapper = taskInstanceMapper;
-    }
+    final var taskId = UUID.fromString(query.getId());
+    final var currentUser = userContext.getCurrentUser();
 
+    LOGGER.debug("User [{}] requested variables for task [{}]", currentUser.getValue(), taskId);
 
-    @IgrpQueryHandler
-    @Transactional(readOnly = true)
-    public ResponseEntity<Set<TaskVariableDTO>> handle(GetTaskVariablesByIdQuery query) {
-        return ResponseEntity.ok(taskInstanceMapper.toTaskVariableListDTO(
-            taskInstanceService.getTaskVariables(UUID.fromString(query.getId()))));
-    }
+    final var variables = taskInstanceService.getTaskVariables(taskId);
+
+    LOGGER.debug("User [{}] retrieved [{}] variables for task [{}]", currentUser.getValue(), variables.size(), taskId);
+
+    return ResponseEntity.ok(taskInstanceMapper.toTaskVariableListDTO(variables));
+
+  }
 
 }

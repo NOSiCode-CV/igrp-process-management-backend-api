@@ -64,7 +64,7 @@ public class TaskInstanceService {
   }
 
 
-  public void claimTask(UUID id, String note, Code currentUser) {
+  public void claimTask(UUID id, Code currentUser, String note) {
     var taskInstance = getByIdWihEvents(id);
     taskInstance.claim(currentUser,note);
     this.save(taskInstance);
@@ -76,7 +76,7 @@ public class TaskInstanceService {
   }
 
 
-  public void assignTask(UUID id, Code userToAssign, String note, Code currentUser) {
+  public void assignTask(UUID id, Code currentUser, Code userToAssign, String note) {
     var taskInstance = getByIdWihEvents(id);
     taskInstance.assign(currentUser, userToAssign,note);
     this.save(taskInstance);
@@ -89,7 +89,7 @@ public class TaskInstanceService {
   }
 
 
-  public void unClaimTask(UUID id, String note, Code currentUser) {
+  public void unClaimTask(UUID id, Code currentUser, String note) {
     var taskInstance = getByIdWihEvents(id);
     taskInstance.unClaim(currentUser,note);
     this.save(taskInstance);
@@ -100,7 +100,7 @@ public class TaskInstanceService {
   }
 
 
-  public TaskInstance completeTask(UUID id, Map<String,Object> variables, Code currentUser) {
+  public TaskInstance completeTask(UUID id, Code currentUser, Map<String,Object> variables) {
 
     var taskInstance = getByIdWihEvents(id);
 

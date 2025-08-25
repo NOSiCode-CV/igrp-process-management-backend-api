@@ -26,19 +26,22 @@ public class ClaimTaskCommandHandler implements CommandHandler<ClaimTaskCommand,
     this.userContext = userContext;
   }
 
+
   @IgrpCommandHandler
   @Transactional
   public ResponseEntity<String> handle(ClaimTaskCommand command) {
 
-    LOGGER.info("Start of ClaimTask id: {}",command.getId());
+    final var currentUser = userContext.getCurrentUser();
+
+    LOGGER.info("User [{}] started claiming task [{}]", currentUser.getValue(), command.getId());
 
     taskInstanceService.claimTask(
         UUID.fromString(command.getId()),
-        command.getNote(),
-        userContext.getCurrentUser()
-        );
+        currentUser,
+        command.getNote()
+    );
 
-    LOGGER.info("End of ClaimTask id: {}",command.getId());
+    LOGGER.info("User [{}] finished claiming task [{}]", currentUser.getValue(), command.getId());
 
     return ResponseEntity.noContent().build();
 
