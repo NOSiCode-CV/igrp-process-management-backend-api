@@ -151,7 +151,7 @@ class TaskInstanceServiceTest {
 
     when(taskInstanceService.getByIdWihEvents(taskId)).thenReturn(mockTask);
 
-    taskInstanceService.claimTask(taskId, note, Code.create("current-user"));
+    taskInstanceService.claimTask(taskId, eq(Code.create("current-user")), note);
 
     verify(mockTask, times(1)).claim(Code.create("current-user"),note);
 
@@ -177,7 +177,7 @@ class TaskInstanceServiceTest {
 
     when(taskInstanceService.getByIdWihEvents(taskId)).thenReturn(mockTask);
 
-    taskInstanceService.assignTask(taskId, userToAssign, note, Code.create("current-user"));
+    taskInstanceService.assignTask(taskId, userToAssign, eq(Code.create("current-user")), note);
 
     verify(mockTask, times(1)).assign(Code.create("current-user"), userToAssign, note);
 
@@ -202,7 +202,7 @@ class TaskInstanceServiceTest {
 
     when(taskInstanceService.getByIdWihEvents(taskId)).thenReturn(mockTask);
 
-    taskInstanceService.unClaimTask(taskId, note, Code.create("current-user"));
+    taskInstanceService.unClaimTask(taskId, eq(Code.create("current-user")), note);
 
     verify(mockTask, times(1)).unClaim(Code.create("current-user"), note);
 
@@ -262,7 +262,7 @@ class TaskInstanceServiceTest {
     verify(taskInstanceEventRepository).save(any());
 
     // Act
-    TaskInstance result = spyService.completeTask(taskId, variables, Code.create("current-user"));
+    TaskInstance result = spyService.completeTask(taskId, eq(Code.create("current-user")), variables);
 
     // Assert
     verify(runtimeProcessEngineRepository, times(1)).completeTask("EXT-123", variables);

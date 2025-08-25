@@ -56,8 +56,8 @@ public class ClaimTaskCommandHandlerTest {
     // Checks if the service was called with the correct parameters
     verify(taskInstanceService).claimTask(
         eq(taskId),
-        eq(note),
-        eq(Code.create("current-user"))
+        eq(Code.create("current-user")),
+        eq(note)
     );
 
     // Any other interaction

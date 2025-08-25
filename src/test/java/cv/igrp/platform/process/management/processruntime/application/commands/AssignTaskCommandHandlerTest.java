@@ -59,9 +59,9 @@ class AssignTaskCommandHandlerTest {
     // Checks if the service was called with the correct parameters
     verify(taskInstanceService).assignTask(
         eq(taskId),
+        eq(Code.create("current-user")),
         eq(Code.create(targetUser)),
-        eq(note),
-        eq(Code.create("current-user"))
+        eq(note)
     );
 
     // Any other interaction
