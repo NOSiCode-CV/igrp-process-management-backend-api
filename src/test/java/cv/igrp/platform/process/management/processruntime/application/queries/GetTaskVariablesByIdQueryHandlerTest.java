@@ -3,6 +3,8 @@ package cv.igrp.platform.process.management.processruntime.application.queries;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskVariableDTO;
 import cv.igrp.platform.process.management.processruntime.domain.service.TaskInstanceService;
 import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
+import cv.igrp.platform.process.management.shared.domain.models.Code;
+import cv.igrp.platform.process.management.shared.security.UserContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,6 +30,9 @@ class GetTaskVariablesByIdQueryHandlerTest {
   @Mock
   private TaskInstanceMapper taskInstanceMapper;
 
+  @Mock
+  private UserContext userContext;
+
   @InjectMocks
   private GetTaskVariablesByIdQueryHandler handler;
 
@@ -50,8 +55,11 @@ class GetTaskVariablesByIdQueryHandlerTest {
     TaskVariableDTO dto2 = new TaskVariableDTO("key", "123456");
     taskVariableDTOSet = Set.of(dto1, dto2);
 
+    when(userContext.getCurrentUser()).thenReturn(Code.create("demo@nosi.cv"));
+
     when(taskInstanceService.getTaskVariables(taskId)).thenReturn(variablesMap);
     when(taskInstanceMapper.toTaskVariableListDTO(variablesMap)).thenReturn(taskVariableDTOSet);
+
   }
 
   @Test
@@ -66,4 +74,5 @@ class GetTaskVariablesByIdQueryHandlerTest {
     verify(taskInstanceService).getTaskVariables(taskId);
     verify(taskInstanceMapper).toTaskVariableListDTO(variablesMap);
   }
+
 }

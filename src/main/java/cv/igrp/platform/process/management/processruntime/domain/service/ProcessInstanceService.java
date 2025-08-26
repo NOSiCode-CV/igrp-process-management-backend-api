@@ -8,6 +8,7 @@ import cv.igrp.platform.process.management.processruntime.domain.repository.Runt
 import cv.igrp.platform.process.management.shared.application.constants.ProcessInstanceStatus;
 import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
+import cv.igrp.platform.process.management.shared.security.UserContext;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -38,9 +39,7 @@ public class ProcessInstanceService {
         .orElseThrow(() -> IgrpResponseStatusException.notFound("No process instance found with id: " + id));
   }
 
-  public ProcessInstance startProcessInstance(ProcessInstance processInstance) {
-
-    final String user = "demo@nosi.cv";
+  public ProcessInstance startProcessInstance(ProcessInstance processInstance, String user) {
 
     var process = runtimeProcessEngineRepository.startProcessInstanceById(
         processInstance.getProcReleaseId().getValue(),
