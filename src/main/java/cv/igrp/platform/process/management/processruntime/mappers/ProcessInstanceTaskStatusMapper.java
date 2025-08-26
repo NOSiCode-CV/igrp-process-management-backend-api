@@ -28,9 +28,10 @@ public class ProcessInstanceTaskStatusMapper {
   }
 
   public ProcessInstanceTaskStatus toModel(ProcessTaskInfo processTaskInfo){
+
     return ProcessInstanceTaskStatus.builder()
         .taskKey(processTaskInfo.taskKey() != null ? Code.create(processTaskInfo.taskKey()) : null)
-        .taskName(processTaskInfo.taskName() != null ? Name.create(processTaskInfo.taskName()) : null)
+        .taskName(Name.create( processTaskInfo.taskName() != null ? processTaskInfo.taskName() : "NOT SET"))
         .status(mapStatus(processTaskInfo.status()))
         .processInstanceId(processTaskInfo.processInstanceId() != null ? Code.create(processTaskInfo.processInstanceId()) : null)
         .build();

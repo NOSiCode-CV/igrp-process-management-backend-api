@@ -35,6 +35,7 @@ public class ProcessInstance {
   private ProcessInstanceStatus status;
   private Map<String, Object> variables;
   private String name;
+  private String progress;
 
   @Builder
   public ProcessInstance(Identifier id,
@@ -54,7 +55,8 @@ public class ProcessInstance {
                          String obsCancel,
                          ProcessInstanceStatus status,
                          Map<String, Object> variables,
-                         String name
+                         String name,
+                         String progress
                          ) {
     this.id = id == null ? Identifier.generate() : id;
     this.procReleaseKey = Objects.requireNonNull(procReleaseKey, "Process release key cannot be null");
@@ -74,6 +76,7 @@ public class ProcessInstance {
     this.status = status == null ? ProcessInstanceStatus.CREATED : status;
     this.variables = variables == null ? new HashMap<>() : variables;
     this.name = name;
+    this.progress = progress;
   }
 
   public void start(Code processInstanceId, String version, String processName, String startedBy){
@@ -102,6 +105,10 @@ public class ProcessInstance {
 
   public static String generateBusinessKey(){
     return UUID.randomUUID().toString();
+  }
+
+  public void setProgress(int totalTasks, int completedTasks){
+    this.progress = String.format("%d/%d", completedTasks, totalTasks);
   }
 
 }

@@ -99,6 +99,7 @@ public class ProcessInstanceMapper {
     processInstanceDTO.setApplicationBase(processInstance.getApplicationBase().getValue());
     processInstanceDTO.setBusinessKey(processInstance.getBusinessKey() != null ? processInstance.getBusinessKey().getValue() : null);
     processInstanceDTO.setName(processInstance.getName());
+    processInstanceDTO.setProgress(processInstance.getProgress());
     return processInstanceDTO;
   }
 

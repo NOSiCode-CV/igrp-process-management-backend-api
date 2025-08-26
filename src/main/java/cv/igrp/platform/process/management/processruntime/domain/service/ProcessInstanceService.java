@@ -6,9 +6,9 @@ import cv.igrp.platform.process.management.processruntime.domain.models.ProcessI
 import cv.igrp.platform.process.management.processruntime.domain.repository.ProcessInstanceRepository;
 import cv.igrp.platform.process.management.processruntime.domain.repository.RuntimeProcessEngineRepository;
 import cv.igrp.platform.process.management.shared.application.constants.ProcessInstanceStatus;
+import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
 import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
-import cv.igrp.platform.process.management.shared.security.UserContext;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,12 +31,25 @@ public class ProcessInstanceService {
   }
 
   public PageableLista<ProcessInstance> getAllProcessInstances(ProcessInstanceFilter filter) {
-    return processInstanceRepository.findAll(filter);
+    PageableLista<ProcessInstance> pageableLista = processInstanceRepository.findAll(filter);
+    pageableLista.getContent().forEach(this::setProcessInstanceProgress);
+    return pageableLista;
   }
 
   public ProcessInstance getProcessInstanceById(UUID id) {
-    return processInstanceRepository.findById(id)
+    ProcessInstance processInstance = processInstanceRepository.findById(id)
         .orElseThrow(() -> IgrpResponseStatusException.notFound("No process instance found with id: " + id));
+    setProcessInstanceProgress(processInstance);
+    return processInstance;
+  }
+
+  private void setProcessInstanceProgress(ProcessInstance processInstance){
+    List<ProcessInstanceTaskStatus> taskStatus = runtimeProcessEngineRepository.getProcessInstanceTaskStatus(processInstance.getNumber().getValue());
+    int totalTasks = taskStatus.size();
+    long completedTasks = taskStatus.stream()
+        .filter(processInstanceTaskStatus -> processInstanceTaskStatus.getStatus() == TaskInstanceStatus.COMPLETED)
+        .count();
+    processInstance.setProgress(totalTasks, (int) completedTasks);
   }
 
   public ProcessInstance startProcessInstance(ProcessInstance processInstance, String user) {

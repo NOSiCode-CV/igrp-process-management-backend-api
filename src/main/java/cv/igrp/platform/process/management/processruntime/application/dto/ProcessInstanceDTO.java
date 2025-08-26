@@ -72,5 +72,8 @@ public class ProcessInstanceDTO  {
   
   
   private String name ;
+  
+  
+  private String progress ;
 
 }
