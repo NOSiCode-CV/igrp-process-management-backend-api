@@ -155,7 +155,6 @@ public class TaskInstanceService {
 
   private void createNextTaskInstances(Identifier processInstanceId, Code processNumber,
                                        String processName, Code businessKey, Code applicationBase, Code user) {
-
     // tasks from activiti
     final var activeTaskInstanceList = runtimeProcessEngineRepository
         .getActiveTaskInstances(processNumber.getValue());

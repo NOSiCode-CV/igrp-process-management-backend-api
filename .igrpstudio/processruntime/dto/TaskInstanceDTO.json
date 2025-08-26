@@ -138,6 +138,18 @@
       "primaryKey": false
     },
     {
+      "name": "assignedAt",
+      "objectType": "java",
+      "type": "datetime",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    },
+    {
       "name": "assignedBy",
       "objectType": "java",
       "type": "string",
