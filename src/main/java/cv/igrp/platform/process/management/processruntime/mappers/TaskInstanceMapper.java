@@ -150,11 +150,12 @@ public class TaskInstanceMapper {
     dto.setBusinessKey(model.getBusinessKey() != null ? model.getBusinessKey().getValue() : null);
     dto.setProcessName(model.getProcessName() != null ? model.getProcessName().getValue() : null);
     dto.setProcessKey(model.getProcessKey() != null ? model.getProcessKey().getValue() : null);
+    dto.setStartedAt(model.getStartedAt());
+    dto.setStartedBy(model.getStartedBy().getValue());
     dto.setAssignedBy(model.getAssignedBy()!=null ? model.getAssignedBy().getValue(): null);
+    dto.setAssignedAt(model.getAssignedAt());
     dto.setStatus(model.getStatus());
     dto.setStatusDesc(model.getStatus().getDescription());
-    dto.setStartedAt(String.valueOf(model.getStartedAt()));
-    dto.setProcessKey(model.getProcessKey() != null ? model.getProcessKey().getValue() : null);
     return dto;
   }
 
@@ -178,6 +179,7 @@ public class TaskInstanceMapper {
     dto.setStartedAt(taskInstance.getStartedAt());
     dto.setStartedBy(taskInstance.getStartedBy().getValue());
     dto.setAssignedBy(taskInstance.getAssignedBy()!=null?taskInstance.getAssignedBy().getValue():null);
+    dto.setAssignedAt(taskInstance.getAssignedAt());
     dto.setTaskInstanceEvents(new ArrayList<>());
     taskInstance.getTaskInstanceEvents()
         .forEach(e->dto.getTaskInstanceEvents().add(eventMapper.toEventListDTO(e)));
