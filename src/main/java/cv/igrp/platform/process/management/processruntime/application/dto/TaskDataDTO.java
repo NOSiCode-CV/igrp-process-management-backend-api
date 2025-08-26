@@ -18,10 +18,13 @@ import java.util.List;
 
 
 @IgrpDTO
-public class CompleteTaskDTO {
+public class TaskDataDTO  {
 
 
   @Valid
   private List<TaskVariableDTO> variables = new ArrayList<>();
+
+  @Valid
+  private List<TaskVariableDTO> forms = new ArrayList<>();
 
 }
