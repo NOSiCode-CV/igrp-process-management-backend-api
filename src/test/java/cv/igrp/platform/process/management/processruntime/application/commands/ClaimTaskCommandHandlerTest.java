@@ -36,7 +36,7 @@ public class ClaimTaskCommandHandlerTest {
     void setUp() {
       taskId = UUID.randomUUID();
       note = "This is a note";
-      when(userContext.getCurrentUser()).thenReturn(Code.create("current-user"));
+      when(userContext.getCurrentUser()).thenReturn(Code.create("demo@nosi.cv"));
     }
 
   @Test
@@ -56,7 +56,7 @@ public class ClaimTaskCommandHandlerTest {
     // Checks if the service was called with the correct parameters
     verify(taskInstanceService).claimTask(
         eq(taskId),
-        eq(Code.create("current-user")),
+        eq(userContext.getCurrentUser()),
         eq(note)
     );
 

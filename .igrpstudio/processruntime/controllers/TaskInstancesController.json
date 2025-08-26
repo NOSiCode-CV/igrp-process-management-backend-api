@@ -234,12 +234,11 @@
         "content": {
           "application/json": {
             "schema": {
-              "type": "CompleteTaskDTO",
+              "type": "TaskDataDTO",
               "collectionType": "none",
               "name": "data",
               "objectType": "dto",
-              "module": "processruntime",
-              "description": "Complete Task request data"
+              "module": "processruntime"
             }
           }
         }
@@ -389,10 +388,10 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "TaskVariableDTO",
+                "type": "TaskDataDTO",
                 "objectType": "dto",
                 "name": "data",
-                "collectionType": "set",
+                "collectionType": "none",
                 "module": "processruntime"
               }
             }

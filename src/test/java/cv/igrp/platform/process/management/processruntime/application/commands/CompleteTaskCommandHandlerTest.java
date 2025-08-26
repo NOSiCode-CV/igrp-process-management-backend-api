@@ -42,15 +42,19 @@ public class CompleteTaskCommandHandlerTest {
 
   private UUID taskId;
   private Map<String,Object> variables;
+  private Map<String,Object> forms;
 
   @BeforeEach
   void setUp() {
     taskId = UUID.randomUUID();
     variables = new HashMap<>();
-    variables.put("nome", "Maria");
-    variables.put("idade", Integer.valueOf(35));
+    variables.put("global_decisao", "A");
 
-    when(userContext.getCurrentUser()).thenReturn(Code.create("current-user"));
+    forms = new HashMap<>();
+    forms.put("nome", "Maria");
+    forms.put("idade", Integer.valueOf(35));
+
+    when(userContext.getCurrentUser()).thenReturn(Code.create("demo@nosi.cv"));
   }
 
   @Test
@@ -61,6 +65,10 @@ public class CompleteTaskCommandHandlerTest {
         .map(e -> new TaskVariableDTO(e.getKey(), e.getValue()))
         .toList());
 
+    dto.setForms(forms.entrySet().stream()
+        .map(e -> new TaskVariableDTO(e.getKey(), e.getValue()))
+        .toList());
+
     CompleteTaskCommand command = new CompleteTaskCommand();
     command.setId(taskId.toString());
     command.setCompletetaskdto(dto);
@@ -68,7 +76,7 @@ public class CompleteTaskCommandHandlerTest {
     TaskInstance taskInstance = mock(TaskInstance.class);
     TaskInstanceDTO taskInstanceDTO = new TaskInstanceDTO();
 
-    when(taskInstanceService.completeTask(eq(taskId), eq(Code.create("current-user")), anyMap()))
+    when(taskInstanceService.completeTask(eq(taskId), eq(userContext.getCurrentUser()), anyMap(), anyMap()))
         .thenReturn(taskInstance);
     when(taskInstanceMapper.toTaskInstanceDTO(taskInstance)).thenReturn(taskInstanceDTO);
 
@@ -80,7 +88,7 @@ public class CompleteTaskCommandHandlerTest {
     assertEquals(200, response.getStatusCodeValue());
     assertEquals(taskInstanceDTO, response.getBody());
 
-    verify(taskInstanceService).completeTask(eq(taskId), eq(Code.create("current-user")), anyMap());
+    verify(taskInstanceService).completeTask(eq(taskId), eq(userContext.getCurrentUser()), anyMap(), anyMap());
     verify(taskInstanceMapper).toTaskInstanceDTO(taskInstance);
     verify(userContext).getCurrentUser();
     verifyNoMoreInteractions(taskInstanceService, taskInstanceMapper, userContext);

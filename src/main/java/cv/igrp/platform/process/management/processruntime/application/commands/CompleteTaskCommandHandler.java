@@ -18,7 +18,7 @@ import java.util.UUID;
 @Component
 public class CompleteTaskCommandHandler implements CommandHandler<CompleteTaskCommand, ResponseEntity<TaskInstanceDTO>> {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(CompleteTaskCommandHandler.class);
+   private static final Logger LOGGER = LoggerFactory.getLogger(CompleteTaskCommandHandler.class);
 
   private final TaskInstanceService taskInstanceService;
   private final TaskInstanceMapper taskInstanceMapper;
@@ -31,7 +31,6 @@ public class CompleteTaskCommandHandler implements CommandHandler<CompleteTaskCo
     this.userContext = userContext;
   }
 
-
   @IgrpCommandHandler
   @Transactional
   public ResponseEntity<TaskInstanceDTO> handle(CompleteTaskCommand command) {
@@ -41,15 +40,18 @@ public class CompleteTaskCommandHandler implements CommandHandler<CompleteTaskCo
     LOGGER.info("User [{}] started completing task [{}]", currentUser.getValue(), command.getId());
 
     final var variables = new HashMap<String,Object>();
+    if(command.getTaskdatadto().getVariables()!=null)
+      command.getTaskdatadto().getVariables().forEach( v -> variables.put(v.getName(), v.getValue()));
 
-    if(command.getCompletetaskdto().getVariables()!=null && !command.getCompletetaskdto().getVariables().isEmpty()) {
-        command.getCompletetaskdto().getVariables().forEach( v -> variables.put(v.getName(), v.getValue()));
-    }
+    final var forms = new HashMap<String,Object>();
+    if(command.getTaskdatadto().getForms()!=null)
+      command.getTaskdatadto().getForms().forEach( f -> forms.put(f.getName(), f.getValue()));
 
     final var taskInstanceResp =  taskInstanceService.completeTask(
         UUID.fromString(command.getId()),
         currentUser,
-        variables
+        variables,
+        forms
     );
 
     LOGGER.info("User [{}] finished completing task [{}]", currentUser.getValue(), command.getId());

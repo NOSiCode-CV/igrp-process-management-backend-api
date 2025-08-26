@@ -10,10 +10,9 @@ import cv.igrp.platform.process.management.processruntime.application.commands.A
 import cv.igrp.platform.process.management.processruntime.application.commands.ClaimTaskCommand;
 import cv.igrp.platform.process.management.processruntime.application.commands.CompleteTaskCommand;
 import cv.igrp.platform.process.management.processruntime.application.commands.UnClaimTaskCommand;
-import cv.igrp.platform.process.management.processruntime.application.dto.CompleteTaskDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.TaskDataDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceListPageDTO;
-import cv.igrp.platform.process.management.processruntime.application.dto.TaskVariableDTO;
 import cv.igrp.platform.process.management.processruntime.application.queries.*;
 import cv.igrp.platform.process.management.shared.application.dto.ConfigParameterDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,7 +27,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Set;
 
 @IgrpController
 @RestController
@@ -263,7 +261,7 @@ public class TaskInstancesController {
     }
   )
 
-  public ResponseEntity<TaskInstanceDTO> completeTask(@Valid @RequestBody CompleteTaskDTO completeTaskRequest
+  public ResponseEntity<TaskInstanceDTO> completeTask(@Valid @RequestBody TaskDataDTO completeTaskRequest
     , @PathVariable(value = "id") String id)
   {
 
@@ -411,14 +409,14 @@ public class TaskInstancesController {
           content = @Content(
               mediaType = "application/json",
               schema = @Schema(
-                  implementation = TaskVariableDTO.class,
+                  implementation = TaskDataDTO.class,
                   type = "object")
           )
       )
     }
   )
 
-  public ResponseEntity<Set<TaskVariableDTO>> getTaskVariablesById(
+  public ResponseEntity<TaskDataDTO> getTaskVariablesById(
     @PathVariable(value = "id") String id)
   {
 
@@ -426,7 +424,7 @@ public class TaskInstancesController {
 
       final var query = new GetTaskVariablesByIdQuery(id);
 
-      ResponseEntity<Set<TaskVariableDTO>> response = queryBus.handle(query);
+      ResponseEntity<TaskDataDTO> response = queryBus.handle(query);
 
       LOGGER.debug("Operation finished");
 

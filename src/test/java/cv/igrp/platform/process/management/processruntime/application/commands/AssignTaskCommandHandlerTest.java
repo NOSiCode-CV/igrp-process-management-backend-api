@@ -36,9 +36,9 @@ class AssignTaskCommandHandlerTest {
   @BeforeEach
   void setUp() {
     taskId = UUID.randomUUID();
-    targetUser = "user-to-assign";
+    targetUser = "igrp@nosi.cv";
     note = "This is a note";
-    when(userContext.getCurrentUser()).thenReturn(Code.create("current-user"));
+    when(userContext.getCurrentUser()).thenReturn(Code.create("demo@nosi.cv"));
   }
 
   @Test
@@ -59,7 +59,7 @@ class AssignTaskCommandHandlerTest {
     // Checks if the service was called with the correct parameters
     verify(taskInstanceService).assignTask(
         eq(taskId),
-        eq(Code.create("current-user")),
+        eq(userContext.getCurrentUser()),
         eq(Code.create(targetUser)),
         eq(note)
     );

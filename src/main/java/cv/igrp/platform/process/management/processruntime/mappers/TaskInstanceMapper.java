@@ -1,12 +1,10 @@
 package cv.igrp.platform.process.management.processruntime.mappers;
 
 import cv.igrp.framework.runtime.core.engine.task.model.TaskInfo;
-import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceDTO;
-import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceListDTO;
-import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceListPageDTO;
-import cv.igrp.platform.process.management.processruntime.application.dto.TaskVariableDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.*;
 import cv.igrp.platform.process.management.processruntime.application.queries.GetAllMyTasksQuery;
 import cv.igrp.platform.process.management.processruntime.application.queries.ListTaskInstancesQuery;
+import cv.igrp.platform.process.management.processruntime.domain.models.TaskData;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceFilter;
 import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
@@ -20,9 +18,8 @@ import cv.igrp.platform.process.management.shared.util.DateUtil;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import static cv.igrp.platform.process.management.shared.util.DateUtil.utilDateToLocalDateTime;
 
@@ -216,10 +213,18 @@ public class TaskInstanceMapper {
   }
 
 
-  public Set<TaskVariableDTO> toTaskVariableListDTO(Map<String,Object> variables) {
-    return variables==null ? Set.of() : variables.entrySet().stream()
+  public TaskDataDTO toTaskDataDTO(TaskData data){
+    var dto = new TaskDataDTO();
+    dto.setVariables(toTaskVariableListDTO(data.getVariables()));
+    dto.setForms(toTaskVariableListDTO(data.getForms()));
+    return dto;
+  }
+
+
+  public List<TaskVariableDTO> toTaskVariableListDTO(Map<String,Object> variables) {
+    return variables==null ? List.of() : variables.entrySet().stream()
         .map(e-> new TaskVariableDTO(e.getKey(),e.getValue()))
-        .collect(Collectors.toSet());
+        .toList();
   }
 
 

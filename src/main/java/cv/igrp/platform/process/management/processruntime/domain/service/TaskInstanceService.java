@@ -1,9 +1,6 @@
 package cv.igrp.platform.process.management.processruntime.domain.service;
 
-import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstance;
-import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
-import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceEvent;
-import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceFilter;
+import cv.igrp.platform.process.management.processruntime.domain.models.*;
 import cv.igrp.platform.process.management.processruntime.domain.repository.ProcessInstanceRepository;
 import cv.igrp.platform.process.management.processruntime.domain.repository.RuntimeProcessEngineRepository;
 import cv.igrp.platform.process.management.processruntime.domain.repository.TaskInstanceEventRepository;
@@ -100,7 +97,7 @@ public class TaskInstanceService {
   }
 
 
-  public TaskInstance completeTask(UUID id, Code currentUser, Map<String,Object> variables) {
+  public TaskInstance completeTask(UUID id, Code currentUser, Map<String,Object> variables, Map<String,Object> forms) {
 
     var taskInstance = getByIdWihEvents(id);
 
@@ -146,9 +143,12 @@ public class TaskInstanceService {
   }
 
 
-  public Map<String,Object> getTaskVariables(UUID id) {
+  public TaskData getTaskVariables(UUID id) {
     var taskInstance = getById(id);
-    return runtimeProcessEngineRepository.getTaskVariables(taskInstance.getExternalId().getValue());
+    return TaskData.builder()
+        .variables(runtimeProcessEngineRepository.getTaskVariables(taskInstance.getExternalId().getValue()))
+        .forms(Map.of()) // todo
+        .build();
   }
 
 
