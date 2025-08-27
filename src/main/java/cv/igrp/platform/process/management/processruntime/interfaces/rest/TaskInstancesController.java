@@ -10,10 +10,7 @@ import cv.igrp.platform.process.management.processruntime.application.commands.A
 import cv.igrp.platform.process.management.processruntime.application.commands.ClaimTaskCommand;
 import cv.igrp.platform.process.management.processruntime.application.commands.CompleteTaskCommand;
 import cv.igrp.platform.process.management.processruntime.application.commands.UnClaimTaskCommand;
-import cv.igrp.platform.process.management.processruntime.application.dto.TaskDataDTO;
-import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceDTO;
-import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceListPageDTO;
-import cv.igrp.platform.process.management.processruntime.application.dto.TaskVariableDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.*;
 import cv.igrp.platform.process.management.processruntime.application.queries.*;
 import cv.igrp.platform.process.management.shared.application.dto.ConfigParameterDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -426,6 +423,80 @@ public class TaskInstancesController {
       final var query = new GetTaskVariablesByIdQuery(id);
 
       ResponseEntity<List<TaskVariableDTO>> response = queryBus.handle(query);
+
+      LOGGER.debug("Operation finished");
+
+      return ResponseEntity.status(response.getStatusCode())
+              .headers(response.getHeaders())
+              .body(response.getBody());
+  }
+
+  @GetMapping(
+    value = "stats"
+  )
+  @Operation(
+    summary = "GET method to handle operations for getTaskStats",
+    description = "GET method to handle operations for getTaskStats",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          description = "",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = TaskStatsDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+
+  public ResponseEntity<TaskStatsDTO> getTaskStats(
+    )
+  {
+
+      LOGGER.debug("Operation started");
+
+      final var query = new GetTaskStatsQuery();
+
+      ResponseEntity<TaskStatsDTO> response = queryBus.handle(query);
+
+      LOGGER.debug("Operation finished");
+
+      return ResponseEntity.status(response.getStatusCode())
+              .headers(response.getHeaders())
+              .body(response.getBody());
+  }
+
+  @GetMapping(
+    value = "stats/me"
+  )
+  @Operation(
+    summary = "GET method to handle operations for getMyTaskStats",
+    description = "GET method to handle operations for getMyTaskStats",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          description = "",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = TaskStatsDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+
+  public ResponseEntity<TaskStatsDTO> getMyTaskStats(
+    )
+  {
+
+      LOGGER.debug("Operation started");
+
+      final var query = new GetMyTaskStatsQuery();
+
+      ResponseEntity<TaskStatsDTO> response = queryBus.handle(query);
 
       LOGGER.debug("Operation finished");
 
