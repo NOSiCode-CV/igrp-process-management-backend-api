@@ -70,10 +70,11 @@ public interface RuntimeProcessEngineRepository {
    * Completes a given task and optionally updates process variables.
    *
    * @param taskInstanceId the unique identifier of the task instance
+   * @param forms      forms to update when completing the task (may be {@code null})
    * @param variables      variables to update when completing the task (may be {@code null})
    * @throws RuntimeProcessEngineException if the task cannot be completed
    */
-  void completeTask(String taskInstanceId, Map<String, Object> variables)
+  void completeTask(String taskInstanceId, Map<String, Object> forms, Map<String, Object> variables)
       throws RuntimeProcessEngineException;
 
   /**
