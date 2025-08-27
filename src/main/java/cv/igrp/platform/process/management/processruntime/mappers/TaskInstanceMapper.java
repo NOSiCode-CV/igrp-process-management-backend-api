@@ -40,7 +40,7 @@ public class TaskInstanceMapper {
         .taskKey(Code.create(taskInfo.taskDefinitionKey()))
         .externalId(Code.create(taskInfo.id()))
         .formKey(taskInfo.formKey()!=null ? Code.create(taskInfo.formKey()) : null)
-        .name(Name.create(taskInfo.name()))
+        .name(Name.create(taskInfo.name() != null ? taskInfo.name() : "NOT SET"))
         .startedAt(utilDateToLocalDateTime.apply(taskInfo.createdTime()))
         .build();
   }

@@ -4,6 +4,7 @@ import cv.igrp.framework.runtime.core.engine.process.ProcessManagerAdapter;
 import cv.igrp.framework.runtime.core.engine.process.model.ProcessVariableInstance;
 import cv.igrp.framework.runtime.core.engine.task.TaskActionService;
 import cv.igrp.framework.runtime.core.engine.task.TaskQueryService;
+import cv.igrp.framework.runtime.core.engine.task.model.TaskInfo;
 import cv.igrp.framework.runtime.core.engine.task.model.TaskVariableInstance;
 import cv.igrp.platform.process.management.processruntime.domain.exception.RuntimeProcessEngineException;
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstance;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -116,6 +118,8 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
   @Override
   public void completeTask(String taskInstanceId, Map<String, Object> forms, Map<String, Object> variables) {
     try {
+      TaskInfo taskInfo =  taskQueryService.getTask(taskInstanceId).orElseThrow();
+      processManagerAdapter.setProcessVariables(taskInfo.processInstanceId(), variables);
       taskActionService.completeTask(taskInstanceId, forms);
     } catch (Exception e) {
       LOGGER.error("Failed to complete task: {}", taskInstanceId, e);
