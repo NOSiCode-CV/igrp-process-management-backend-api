@@ -243,7 +243,7 @@ public class TaskInstancesController {
   }
 
   @PostMapping(
-    value = "{id}"
+    value = "{id}/complete"
   )
   @Operation(
     summary = "POST method to handle operations for completeTask",

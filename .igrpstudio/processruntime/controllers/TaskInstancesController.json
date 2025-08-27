@@ -228,7 +228,7 @@
     },
     {
       "actionName": "completeTask",
-      "path": "{id}",
+      "path": "{id}/complete",
       "method": "POST",
       "requestBody": {
         "content": {
