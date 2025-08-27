@@ -1,9 +1,6 @@
 package cv.igrp.platform.process.management.processruntime.domain.service;
 
-import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstance;
-import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
-import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceEvent;
-import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceFilter;
+import cv.igrp.platform.process.management.processruntime.domain.models.*;
 import cv.igrp.platform.process.management.processruntime.domain.repository.ProcessInstanceRepository;
 import cv.igrp.platform.process.management.processruntime.domain.repository.RuntimeProcessEngineRepository;
 import cv.igrp.platform.process.management.processruntime.domain.repository.TaskInstanceEventRepository;
@@ -150,6 +147,16 @@ public class TaskInstanceService {
   public Map<String,Object> getTaskVariables(UUID id) {
     var taskInstance = getById(id);
     return runtimeProcessEngineRepository.getTaskVariables(taskInstance.getExternalId().getValue());
+  }
+
+
+  public TaskStatistics getGlobalTaskStatistics(){
+    return taskInstanceRepository.getGlobalTaskStatistics();
+  }
+
+
+  public TaskStatistics getTaskStatisticsByUser(Code user){
+    return taskInstanceRepository.getTaskStatisticsByUser(user);
   }
 
 

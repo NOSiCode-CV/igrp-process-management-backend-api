@@ -7,6 +7,7 @@ import cv.igrp.platform.process.management.processruntime.application.queries.Li
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskData;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceFilter;
+import cv.igrp.platform.process.management.processruntime.domain.models.TaskStatistics;
 import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
@@ -225,6 +226,19 @@ public class TaskInstanceMapper {
     return variables==null ? List.of() : variables.entrySet().stream()
         .map(e-> new TaskVariableDTO(e.getKey(),e.getValue()))
         .toList();
+  }
+
+
+  public TaskStatsDTO toTaskStatsDto(TaskStatistics taskStatistics) {
+    final var TaskStatsDTO = new TaskStatsDTO();
+    return new TaskStatsDTO(
+        taskStatistics.getTotalTaskInstances(),
+        taskStatistics.getTotalAvailableTasks(),
+        taskStatistics.getTotalAssignedTasks(),
+        taskStatistics.getTotalSuspendedTasks(),
+        taskStatistics.getTotalCompletedTasks(),
+        taskStatistics.getTotalCanceledTasks()
+    );
   }
 
 

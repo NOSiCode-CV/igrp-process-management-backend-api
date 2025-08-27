@@ -25,10 +25,13 @@ public class TaskStatsDTO  {
   private Long totalAvailableTasks ;
 
 
-  private Long totalCompletedTasks ;
+  private Long totalAssignedTasks ;
 
 
   private Long totalSuspendedTasks ;
+
+
+  private Long totalCompletedTasks ;
 
 
   private Long totalCanceledTasks ;

@@ -2,6 +2,8 @@ package cv.igrp.platform.process.management.processruntime.domain.repository;
 
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceFilter;
+import cv.igrp.platform.process.management.processruntime.domain.models.TaskStatistics;
+import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 
 import java.util.Optional;
@@ -18,4 +20,8 @@ public interface TaskInstanceRepository {
   void update(TaskInstance taskInstance);
 
   PageableLista<TaskInstance> findAll(TaskInstanceFilter filter);
+
+  TaskStatistics getGlobalTaskStatistics();
+
+  TaskStatistics getTaskStatisticsByUser(Code user);
 }
