@@ -21,7 +21,7 @@ public class GetTaskStatsQueryHandler implements QueryHandler<GetTaskStatsQuery,
    @IgrpQueryHandler
   public ResponseEntity<TaskStatsDTO> handle(GetTaskStatsQuery query) {
 
-    return ResponseEntity.ok(new TaskStatsDTO(101L,75L,12L,10L));
+    return ResponseEntity.ok(new TaskStatsDTO(101L,75L,12L,10L, 1L));
   }
 
 }

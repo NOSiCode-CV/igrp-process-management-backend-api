@@ -28,6 +28,9 @@ public class TaskStatsDTO  {
   private Long totalCompletedTasks ;
 
 
+  private Long totalSuspendedTasks ;
+
+
   private Long totalCanceledTasks ;
 
 }
