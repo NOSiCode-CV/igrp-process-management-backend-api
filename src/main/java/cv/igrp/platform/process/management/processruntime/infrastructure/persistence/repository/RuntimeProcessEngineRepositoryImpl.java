@@ -114,9 +114,9 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
   }
 
   @Override
-  public void completeTask(String taskInstanceId, Map<String, Object> variables) {
+  public void completeTask(String taskInstanceId, Map<String, Object> forms, Map<String, Object> variables) {
     try {
-      taskActionService.completeTask(taskInstanceId, variables);
+      taskActionService.completeTask(taskInstanceId, forms);
     } catch (Exception e) {
       LOGGER.error("Failed to complete task: {}", taskInstanceId, e);
       throw new RuntimeProcessEngineException("Failed to complete task. " + e.getMessage(), e);
