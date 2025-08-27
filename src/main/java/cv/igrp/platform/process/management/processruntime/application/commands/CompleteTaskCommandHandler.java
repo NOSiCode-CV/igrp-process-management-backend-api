@@ -39,19 +39,19 @@ public class CompleteTaskCommandHandler implements CommandHandler<CompleteTaskCo
 
     LOGGER.info("User [{}] started completing task [{}]", currentUser.getValue(), command.getId());
 
-    final var variables = new HashMap<String,Object>();
-    if(command.getTaskdatadto().getVariables()!=null)
-      command.getTaskdatadto().getVariables().forEach( v -> variables.put(v.getName(), v.getValue()));
-
     final var forms = new HashMap<String,Object>();
     if(command.getTaskdatadto().getForms()!=null)
       command.getTaskdatadto().getForms().forEach( f -> forms.put(f.getName(), f.getValue()));
 
+    final var variables = new HashMap<String,Object>();
+    if(command.getTaskdatadto().getVariables()!=null)
+      command.getTaskdatadto().getVariables().forEach( v -> variables.put(v.getName(), v.getValue()));
+
     final var taskInstanceResp =  taskInstanceService.completeTask(
         UUID.fromString(command.getId()),
         currentUser,
-        variables,
-        forms
+        forms,
+        variables
     );
 
     LOGGER.info("User [{}] finished completing task [{}]", currentUser.getValue(), command.getId());

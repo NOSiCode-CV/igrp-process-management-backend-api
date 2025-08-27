@@ -1,6 +1,6 @@
 package cv.igrp.platform.process.management.processruntime.application.commands;
 
-import cv.igrp.platform.process.management.processruntime.application.dto.CompleteTaskDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.TaskDataDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskVariableDTO;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
@@ -41,18 +41,25 @@ public class CompleteTaskCommandHandlerTest {
   private CompleteTaskCommandHandler completeTaskCommandHandler;
 
   private UUID taskId;
-  private Map<String,Object> variables;
-  private Map<String,Object> forms;
+  private TaskDataDTO taskDataDTO;
 
   @BeforeEach
   void setUp() {
-    taskId = UUID.randomUUID();
-    variables = new HashMap<>();
-    variables.put("global_decisao", "A");
 
-    forms = new HashMap<>();
+    taskId = UUID.randomUUID();
+
+    Map<String,Object> variables = new HashMap<>();
+    variables.put("global_decisao", "A");
+    Map<String,Object> forms = new HashMap<>();
     forms.put("nome", "Maria");
     forms.put("idade", Integer.valueOf(35));
+    taskDataDTO = new TaskDataDTO();
+    taskDataDTO.setVariables(variables.entrySet().stream()
+        .map(e -> new TaskVariableDTO(e.getKey(), e.getValue()))
+        .toList());
+    taskDataDTO.setForms(forms.entrySet().stream()
+        .map(e -> new TaskVariableDTO(e.getKey(), e.getValue()))
+        .toList());
 
     when(userContext.getCurrentUser()).thenReturn(Code.create("demo@nosi.cv"));
   }
@@ -60,18 +67,10 @@ public class CompleteTaskCommandHandlerTest {
   @Test
   void handle_shouldCompleteTaskAndReturnDTO() {
     // Given
-    CompleteTaskDTO dto = new CompleteTaskDTO();
-    dto.setVariables(variables.entrySet().stream()
-        .map(e -> new TaskVariableDTO(e.getKey(), e.getValue()))
-        .toList());
-
-    dto.setForms(forms.entrySet().stream()
-        .map(e -> new TaskVariableDTO(e.getKey(), e.getValue()))
-        .toList());
 
     CompleteTaskCommand command = new CompleteTaskCommand();
     command.setId(taskId.toString());
-    command.setCompletetaskdto(dto);
+    command.setTaskdatadto(taskDataDTO);
 
     TaskInstance taskInstance = mock(TaskInstance.class);
     TaskInstanceDTO taskInstanceDTO = new TaskInstanceDTO();

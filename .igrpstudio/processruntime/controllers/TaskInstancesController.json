@@ -388,10 +388,10 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "TaskDataDTO",
+                "type": "TaskVariableDTO",
                 "objectType": "dto",
                 "name": "data",
-                "collectionType": "none",
+                "collectionType": "list",
                 "module": "processruntime"
               }
             }

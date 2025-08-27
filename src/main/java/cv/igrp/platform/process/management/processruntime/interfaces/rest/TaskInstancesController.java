@@ -13,6 +13,7 @@ import cv.igrp.platform.process.management.processruntime.application.commands.U
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskDataDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceListPageDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.TaskVariableDTO;
 import cv.igrp.platform.process.management.processruntime.application.queries.*;
 import cv.igrp.platform.process.management.shared.application.dto.ConfigParameterDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -409,14 +410,14 @@ public class TaskInstancesController {
           content = @Content(
               mediaType = "application/json",
               schema = @Schema(
-                  implementation = TaskDataDTO.class,
+                  implementation = TaskVariableDTO.class,
                   type = "object")
           )
       )
     }
   )
 
-  public ResponseEntity<TaskDataDTO> getTaskVariablesById(
+  public ResponseEntity<List<TaskVariableDTO>> getTaskVariablesById(
     @PathVariable(value = "id") String id)
   {
 
@@ -424,7 +425,7 @@ public class TaskInstancesController {
 
       final var query = new GetTaskVariablesByIdQuery(id);
 
-      ResponseEntity<TaskDataDTO> response = queryBus.handle(query);
+      ResponseEntity<List<TaskVariableDTO>> response = queryBus.handle(query);
 
       LOGGER.debug("Operation finished");
 
