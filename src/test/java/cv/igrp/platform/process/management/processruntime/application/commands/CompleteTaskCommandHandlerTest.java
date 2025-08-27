@@ -42,6 +42,7 @@ public class CompleteTaskCommandHandlerTest {
 
   private UUID taskId;
   private TaskDataDTO taskDataDTO;
+  private Code currenteUser;
 
   @BeforeEach
   void setUp() {
@@ -60,8 +61,8 @@ public class CompleteTaskCommandHandlerTest {
     taskDataDTO.setForms(forms.entrySet().stream()
         .map(e -> new TaskVariableDTO(e.getKey(), e.getValue()))
         .toList());
-
-    when(userContext.getCurrentUser()).thenReturn(Code.create("demo@nosi.cv"));
+    currenteUser = Code.create("demo@nosi.cv");
+    when(userContext.getCurrentUser()).thenReturn(currenteUser);
   }
 
   @Test
@@ -75,7 +76,7 @@ public class CompleteTaskCommandHandlerTest {
     TaskInstance taskInstance = mock(TaskInstance.class);
     TaskInstanceDTO taskInstanceDTO = new TaskInstanceDTO();
 
-    when(taskInstanceService.completeTask(eq(taskId), eq(userContext.getCurrentUser()), anyMap(), anyMap()))
+    when(taskInstanceService.completeTask(eq(taskId), eq(currenteUser), anyMap(), anyMap()))
         .thenReturn(taskInstance);
     when(taskInstanceMapper.toTaskInstanceDTO(taskInstance)).thenReturn(taskInstanceDTO);
 
@@ -87,7 +88,7 @@ public class CompleteTaskCommandHandlerTest {
     assertEquals(200, response.getStatusCodeValue());
     assertEquals(taskInstanceDTO, response.getBody());
 
-    verify(taskInstanceService).completeTask(eq(taskId), eq(userContext.getCurrentUser()), anyMap(), anyMap());
+    verify(taskInstanceService).completeTask(eq(taskId), eq(currenteUser), anyMap(), anyMap());
     verify(taskInstanceMapper).toTaskInstanceDTO(taskInstance);
     verify(userContext).getCurrentUser();
     verifyNoMoreInteractions(taskInstanceService, taskInstanceMapper, userContext);

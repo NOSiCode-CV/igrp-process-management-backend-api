@@ -30,13 +30,13 @@ class AssignTaskCommandHandlerTest {
   private AssignTaskCommandHandler assignTaskCommandHandler;
 
   private UUID taskId;
-  private String targetUser;
+  private String targetUserName;
   private String note;
 
   @BeforeEach
   void setUp() {
     taskId = UUID.randomUUID();
-    targetUser = "igrp@nosi.cv";
+    targetUserName = "igrp@nosi.cv";
     note = "This is a note";
     when(userContext.getCurrentUser()).thenReturn(Code.create("demo@nosi.cv"));
   }
@@ -46,8 +46,11 @@ class AssignTaskCommandHandlerTest {
     // Given
     AssignTaskCommand command = new AssignTaskCommand();
     command.setId(taskId.toString());
-    command.setUser(targetUser);
+    command.setUser(targetUserName);
     command.setNote(note);
+
+    Code currentUser = Code.create("demo@nosi.cv");
+    Code targetUser = Code.create(targetUserName);
 
     // When
     ResponseEntity<String> response = assignTaskCommandHandler.handle(command);
@@ -59,8 +62,8 @@ class AssignTaskCommandHandlerTest {
     // Checks if the service was called with the correct parameters
     verify(taskInstanceService).assignTask(
         eq(taskId),
-        eq(userContext.getCurrentUser()),
-        eq(Code.create(targetUser)),
+        eq(currentUser),
+        eq(targetUser),
         eq(note)
     );
 

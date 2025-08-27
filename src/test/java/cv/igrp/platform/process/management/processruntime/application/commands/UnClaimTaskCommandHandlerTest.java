@@ -31,12 +31,14 @@ public class UnClaimTaskCommandHandlerTest {
 
   private UUID taskId;
   private String note;
+  private Code currentUser;
 
   @BeforeEach
   void setUp() {
     taskId = UUID.randomUUID();
     note = "This is a note";
-    when(userContext.getCurrentUser()).thenReturn(Code.create("demo@nosi.cv"));
+    currentUser = Code.create("demo@nosi.cv");
+    when(userContext.getCurrentUser()).thenReturn(currentUser);
   }
 
   @Test
@@ -56,7 +58,7 @@ public class UnClaimTaskCommandHandlerTest {
     // Checks if the service was called with the correct parameters
     verify(taskInstanceService).unClaimTask(
         eq(taskId),
-        eq(userContext.getCurrentUser()),
+        eq(currentUser),
         eq(note)
     );
 
