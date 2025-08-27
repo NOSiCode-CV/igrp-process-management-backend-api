@@ -4,6 +4,8 @@ import cv.igrp.platform.process.management.processruntime.application.dto.TaskIn
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
 import cv.igrp.platform.process.management.processruntime.domain.service.TaskInstanceService;
 import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
+import cv.igrp.platform.process.management.shared.domain.models.Code;
+import cv.igrp.platform.process.management.shared.security.UserContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,6 +29,9 @@ class GetTaskInstanceByIdQueryHandlerTest {
   @Mock
   private TaskInstanceMapper taskInstanceMapper;
 
+  @Mock
+  private UserContext userContext;
+
   @InjectMocks
   private GetTaskInstanceByIdQueryHandler handler;
 
@@ -42,6 +47,8 @@ class GetTaskInstanceByIdQueryHandlerTest {
     query = new GetTaskInstanceByIdQuery(UUID.randomUUID().toString());
     taskInstanceMock = mock(TaskInstance.class);
     taskInstanceDTOMock = mock(TaskInstanceDTO.class);
+
+    when(userContext.getCurrentUser()).thenReturn(Code.create("demo@nosi.cv"));
 
     when(taskInstanceService.getByIdWihEvents(UUID.fromString(query.getId())))
         .thenReturn(taskInstanceMock);

@@ -1,7 +1,6 @@
 package cv.igrp.platform.process.management.processruntime.application.queries;
 
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskVariableDTO;
-import cv.igrp.platform.process.management.processruntime.domain.models.TaskData;
 import cv.igrp.platform.process.management.processruntime.domain.service.TaskInstanceService;
 import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
@@ -37,7 +36,6 @@ class GetTaskVariablesByIdQueryHandlerTest {
 
   private GetTaskVariablesByIdQuery query;
   private UUID taskId;
-  private TaskData taskData; // modelo retornado pelo service
   private List<TaskVariableDTO> taskVariablesListDTO;
   private Map<String,Object> taskVariables;
 
@@ -72,7 +70,7 @@ class GetTaskVariablesByIdQueryHandlerTest {
     assertEquals(taskVariablesListDTO, response.getBody());
 
     verify(taskInstanceService).getTaskVariables(taskId);
-    verify(taskInstanceMapper).toTaskDataDTO(taskData);
+    verify(taskInstanceMapper).toTaskVariableListDTO(taskVariables);
 
   }
 

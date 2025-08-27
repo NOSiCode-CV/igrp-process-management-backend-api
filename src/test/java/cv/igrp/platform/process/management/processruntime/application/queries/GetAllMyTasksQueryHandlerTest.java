@@ -55,8 +55,10 @@ class GetAllMyTasksQueryHandlerTest {
 
     query = new GetAllMyTasksQuery();
 
+    var currentUser = Code.create("demo@nosi.cv");
+
     // Mock do usuário logado
-    when(userContext.getCurrentUser()).thenReturn(Code.create("demo@nosi.cv"));
+    when(userContext.getCurrentUser()).thenReturn(currentUser);
 
     // Mock do conteúdo
     List<TaskInstance> content = List.of(
@@ -71,7 +73,7 @@ class GetAllMyTasksQueryHandlerTest {
             .applicationBase(Code.create("app_test"))
             .status(TaskInstanceStatus.CREATED)
             .startedAt(LocalDateTime.now())
-            .startedBy(Code.create("demo@nosi.cv"))
+            .startedBy(currentUser)
             .searchTerms("abc")
             .build()
     );
@@ -91,7 +93,7 @@ class GetAllMyTasksQueryHandlerTest {
     // Mocks do mapper
     when(taskInstanceMapper.toFilter(eq(query)))
         .thenReturn(TaskInstanceFilter.builder()
-            .user(Code.create("demo@nosi.cv"))
+            .user(currentUser)
             .status(TaskInstanceStatus.CREATED).build());
 
     when(taskInstanceService.getAllTaskInstances(any(TaskInstanceFilter.class)))

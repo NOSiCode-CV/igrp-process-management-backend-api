@@ -10,6 +10,7 @@ import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import cv.igrp.platform.process.management.shared.domain.models.Name;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
+import cv.igrp.platform.process.management.shared.security.UserContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,6 +36,9 @@ class ListTaskInstancesQueryHandlerTest {
 
   @Mock
   private TaskInstanceMapper taskInstanceMapper;
+
+  @Mock
+  private UserContext userContext;
 
   @InjectMocks
   private ListTaskInstancesQueryHandler listTaskInstancesQueryHandler;
@@ -75,6 +79,8 @@ class ListTaskInstancesQueryHandlerTest {
     );
 
     pageDTO = new TaskInstanceListPageDTO();
+
+    when(userContext.getCurrentUser()).thenReturn(Code.create("demo@nosi.cv"));
 
     when(taskInstanceMapper.toFilter(eq(query)))
         .thenReturn(TaskInstanceFilter.builder().status(TaskInstanceStatus.CREATED).build());
