@@ -1,7 +1,7 @@
 {
   "type": "dto",
   "module": "processruntime",
-  "name": "TaskStatsDTO",
+  "name": "TaskInstanceStatsDTO",
   "template": "classic",
   "enableCustonValidation": false,
   "attributes": [

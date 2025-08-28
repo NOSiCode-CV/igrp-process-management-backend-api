@@ -4,7 +4,7 @@ import cv.igrp.framework.core.domain.Query;
 
 
 
-public class GetTaskStatsQuery implements Query {
+public class GetMyTaskInstanceStatisticsQuery implements Query {
 
 
 }

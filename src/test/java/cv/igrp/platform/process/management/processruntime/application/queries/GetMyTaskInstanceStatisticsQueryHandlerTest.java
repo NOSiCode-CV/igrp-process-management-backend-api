@@ -7,10 +7,10 @@ import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class GetTaskStatsQueryHandlerTest {
+public class GetMyTaskInstanceStatisticsQueryHandlerTest {
 
   @InjectMocks
-  private GetTaskStatsQueryHandler getTaskStatsQueryHandler;
+  private GetMyTaskInstanceStatisticsQueryHandler getMyTaskInstanceStatisticsQueryHandler;
 
   @BeforeEach
   void setUp() {
@@ -18,14 +18,14 @@ public class GetTaskStatsQueryHandlerTest {
   }
 
   @Test
-  void testHandleGetTaskStatsQuery() {
+  void testHandleGetMyTaskInstanceStatisticsQuery() {
     // TODO: Implement unit test for handle method
     // Example:
     // Given
-    // GetTaskStatsQuery query = new GetTaskStatsQuery(...);
+    // GetMyTaskInstanceStatisticsQuery query = new GetMyTaskInstanceStatisticsQuery(...);
     //
     // When
-    // ResponseEntity<TaskStatsDTO> response = getTaskStatsQueryHandler.handle(query);
+    // ResponseEntity<TaskStatsDTO> response = getMyTaskInstanceStatisticsQueryHandler.handle(query);
     //
     // Then
     // assertNotNull(response);

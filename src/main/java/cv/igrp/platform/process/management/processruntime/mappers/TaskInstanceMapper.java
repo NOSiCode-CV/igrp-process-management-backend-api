@@ -233,8 +233,8 @@ public class TaskInstanceMapper {
   }
 
 
-  public TaskStatsDTO toTaskStatsDto(TaskStatistics taskStatistics) {
-    return new TaskStatsDTO(
+  public TaskInstanceStatsDTO toTaskInstanceStatsDto(TaskStatistics taskStatistics) {
+    return new TaskInstanceStatsDTO(
         taskStatistics.getTotalTaskInstances(),
         taskStatistics.getTotalAvailableTasks(),
         taskStatistics.getTotalAssignedTasks(),
