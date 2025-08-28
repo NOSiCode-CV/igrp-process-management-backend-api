@@ -2,7 +2,7 @@ package cv.igrp.platform.process.management.processruntime.application.queries;
 
 import cv.igrp.framework.core.domain.QueryHandler;
 import cv.igrp.framework.stereotype.IgrpQueryHandler;
-import cv.igrp.platform.process.management.processruntime.application.dto.TaskStatsDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceStatsDTO;
 import cv.igrp.platform.process.management.processruntime.domain.service.TaskInstanceService;
 import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
 import cv.igrp.platform.process.management.shared.security.UserContext;
@@ -13,35 +13,36 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-public class GetTaskStatsQueryHandler implements QueryHandler<GetTaskStatsQuery, ResponseEntity<TaskStatsDTO>>{
+public class GetMyTaskInstanceStatisticsQueryHandler implements QueryHandler<GetMyTaskInstanceStatisticsQuery, ResponseEntity<TaskInstanceStatsDTO>>{
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(GetTaskStatsQueryHandler.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(GetMyTaskInstanceStatisticsQueryHandler.class);
 
   private final TaskInstanceService taskInstanceService;
   private final TaskInstanceMapper taskInstanceMapper;
   private final UserContext userContext;
 
-  public GetTaskStatsQueryHandler(TaskInstanceService taskInstanceService, TaskInstanceMapper taskInstanceMapper, UserContext userContext) {
+  public GetMyTaskInstanceStatisticsQueryHandler(TaskInstanceService taskInstanceService,
+                                                 TaskInstanceMapper taskInstanceMapper,
+                                                 UserContext userContext) {
 
     this.taskInstanceService = taskInstanceService;
     this.taskInstanceMapper = taskInstanceMapper;
     this.userContext = userContext;
   }
 
-
   @IgrpQueryHandler
   @Transactional(readOnly = true)
-  public ResponseEntity<TaskStatsDTO> handle(GetTaskStatsQuery query) {
+  public ResponseEntity<TaskInstanceStatsDTO> handle(GetMyTaskInstanceStatisticsQuery query) {
 
     final var currentUser = userContext.getCurrentUser();
 
-    LOGGER.debug("Task statistics requested [scope=global, byUser={}]", currentUser.getValue());
+    LOGGER.debug("User [{}] requested his task instance statistics", currentUser.getValue());
 
-    var statistics = taskInstanceService.getGlobalTaskStatistics();
+    var statistics = taskInstanceService.getTaskStatisticsByUser(currentUser);
 
-    LOGGER.debug("Global task statistics computed successfully by user [{}]", currentUser.getValue());
+    LOGGER.debug("Task statistics computed successfully for user [{}]", currentUser.getValue());
 
-    return ResponseEntity.ok(taskInstanceMapper.toTaskStatsDto(statistics));
+    return ResponseEntity.ok(taskInstanceMapper.toTaskInstanceStatsDto(statistics));
 
   }
 

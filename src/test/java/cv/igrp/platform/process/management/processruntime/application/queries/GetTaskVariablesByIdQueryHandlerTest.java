@@ -69,6 +69,7 @@ class GetTaskVariablesByIdQueryHandlerTest {
     assertTrue(response.getStatusCode().is2xxSuccessful());
     assertEquals(taskVariablesListDTO, response.getBody());
 
+    verify(userContext).getCurrentUser();
     verify(taskInstanceService).getTaskVariables(taskId);
     verify(taskInstanceMapper).toTaskVariableListDTO(taskVariables);
 

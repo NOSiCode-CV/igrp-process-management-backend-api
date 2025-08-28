@@ -407,7 +407,7 @@
       ]
     },
     {
-      "actionName": "getTaskStats",
+      "actionName": "getTaskInstanceStatistics",
       "path": "stats",
       "method": "GET",
       "responses": {
@@ -416,7 +416,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "TaskStatsDTO",
+                "type": "TaskInstanceStatsDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",
@@ -428,7 +428,7 @@
       }
     },
     {
-      "actionName": "getMyTaskStats",
+      "actionName": "getMyTaskInstanceStatistics",
       "path": "stats/me",
       "method": "GET",
       "responses": {
@@ -437,7 +437,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "TaskStatsDTO",
+                "type": "TaskInstanceStatsDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "none",

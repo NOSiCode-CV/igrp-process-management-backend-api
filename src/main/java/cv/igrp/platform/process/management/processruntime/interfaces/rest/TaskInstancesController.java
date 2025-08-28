@@ -435,8 +435,8 @@ public class TaskInstancesController {
     value = "stats"
   )
   @Operation(
-    summary = "GET method to handle operations for getTaskStats",
-    description = "GET method to handle operations for getTaskStats",
+    summary = "GET method to handle operations for getTaskInstanceStatistics",
+    description = "GET method to handle operations for getTaskInstanceStatistics",
     responses = {
       @ApiResponse(
           responseCode = "200",
@@ -444,22 +444,22 @@ public class TaskInstancesController {
           content = @Content(
               mediaType = "application/json",
               schema = @Schema(
-                  implementation = TaskStatsDTO.class,
+                  implementation = TaskInstanceStatsDTO.class,
                   type = "object")
           )
       )
     }
   )
 
-  public ResponseEntity<TaskStatsDTO> getTaskStats(
+  public ResponseEntity<TaskInstanceStatsDTO> getTaskInstanceStatistics(
     )
   {
 
       LOGGER.debug("Operation started");
 
-      final var query = new GetTaskStatsQuery();
+      final var query = new GetTaskInstanceStatisticsQuery();
 
-      ResponseEntity<TaskStatsDTO> response = queryBus.handle(query);
+      ResponseEntity<TaskInstanceStatsDTO> response = queryBus.handle(query);
 
       LOGGER.debug("Operation finished");
 
@@ -472,8 +472,8 @@ public class TaskInstancesController {
     value = "stats/me"
   )
   @Operation(
-    summary = "GET method to handle operations for getMyTaskStats",
-    description = "GET method to handle operations for getMyTaskStats",
+    summary = "GET method to handle operations for getMyTaskInstanceStatistics",
+    description = "GET method to handle operations for getMyTaskInstanceStatistics",
     responses = {
       @ApiResponse(
           responseCode = "200",
@@ -481,22 +481,22 @@ public class TaskInstancesController {
           content = @Content(
               mediaType = "application/json",
               schema = @Schema(
-                  implementation = TaskStatsDTO.class,
+                  implementation = TaskInstanceStatsDTO.class,
                   type = "object")
           )
       )
     }
   )
 
-  public ResponseEntity<TaskStatsDTO> getMyTaskStats(
+  public ResponseEntity<TaskInstanceStatsDTO> getMyTaskInstanceStatistics(
     )
   {
 
       LOGGER.debug("Operation started");
 
-      final var query = new GetMyTaskStatsQuery();
+      final var query = new GetMyTaskInstanceStatisticsQuery();
 
-      ResponseEntity<TaskStatsDTO> response = queryBus.handle(query);
+      ResponseEntity<TaskInstanceStatsDTO> response = queryBus.handle(query);
 
       LOGGER.debug("Operation finished");
 

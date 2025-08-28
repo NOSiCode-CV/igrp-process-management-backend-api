@@ -16,7 +16,7 @@ public enum ProcessInstanceStatus implements IgrpEnum<String> {
   RUNNING("RUNNING", "Running"),
     CREATED("CREATED", "CREATED"),
     SUSPENDED("SUSPENDED", "SUSPENDED"),
-    CANCELLED("CANCELLED", "CANCELLED"),
+    CANCELED("CANCELED", "CANCELED"),
     COMPLETED("COMPLETED", "COMPLETED")
   ;
 

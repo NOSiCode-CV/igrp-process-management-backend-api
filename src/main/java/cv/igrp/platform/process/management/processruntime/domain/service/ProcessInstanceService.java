@@ -3,6 +3,7 @@ package cv.igrp.platform.process.management.processruntime.domain.service;
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstance;
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstanceFilter;
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstanceTaskStatus;
+import cv.igrp.platform.process.management.processruntime.domain.models.ProcessStatistics;
 import cv.igrp.platform.process.management.processruntime.domain.repository.ProcessInstanceRepository;
 import cv.igrp.platform.process.management.processruntime.domain.repository.RuntimeProcessEngineRepository;
 import cv.igrp.platform.process.management.shared.application.constants.ProcessInstanceStatus;
@@ -82,4 +83,7 @@ public class ProcessInstanceService {
     return runtimeProcessEngineRepository.getProcessInstanceTaskStatus(processInstance.getNumber().getValue());
   }
 
+  public ProcessStatistics getProcessInstanceStatistics() {
+    return processInstanceRepository.getProcessInstanceStatistics();
+  }
 }

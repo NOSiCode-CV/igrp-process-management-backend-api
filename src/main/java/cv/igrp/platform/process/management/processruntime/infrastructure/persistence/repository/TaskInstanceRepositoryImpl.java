@@ -170,9 +170,7 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
 
 
   private long countByStatus(TaskInstanceStatus status) {
-    return taskInstanceEntityRepository.count(
-        (root, query, cb) -> cb.equal(root.get("status"), status)
-    );
+    return taskInstanceEntityRepository.count((root, query, cb) -> cb.equal(root.get("status"), status));
   }
 
 
@@ -209,9 +207,7 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
 
 
   private long countByStatus(Specification<TaskInstanceEntity> base, TaskInstanceStatus status) {
-    return taskInstanceEntityRepository.count(
-      base.and((root, q, cb) -> cb.equal(root.get("status"), status))
-    );
+    return taskInstanceEntityRepository.count(base.and((root, q, cb) -> cb.equal(root.get("status"), status)));
   }
 
 
