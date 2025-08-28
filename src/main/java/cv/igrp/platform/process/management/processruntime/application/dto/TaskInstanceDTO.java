@@ -75,10 +75,16 @@ public class TaskInstanceDTO  {
 
   private TaskInstanceStatus status ;
 
-  @Valid
-  private List<TaskInstanceEventListDTO> taskInstanceEvents = new ArrayList<>();
-
 
   private String statusDesc ;
+
+
+  private LocalDateTime endedAt ;
+
+
+  private String endedBy ;
+
+  @Valid
+  private List<TaskInstanceEventListDTO> taskInstanceEvents = new ArrayList<>();
 
 }

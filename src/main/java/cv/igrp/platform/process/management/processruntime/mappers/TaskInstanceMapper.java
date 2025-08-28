@@ -152,6 +152,8 @@ public class TaskInstanceMapper {
     dto.setStartedBy(model.getStartedBy().getValue());
     dto.setAssignedBy(model.getAssignedBy()!=null ? model.getAssignedBy().getValue(): null);
     dto.setAssignedAt(model.getAssignedAt());
+    dto.setEndedBy(model.getEndedBy()!=null ? model.getEndedBy().getValue(): null);
+    dto.setEndedAt(model.getEndedAt());
     dto.setStatus(model.getStatus());
     dto.setStatusDesc(model.getStatus().getDescription());
     return dto;
@@ -178,6 +180,8 @@ public class TaskInstanceMapper {
     dto.setStartedBy(taskInstance.getStartedBy().getValue());
     dto.setAssignedBy(taskInstance.getAssignedBy()!=null?taskInstance.getAssignedBy().getValue():null);
     dto.setAssignedAt(taskInstance.getAssignedAt());
+    dto.setEndedBy(taskInstance.getEndedBy()!=null?taskInstance.getEndedBy().getValue():null);
+    dto.setEndedAt(taskInstance.getEndedAt());
     dto.setTaskInstanceEvents(new ArrayList<>());
     taskInstance.getTaskInstanceEvents()
         .forEach(e->dto.getTaskInstanceEvents().add(eventMapper.toEventListDTO(e)));
@@ -230,7 +234,6 @@ public class TaskInstanceMapper {
 
 
   public TaskStatsDTO toTaskStatsDto(TaskStatistics taskStatistics) {
-    final var TaskStatsDTO = new TaskStatsDTO();
     return new TaskStatsDTO(
         taskStatistics.getTotalTaskInstances(),
         taskStatistics.getTotalAvailableTasks(),
