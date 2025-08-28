@@ -30,7 +30,7 @@
       "primaryKey": false
     },
     {
-      "name": "totalCompletedTasks",
+      "name": "totalAssignedTasks",
       "objectType": "java",
       "type": "long",
       "required": false,
@@ -43,6 +43,18 @@
     },
     {
       "name": "totalSuspendedTasks",
+      "objectType": "java",
+      "type": "long",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    },
+    {
+      "name": "totalCompletedTasks",
       "objectType": "java",
       "type": "long",
       "required": false,

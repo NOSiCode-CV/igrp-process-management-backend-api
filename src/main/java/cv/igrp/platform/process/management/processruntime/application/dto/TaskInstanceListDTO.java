@@ -61,6 +61,12 @@ public class TaskInstanceListDTO  {
   private LocalDateTime startedAt ;
 
 
+  private String endedBy ;
+
+
+  private LocalDateTime endedAt ;
+
+
   private TaskInstanceStatus status ;
 
 

@@ -32,31 +32,10 @@
       ]
     },
     {
-      "name": "CANCELLED",
+      "name": "CANCELED",
       "attributes": [
-        "CANCELLED",
+        "CANCELED",
         "Cancelado"
-      ]
-    },
-    {
-      "name": "DELETED",
-      "attributes": [
-        "DELETED",
-        "Eliminado"
-      ]
-    },
-    {
-      "name": "PENDING",
-      "attributes": [
-        "PENDING",
-        "Pendente"
-      ]
-    },
-    {
-      "name": "CURRENT",
-      "attributes": [
-        "CURRENT",
-        "Atual"
       ]
     }
   ],
