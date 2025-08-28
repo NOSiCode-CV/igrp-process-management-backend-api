@@ -59,11 +59,13 @@ class GetTaskInstanceByIdQueryHandlerTest {
 
   @Test
   void testHandleGetTaskInstanceByIdQuery() {
+
     ResponseEntity<TaskInstanceDTO> response = handler.handle(query);
 
     assertNotNull(response);
     assertEquals(taskInstanceDTOMock, response.getBody());
 
+    verify(userContext).getCurrentUser();
     verify(taskInstanceService).getByIdWihEvents(UUID.fromString(query.getId()));
     verify(taskInstanceMapper).toTaskInstanceDTO(taskInstanceMock);
   }
