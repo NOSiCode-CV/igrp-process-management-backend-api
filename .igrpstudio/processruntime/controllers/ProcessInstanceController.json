@@ -192,6 +192,27 @@
           "description": "ID of the process instance"
         }
       ]
+    },
+    {
+      "actionName": "getProcessInstanceStatistics",
+      "path": "stats",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProcessInstanceStats",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "processruntime"
+              }
+            }
+          }
+        }
+      }
     }
   ],
   "id": "pyn9bsrz1z-CONTROLLER"

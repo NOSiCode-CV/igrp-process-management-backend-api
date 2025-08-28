@@ -3,8 +3,10 @@ package cv.igrp.platform.process.management.processruntime.mappers;
 import cv.igrp.framework.runtime.core.engine.process.model.IGRPProcessStatus;
 import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceListPageDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceStatsDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.StartProcessRequestDTO;
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstance;
+import cv.igrp.platform.process.management.processruntime.domain.models.ProcessStatistics;
 import cv.igrp.platform.process.management.shared.application.constants.ProcessInstanceStatus;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
@@ -155,5 +157,14 @@ public class ProcessInstanceMapper {
   }
 
 
-
+  public ProcessInstanceStatsDTO toProcessInstanceStatsDto(ProcessStatistics statistics) {
+    return new ProcessInstanceStatsDTO(
+        statistics.getTotalProcessInstances(),
+        statistics.getTotalCreatedProcess(),
+        statistics.getTotalRunningProcess(),
+        statistics.getTotalCompletedProcess(),
+        statistics.getTotalSuspendedProcess(),
+        statistics.getTotalCanceledProcess()
+    );
+  }
 }

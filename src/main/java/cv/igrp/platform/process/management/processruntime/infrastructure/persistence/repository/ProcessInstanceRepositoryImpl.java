@@ -3,6 +3,7 @@ package cv.igrp.platform.process.management.processruntime.infrastructure.persis
 
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstance;
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstanceFilter;
+import cv.igrp.platform.process.management.processruntime.domain.models.ProcessStatistics;
 import cv.igrp.platform.process.management.processruntime.domain.repository.ProcessInstanceRepository;
 import cv.igrp.platform.process.management.processruntime.mappers.ProcessInstanceMapper;
 import cv.igrp.platform.process.management.shared.application.constants.ProcessInstanceStatus;
@@ -12,6 +13,7 @@ import cv.igrp.platform.process.management.shared.infrastructure.persistence.rep
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -105,6 +107,31 @@ public class ProcessInstanceRepositoryImpl implements ProcessInstanceRepository 
   @Override
   public Optional<ProcessInstance> findById(UUID id) {
     return processInstanceEntityRepository.findById(id).map(mapper::toModel);
+  }
+
+  @Override
+  public ProcessStatistics getProcessInstanceStatistics() {
+
+    long total = processInstanceEntityRepository.count();
+
+    long created = countByStatus(ProcessInstanceStatus.CREATED);
+    long running = countByStatus(ProcessInstanceStatus.RUNNING);
+    long suspended = countByStatus(ProcessInstanceStatus.SUSPENDED);
+    long completed = countByStatus(ProcessInstanceStatus.COMPLETED);
+    long canceled = countByStatus(ProcessInstanceStatus.CANCELED);
+
+    return ProcessStatistics.builder()
+        .totalProcessInstances(total)
+        .totalCreatedProcess(created)
+        .totalRunningProcess(running)
+        .totalSuspendedProcess(suspended)
+        .totalCompletedProcess(completed)
+        .totalCanceledProcess(canceled)
+        .build();
+  }
+
+  private long countByStatus(ProcessInstanceStatus status) {
+    return processInstanceEntityRepository.count((root, query, cb) -> cb.equal(root.get("status"), status));
   }
 
 }
