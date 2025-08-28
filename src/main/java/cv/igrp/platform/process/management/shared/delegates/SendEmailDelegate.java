@@ -2,6 +2,8 @@ package cv.igrp.platform.process.management.shared.delegates;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.JavaDelegate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
@@ -9,6 +11,7 @@ import org.springframework.stereotype.Component;
 @Component("sendEmailDelegate")
 public class SendEmailDelegate implements JavaDelegate {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(SendEmailDelegate.class);
 
   private final JavaMailSender mailSender;
 
@@ -18,19 +21,26 @@ public class SendEmailDelegate implements JavaDelegate {
 
   @Override
   public void execute(DelegateExecution execution) {
-    String to = (String) execution.getVariable("emailTo");
-    String subject = (String) execution.getVariable("emailSubject");
-    String body = (String) execution.getVariable("emailBody");
+    LOGGER.info("Entered SendEmailDelegate");
+
+    String to = execution.getVariable("emailTo", String.class);
+    String subject = execution.getVariable("emailSubject", String.class);
+    String body = execution.getVariable("emailBody", String.class);
+    String from = execution.getVariable("emailFrom", String.class);
+
+    if (to == null) {
+      LOGGER.warn("'emailTo' variable is null. Skipping email sending.");
+    }
 
     SimpleMailMessage message = new SimpleMailMessage();
     message.setTo(to);
-    message.setFrom("no-reply@return2sender.ie");
-    message.setSubject(subject != null ? subject : "Default Subject");
-    message.setText(body != null ? body : "Hello from Activiti!");
+    message.setFrom(from == null ? "no-reply@return2sender.ie" : from);
+    message.setSubject(subject);
+    message.setText(body);
 
+    LOGGER.info("Sending email to: {}", to);
     mailSender.send(message);
-
-    System.out.println("✅ Email sent to: " + to);
+    LOGGER.info("Email successfully sent to: {}", to);
   }
 
 }
