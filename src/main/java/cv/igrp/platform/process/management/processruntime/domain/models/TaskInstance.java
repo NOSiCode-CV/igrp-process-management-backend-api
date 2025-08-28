@@ -60,7 +60,7 @@ public class TaskInstance {
       List<TaskInstanceEvent> taskInstanceEvents
   ) {
     this.id = id == null ? Identifier.generate() : id;
-    this.taskKey = Objects.requireNonNull(taskKey, "Task Key Id cannot be null!");
+    this.taskKey = Objects.requireNonNull(taskKey, "Task Key cannot be null!");
     this.formKey = formKey;
     this.name = Objects.requireNonNull(name, "The Name of the task cannot be null!");
     this.externalId = Objects.requireNonNull(externalId, "External Id cannot be null!");

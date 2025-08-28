@@ -150,6 +150,7 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
 
   @Override
   public TaskStatistics getGlobalTaskStatistics() {
+
     long total = taskInstanceEntityRepository.count();
 
     long available = countByStatus(TaskInstanceStatus.CREATED);
