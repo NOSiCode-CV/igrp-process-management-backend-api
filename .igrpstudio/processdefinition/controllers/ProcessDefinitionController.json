@@ -220,6 +220,35 @@
           "description": "ID of the Process Definition"
         }
       ]
+    },
+    {
+      "actionName": "getProcessSequenceById",
+      "path": "{id}sequence",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProcessSequenceDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "processdefinition"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true,
+          "description": "id of the sequence"
+        }
+      ]
     }
   ],
   "id": "o9isd9wv95-CONTROLLER"

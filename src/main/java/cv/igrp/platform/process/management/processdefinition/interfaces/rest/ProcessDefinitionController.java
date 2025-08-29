@@ -3,30 +3,28 @@
 
 package cv.igrp.platform.process.management.processdefinition.interfaces.rest;
 
+import cv.igrp.framework.core.domain.CommandBus;
+import cv.igrp.framework.core.domain.QueryBus;
 import cv.igrp.framework.stereotype.IgrpController;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.http.HttpStatus;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import cv.igrp.platform.process.management.processdefinition.application.commands.CreateArtifactCommand;
+import cv.igrp.platform.process.management.processdefinition.application.commands.DeleteArtifactCommand;
+import cv.igrp.platform.process.management.processdefinition.application.commands.DeployProcessCommand;
+import cv.igrp.platform.process.management.processdefinition.application.dto.*;
+import cv.igrp.platform.process.management.processdefinition.application.queries.GetArtifactsByProcessDefinitionIdQuery;
+import cv.igrp.platform.process.management.processdefinition.application.queries.GetDeployedArtifactsByProcessDefinitionIdQuery;
+import cv.igrp.platform.process.management.processdefinition.application.queries.GetProcessSequenceByIdQuery;
+import cv.igrp.platform.process.management.processdefinition.application.queries.ListDeploymentsQuery;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import cv.igrp.framework.core.domain.CommandBus;
-import cv.igrp.framework.core.domain.QueryBus;
-import cv.igrp.platform.process.management.processdefinition.application.commands.*;
-import cv.igrp.platform.process.management.processdefinition.application.queries.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-
-import cv.igrp.platform.process.management.processdefinition.application.dto.ProcessDeploymentRequestDTO;
-import cv.igrp.platform.process.management.processdefinition.application.dto.ProcessDeploymentDTO;
-import cv.igrp.platform.process.management.processdefinition.application.dto.ProcessDeploymentListPageDTO;
-import cv.igrp.platform.process.management.processdefinition.application.dto.ProcessArtifactRequestDTO;
-import cv.igrp.platform.process.management.processdefinition.application.dto.ProcessArtifactDTO;
 import java.util.List;
 
 @IgrpController
@@ -37,11 +35,11 @@ public class ProcessDefinitionController {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ProcessDefinitionController.class);
 
-  
+
   private final CommandBus commandBus;
   private final QueryBus queryBus;
 
-  
+
   public ProcessDefinitionController(
     CommandBus commandBus, QueryBus queryBus
   ) {
@@ -68,7 +66,7 @@ public class ProcessDefinitionController {
       )
     }
   )
-  
+
   public ResponseEntity<ProcessDeploymentDTO> deployProcess(@Valid @RequestBody ProcessDeploymentRequestDTO deployProcessRequest
     )
   {
@@ -104,7 +102,7 @@ public class ProcessDefinitionController {
       )
     }
   )
-  
+
   public ResponseEntity<ProcessDeploymentListPageDTO> listDeployments(
     @RequestParam(value = "applicationBase", required = false) String applicationBase,
     @RequestParam(value = "processName", required = false) String processName,
@@ -144,7 +142,7 @@ public class ProcessDefinitionController {
       )
     }
   )
-  
+
   public ResponseEntity<ProcessArtifactDTO> createArtifact(@Valid @RequestBody ProcessArtifactRequestDTO createArtifactRequest
     , @PathVariable(value = "id") String id)
   {
@@ -181,7 +179,7 @@ public class ProcessDefinitionController {
       )
     }
   )
-  
+
   public ResponseEntity<String> deleteArtifact(
     @PathVariable(value = "id") String id)
   {
@@ -218,7 +216,7 @@ public class ProcessDefinitionController {
       )
     }
   )
-  
+
   public ResponseEntity<List<ProcessArtifactDTO>> getArtifactsByProcessDefinitionId(
     @PathVariable(value = "id") String id)
   {
@@ -255,7 +253,7 @@ public class ProcessDefinitionController {
       )
     }
   )
-  
+
   public ResponseEntity<List<ProcessArtifactDTO>> getDeployedArtifactsByProcessDefinitionId(
     @PathVariable(value = "id") String id)
   {
@@ -265,6 +263,43 @@ public class ProcessDefinitionController {
       final var query = new GetDeployedArtifactsByProcessDefinitionIdQuery(id);
 
       ResponseEntity<List<ProcessArtifactDTO>> response = queryBus.handle(query);
+
+      LOGGER.debug("Operation finished");
+
+      return ResponseEntity.status(response.getStatusCode())
+              .headers(response.getHeaders())
+              .body(response.getBody());
+  }
+
+  @GetMapping(
+    value = "{id}sequence"
+  )
+  @Operation(
+    summary = "GET method to handle operations for getProcessSequenceById",
+    description = "GET method to handle operations for getProcessSequenceById",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          description = "",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = ProcessSequenceDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+
+  public ResponseEntity<ProcessSequenceDTO> getProcessSequenceById(
+    @PathVariable(value = "id") String id)
+  {
+
+      LOGGER.debug("Operation started");
+
+      final var query = new GetProcessSequenceByIdQuery(id);
+
+      ResponseEntity<ProcessSequenceDTO> response = queryBus.handle(query);
 
       LOGGER.debug("Operation finished");
 
