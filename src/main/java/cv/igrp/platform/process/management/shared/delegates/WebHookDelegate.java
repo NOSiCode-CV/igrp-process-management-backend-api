@@ -33,9 +33,7 @@ public class WebHookDelegate implements JavaDelegate {
     String url = execution.getVariable("webhookUrl", String.class);
     String payload = execution.getVariable("webhookPayload", String.class);
 
-    if (url == null) {
-      LOGGER.warn("'webhookUrl' variable is null. Skipping webhook call.");
-    }
+    validate(url, payload);
 
     try {
       HttpRequest request = HttpRequest.newBuilder()
@@ -56,6 +54,15 @@ public class WebHookDelegate implements JavaDelegate {
       throw new RuntimeException(e);
     }
 
+  }
+
+  private void validate(String webhookUrl, String webhookPayload) {
+    if (webhookUrl == null || webhookUrl.isBlank()) {
+      throw new IllegalArgumentException("'webhookUrl' is required.");
+    }
+    if (webhookPayload == null || webhookPayload.isBlank()) {
+      throw new IllegalArgumentException("'webhookPayload' is required.");
+    }
   }
 
 }

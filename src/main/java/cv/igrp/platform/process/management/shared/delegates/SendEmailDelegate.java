@@ -4,6 +4,7 @@ import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
@@ -14,9 +15,12 @@ public class SendEmailDelegate implements JavaDelegate {
   private static final Logger LOGGER = LoggerFactory.getLogger(SendEmailDelegate.class);
 
   private final JavaMailSender mailSender;
+  private final String defaultFrom;
 
-  public SendEmailDelegate(JavaMailSender mailSender) {
+  public SendEmailDelegate(JavaMailSender mailSender,
+                           @Value("${igrp.mail.default.from}") String defaultFrom) {
     this.mailSender = mailSender;
+    this.defaultFrom = defaultFrom;
   }
 
   @Override
@@ -28,19 +32,28 @@ public class SendEmailDelegate implements JavaDelegate {
     String body = execution.getVariable("emailBody", String.class);
     String from = execution.getVariable("emailFrom", String.class);
 
-    if (to == null) {
-      LOGGER.warn("'emailTo' variable is null. Skipping email sending.");
-    }
+    validate(to, subject, body);
 
     SimpleMailMessage message = new SimpleMailMessage();
     message.setTo(to);
-    message.setFrom(from == null ? "no-reply@return2sender.ie" : from);
+    message.setFrom(from == null ? defaultFrom : from);
     message.setSubject(subject);
     message.setText(body);
 
-    LOGGER.info("Sending email to: {}", to);
     mailSender.send(message);
     LOGGER.info("Email successfully sent to: {}", to);
+  }
+
+  private void validate(String to, String subject, String body) {
+    if (to == null || to.isBlank()) {
+      throw new IllegalArgumentException("'emailTo' is required.");
+    }
+    if (subject == null || subject.isBlank()) {
+      throw new IllegalArgumentException("'emailSubject' is required.");
+    }
+    if (body == null || body.isBlank()) {
+      throw new IllegalArgumentException("'emailBody' is required.");
+    }
   }
 
 }
