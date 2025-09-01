@@ -2,6 +2,7 @@ package cv.igrp.platform.process.management.processdefinition.domain.service;
 
 import cv.igrp.platform.process.management.processdefinition.domain.models.ProcessSequence;
 import cv.igrp.platform.process.management.processdefinition.domain.repository.ProcessSequenceRepository;
+import cv.igrp.platform.process.management.processruntime.domain.models.ProcessNumber;
 import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,13 @@ public class ProcessSequenceService {
     return processSequenceRepository.save(toSave);
   }
 
+
+  public ProcessNumber getGeneratedProcessNumberByProcessDefinitionId(Code processDefinitionId){
+    var sequence = getSequenceByProcessDefinitionId(processDefinitionId);
+    var processNumber = sequence.generateNextProcessNumberAndIncrement();
+    processSequenceRepository.save(sequence);
+    return processNumber;
+  }
 
 
 }

@@ -1,11 +1,15 @@
 package cv.igrp.platform.process.management.processdefinition.domain.models;
 
+import cv.igrp.platform.process.management.processruntime.domain.models.ProcessNumber;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import cv.igrp.platform.process.management.shared.domain.models.Name;
+import cv.igrp.platform.process.management.shared.util.DateUtil;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 @Getter
@@ -59,5 +63,40 @@ public class ProcessSequence {
         .processDefinitionId(this.processDefinitionId).build();
   }
 
+
+  public ProcessNumber generateNextProcessNumberAndIncrement() {
+    String processNumber = generateNumber(this.nextNumber);
+    this.nextNumber += this.numberIncrement;
+    return ProcessNumber.create(processNumber);
+  }
+
+
+  private String generateNumber(Long currentNumber) {
+    StringBuilder sb = new StringBuilder();
+
+    // prefixo
+    sb.append(prefix.getValue());
+
+    // data formatada
+    if (dateFormat != null && !dateFormat.isEmpty()) {
+      String formattedDate = DateUtil.biLocalDateToString.apply(LocalDate.now(),DateTimeFormatter.ofPattern(dateFormat));
+      sb.append(formattedDate);
+    }
+
+    // número sequencial com padding
+    if (padding != null && padding > 0) {
+      sb.append(String.format("%0" + padding + "d", currentNumber));
+    } else {
+      sb.append(currentNumber);
+    }
+
+    // dígito de controlo (exemplo simples: mod 10)
+    if (checkDigitSize != null && checkDigitSize > 0) {
+      long checkDigit = currentNumber % (long) Math.pow(10, checkDigitSize);
+      sb.append(checkDigit);
+    }
+
+    return sb.toString();
+  }
 
 }
