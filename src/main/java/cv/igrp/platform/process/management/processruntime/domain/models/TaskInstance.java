@@ -21,7 +21,7 @@ public class TaskInstance {
   private final Name name;
   private final Code externalId;
   private final Identifier processInstanceId;
-  private final Code processNumber;
+  private final ProcessNumber processNumber;
   private final Code processName;
   private final Code processKey;
   private final Code businessKey;
@@ -45,7 +45,7 @@ public class TaskInstance {
       Code externalId,
       Identifier processInstanceId,
       Code processName,
-      Code processNumber,
+      ProcessNumber processNumber,
       Code processKey,
       Code businessKey,
       Code applicationBase,
@@ -65,7 +65,7 @@ public class TaskInstance {
     this.name = Objects.requireNonNull(name, "The Name of the task cannot be null!");
     this.externalId = Objects.requireNonNull(externalId, "External Id cannot be null!");
     this.processInstanceId = processInstanceId;
-    this.processNumber = Objects.requireNonNull(processNumber, "ProcessNumber cannot be null!");
+    this.processNumber = processNumber;
     this.processName = processName;
     this.businessKey = businessKey;
     this.applicationBase = applicationBase;
@@ -90,7 +90,7 @@ public class TaskInstance {
       throw new IllegalStateException("Process Name cannot be null!");
     }
     if(processInstanceId==null) {
-      throw new IllegalStateException("ProcessInstanceId cannot be null!");
+      throw new IllegalStateException("Process Instance Id cannot be null!");
     }
     if(processNumber==null) {
       throw new IllegalStateException("ProcessNumber cannot be null!");
@@ -151,6 +151,7 @@ public class TaskInstance {
 
 
   public TaskInstance withProperties(Code applicationBase,
+                                   ProcessNumber processNumber,
                                    Code processName,
                                    Code businessKey,
                                    Identifier processInstanceId,
@@ -162,10 +163,10 @@ public class TaskInstance {
         .taskKey(this.taskKey)
         .externalId(this.externalId)
         .name(this.name)
-        .processNumber(this.processNumber)
         .startedAt(this.startedAt)
         .formKey(formKey!=null ? formKey : this.formKey)
         .applicationBase(applicationBase)
+        .processNumber(processNumber)
         .processName(processName)
         .businessKey(businessKey)
         .processInstanceId(processInstanceId)

@@ -6,6 +6,7 @@ import cv.igrp.platform.process.management.processruntime.application.dto.Proces
 import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceStatsDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.StartProcessRequestDTO;
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstance;
+import cv.igrp.platform.process.management.processruntime.domain.models.ProcessNumber;
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessStatistics;
 import cv.igrp.platform.process.management.shared.application.constants.ProcessInstanceStatus;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
@@ -26,6 +27,7 @@ public class ProcessInstanceMapper {
   public ProcessInstanceEntity toEntity(ProcessInstance processInstance) {
     ProcessInstanceEntity processInstanceEntity = new ProcessInstanceEntity();
     processInstanceEntity.setNumber(processInstance.getNumber() != null ? processInstance.getNumber().getValue() : null);
+    processInstanceEntity.setEngineProcessNumber(processInstance.getEngineProcessNumber() != null ? processInstance.getEngineProcessNumber().getValue() : null);
     processInstanceEntity.setId(processInstance.getId().getValue());
     processInstanceEntity.setProcReleaseId(processInstance.getProcReleaseId().getValue());
     processInstanceEntity.setProcReleaseKey(processInstance.getProcReleaseKey().getValue());
@@ -49,7 +51,8 @@ public class ProcessInstanceMapper {
     return ProcessInstance.builder()
         .id(Identifier.create(processInstanceEntity.getId()))
         .name(processInstanceEntity.getName())
-        .number(Code.create(processInstanceEntity.getNumber()))
+        .number(ProcessNumber.create(processInstanceEntity.getNumber()))
+        .engineProcessNumber(processInstanceEntity.getEngineProcessNumber()!=null?Code.create(processInstanceEntity.getEngineProcessNumber()):null)
         .procReleaseKey(Code.create(processInstanceEntity.getProcReleaseKey()))
         .businessKey(processInstanceEntity.getBusinessKey() != null ? Code.create(processInstanceEntity.getBusinessKey()) : null)
         .procReleaseId(Code.create(processInstanceEntity.getProcReleaseId()))
@@ -128,7 +131,7 @@ public class ProcessInstanceMapper {
     }
 
     return ProcessInstance.builder()
-        .number(Code.create(processInstance.id()))
+        .engineProcessNumber(Code.create(processInstance.id()))
         .procReleaseId(processInstance.processDefinitionId() != null ? Code.create(processInstance.processDefinitionId()) : null)
         .procReleaseKey(processInstance.processDefinitionKey() != null ? Code.create(processInstance.processDefinitionKey()) : null)
         .businessKey(processInstance.businessKey() != null ? Code.create(processInstance.businessKey()) : null)

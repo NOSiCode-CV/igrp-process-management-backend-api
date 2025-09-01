@@ -3,20 +3,24 @@
 
 package cv.igrp.platform.process.management.shared.infrastructure.persistence.entity;
 
-import cv.igrp.platform.process.management.shared.config.AuditEntity;
 import cv.igrp.framework.stereotype.IgrpEntity;
-import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.envers.Audited;
-import java.util.UUID;
-import jakarta.validation.constraints.NotBlank;
-import java.time.LocalDateTime;
 import cv.igrp.platform.process.management.shared.application.constants.ProcessInstanceStatus;
+import cv.igrp.platform.process.management.shared.config.AuditEntity;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.envers.Audited;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
 
 @Audited
 @Getter
 @Setter
-@ToString
 @IgrpEntity
 @Entity
 @NoArgsConstructor
@@ -103,6 +107,13 @@ public class ProcessInstanceEntity extends AuditEntity {
 
     @Column(name="name")
     private String name;
+
+
+    @Column(name="engine_process_number")
+    private String engineProcessNumber;
+
+     @OneToMany(mappedBy = "processInstanceId")
+private List<TaskInstanceEntity> taskinstancelists;
 
 
 }

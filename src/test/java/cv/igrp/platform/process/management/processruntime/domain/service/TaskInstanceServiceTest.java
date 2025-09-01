@@ -1,8 +1,39 @@
 package cv.igrp.platform.process.management.processruntime.domain.service;
 
+import cv.igrp.platform.process.management.processruntime.domain.models.*;
+import cv.igrp.platform.process.management.processruntime.domain.repository.ProcessInstanceRepository;
+import cv.igrp.platform.process.management.processruntime.domain.repository.RuntimeProcessEngineRepository;
+import cv.igrp.platform.process.management.processruntime.domain.repository.TaskInstanceEventRepository;
+import cv.igrp.platform.process.management.processruntime.domain.repository.TaskInstanceRepository;
+import cv.igrp.platform.process.management.shared.application.constants.ProcessInstanceStatus;
+import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.platform.process.management.shared.domain.models.Code;
+import cv.igrp.platform.process.management.shared.domain.models.Identifier;
+import cv.igrp.platform.process.management.shared.domain.models.Name;
+import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
+import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.ProcessArtifactEntity;
+import cv.igrp.platform.process.management.shared.infrastructure.persistence.repository.ProcessArtifactEntityRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+
+import java.time.LocalDateTime;
+import java.util.*;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
 class TaskInstanceServiceTest {
 
-  /*@Mock
+  @Mock
   private TaskInstanceRepository taskInstanceRepository;
 
   @Mock
@@ -20,9 +51,11 @@ class TaskInstanceServiceTest {
   @InjectMocks
   private TaskInstanceService taskInstanceService;
 
+  private Code currentUser;
+
   @BeforeEach
   void setup() {
-    MockitoAnnotations.openMocks(this);
+    currentUser = Code.create("demo@nosi.cv");
   }
 
 
@@ -30,68 +63,160 @@ class TaskInstanceServiceTest {
   void testCreateTaskInstancesByProcess() {
     // Arrange
     Identifier processInstanceId = Identifier.create(UUID.randomUUID());
-    Code processNumber = Code.create("PROC-123");
+    ProcessNumber processNumber = ProcessNumber.create("PROC-123");
+    Code engineProcessNumber = Code.create("ENG-PROC-123");
     String processName = "TYPE-A";
     Code businessKey = Code.create("BK-001");
     Code applicationBase = Code.create("APP-XYZ");
-    String startedBy = "demo@nosi.cv";
+    String startedBy = "igrp@nosi.cv";
+    String taskKey = "task-1";
+    String taskName = "Task-1";
+    String formKey = "FORM-001";
+    String externalId = UUID.randomUUID().toString();
+    var date = LocalDateTime.now();
 
+    //
     ProcessInstance processInstance = mock(ProcessInstance.class);
     when(processInstance.getId()).thenReturn(processInstanceId);
+    when(processInstance.getEngineProcessNumber()).thenReturn(engineProcessNumber);
     when(processInstance.getNumber()).thenReturn(processNumber);
     when(processInstance.getName()).thenReturn(processName);
     when(processInstance.getBusinessKey()).thenReturn(businessKey);
     when(processInstance.getApplicationBase()).thenReturn(applicationBase);
     when(processInstance.getStartedBy()).thenReturn(startedBy);
 
-    // Mock runtime active tasks
-    TaskInstance mockTask = mock(TaskInstance.class);
-    when(mockTask.withProperties(any(), any(), any(), any(), any(), any()))
-        .thenReturn(mockTask);
-    when(mockTask.getTaskKey()).thenReturn(Code.create("task-1"));
-    when(mockTask.getTaskInstanceEvents())
-        .thenReturn(new LinkedList<>(List.of(mock(TaskInstanceEvent.class))));
+    //
+    TaskInstance task = TaskInstance.builder()
+        .taskKey(Code.create(taskKey))
+        .externalId(Code.create(externalId))
+        .formKey(Code.create(formKey))
+        .name(Name.create( (taskName!=null) ? taskName : "NOT SET"))
+        .startedAt(date)
+        .build();
+    TaskInstance originalMock = Mockito.spy(task);
 
-    when(runtimeProcessEngineRepository.getActiveTaskInstances("PROC-123"))
-        .thenReturn(List.of(mockTask));
+    when(runtimeProcessEngineRepository.getActiveTaskInstances(engineProcessNumber.getValue()))
+        .thenReturn(List.of(originalMock));
 
+    //
     ProcessArtifactEntity artifactEntity = new ProcessArtifactEntity();
-    artifactEntity.setKey("task-1");
-    artifactEntity.setFormKey("FORM-001");
+    artifactEntity.setKey(taskKey);
+    artifactEntity.setFormKey(formKey);
+    ProcessArtifactEntity artifactEntityMock = Mockito.spy(artifactEntity);
+
     when(processArtifactEntityRepository.findAllByProcessDefinitionId(processInstanceId.getValue().toString()))
-        .thenReturn(List.of(artifactEntity));
+        .thenReturn(List.of(artifactEntityMock));
 
-    // Act
-    taskInstanceService.createTaskInstancesByProcess(processInstance);
+    //
+    TaskInstance finalTask = TaskInstance.builder()
+        .id(originalMock.getId())
+        .taskKey(originalMock.getTaskKey())
+        .externalId(originalMock.getExternalId())
+        .name(originalMock.getName())
+        .startedAt(date)
+        .formKey(Code.create(formKey))
+        .applicationBase(applicationBase)
+        .processNumber(processNumber)
+        .processName(Code.create(processName))
+        .businessKey(businessKey)
+        .processInstanceId(processInstanceId)
+        .startedBy(Code.create(startedBy))
+        .build();
+    TaskInstance finalMockTask = Mockito.spy(finalTask);
 
-    // Assert
-    verify(mockTask, times(1)).create();
-    verify(mockTask, times(1)).withProperties(
+    doReturn(finalMockTask).when(originalMock).withProperties(
         eq(applicationBase),
+        eq(processNumber),
         eq(Code.create(processName)),
         eq(businessKey),
         eq(processInstanceId),
-        eq(Code.create("FORM-001")),
+        any(), // aceita null ou Code
         eq(Code.create(startedBy))
     );
-    verify(taskInstanceRepository, times(1)).create(mockTask);
-    verify(taskInstanceEventRepository, times(1)).save(any(TaskInstanceEvent.class));
+
+    //
+    doNothing().when(finalMockTask).create();
+
+    when(finalMockTask.getTaskInstanceEvents()).thenReturn(List.of(mock(TaskInstanceEvent.class)));
+
+
+    // when
+    taskInstanceService.createTaskInstancesByProcess(processInstance);
+
+    // then
+    verify(originalMock).withProperties(
+        eq(applicationBase),
+        eq(processNumber),
+        eq(Code.create(processName)),
+        eq(businessKey),
+        eq(processInstanceId),
+        any(),
+        eq(Code.create(startedBy))
+    );
+    verify(finalMockTask).create();
+    verify(taskInstanceRepository).create(finalMockTask);
+    verify(taskInstanceEventRepository).save(any(TaskInstanceEvent.class));
+
+  }
+
+
+  private TaskInstance getMockTaskInstance(UUID id,boolean withEvents){
+    return TaskInstance.builder()
+        .id(Identifier.create(id))
+        .name(Name.create("Task1"))
+        .taskKey(Code.create("task_key1"))
+        .externalId(Code.create(UUID.randomUUID().toString()))
+        .processNumber(ProcessNumber.create("PROC_123456"))
+        .taskInstanceEvents(withEvents ? List.of(mock(TaskInstanceEvent.class)) : null)
+        .build();
   }
 
 
   @Test
-  void getById_shouldReturnTaskInstance_whenFound() {
-    UUID taskId = UUID.randomUUID();
-    TaskInstance mockTask = mock(TaskInstance.class);
+  void getByIdWihEvents_shouldReturnTaskInstance_whenFound() {
+    UUID id = UUID.randomUUID();
+    final var mockTaskInstance = getMockTaskInstance(id,true);
 
-    when(taskInstanceRepository.findById(taskId)).thenReturn(Optional.of(mockTask));
+    when(taskInstanceRepository.findByIdWihEvents(id))
+        .thenReturn(Optional.of(mockTaskInstance));
 
-    TaskInstance result = taskInstanceService.getByIdWihEvents(taskId);
+    TaskInstance result = taskInstanceService.getByIdWihEvents(id);
 
-    assertEquals(mockTask, result);
-    verify(taskInstanceRepository, times(1)).findById(taskId);
+    assertNotNull(result);
+    assertEquals(mockTaskInstance, result);
   }
 
+  @Test
+  void getByIdWihEvents_shouldThrowException_whenNotFound() {
+    UUID id = UUID.randomUUID();
+
+    when(taskInstanceRepository.findByIdWihEvents(id))
+        .thenReturn(Optional.empty());
+
+    IgrpResponseStatusException ex = assertThrows(
+        IgrpResponseStatusException.class,
+        () -> taskInstanceService.getByIdWihEvents(id)
+    );
+
+    assertTrue(ex.getMessage().contains("No Task Instance found with id"));
+    assertEquals(HttpStatus.NOT_FOUND.value(), ex.getStatusCode().value());
+  }
+
+
+
+  @Test
+  void getById_shouldReturnTaskInstance_whenFound() {
+    UUID id = UUID.randomUUID();
+    final var mockTaskInstance = getMockTaskInstance(id,false);
+
+    when(taskInstanceRepository.findById(id))
+        .thenReturn(Optional.of(mockTaskInstance));
+
+    TaskInstance result = taskInstanceService.getById(id);
+
+    assertNotNull(result);
+    assertEquals(mockTaskInstance, result);
+  }
 
   @Test
   void getById_shouldThrowNotFound_whenNotFound() {
@@ -100,150 +225,163 @@ class TaskInstanceServiceTest {
     when(taskInstanceRepository.findById(taskId)).thenReturn(Optional.empty());
 
     IgrpResponseStatusException ex = assertThrows(IgrpResponseStatusException.class,
-        () -> taskInstanceService.getByIdWihEvents(taskId));
+        () -> taskInstanceService.getById(taskId));
 
     assertTrue(ex.getMessage().contains("No Task Instance found with id"));
     verify(taskInstanceRepository, times(1)).findById(taskId);
   }
 
 
+
   @Test
-  void claimTask_shouldAssignTaskAndCallRepositories() {
-    UUID taskId = UUID.randomUUID();
-    String note = "Claim task";
+  void claimTask_shouldClaimTaskAndCallRepositories() {
+    final UUID taskId = UUID.randomUUID();
+    final UUID externalId = UUID.randomUUID();
+    final String note = "Claim task";
 
     TaskInstance mockTask = mock(TaskInstance.class);
-    TaskInstanceEvent mockEvent = mock(TaskInstanceEvent.class);
+    List<TaskInstanceEvent> mockEvents = List.of(mock(TaskInstanceEvent.class));
 
-    when(mockTask.getTaskInstanceEvents()).thenReturn(new java.util.LinkedList<>(List.of(mockEvent)));
+    when(mockTask.getTaskInstanceEvents()).thenReturn(mockEvents);
+    when(mockTask.getExternalId()).thenReturn(Code.create(externalId.toString()));
+    when(mockTask.getAssignedBy()).thenReturn(currentUser);
 
-    when(taskInstanceService.getByIdWihEvents(taskId)).thenReturn(mockTask);
+    doReturn(mockTask).when(taskInstanceService).getByIdWihEvents(taskId);
 
-    taskInstanceService.claimTask(taskId, eq(Code.create("current-user")), note);
+    taskInstanceService.claimTask(taskId, currentUser, note);
 
-    verify(mockTask, times(1)).claim(Code.create("current-user"),note);
+    verify(mockTask, times(1)).claim(currentUser,note);
 
-    verify(taskInstanceEventRepository, times(1)).save(mockEvent);
+    verify(taskInstanceEventRepository, times(1)).save(mockEvents.getLast());
 
     verify(taskInstanceRepository, times(1)).update(mockTask);
 
     verify(runtimeProcessEngineRepository, times(1))
-        .claimTask(anyString(), eq(note));
+        .claimTask(externalId.toString(), currentUser.getValue());
   }
+
 
 
   @Test
   void assignTask_shouldAssignTaskAndCallRepositories() {
-    UUID taskId = UUID.randomUUID();
-    Code userToAssign = Code.create("USER-001");
-    String note = "Assigning task";
+    final UUID taskId = UUID.randomUUID();
+    final UUID externalId = UUID.randomUUID();
+    final String note = "Assigning task";
+    final Code targetUser = Code.create("igrp@nosi.cv");
 
     TaskInstance mockTask = mock(TaskInstance.class);
-    TaskInstanceEvent mockEvent = mock(TaskInstanceEvent.class);
+    List<TaskInstanceEvent> mockEvents = List.of(mock(TaskInstanceEvent.class));
 
-    when(mockTask.getTaskInstanceEvents()).thenReturn(new java.util.LinkedList<>(List.of(mockEvent)));
+    when(mockTask.getTaskInstanceEvents()).thenReturn(mockEvents);
+    when(mockTask.getExternalId()).thenReturn(Code.create(externalId.toString()));
 
-    when(taskInstanceService.getByIdWihEvents(taskId)).thenReturn(mockTask);
+    doReturn(mockTask).when(taskInstanceService).getByIdWihEvents(taskId);
 
-    taskInstanceService.assignTask(taskId, userToAssign, eq(Code.create("current-user")), note);
+    taskInstanceService.assignTask(taskId, currentUser, targetUser, note);
 
-    verify(mockTask, times(1)).assign(Code.create("current-user"), userToAssign, note);
+    verify(mockTask, times(1)).assign(currentUser, targetUser, note);
 
-    verify(taskInstanceEventRepository, times(1)).save(mockEvent);
+    verify(taskInstanceEventRepository, times(1)).save(mockEvents.getLast());
 
     verify(taskInstanceRepository, times(1)).update(mockTask);
 
     verify(runtimeProcessEngineRepository, times(1))
-        .assignTask(anyString(), eq(userToAssign.getValue()), eq(note));
+        .assignTask(externalId.toString(), targetUser.getValue(), note);
   }
 
 
   @Test
-  void unClaimTask_shouldAssignTaskAndCallRepositories() {
-    UUID taskId = UUID.randomUUID();
-    String note = "Assigning task";
+  void unClaimTask_shouldUnClaimTaskAndCallRepositories() {
+    final UUID taskId = UUID.randomUUID();
+    final UUID externalId = UUID.randomUUID();
+    final String note = "Unclaiming task";
 
     TaskInstance mockTask = mock(TaskInstance.class);
-    TaskInstanceEvent mockEvent = mock(TaskInstanceEvent.class);
+    List<TaskInstanceEvent> mockEvents = List.of(mock(TaskInstanceEvent.class));
 
-    when(mockTask.getTaskInstanceEvents()).thenReturn(new java.util.LinkedList<>(List.of(mockEvent)));
+    when(mockTask.getTaskInstanceEvents()).thenReturn(mockEvents);
+    when(mockTask.getExternalId()).thenReturn(Code.create(externalId.toString()));
 
-    when(taskInstanceService.getByIdWihEvents(taskId)).thenReturn(mockTask);
+    doReturn(mockTask).when(taskInstanceService).getByIdWihEvents(taskId);
 
-    taskInstanceService.unClaimTask(taskId, eq(Code.create("current-user")), note);
+    taskInstanceService.unClaimTask(taskId, currentUser, note);
 
-    verify(mockTask, times(1)).unClaim(Code.create("current-user"), note);
+    verify(mockTask, times(1)).unClaim(currentUser, note);
 
-    verify(taskInstanceEventRepository, times(1)).save(mockEvent);
+    verify(taskInstanceEventRepository, times(1)).save(mockEvents.getLast());
 
     verify(taskInstanceRepository, times(1)).update(mockTask);
 
     verify(runtimeProcessEngineRepository, times(1))
-        .unClaimTask(anyString());
+        .unClaimTask(externalId.toString());
   }
 
 
   @Test
-  void completeTask_shouldCompleteAndCreateNextTasks() {
+  void shouldCompleteTaskSuccessfully() {
     // Arrange
-    UUID taskId = UUID.randomUUID();
-    Map<String,Object> variables = Map.of("name","Maria");
-    Map<String,Object> forms = Map.of("decisao","A");
+    var externalId = UUID.randomUUID().toString();
+    var taskId = UUID.randomUUID();
+    Map<String, Object> forms = Map.of("Name", "Maria","Age",18);
+    Map<String, Object> variables = Map.of("v1", "val1");
 
+    taskInstanceService = spy(taskInstanceService);
+
+    // --- mocks principais ---
     TaskInstance mockTask = mock(TaskInstance.class);
-    ProcessInstance mockProcessInstance = mock(ProcessInstance.class);
-    ProcessInstance mockActivityProcess = mock(ProcessInstance.class);
+    ProcessInstance mockProc = mock(ProcessInstance.class);
+    ProcessInstance mockActivityProc = mock(ProcessInstance.class);
 
-    // Mock taskInstanceService behavior
-    when(taskInstanceService.getByIdWihEvents(taskId)).thenReturn(mockTask);
-    when(processInstanceRepository.findById(any())).thenReturn(Optional.of(mockProcessInstance));
-    when(runtimeProcessEngineRepository.getProcessInstanceById(anyString()))
-        .thenReturn(mockActivityProcess);
+    // stub de getById
+    doReturn(mockTask).when(taskInstanceService).getByIdWihEvents(taskId);
 
-    when(mockTask.getExternalId()).thenReturn(Code.create("EXT-123"));
-    when(mockTask.getProcessInstanceId()).thenReturn(Identifier.create(UUID.randomUUID()));
-    when(mockTask.getProcessNumber()).thenReturn(Code.create("PROC-123"));
-    when(mockTask.getApplicationBase()).thenReturn(Code.create("APP-XYZ"));
-    when(mockTask.getTaskInstanceEvents())
-        .thenReturn(new LinkedList<>(List.of(mock(TaskInstanceEvent.class))));
+    // taskInstance stubs
+    when(mockTask.getProcessInstanceId()).thenReturn(Identifier.generate());
+    when(mockTask.getExternalId()).thenReturn(Code.create(externalId));
+    when(mockTask.getProcessNumber()).thenReturn(new ProcessNumber("PN-1"));
+    doNothing().when(mockTask).complete(any());
+    when(mockTask.getTaskInstanceEvents()).thenReturn(List.of(mock(TaskInstanceEvent.class)));
 
-    when(mockActivityProcess.getName()).thenReturn("Process Name");
-    when(mockActivityProcess.getStatus()).thenReturn(ProcessInstanceStatus.COMPLETED);
-    when(mockProcessInstance.getBusinessKey()).thenReturn(Code.create("BK-001"));
-    when(mockProcessInstance.getApplicationBase()).thenReturn(Code.create("APP-XYZ"));
-    when(mockProcessInstance.getStartedBy()).thenReturn("current-user");
+    // repositorio de processInstance
+    when(processInstanceRepository.findById(any())).thenReturn(Optional.of(mockProc));
 
-    // --- Mock dependências dos novos métodos ---
-    var activeTask = mock(TaskInstance.class);
-    when(runtimeProcessEngineRepository.getActiveTaskInstances("PROC-123"))
-        .thenReturn(List.of(activeTask));
+    // engine completeTask apenas ignora
+    doNothing().when(runtimeProcessEngineRepository).completeTask(any(), any(), any());
 
-    var processArtifact = mock(ProcessArtifactEntity.class);
-    when(processArtifact.getKey()).thenReturn("taskKey");
-    when(processArtifact.getFormKey()).thenReturn("formKey");
-    when(processArtifactEntityRepository.findAllByProcessDefinitionId(anyString()))
-        .thenReturn(List.of(processArtifact));
+    // retorno do engine activityProcess
+    when(runtimeProcessEngineRepository.getProcessInstanceById(any()))
+        .thenReturn(mockActivityProc);
 
-    // Spy para verificar createTask()
-    TaskInstanceService spyService = spy(taskInstanceService);
+    // mock activityProcess status COMPLETED
+    when(mockActivityProc.getStatus()).thenReturn(ProcessInstanceStatus.COMPLETED);
+    when(mockActivityProc.getEndedAt()).thenReturn(LocalDateTime.now());
+    when(mockActivityProc.getEndedBy()).thenReturn(null);
 
-    verify(taskInstanceRepository).create(any(TaskInstance.class));
-    verify(taskInstanceEventRepository).save(any());
+    // comportamento do processInstance
+    when(mockProc.getEngineProcessNumber()).thenReturn(Code.create("ENG-PROC-123"));
+    when(mockProc.getBusinessKey()).thenReturn(Code.create("BK-1"));
+    doNothing().when(mockProc).complete(any(), any());
+    when(processInstanceRepository.save(any())).thenReturn(mockProc);
+
+
+    // salvar task
+    when(taskInstanceService.save(mockTask)).thenReturn(mockTask);
+
+    // evitar efeitos em createNextTaskInstances
+    doNothing().when(taskInstanceService).createNextTaskInstances(
+        any(), any(), any(), any(), any(), any(), any()
+    );
 
     // Act
-    TaskInstance result = spyService.completeTask(taskId, eq(Code.create("demo@nosi.cv")),variables, forms);
+    TaskInstance result = taskInstanceService.completeTask(taskId, currentUser, forms, variables);
 
     // Assert
-    verify(runtimeProcessEngineRepository, times(1)).completeTask("EXT-123", forms, variables);
-    verify(mockTask, times(1)).complete(Code.create("demo@nosi.cv"));
-    verify(taskInstanceRepository, times(1)).update(mockTask);
-    verify(taskInstanceEventRepository, times(1)).save(any());
+    assertThat(result).isEqualTo(mockTask);
 
-    // Verifica que as tasks ativas foram criadas
-    verify(taskInstanceRepository).create(any(TaskInstance.class));
-    verify(taskInstanceEventRepository).save(any());
-
-    assertEquals(mockTask, result);
+    verify(runtimeProcessEngineRepository).completeTask(eq(externalId), eq(forms), eq(variables));
+    verify(mockTask).complete(eq(currentUser));
+    verify(processInstanceRepository).save(eq(mockProc));
+    verify(taskInstanceService).createNextTaskInstances(any(), any(), any(), any(), any(), any(), any());
   }
 
 
@@ -267,34 +405,93 @@ class TaskInstanceServiceTest {
 
     assertEquals(expected, result);
     verify(taskInstanceRepository, times(1)).findAll(filter);
+
   }
+
 
 
   @Test
   void getTaskVariables_shouldReturnVariablesFromRuntime() {
-/*
-    UUID taskId = UUID.randomUUID();
-    TaskInstance mockTask = mock(TaskInstance.class);
-    Map<String, Object> variables = Map.of("decision", "A");
-    Map<String, Object> forms = Map.of("name", "Maria", "age", 35);
+    final UUID taskId = UUID.randomUUID();
+    final var externalId = UUID.randomUUID().toString();
+    final TaskInstance mockTask = mock(TaskInstance.class);
 
-    TaskData taskData = TaskData.builder().variables(variables).forms(forms).build();
+    Map<String, Object> variables = new HashMap<>(Map.of(
+        "date", "25-11-2010", "name", "Maria", "age", 35));
 
-    when(taskInstanceService.getByIdWihEvents(taskId)).thenReturn(mockTask);
-    when(mockTask.getExternalId()).thenReturn(Code.create("EXT-001"));
-    when(runtimeProcessEngineRepository.getTaskVariables("EXT-001")).thenReturn(variables);
+    doReturn(mockTask).when(taskInstanceService).getById(taskId);
+    when(mockTask.getExternalId()).thenReturn(Code.create(externalId));
+    when(runtimeProcessEngineRepository.getTaskVariables(externalId)).thenReturn(variables);
 
-    TaskData result = taskInstanceService.getTaskVariables(taskId);
+    Map<String,Object> result = taskInstanceService.getTaskVariables(taskId);
 
     assertNotNull(result);
-    assertEquals(1, result.getVariables().size());
-    assertEquals("Maria", result.getForms().get("name"));
-    assertEquals(35, result.getForms().get("age"));
+    assertEquals(3, result.size());
+    assertEquals("Maria", result.get("name"));
+    assertEquals(35, result.get("age"));
 
-    verify(taskInstanceService, times(1)).getByIdWihEvents(taskId);
+    verify(taskInstanceService, times(1)).getById(taskId);
     verify(mockTask, times(1)).getExternalId();
-    verify(runtimeProcessEngineRepository, times(1)).getTaskVariables("EXT-001");
+    verify(runtimeProcessEngineRepository, times(1)).getTaskVariables(externalId);
 
-  }*/
+  }
+
+
+
+  @Test
+  void testGetGlobalTaskStatistics(){
+    TaskStatistics mockStats = TaskStatistics.builder()
+        .totalTaskInstances(100L)
+        .totalAvailableTasks(52L)
+        .totalAssignedTasks(18L)
+        .totalSuspendedTasks(5L)
+        .totalCompletedTasks(25L)
+        .totalCanceledTasks(7L)
+        .build();
+
+    when(taskInstanceRepository.getGlobalTaskStatistics()).thenReturn(mockStats);
+
+    TaskStatistics stats = taskInstanceService.getGlobalTaskStatistics();
+
+    assertNotNull(stats);
+    assertEquals(100L, stats.getTotalTaskInstances());
+    assertEquals(52L, stats.getTotalAvailableTasks());
+    assertEquals(18L, stats.getTotalAssignedTasks());
+    assertEquals(5L, stats.getTotalSuspendedTasks());
+    assertEquals(25L, stats.getTotalCompletedTasks());
+    assertEquals(7L, stats.getTotalCanceledTasks());
+
+    verify(taskInstanceRepository).getGlobalTaskStatistics();
+
+  }
+
+
+  @Test
+  void testGetTaskStatisticsByUser(){
+
+    TaskStatistics mockStats = TaskStatistics.builder()
+        .totalTaskInstances(100L)
+        .totalAvailableTasks(52L)
+        .totalAssignedTasks(18L)
+        .totalSuspendedTasks(5L)
+        .totalCompletedTasks(25L)
+        .totalCanceledTasks(7L)
+        .build();
+
+    when(taskInstanceRepository.getTaskStatisticsByUser(any(Code.class))).thenReturn(mockStats);
+
+    TaskStatistics stats = taskInstanceService.getTaskStatisticsByUser(currentUser);
+
+    assertNotNull(stats);
+    assertEquals(100L, stats.getTotalTaskInstances());
+    assertEquals(52L, stats.getTotalAvailableTasks());
+    assertEquals(18L, stats.getTotalAssignedTasks());
+    assertEquals(5L, stats.getTotalSuspendedTasks());
+    assertEquals(25L, stats.getTotalCompletedTasks());
+    assertEquals(7L, stats.getTotalCanceledTasks());
+
+    verify(taskInstanceRepository).getTaskStatisticsByUser(currentUser);
+
+  }
 
 }

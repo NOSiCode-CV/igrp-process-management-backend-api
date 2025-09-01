@@ -43,9 +43,14 @@ public class TaskInstanceService {
 
   public void createTaskInstancesByProcess(ProcessInstance processInstance) {
 
-    this.createNextTaskInstances(processInstance.getId(), processInstance.getNumber(),
-        processInstance.getName(), processInstance.getBusinessKey(),
-        processInstance.getApplicationBase(), Code.create(processInstance.getStartedBy()));
+    this.createNextTaskInstances(
+        processInstance.getId(),
+        processInstance.getNumber(),
+        processInstance.getEngineProcessNumber(),
+        processInstance.getName(),
+        processInstance.getBusinessKey(),
+        processInstance.getApplicationBase(),
+        Code.create(processInstance.getStartedBy()));
   }
 
 
@@ -73,14 +78,14 @@ public class TaskInstanceService {
   }
 
 
-  public void assignTask(UUID id, Code currentUser, Code userToAssign, String note) {
+  public void assignTask(UUID id, Code currentUser, Code targetUser, String note) {
     var taskInstance = getByIdWihEvents(id);
-    taskInstance.assign(currentUser, userToAssign,note);
+    taskInstance.assign(currentUser, targetUser, note);
     this.save(taskInstance);
     // Call the process engine to assign a task
     runtimeProcessEngineRepository.assignTask(
         taskInstance.getExternalId().getValue(),
-        userToAssign.getValue(),
+        targetUser.getValue(),
         note
     );
   }
@@ -113,7 +118,7 @@ public class TaskInstanceService {
     );
 
     var activityProcess = runtimeProcessEngineRepository
-        .getProcessInstanceById(processInstance.getNumber().getValue());
+        .getProcessInstanceById(processInstance.getEngineProcessNumber().getValue());
 
     taskInstance.complete(currentUser);
     var completedTask = save(taskInstance);
@@ -121,6 +126,7 @@ public class TaskInstanceService {
     this.createNextTaskInstances(
         taskInstance.getProcessInstanceId(),
         taskInstance.getProcessNumber(),
+        processInstance.getEngineProcessNumber(),
         activityProcess.getName(),
         processInstance.getBusinessKey(),
         taskInstance.getApplicationBase(),
@@ -161,18 +167,32 @@ public class TaskInstanceService {
 
 
 
-  private void createNextTaskInstances(Identifier processInstanceId, Code processNumber,
-                                       String processName, Code businessKey, Code applicationBase, Code user) {
+  void createNextTaskInstances(Identifier processInstanceId,
+                                       ProcessNumber processNumber,
+                                       Code engineProcessNumber,
+                                       String processName,
+                                       Code businessKey,
+                                       Code applicationBase,
+                                       Code user) {
     // tasks from activiti
     final var activeTaskInstanceList = runtimeProcessEngineRepository
-        .getActiveTaskInstances(processNumber.getValue());
+        .getActiveTaskInstances(engineProcessNumber.getValue());
+
+    if(activeTaskInstanceList.isEmpty())
+      return;
 
     final var artifactAssociations = processArtifactEntityRepository
         .findAllByProcessDefinitionId(processInstanceId.getValue().toString())
         .stream().collect( Collectors.toMap(ProcessArtifactEntity::getKey, a->Code.create(a.getFormKey())));
 
-    activeTaskInstanceList.forEach( t-> this.createTask( t.withProperties(applicationBase, Code.create(processName),
-        businessKey, processInstanceId, artifactAssociations.get(t.getTaskKey().toString()), user))
+    activeTaskInstanceList.forEach( t-> this.createTask(
+        t.withProperties(applicationBase,
+            processNumber,
+            Code.create(processName),
+            businessKey,
+            processInstanceId,
+            artifactAssociations.get(t.getTaskKey().toString()),
+            user))
     );
   }
 
@@ -184,7 +204,7 @@ public class TaskInstanceService {
   }
 
 
-  private TaskInstance save(TaskInstance taskInstance) {
+  TaskInstance save(TaskInstance taskInstance) {
     taskInstanceRepository.update(taskInstance);
     this.saveCurrentEvent(taskInstance.getTaskInstanceEvents().getLast());
     return taskInstance;

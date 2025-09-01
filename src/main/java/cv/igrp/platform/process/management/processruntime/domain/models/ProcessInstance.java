@@ -20,7 +20,8 @@ public class ProcessInstance {
   private final Identifier id;
   private final Code procReleaseKey;
   private final Code procReleaseId;
-  private Code number;
+  private ProcessNumber number;
+  private Code engineProcessNumber;
   private Code businessKey;
   private Code applicationBase;
   private String version;
@@ -41,7 +42,8 @@ public class ProcessInstance {
   public ProcessInstance(Identifier id,
                          Code procReleaseKey,
                          Code procReleaseId,
-                         Code number,
+                         ProcessNumber number,
+                         Code engineProcessNumber,
                          Code businessKey,
                          Code applicationBase,
                          String version,
@@ -62,6 +64,7 @@ public class ProcessInstance {
     this.procReleaseKey = Objects.requireNonNull(procReleaseKey, "Process release key cannot be null");
     this.procReleaseId = Objects.requireNonNull(procReleaseId, "Process release id cannot be null");
     this.number = number;
+    this.engineProcessNumber = engineProcessNumber;
     this.businessKey = businessKey == null ? Code.create(generateBusinessKey()) : businessKey;
     this.applicationBase = Objects.requireNonNull(applicationBase, "Application base cannot be null");;
     this.version = version;
@@ -79,16 +82,20 @@ public class ProcessInstance {
     this.progress = progress;
   }
 
-  public void start(Code processInstanceId, String version, String processName, String startedBy){
+  public void start(ProcessNumber number, Code engineProcessNumber, String version, String processName, String startedBy){
     if(this.status != ProcessInstanceStatus.CREATED && this.status != ProcessInstanceStatus.SUSPENDED){
       throw new IllegalStateException("The status of the process instance must be CREATED or SUSPENDED");
     }
     if(startedBy == null || startedBy.isBlank()){
       throw new IllegalStateException("The started by (user) of the process instance cannot be null or blank");
     }
+    if(number == null){
+      throw new IllegalStateException("The started by (user) of the process instance cannot be null or blank");
+    }
+    this.number = Objects.requireNonNull(number, "Process number cannot be null");
     this.status = ProcessInstanceStatus.RUNNING;
     this.startedAt = LocalDateTime.now();
-    this.number = processInstanceId;
+    this.engineProcessNumber = engineProcessNumber;
     this.version = version == null || version.isBlank() ? "1.0" : version;
     this.name = processName;
     this.startedBy = startedBy;

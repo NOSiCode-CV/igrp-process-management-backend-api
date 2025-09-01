@@ -1,6 +1,7 @@
 package cv.igrp.platform.process.management.processruntime.application.queries;
 
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceListPageDTO;
+import cv.igrp.platform.process.management.processruntime.domain.models.ProcessNumber;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceFilter;
 import cv.igrp.platform.process.management.processruntime.domain.service.TaskInstanceService;
@@ -63,7 +64,7 @@ class GetAllMyTasksQueryHandlerTest {
     // Mock do conteúdo
     List<TaskInstance> content = List.of(
         TaskInstance.builder()
-            .processNumber(Code.create("proc_num_test"))
+            .processNumber(ProcessNumber.create("proc_num_test"))
             .taskKey(Code.create("task_key_test"))
             .externalId(Code.create(UUID.randomUUID().toString()))
             .name(Name.create("My task Name"))

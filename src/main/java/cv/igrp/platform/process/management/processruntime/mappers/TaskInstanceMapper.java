@@ -4,7 +4,7 @@ import cv.igrp.framework.runtime.core.engine.task.model.TaskInfo;
 import cv.igrp.platform.process.management.processruntime.application.dto.*;
 import cv.igrp.platform.process.management.processruntime.application.queries.GetAllMyTasksQuery;
 import cv.igrp.platform.process.management.processruntime.application.queries.ListTaskInstancesQuery;
-import cv.igrp.platform.process.management.processruntime.domain.models.TaskData;
+import cv.igrp.platform.process.management.processruntime.domain.models.ProcessNumber;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceFilter;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskStatistics;
@@ -37,7 +37,6 @@ public class TaskInstanceMapper {
 
   public TaskInstance toModel(TaskInfo taskInfo) {
     return TaskInstance.builder()
-        .processNumber(Code.create(taskInfo.processInstanceId()))
         .taskKey(Code.create(taskInfo.taskDefinitionKey()))
         .externalId(Code.create(taskInfo.id()))
         .formKey(taskInfo.formKey()!=null ? Code.create(taskInfo.formKey()) : null)
@@ -101,7 +100,7 @@ public class TaskInstanceMapper {
         .name(Name.create(taskInstanceEntity.getName()))
         .externalId(Code.create(taskInstanceEntity.getExternalId()))
         .processInstanceId(Identifier.create(taskInstanceEntity.getProcessInstanceId().getId()))
-        .processNumber(Code.create(taskInstanceEntity.getProcessInstanceId().getNumber()))
+        .processNumber(ProcessNumber.create(taskInstanceEntity.getProcessNumber()))
         .businessKey(taskInstanceEntity.getBusinessKey() != null ? Code.create(taskInstanceEntity.getBusinessKey()) : null)
         .processName(taskInstanceEntity.getProcessName() != null ? Code.create(taskInstanceEntity.getProcessName()) : null)
         .processKey(taskInstanceEntity.getProcessInstanceId().getProcReleaseKey() != null ? Code.create(taskInstanceEntity.getProcessInstanceId().getProcReleaseKey()) : null)
@@ -215,14 +214,6 @@ public class TaskInstanceMapper {
         .page(query.getPage())
         .size(query.getSize())
         .build();
-  }
-
-
-  public TaskDataDTO toTaskDataDTO(TaskData data){
-    var dto = new TaskDataDTO();
-    dto.setVariables(toTaskVariableListDTO(data.getVariables()));
-    dto.setForms(toTaskVariableListDTO(data.getForms()));
-    return dto;
   }
 
 

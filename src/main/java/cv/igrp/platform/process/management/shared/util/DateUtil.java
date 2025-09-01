@@ -46,4 +46,6 @@ public class DateUtil { // todo class to be removed
   public static final Function<Date, LocalDateTime> utilDateToLocalDateTime = date -> ofNullable(date).map(d->d.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()).orElse(null);
 
   public static final BiFunction<LocalDateTime, DateTimeFormatter, String> biLocalDateTimeToString = (obj, formatter) -> ofNullable(obj).map(formatter::format).orElse("");
+
+  public static final BiFunction<LocalDate, DateTimeFormatter, String> biLocalDateToString = (obj, formatter) -> ofNullable(obj).map(formatter::format).orElse("");
 }

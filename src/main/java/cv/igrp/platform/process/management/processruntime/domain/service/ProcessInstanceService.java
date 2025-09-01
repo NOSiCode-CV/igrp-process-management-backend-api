@@ -1,5 +1,6 @@
 package cv.igrp.platform.process.management.processruntime.domain.service;
 
+import cv.igrp.platform.process.management.processdefinition.domain.service.ProcessSequenceService;
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstance;
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstanceFilter;
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstanceTaskStatus;
@@ -20,14 +21,16 @@ public class ProcessInstanceService {
 
   private final ProcessInstanceRepository processInstanceRepository;
   private final RuntimeProcessEngineRepository runtimeProcessEngineRepository;
-
+  private final ProcessSequenceService processSequenceService;
   private final TaskInstanceService taskInstanceService;
 
   public ProcessInstanceService(ProcessInstanceRepository processInstanceRepository,
                                 RuntimeProcessEngineRepository runtimeProcessEngineRepository,
+                                ProcessSequenceService processSequenceService,
                                 TaskInstanceService taskInstanceService) {
     this.processInstanceRepository = processInstanceRepository;
     this.runtimeProcessEngineRepository = runtimeProcessEngineRepository;
+    this.processSequenceService = processSequenceService;
     this.taskInstanceService = taskInstanceService;
   }
 
@@ -61,7 +64,9 @@ public class ProcessInstanceService {
         processInstance.getVariables()
     );
 
-    processInstance.start(process.getNumber(), process.getVersion(), process.getName(), user);
+    var number = processSequenceService.getGeneratedProcessNumberByProcessDefinitionId(process.getProcReleaseId());
+
+    processInstance.start(number, process.getEngineProcessNumber(), process.getVersion(), process.getName(), user);
 
     ProcessInstance runningProcessInstance = processInstanceRepository.save(processInstance);
 
@@ -80,7 +85,7 @@ public class ProcessInstanceService {
 
   public List<ProcessInstanceTaskStatus> getProcessInstanceTaskStatus(UUID id) {
     ProcessInstance processInstance = getProcessInstanceById(id);
-    return runtimeProcessEngineRepository.getProcessInstanceTaskStatus(processInstance.getNumber().getValue());
+    return runtimeProcessEngineRepository.getProcessInstanceTaskStatus(processInstance.getEngineProcessNumber().getValue());
   }
 
   public ProcessStatistics getProcessInstanceStatistics() {

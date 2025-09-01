@@ -69,10 +69,10 @@ class ProcessInstanceServiceTest {
 
     var processId = UUID.randomUUID();
     ProcessInstance mockInstance = mock(ProcessInstance.class);
-    Code mockNumber = mock(Code.class);
+    Code mockEngProcNumber = mock(Code.class);
 
-    when(mockNumber.getValue()).thenReturn("PROC-123");
-    when(mockInstance.getNumber()).thenReturn(mockNumber);
+    when(mockEngProcNumber.getValue()).thenReturn("PROC-123");
+    when(mockInstance.getEngineProcessNumber()).thenReturn(mockEngProcNumber);
 
     // spy para sobrescrever getProcessInstanceById
     ProcessInstanceService spyService = spy(processInstanceService);
