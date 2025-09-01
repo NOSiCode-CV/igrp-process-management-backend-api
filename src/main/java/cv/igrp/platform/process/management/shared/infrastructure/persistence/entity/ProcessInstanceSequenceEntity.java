@@ -5,7 +5,10 @@ package cv.igrp.platform.process.management.shared.infrastructure.persistence.en
 
 import cv.igrp.framework.stereotype.IgrpEntity;
 import cv.igrp.platform.process.management.shared.config.AuditEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -64,9 +67,9 @@ public class ProcessInstanceSequenceEntity extends AuditEntity {
     private short numberIncrement;
 
 
+    @NotBlank(message = "processDefinitionId is mandatory")
+    @Column(name="process_definition_id", nullable = false)
+    private String processDefinitionId;
 
 
-  @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "process_definition_id", referencedColumnName = "id")
-    private AreaProcessEntity processDefinitionId;
 }
