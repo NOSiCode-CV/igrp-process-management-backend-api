@@ -6,7 +6,9 @@ import java.util.Optional;
 
 public interface ProcessSequenceRepository {
 
-  Optional<ProcessSequence> getFindByProcessDefinitionId(String id);
+  Optional<ProcessSequence> findByProcessDefinitionId(String id);
+
+  Optional<ProcessSequence> findByProcessDefinitionIdForUpdate(String id);
 
   ProcessSequence save(ProcessSequence model);
 

@@ -26,7 +26,7 @@ public class ProcessSequenceRepositoryImpl implements ProcessSequenceRepository 
 
 
   @Override
-  public Optional<ProcessSequence> getFindByProcessDefinitionId(String id) {
+  public Optional<ProcessSequence> findByProcessDefinitionId(String id) {
     return sequenceEntityRepository.findByProcessDefinitionId(id).map(sequenceMapper::toModel);
   }
 
@@ -34,6 +34,11 @@ public class ProcessSequenceRepositoryImpl implements ProcessSequenceRepository 
   @Override
   public ProcessSequence save(ProcessSequence model) {
     return sequenceMapper.toModel(sequenceEntityRepository.save(sequenceMapper.toEntity(model)));
+  }
+
+  @Override
+  public Optional<ProcessSequence> findByProcessDefinitionIdForUpdate(String id) {
+    return sequenceEntityRepository.findByProcessDefinitionIdForUpdate(id).map(sequenceMapper::toModel);
   }
 
 }

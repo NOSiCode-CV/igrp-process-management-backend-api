@@ -46,21 +46,29 @@ public class ProcessSequence {
     this.processDefinitionId = Objects.requireNonNull(processDefinitionId, "The Process Definition Id of the Sequence cannot be null!");
   }
 
+
   public ProcessSequence newInstance() {
-    return with(null,1L);
+    return buildWith(Identifier.generate());
   }
 
-  public ProcessSequence with(Identifier id, Long nextNumber) {
+
+  public ProcessSequence copyWithId(Identifier id) {
+    return buildWith(id);
+  }
+
+
+  private ProcessSequence buildWith(Identifier id) {
     return ProcessSequence.builder()
-        .id(id==null ? Identifier.generate() : id)
-        .nextNumber(nextNumber)
+        .id(id)
         .name(this.name)
         .prefix(this.prefix)
         .checkDigitSize(this.checkDigitSize)
         .padding(this.padding)
         .dateFormat(this.dateFormat)
+        .nextNumber(this.nextNumber == null ? 1L : this.nextNumber)
         .numberIncrement(this.numberIncrement)
-        .processDefinitionId(this.processDefinitionId).build();
+        .processDefinitionId(this.processDefinitionId)
+        .build();
   }
 
 
@@ -74,23 +82,18 @@ public class ProcessSequence {
   private String generateNumber(Long currentNumber) {
     StringBuilder sb = new StringBuilder();
 
-    // prefixo
     sb.append(prefix.getValue());
 
-    // data formatada
     if (dateFormat != null && !dateFormat.isEmpty()) {
-      String formattedDate = DateUtil.biLocalDateToString.apply(LocalDate.now(),DateTimeFormatter.ofPattern(dateFormat));
-      sb.append(formattedDate);
+      sb.append(DateUtil.biLocalDateToString.apply(LocalDate.now(),DateTimeFormatter.ofPattern(dateFormat)));
     }
 
-    // número sequencial com padding
     if (padding != null && padding > 0) {
       sb.append(String.format("%0" + padding + "d", currentNumber));
     } else {
       sb.append(currentNumber);
     }
 
-    // dígito de controlo (exemplo simples: mod 10)
     if (checkDigitSize != null && checkDigitSize > 0) {
       long checkDigit = currentNumber % (long) Math.pow(10, checkDigitSize);
       sb.append(checkDigit);

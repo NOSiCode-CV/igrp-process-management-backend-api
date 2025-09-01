@@ -1,8 +1,12 @@
 package cv.igrp.platform.process.management.shared.infrastructure.persistence.repository;
 
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.ProcessInstanceSequenceEntity;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -15,4 +19,8 @@ public interface ProcessInstanceSequenceEntityRepository extends
     JpaSpecificationExecutor<ProcessInstanceSequenceEntity>
 {
   Optional<ProcessInstanceSequenceEntity> findByProcessDefinitionId(String processDefinitionId);
+
+  @Lock(LockModeType.PESSIMISTIC_WRITE)
+  @Query("SELECT s FROM ProcessInstanceSequenceEntity s WHERE s.processDefinitionId = :processDefinitionId")
+  Optional<ProcessInstanceSequenceEntity> findByProcessDefinitionIdForUpdate(@Param("processDefinitionId") String processDefinitionId);
 }

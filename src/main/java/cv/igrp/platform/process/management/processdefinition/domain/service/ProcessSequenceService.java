@@ -5,10 +5,18 @@ import cv.igrp.platform.process.management.processdefinition.domain.repository.P
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessNumber;
 import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
+import jakarta.persistence.LockTimeoutException;
+import jakarta.persistence.PessimisticLockException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
 public class ProcessSequenceService {
+
+  private static final int MAX_RETRIES = 5;
+  private static final long RETRY_DELAY_MS = 100;
 
   private final ProcessSequenceRepository processSequenceRepository;
 
@@ -18,29 +26,52 @@ public class ProcessSequenceService {
 
 
   public ProcessSequence getSequenceByProcessDefinitionId(Code processDefinitionId) {
-    return processSequenceRepository.getFindByProcessDefinitionId(processDefinitionId.getValue())
+    return processSequenceRepository.findByProcessDefinitionId(processDefinitionId.getValue())
         .orElseThrow(() -> IgrpResponseStatusException.notFound("Process Sequence not found for Process Definition ID: " + processDefinitionId.getValue()));
   }
 
 
+  @Transactional
   public ProcessSequence save(ProcessSequence processSequence) {
-    var sequence = processSequenceRepository.getFindByProcessDefinitionId(processSequence.getProcessDefinitionId().getValue());
+    var sequence = getAsLockedProcessSequenceByProcessDefinitionId(processSequence.getProcessDefinitionId());
     final ProcessSequence toSave;
     if(sequence.isEmpty())
       toSave = processSequence.newInstance();
     else {
       var s = sequence.get();
-      toSave = processSequence.with(s.getId(), s.getNextNumber());
+      toSave = processSequence.copyWithId(s.getId());
     }
     return processSequenceRepository.save(toSave);
   }
 
 
   public ProcessNumber getGeneratedProcessNumberByProcessDefinitionId(Code processDefinitionId){
-    var sequence = getSequenceByProcessDefinitionId(processDefinitionId);
+    var sequence = getAsLockedProcessSequenceByProcessDefinitionId(processDefinitionId)
+        .orElseThrow(() -> IgrpResponseStatusException.notFound("Process Sequence not found for Process Definition ID: " + processDefinitionId.getValue()));
     var processNumber = sequence.generateNextProcessNumberAndIncrement();
     processSequenceRepository.save(sequence);
     return processNumber;
+  }
+
+
+  private Optional<ProcessSequence> getAsLockedProcessSequenceByProcessDefinitionId(Code processDefinitionId) {
+    int attempts = 0;
+    while (true) {
+      attempts++;
+      try {
+        return processSequenceRepository.findByProcessDefinitionIdForUpdate(processDefinitionId.getValue());
+      } catch (PessimisticLockException | LockTimeoutException e) {
+        if (attempts >= MAX_RETRIES) {
+          throw new IllegalStateException("Failed to acquire lock after " + attempts + " attempts", e);
+        }
+        try {
+          Thread.sleep(RETRY_DELAY_MS);
+        } catch (InterruptedException ie) {
+          Thread.currentThread().interrupt();
+          throw new IllegalStateException("Interrupted while retrying lock acquisition", ie);
+        }
+      }
+    }
   }
 
 
