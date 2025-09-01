@@ -5,7 +5,6 @@ import cv.igrp.platform.process.management.processdefinition.domain.models.Proce
 import cv.igrp.platform.process.management.processdefinition.domain.service.ProcessSequenceService;
 import cv.igrp.platform.process.management.processdefinition.mappers.ProcessSequenceMapper;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
-import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import cv.igrp.platform.process.management.shared.security.UserContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class GetProcessSequenceByIdQueryHandlerTest {
+public class GetProcessSequenceQueryHandlerTest {
 
   @Mock
   private ProcessSequenceService processSequenceService;
@@ -34,9 +33,9 @@ public class GetProcessSequenceByIdQueryHandlerTest {
   private UserContext userContext;
 
   @InjectMocks
-  private GetProcessSequenceByIdQueryHandler handler;
+  private GetProcessSequenceQueryHandler handler;
 
-  private GetProcessSequenceByIdQuery query;
+  private GetProcessSequenceQuery query;
   private ProcessSequence processSequenceMock;
   private ProcessSequenceDTO processSequenceDTOMock;
   private String sequenceId;
@@ -46,14 +45,14 @@ public class GetProcessSequenceByIdQueryHandlerTest {
 
     sequenceId = UUID.randomUUID().toString();
 
-    query = new GetProcessSequenceByIdQuery(sequenceId);
+    query = new GetProcessSequenceQuery(sequenceId);
 
     processSequenceMock = mock(ProcessSequence.class);
     processSequenceDTOMock = mock(ProcessSequenceDTO.class);
 
     when(userContext.getCurrentUser()).thenReturn(Code.create("demo@nosi.cv"));
 
-    when(processSequenceService.getSequenceById(Identifier.create(sequenceId)))
+    when(processSequenceService.getSequenceByProcessDefinitionId(Code.create(sequenceId)))
         .thenReturn(processSequenceMock);
 
     when(processSequenceMapper.toDTO(processSequenceMock))
@@ -69,7 +68,7 @@ public class GetProcessSequenceByIdQueryHandlerTest {
     assertEquals(processSequenceDTOMock, response.getBody());
 
     verify(userContext).getCurrentUser();
-    verify(processSequenceService).getSequenceById(Identifier.create(sequenceId));
+    verify(processSequenceService).getSequenceByProcessDefinitionId(Code.create(sequenceId));
     verify(processSequenceMapper).toDTO(processSequenceMock);
 
   }

@@ -16,9 +16,9 @@ public class ProcessSequence {
   private final Short checkDigitSize;
   private final Short padding;
   private final String dateFormat;
-  private final Long nextNumber;
+  private Long nextNumber;
   private final Short numberIncrement;
-  private final Identifier processDefinitionId;
+  private final Code processDefinitionId;
 
   @Builder
   public ProcessSequence(Identifier id,
@@ -29,7 +29,7 @@ public class ProcessSequence {
                          String dateFormat,
                          Long nextNumber,
                          Short numberIncrement,
-                         Identifier processDefinitionId)
+                         Code processDefinitionId)
   {
     this.id = id;
     this.name = Objects.requireNonNull(name, "The Name of the sequence cannot be null!");
@@ -41,5 +41,23 @@ public class ProcessSequence {
     this.numberIncrement = numberIncrement;
     this.processDefinitionId = Objects.requireNonNull(processDefinitionId, "The Process Definition Id of the Sequence cannot be null!");
   }
+
+  public ProcessSequence newInstance() {
+    return with(null,1L);
+  }
+
+  public ProcessSequence with(Identifier id, Long nextNumber) {
+    return ProcessSequence.builder()
+        .id(id==null ? Identifier.generate() : id)
+        .nextNumber(nextNumber)
+        .name(this.name)
+        .prefix(this.prefix)
+        .checkDigitSize(this.checkDigitSize)
+        .padding(this.padding)
+        .dateFormat(this.dateFormat)
+        .numberIncrement(this.numberIncrement)
+        .processDefinitionId(this.processDefinitionId).build();
+  }
+
 
 }

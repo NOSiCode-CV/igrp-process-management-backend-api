@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class GetProcessSequenceByIdQuery implements Query {
+public class GetProcessSequenceQuery implements Query {
 
   @NotBlank(message = "The field <id> is required")
   private String id;

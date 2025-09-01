@@ -5,7 +5,7 @@ import cv.igrp.framework.stereotype.IgrpQueryHandler;
 import cv.igrp.platform.process.management.processdefinition.application.dto.ProcessSequenceDTO;
 import cv.igrp.platform.process.management.processdefinition.domain.service.ProcessSequenceService;
 import cv.igrp.platform.process.management.processdefinition.mappers.ProcessSequenceMapper;
-import cv.igrp.platform.process.management.shared.domain.models.Identifier;
+import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.security.UserContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,15 +14,15 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-public class GetProcessSequenceByIdQueryHandler implements QueryHandler<GetProcessSequenceByIdQuery, ResponseEntity<ProcessSequenceDTO>>{
+public class GetProcessSequenceQueryHandler implements QueryHandler<GetProcessSequenceQuery, ResponseEntity<ProcessSequenceDTO>>{
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(GetProcessSequenceByIdQueryHandler.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(GetProcessSequenceQueryHandler.class);
 
   private final ProcessSequenceService processSequenceService;
   private final ProcessSequenceMapper processSequenceMapper;
   private final UserContext userContext;
 
-  public GetProcessSequenceByIdQueryHandler(ProcessSequenceService processSequenceService,
+  public GetProcessSequenceQueryHandler(ProcessSequenceService processSequenceService,
                                             ProcessSequenceMapper processSequenceMapper,
                                             UserContext userContext) {
     this.processSequenceService = processSequenceService;
@@ -32,16 +32,18 @@ public class GetProcessSequenceByIdQueryHandler implements QueryHandler<GetProce
 
   @IgrpQueryHandler
   @Transactional(readOnly = true)
-  public ResponseEntity<ProcessSequenceDTO> handle(GetProcessSequenceByIdQuery query) {
-    final var currentUser = userContext.getCurrentUser();
+  public ResponseEntity<ProcessSequenceDTO> handle(GetProcessSequenceQuery query) {
 
-    LOGGER.debug("User [{}] requested process sequence by id [{}]", currentUser.getValue(), query.getId());
+     final var currentUser = userContext.getCurrentUser();
 
-    final var taskInstance = processSequenceService.getSequenceById(Identifier.create(query.getId()));
+     LOGGER.debug("User [{}] requested process sequence by id [{}]", currentUser.getValue(), query.getId());
 
-    LOGGER.debug("Retrieved process sequence [{}] for user [{}]", taskInstance.getId(), currentUser.getValue());
+     final var taskInstance = processSequenceService.getSequenceByProcessDefinitionId(Code.create(query.getId()));
 
-    return ResponseEntity.ok(processSequenceMapper.toDTO(taskInstance));
+     LOGGER.debug("Retrieved process sequence [{}] for user [{}]", taskInstance.getId(), currentUser.getValue());
+
+     return ResponseEntity.ok(processSequenceMapper.toDTO(taskInstance));
+
   }
 
 }

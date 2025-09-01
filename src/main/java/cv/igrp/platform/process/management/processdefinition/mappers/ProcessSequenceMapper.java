@@ -5,7 +5,6 @@ import cv.igrp.platform.process.management.processdefinition.domain.models.Proce
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import cv.igrp.platform.process.management.shared.domain.models.Name;
-import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.AreaProcessEntity;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.ProcessInstanceSequenceEntity;
 import org.springframework.stereotype.Component;
 
@@ -23,7 +22,7 @@ public class ProcessSequenceMapper {
         .dateFormat(dto.getDateFormat())
         .nextNumber(dto.getNextNumber())
         .numberIncrement(dto.getNumberIncrement())
-        .processDefinitionId(Identifier.create(dto.getProcessDefinitionId()))
+        .processDefinitionId(Code.create(dto.getProcessDefinitionId()))
         .build();
   }
 
@@ -38,9 +37,7 @@ public class ProcessSequenceMapper {
     entity.setDateFormat(model.getDateFormat());
     entity.setNextNumber(model.getNextNumber());
     entity.setNumberIncrement(model.getNumberIncrement());
-    var processDefinition = new AreaProcessEntity();
-    processDefinition.setId(model.getProcessDefinitionId().getValue());
-    entity.setProcessDefinitionId(processDefinition);
+    entity.setProcessDefinitionId(model.getProcessDefinitionId().getValue());
     return  entity;
   }
 
@@ -55,7 +52,7 @@ public class ProcessSequenceMapper {
         .dateFormat(entity.getDateFormat())
         .nextNumber(entity.getNextNumber())
         .numberIncrement(entity.getNumberIncrement())
-        .processDefinitionId(Identifier.create(entity.getProcessDefinitionId().getId()))
+        .processDefinitionId(Code.create(entity.getProcessDefinitionId()))
         .build();
   }
 

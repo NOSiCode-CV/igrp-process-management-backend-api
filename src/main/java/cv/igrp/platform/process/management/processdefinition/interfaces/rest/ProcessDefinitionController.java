@@ -7,12 +7,13 @@ import cv.igrp.framework.core.domain.CommandBus;
 import cv.igrp.framework.core.domain.QueryBus;
 import cv.igrp.framework.stereotype.IgrpController;
 import cv.igrp.platform.process.management.processdefinition.application.commands.CreateArtifactCommand;
+import cv.igrp.platform.process.management.processdefinition.application.commands.CreateProcessSequenceCommand;
 import cv.igrp.platform.process.management.processdefinition.application.commands.DeleteArtifactCommand;
 import cv.igrp.platform.process.management.processdefinition.application.commands.DeployProcessCommand;
 import cv.igrp.platform.process.management.processdefinition.application.dto.*;
 import cv.igrp.platform.process.management.processdefinition.application.queries.GetArtifactsByProcessDefinitionIdQuery;
 import cv.igrp.platform.process.management.processdefinition.application.queries.GetDeployedArtifactsByProcessDefinitionIdQuery;
-import cv.igrp.platform.process.management.processdefinition.application.queries.GetProcessSequenceByIdQuery;
+import cv.igrp.platform.process.management.processdefinition.application.queries.GetProcessSequenceQuery;
 import cv.igrp.platform.process.management.processdefinition.application.queries.ListDeploymentsQuery;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -272,11 +273,11 @@ public class ProcessDefinitionController {
   }
 
   @GetMapping(
-    value = "{id}sequence"
+    value = "{id}/sequence"
   )
   @Operation(
-    summary = "GET method to handle operations for getProcessSequenceById",
-    description = "GET method to handle operations for getProcessSequenceById",
+    summary = "GET method to handle operations for getProcessSequence",
+    description = "GET method to handle operations for getProcessSequence",
     responses = {
       @ApiResponse(
           responseCode = "200",
@@ -291,19 +292,56 @@ public class ProcessDefinitionController {
     }
   )
 
-  public ResponseEntity<ProcessSequenceDTO> getProcessSequenceById(
+  public ResponseEntity<ProcessSequenceDTO> getProcessSequence(
     @PathVariable(value = "id") String id)
   {
 
       LOGGER.debug("Operation started");
 
-      final var query = new GetProcessSequenceByIdQuery(id);
+      final var query = new GetProcessSequenceQuery(id);
 
       ResponseEntity<ProcessSequenceDTO> response = queryBus.handle(query);
 
       LOGGER.debug("Operation finished");
 
       return ResponseEntity.status(response.getStatusCode())
+              .headers(response.getHeaders())
+              .body(response.getBody());
+  }
+
+  @PostMapping(
+    value = "{id}/sequence"
+  )
+  @Operation(
+    summary = "POST method to handle operations for createProcessSequence",
+    description = "POST method to handle operations for createProcessSequence",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          description = "",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = ProcessSequenceDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+
+  public ResponseEntity<ProcessSequenceDTO> createProcessSequence(@Valid @RequestBody SequenceRequestDTO createProcessSequenceRequest
+    , @PathVariable(value = "id") String id)
+  {
+
+      LOGGER.debug("Operation started");
+
+      final var command = new CreateProcessSequenceCommand(createProcessSequenceRequest, id);
+
+       ResponseEntity<ProcessSequenceDTO> response = commandBus.send(command);
+
+       LOGGER.debug("Operation finished");
+
+        return ResponseEntity.status(response.getStatusCode())
               .headers(response.getHeaders())
               .body(response.getBody());
   }

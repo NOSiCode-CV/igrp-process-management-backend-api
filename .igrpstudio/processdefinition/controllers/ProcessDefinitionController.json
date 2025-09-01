@@ -222,8 +222,8 @@
       ]
     },
     {
-      "actionName": "getProcessSequenceById",
-      "path": "{id}sequence",
+      "actionName": "getProcessSequence",
+      "path": "{id}/sequence",
       "method": "GET",
       "responses": {
         "200": {
@@ -247,6 +247,48 @@
           "type": "string",
           "isRequired": true,
           "description": "id of the sequence"
+        }
+      ]
+    },
+    {
+      "actionName": "createProcessSequence",
+      "path": "{id}/sequence",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "SequenceRequestDTO",
+              "collectionType": "none",
+              "name": "requestDto",
+              "objectType": "dto",
+              "module": "processdefinition",
+              "nullable": true
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProcessSequenceDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "processdefinition"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true
         }
       ]
     }

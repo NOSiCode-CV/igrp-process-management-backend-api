@@ -4,11 +4,12 @@
 package cv.igrp.platform.process.management.processdefinition.application.dto;
 
 import cv.igrp.framework.stereotype.IgrpDTO;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
 
 @Data
 @NoArgsConstructor
@@ -16,12 +17,9 @@ import java.util.UUID;
 
 
 @IgrpDTO
-public class ProcessSequenceDTO  {
+public class SequenceRequestDTO  {
 
-
-
-  private UUID id ;
-
+  @NotBlank(message = "The field <name> is required")
 
   private String name ;
 
@@ -29,21 +27,15 @@ public class ProcessSequenceDTO  {
   private String prefix ;
 
 
+  private String dateFormat ;
+
+
   private short checkDigitSize ;
 
 
   private short padding ;
-
-
-  private String dateFormat ;
-
-
-  private Long nextNumber ;
-
+  @NotNull(message = "The field <numberIncrement> is required")
 
   private short numberIncrement ;
-
-
-  private String processDefinitionId ;
 
 }

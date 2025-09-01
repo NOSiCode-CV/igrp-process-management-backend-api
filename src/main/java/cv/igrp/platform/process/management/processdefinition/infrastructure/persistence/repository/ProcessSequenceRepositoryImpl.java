@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
-import java.util.UUID;
 
 @Repository
 public class ProcessSequenceRepositoryImpl implements ProcessSequenceRepository {
@@ -27,8 +26,8 @@ public class ProcessSequenceRepositoryImpl implements ProcessSequenceRepository 
 
 
   @Override
-  public Optional<ProcessSequence> getFindById(UUID id) {
-    return sequenceEntityRepository.findById(id).map(sequenceMapper::toModel);
+  public Optional<ProcessSequence> getFindByProcessDefinitionId(String id) {
+    return sequenceEntityRepository.findByProcessDefinitionId(id).map(sequenceMapper::toModel);
   }
 
 
