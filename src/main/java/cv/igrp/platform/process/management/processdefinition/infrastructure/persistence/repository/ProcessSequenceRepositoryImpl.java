@@ -27,17 +27,21 @@ public class ProcessSequenceRepositoryImpl implements ProcessSequenceRepository 
 
   @Override
   public Optional<ProcessSequence> findByProcessDefinitionId(String id) {
+    LOGGER.debug("Fetching ProcessSequence with processDefinitionId={}", id);
     return sequenceEntityRepository.findByProcessDefinitionId(id).map(sequenceMapper::toModel);
   }
 
 
   @Override
   public ProcessSequence save(ProcessSequence model) {
+    LOGGER.debug("Saving ProcessSequence with id={} and processDefinitionId={}",
+        model.getId(), model.getProcessDefinitionId().getValue());
     return sequenceMapper.toModel(sequenceEntityRepository.save(sequenceMapper.toEntity(model)));
   }
 
   @Override
   public Optional<ProcessSequence> findByProcessDefinitionIdForUpdate(String id) {
+    LOGGER.debug("Fetching (FOR UPDATE) ProcessSequence with processDefinitionId={}", id);
     return sequenceEntityRepository.findByProcessDefinitionIdForUpdate(id).map(sequenceMapper::toModel);
   }
 

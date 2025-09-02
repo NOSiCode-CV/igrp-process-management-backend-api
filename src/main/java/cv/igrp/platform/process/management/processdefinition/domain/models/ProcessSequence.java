@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 @Getter
 public class ProcessSequence {
@@ -41,14 +42,14 @@ public class ProcessSequence {
                          Code processDefinitionId)
   {
     this.id = id;
-    this.name = name;
-    this.prefix = prefix;
-    this.checkDigitSize = checkDigitSize;
+    this.name = Objects.requireNonNull(name, "Name cannot be null");
+    this.prefix = Objects.requireNonNull(prefix, "Prefix cannot be null");
+    this.checkDigitSize = Objects.requireNonNull(checkDigitSize, "CheckDigitSize cannot be null");
     this.padding = padding;
-    this.dateFormat = dateFormat;
+    this.dateFormat = Objects.requireNonNull(dateFormat, "DateFormat cannot be null");
     this.nextNumber = nextNumber;
-    this.numberIncrement = numberIncrement;
-    this.processDefinitionId = processDefinitionId;
+    this.numberIncrement = Objects.requireNonNull(numberIncrement, "NumberIncrement cannot be null");
+    this.processDefinitionId = Objects.requireNonNull(processDefinitionId, "ProcessDefinitionId cannot be null");
   }
 
 
@@ -129,31 +130,31 @@ public class ProcessSequence {
 
     StringBuilder sb = new StringBuilder();
 
-    LOGGER.info("PREFIX is [{}]",prefix.getValue());
+    LOGGER.debug("PREFIX is [{}]", prefix.getValue());
     sb.append(prefix.getValue());
 
     if (dateFormat != null && !dateFormat.isEmpty()) {
       var now = LocalDate.now();
       var dateStr = DateUtil.biLocalDateToString.apply(now, DateTimeFormatter.ofPattern(dateFormat));
-      LOGGER.info("CURRENT_DATE [{}] with FORMAT [{}] is [{}]", now, dateFormat, dateStr);
+      LOGGER.debug("CURRENT_DATE [{}] with FORMAT [{}] is [{}]", now, dateFormat, dateStr);
       sb.append(dateStr);
     }
 
     if (padding != null && padding > 0) {
       var number = String.format("%0" + padding + "d", currentNumber); //do not edit
-      LOGGER.info("CURRENT_NUMBER [{}] with PADDING [{}] is [{}]",currentNumber, padding, number);
+      LOGGER.debug("CURRENT_NUMBER [{}] with PADDING [{}] is [{}]", currentNumber, padding, number);
       sb.append(number);
     } else {
-      LOGGER.info("CURRENT_NUMBER [{}] with NO PADDING [{}] is NUMBER [{}]",currentNumber, padding, currentNumber);
+      LOGGER.debug("CURRENT_NUMBER [{}] with NO PADDING is [{}]", currentNumber, currentNumber);
       sb.append(currentNumber);
     }
 
     if (checkDigitSize != null && checkDigitSize > 0) {
       long checkDigit = currentNumber % (long) Math.pow(10, checkDigitSize);
-      LOGGER.info("CURRENT_NUMBER [{}] with CHECK_DIGIT_SIZE [{}] is [{}]", currentNumber, checkDigitSize, checkDigit);
+      LOGGER.debug("CURRENT_NUMBER [{}] with CHECK_DIGIT_SIZE [{}] is [{}]", currentNumber, checkDigitSize, checkDigit);
       sb.append(checkDigit);
     } else {
-      LOGGER.info("CHECK_DIGIT_SIZE is NULL.");
+      LOGGER.debug("CHECK_DIGIT_SIZE is NULL.");
     }
 
     var sequence = sb.toString();
