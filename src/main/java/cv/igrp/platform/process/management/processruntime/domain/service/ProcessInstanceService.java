@@ -48,7 +48,7 @@ public class ProcessInstanceService {
   }
 
   private void setProcessInstanceProgress(ProcessInstance processInstance){
-    List<ProcessInstanceTaskStatus> taskStatus = runtimeProcessEngineRepository.getProcessInstanceTaskStatus(processInstance.getNumber().getValue());
+    List<ProcessInstanceTaskStatus> taskStatus = runtimeProcessEngineRepository.getProcessInstanceTaskStatus(processInstance.getEngineProcessNumber().getValue());
     int totalTasks = taskStatus.size();
     long completedTasks = taskStatus.stream()
         .filter(processInstanceTaskStatus -> processInstanceTaskStatus.getStatus() == TaskInstanceStatus.COMPLETED)
