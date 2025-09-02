@@ -2,9 +2,9 @@ package cv.igrp.platform.process.management.processdefinition.domain.service;
 
 import cv.igrp.platform.process.management.processdefinition.domain.models.ProcessSequence;
 import cv.igrp.platform.process.management.processdefinition.domain.repository.ProcessSequenceRepository;
-import cv.igrp.platform.process.management.processruntime.domain.models.ProcessNumber;
 import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
+import cv.igrp.platform.process.management.shared.domain.models.ProcessNumber;
 import jakarta.persistence.LockTimeoutException;
 import jakarta.persistence.PessimisticLockException;
 import org.springframework.stereotype.Service;
@@ -33,15 +33,16 @@ public class ProcessSequenceService {
 
   @Transactional
   public ProcessSequence save(ProcessSequence processSequence) {
-    var sequence = getAsLockedProcessSequenceByProcessDefinitionId(processSequence.getProcessDefinitionId());
-    final ProcessSequence toSave;
-    if(sequence.isEmpty())
-      toSave = processSequence.newInstance();
+    var dbSequence = getAsLockedProcessSequenceByProcessDefinitionId(processSequence.getProcessDefinitionId());
+    final ProcessSequence sequenceResult;
+    if(dbSequence.isEmpty())
+      sequenceResult = processSequence.newInstance();
     else {
-      var s = sequence.get();
-      toSave = processSequence.copyWithId(s.getId());
+      var s = dbSequence.get();
+      sequenceResult = processSequence.copyWithId(s.getId());
     }
-    return processSequenceRepository.save(toSave);
+    sequenceResult.validate();
+    return processSequenceRepository.save(sequenceResult);
   }
 
 

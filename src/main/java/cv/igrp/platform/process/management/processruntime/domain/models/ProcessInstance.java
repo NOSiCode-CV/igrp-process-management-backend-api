@@ -3,6 +3,7 @@ package cv.igrp.platform.process.management.processruntime.domain.models;
 import cv.igrp.platform.process.management.shared.application.constants.ProcessInstanceStatus;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
+import cv.igrp.platform.process.management.shared.domain.models.ProcessNumber;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;

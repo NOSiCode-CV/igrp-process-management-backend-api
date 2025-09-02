@@ -5,6 +5,7 @@ import cv.igrp.platform.process.management.shared.application.constants.TaskInst
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import cv.igrp.platform.process.management.shared.domain.models.Name;
+import cv.igrp.platform.process.management.shared.domain.models.ProcessNumber;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

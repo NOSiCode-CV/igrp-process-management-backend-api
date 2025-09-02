@@ -1,4 +1,4 @@
-package cv.igrp.platform.process.management.processruntime.domain.models;
+package cv.igrp.platform.process.management.shared.domain.models;
 
 import lombok.Builder;
 import lombok.Getter;
