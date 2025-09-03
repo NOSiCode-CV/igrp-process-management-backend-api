@@ -124,4 +124,19 @@ public interface RuntimeProcessEngineRepository {
   Map<String, Object> getProcessVariables(String processInstanceId)
       throws RuntimeProcessEngineException;
 
+  /**
+   * Updates the priority of a task.
+   *
+   * <p>
+   * Task priority is an integer value that can be used to influence
+   * task ordering, escalation, or custom business logic. The default
+   * priority is typically {@code 50}, but any integer value is allowed.
+   * </p>
+   *
+   * @param taskInstanceId the unique identifier of the task instance
+   * @param priority       the new priority value to set
+   * @throws RuntimeProcessEngineException if the task cannot be found or the priority cannot be updated
+   */
+  void setTaskPriority(String taskInstanceId, int priority) throws RuntimeProcessEngineException;
+
 }

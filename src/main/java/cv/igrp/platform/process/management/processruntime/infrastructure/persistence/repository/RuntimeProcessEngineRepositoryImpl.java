@@ -14,8 +14,6 @@ import cv.igrp.platform.process.management.processruntime.domain.repository.Runt
 import cv.igrp.platform.process.management.processruntime.mappers.ProcessInstanceMapper;
 import cv.igrp.platform.process.management.processruntime.mappers.ProcessInstanceTaskStatusMapper;
 import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
-import org.activiti.api.task.runtime.TaskRuntime;
-import org.activiti.engine.RuntimeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,7 +21,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -42,7 +39,6 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
   private final TaskActionService taskActionService;
   private final ProcessInstanceTaskStatusMapper processInstanceTaskStatusMapper;
   private final TaskQueryService taskQueryService;
-  private final TaskRuntime taskRuntime;
 
   public RuntimeProcessEngineRepositoryImpl(
       ProcessManagerAdapter processManagerAdapter,
@@ -50,15 +46,13 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
       TaskInstanceMapper taskInstanceMapper,
       TaskActionService taskActionService,
       ProcessInstanceTaskStatusMapper processInstanceTaskStatusMapper,
-      TaskQueryService taskQueryService,
-      RuntimeService runtimeService, TaskRuntime taskRuntime) {
+      TaskQueryService taskQueryService) {
     this.processManagerAdapter = processManagerAdapter;
     this.processInstanceMapper = processInstanceMapper;
     this.taskInstanceMapper = taskInstanceMapper;
     this.taskActionService = taskActionService;
     this.processInstanceTaskStatusMapper = processInstanceTaskStatusMapper;
     this.taskQueryService = taskQueryService;
-    this.taskRuntime = taskRuntime;
   }
 
   @Override
@@ -178,6 +172,16 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
     } catch (Exception e) {
       LOGGER.error("Failed to retrieve variables for process with id={}", processInstanceId, e);
       throw new RuntimeProcessEngineException("Unable to retrieve process variables for process: " + processInstanceId, e);
+    }
+  }
+
+  @Override
+  public void setTaskPriority(String taskInstanceId, int priority) throws RuntimeProcessEngineException {
+    try {
+      taskActionService.setTaskPriority(taskInstanceId, priority);
+    } catch (Exception e) {
+      LOGGER.error("Failed to set priority for task with id={}", taskInstanceId, e);
+      throw new RuntimeProcessEngineException("Unable to set priority for task: " + taskInstanceId, e);
     }
   }
 
