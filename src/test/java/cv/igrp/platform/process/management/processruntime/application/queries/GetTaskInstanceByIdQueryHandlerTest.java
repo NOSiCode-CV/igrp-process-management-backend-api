@@ -5,6 +5,7 @@ import cv.igrp.platform.process.management.processruntime.domain.models.TaskInst
 import cv.igrp.platform.process.management.processruntime.domain.service.TaskInstanceService;
 import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
+import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import cv.igrp.platform.process.management.shared.security.UserContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,19 +39,21 @@ class GetTaskInstanceByIdQueryHandlerTest {
   private GetTaskInstanceByIdQuery query;
   private TaskInstance taskInstanceMock;
   private TaskInstanceDTO taskInstanceDTOMock;
+  private Identifier taskId;
 
   @InjectMocks
   private GetTaskInstanceByIdQueryHandler getTaskInstanceByIdQueryHandler;
 
   @BeforeEach
   void setUp() {
+    taskId = Identifier.generate();
     query = new GetTaskInstanceByIdQuery(UUID.randomUUID().toString());
     taskInstanceMock = mock(TaskInstance.class);
     taskInstanceDTOMock = mock(TaskInstanceDTO.class);
 
     when(userContext.getCurrentUser()).thenReturn(Code.create("demo@nosi.cv"));
 
-    when(taskInstanceService.getByIdWihEvents(UUID.fromString(query.getId())))
+    when(taskInstanceService.getByIdWihEvents(taskId))
         .thenReturn(taskInstanceMock);
 
     when(taskInstanceMapper.toTaskInstanceDTO(taskInstanceMock))
@@ -66,7 +69,7 @@ class GetTaskInstanceByIdQueryHandlerTest {
     assertEquals(taskInstanceDTOMock, response.getBody());
 
     verify(userContext).getCurrentUser();
-    verify(taskInstanceService).getByIdWihEvents(UUID.fromString(query.getId()));
+    verify(taskInstanceService).getByIdWihEvents(taskId);
     verify(taskInstanceMapper).toTaskInstanceDTO(taskInstanceMock);
   }
 
