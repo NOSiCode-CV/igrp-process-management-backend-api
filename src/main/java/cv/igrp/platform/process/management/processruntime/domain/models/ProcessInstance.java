@@ -18,6 +18,8 @@ import java.util.UUID;
 @ToString
 public class ProcessInstance {
 
+  public static final Integer DEFAULT_PRIORITY = 0;
+
   private final Identifier id;
   private final Code procReleaseKey;
   private final Code procReleaseId;
@@ -38,6 +40,7 @@ public class ProcessInstance {
   private String name;
   private String progress;
   private Map<String, Object> variables;
+  private Integer priority;
 
   @Builder
   public ProcessInstance(Identifier id,
@@ -59,7 +62,8 @@ public class ProcessInstance {
                          ProcessInstanceStatus status,
                          String name,
                          String progress,
-                         Map<String, Object> variables
+                         Map<String, Object> variables,
+                         Integer priority
                          ) {
     this.id = id == null ? Identifier.generate() : id;
     this.procReleaseKey = Objects.requireNonNull(procReleaseKey, "Process release key cannot be null");
@@ -81,6 +85,7 @@ public class ProcessInstance {
     this.name = name;
     this.progress = progress;
     this.variables = variables == null ? new HashMap<>() : variables;
+    this.priority = priority == null ? DEFAULT_PRIORITY : priority;
   }
 
   public void start(ProcessNumber number, Code engineProcessNumber, String version, String processName, String startedBy){

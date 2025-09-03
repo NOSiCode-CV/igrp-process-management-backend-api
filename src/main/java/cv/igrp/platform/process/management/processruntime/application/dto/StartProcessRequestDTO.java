@@ -34,6 +34,9 @@ public class StartProcessRequestDTO  {
   
   private String applicationBase ;
   
+  
+  private Integer priority ;
+  
   @Valid
   private List<ProcessVariableDTO> variables = new ArrayList<>();
 

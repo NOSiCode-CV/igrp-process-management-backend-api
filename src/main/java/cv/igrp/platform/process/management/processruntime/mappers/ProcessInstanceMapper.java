@@ -41,6 +41,7 @@ public class ProcessInstanceMapper {
     processInstanceEntity.setObsCancel(processInstance.getObsCancel());
     processInstanceEntity.setSearchTerms(processInstance.getSearchTerms());
     processInstanceEntity.setName(processInstance.getName());
+    processInstanceEntity.setPriority(processInstance.getPriority());
     return processInstanceEntity;
   }
 
@@ -79,6 +80,7 @@ public class ProcessInstanceMapper {
         .businessKey(startProcessRequestDTO.getBusinessKey() != null ? Code.create(startProcessRequestDTO.getBusinessKey()) : null)
         .applicationBase(Code.create(startProcessRequestDTO.getApplicationBase()))
         .variables(vars)
+        .priority(startProcessRequestDTO.getPriority())
         .build();
   }
 
@@ -102,6 +104,7 @@ public class ProcessInstanceMapper {
     processInstanceDTO.setBusinessKey(processInstance.getBusinessKey() != null ? processInstance.getBusinessKey().getValue() : null);
     processInstanceDTO.setName(processInstance.getName());
     processInstanceDTO.setProgress(processInstance.getProgress());
+    processInstanceDTO.setPriority(processInstance.getPriority());
     processInstanceDTO.setVariables(processInstance.getVariables().entrySet()
         .stream().map(e->new VariableDTO(e.getKey(), e.getValue())).toList());
     return processInstanceDTO;
