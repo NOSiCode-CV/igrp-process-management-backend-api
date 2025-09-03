@@ -8,13 +8,13 @@ import cv.igrp.platform.process.management.processruntime.domain.repository.Task
 import cv.igrp.platform.process.management.shared.application.constants.ProcessInstanceStatus;
 import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
+import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.ProcessArtifactEntity;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.repository.ProcessArtifactEntityRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -46,21 +46,21 @@ public class TaskInstanceService {
   }
 
 
-  public TaskInstance getById(UUID id) {
-    return taskInstanceRepository.findById(id)
+  public TaskInstance getById(Identifier id) {
+    return taskInstanceRepository.findById(id.getValue())
         .orElseThrow(() -> IgrpResponseStatusException.notFound("No Task Instance found with id: " + id));
   }
 
 
-  public TaskInstance getByIdWihEvents(UUID id) {
-    return taskInstanceRepository.findByIdWihEvents(id)
+  public TaskInstance getByIdWihEvents(Identifier id) {
+    return taskInstanceRepository.findByIdWihEvents(id.getValue())
         .orElseThrow(() -> IgrpResponseStatusException.notFound("No Task Instance found with id: " + id));
   }
 
 
-  public void claimTask(UUID id, Code currentUser, String note) {
-    var taskInstance = getByIdWihEvents(id);
-    taskInstance.claim(currentUser,note);
+  public void claimTask(TaskOperationData data) {
+    var taskInstance = getByIdWihEvents(data.getId());
+    taskInstance.claim(data);
     this.save(taskInstance);
     // Call the process engine to claim a task
     runtimeProcessEngineRepository.claimTask(
@@ -70,22 +70,22 @@ public class TaskInstanceService {
   }
 
 
-  public void assignTask(UUID id, Code currentUser, Code targetUser, Integer priority, String note) {
-    var taskInstance = getByIdWihEvents(id);
-    taskInstance.assign(currentUser, targetUser, priority, note);
+  public void assignTask(TaskOperationData data) {
+    var taskInstance = getByIdWihEvents(data.getId());
+    taskInstance.assign(data);
     this.save(taskInstance);
     // Call the process engine to assign a task
     runtimeProcessEngineRepository.assignTask(
         taskInstance.getExternalId().getValue(),
-        targetUser.getValue(),
-        note
+        data.getTargetUser().getValue(),
+        data.getNote()
     );
   }
 
 
-  public void unClaimTask(UUID id, Code currentUser, String note) {
-    var taskInstance = getByIdWihEvents(id);
-    taskInstance.unClaim(currentUser,note);
+  public void unClaimTask(TaskOperationData data) {
+    var taskInstance = getByIdWihEvents(data.getId());
+    taskInstance.unClaim(data);
     this.save(taskInstance);
     // Call the process engine to claim a task
     runtimeProcessEngineRepository.unClaimTask(
@@ -94,33 +94,32 @@ public class TaskInstanceService {
   }
 
 
-  public TaskInstance completeTask(UUID id, Code currentUser, Map<String,Object> forms, Map<String,Object> variables) {
+  public TaskInstance completeTask(TaskOperationData data) {
 
-    var taskInstance = getByIdWihEvents(id);
-
-    var processInstance  = processInstanceRepository
-        .findById(taskInstance.getProcessInstanceId().getValue())
-        .orElseThrow(() -> IgrpResponseStatusException.notFound("No Process Instance found with id: " + id));
-
+    var taskInstance = getByIdWihEvents(data.getId());
+    taskInstance.complete(data);
+    data.validateSubmitedInfo();
+    var completedTask = save(taskInstance);
     // Call the process engine to complete a task
     runtimeProcessEngineRepository.completeTask(
         taskInstance.getExternalId().getValue(),
-        forms,
-        variables
+        data.getForms(),
+        data.getVariables()
     );
+
+    var processInstance  = processInstanceRepository
+        .findById(taskInstance.getProcessInstanceId().getValue()).orElseThrow(
+            () -> IgrpResponseStatusException.notFound("No Process Instance found with id: " + taskInstance.getProcessInstanceId().getValue()));
 
     var activityProcess = runtimeProcessEngineRepository
         .getProcessInstanceById(processInstance.getEngineProcessNumber().getValue());
 
-    taskInstance.complete(currentUser);
-    var completedTask = save(taskInstance);
-
-    this.createNextTaskInstances(processInstance, currentUser);
+    this.createNextTaskInstances(processInstance, data.getCurrentUser());
 
     if(activityProcess.getStatus() == ProcessInstanceStatus.COMPLETED){
       processInstance.complete(
           activityProcess.getEndedAt(),
-          activityProcess.getEndedBy() != null ? activityProcess.getEndedBy() : currentUser.getValue()
+          activityProcess.getEndedBy() != null ? activityProcess.getEndedBy() : data.getCurrentUser().getValue()
       );
       processInstanceRepository.save(processInstance);
     }
@@ -134,7 +133,7 @@ public class TaskInstanceService {
   }
 
 
-  public Map<String,Object> getTaskVariables(UUID id) {
+  public Map<String,Object> getTaskVariables(Identifier id) {
     var taskInstance = getById(id);
     return runtimeProcessEngineRepository.getTaskVariables(taskInstance.getExternalId().getValue());
   }

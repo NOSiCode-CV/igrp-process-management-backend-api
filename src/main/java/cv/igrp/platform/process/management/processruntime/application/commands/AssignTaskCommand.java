@@ -1,24 +1,19 @@
 package cv.igrp.platform.process.management.processruntime.application.commands;
 
 import cv.igrp.framework.core.domain.Command;
+import cv.igrp.platform.process.management.processruntime.application.dto.AssignTaskDTO;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class AssignTaskCommand implements Command {
 
-  @NotBlank(message = "The field <user> is required")
-  private String user;
-  @NotBlank(message = "The field <note> is required")
-  private String note;
-  @NotNull(message = "The field <priority> is required")
-  private Integer priority;
+
+  private AssignTaskDTO assigntaskdto;
   @NotBlank(message = "The field <id> is required")
   private String id;
 

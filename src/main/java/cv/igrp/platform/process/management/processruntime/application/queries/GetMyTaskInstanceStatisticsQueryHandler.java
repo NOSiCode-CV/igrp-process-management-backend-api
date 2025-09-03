@@ -33,17 +33,11 @@ public class GetMyTaskInstanceStatisticsQueryHandler implements QueryHandler<Get
   @IgrpQueryHandler
   @Transactional(readOnly = true)
   public ResponseEntity<TaskInstanceStatsDTO> handle(GetMyTaskInstanceStatisticsQuery query) {
-
     final var currentUser = userContext.getCurrentUser();
-
     LOGGER.debug("User [{}] requested his task instance statistics", currentUser.getValue());
-
     var statistics = taskInstanceService.getTaskStatisticsByUser(currentUser);
-
     LOGGER.debug("Task statistics computed successfully for user [{}]", currentUser.getValue());
-
     return ResponseEntity.ok(taskInstanceMapper.toTaskInstanceStatsDto(statistics));
-
   }
 
 }

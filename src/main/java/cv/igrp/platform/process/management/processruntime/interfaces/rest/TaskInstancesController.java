@@ -136,24 +136,24 @@ public class TaskInstancesController {
     responses = {
       @ApiResponse(
           responseCode = "204",
-          description = "",
+          description = "No Content",
           content = @Content(
               mediaType = "",
               schema = @Schema(
-                  implementation = TaskInstanceDTO.class,
-                  type = "object")
+                  implementation = String.class,
+                  type = "String")
           )
       )
     }
   )
 
   public ResponseEntity<?> claimTask(
-    @RequestParam(value = "note", required = false) String note, @PathVariable(value = "id") String id)
+    @PathVariable(value = "id") String id)
   {
 
       LOGGER.debug("Operation started");
 
-      final var command = new ClaimTaskCommand(note, id);
+      final var command = new ClaimTaskCommand(id);
 
        ResponseEntity<?> response = commandBus.send(command);
 
@@ -173,24 +173,24 @@ public class TaskInstancesController {
     responses = {
       @ApiResponse(
           responseCode = "204",
-          description = "",
+          description = "No content",
           content = @Content(
               mediaType = "",
               schema = @Schema(
-                  implementation = TaskInstanceDTO.class,
-                  type = "object")
+                  implementation = String.class,
+                  type = "String")
           )
       )
     }
   )
 
   public ResponseEntity<?> unClaimTask(
-    @RequestParam(value = "note") String note, @PathVariable(value = "id") String id)
+    @PathVariable(value = "id") String id)
   {
 
       LOGGER.debug("Operation started");
 
-      final var command = new UnClaimTaskCommand(note, id);
+      final var command = new UnClaimTaskCommand(id);
 
        ResponseEntity<?> response = commandBus.send(command);
 
@@ -210,26 +210,24 @@ public class TaskInstancesController {
     responses = {
       @ApiResponse(
           responseCode = "204",
-          description = "",
+          description = "No content",
           content = @Content(
               mediaType = "",
               schema = @Schema(
-                  implementation = TaskInstanceDTO.class,
-                  type = "object")
+                  implementation = String.class,
+                  type = "String")
           )
       )
     }
   )
 
-  public ResponseEntity<?> assignTask(
-    @RequestParam(value = "user") String user,
-    @RequestParam(value = "note", required = false) String note,
-    @RequestParam(value = "priority", required = false) Integer priority, @PathVariable(value = "id") String id)
+  public ResponseEntity<?> assignTask(@Valid @RequestBody AssignTaskDTO assignTaskRequest
+    , @PathVariable(value = "id") String id)
   {
 
       LOGGER.debug("Operation started");
 
-      final var command = new AssignTaskCommand(user, note, priority, id);
+      final var command = new AssignTaskCommand(assignTaskRequest, id);
 
        ResponseEntity<?> response = commandBus.send(command);
 
@@ -408,14 +406,14 @@ public class TaskInstancesController {
           content = @Content(
               mediaType = "application/json",
               schema = @Schema(
-                  implementation = VariableDTO.class,
+                  implementation = TaskVariableDTO.class,
                   type = "object")
           )
       )
     }
   )
 
-  public ResponseEntity<List<VariableDTO>> getTaskVariablesById(
+  public ResponseEntity<List<TaskVariableDTO>> getTaskVariablesById(
     @PathVariable(value = "id") String id)
   {
 
@@ -423,7 +421,7 @@ public class TaskInstancesController {
 
       final var query = new GetTaskVariablesByIdQuery(id);
 
-      ResponseEntity<List<VariableDTO>> response = queryBus.handle(query);
+      ResponseEntity<List<TaskVariableDTO>> response = queryBus.handle(query);
 
       LOGGER.debug("Operation finished");
 

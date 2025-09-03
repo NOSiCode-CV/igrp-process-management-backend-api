@@ -106,7 +106,7 @@ public class ProcessInstanceMapper {
     processInstanceDTO.setProgress(processInstance.getProgress());
     processInstanceDTO.setPriority(processInstance.getPriority());
     processInstanceDTO.setVariables(processInstance.getVariables().entrySet()
-        .stream().map(e->new VariableDTO(e.getKey(), e.getValue())).toList());
+        .stream().map(e->new ProcessVariableDTO(e.getKey(), e.getValue())).toList());
     return processInstanceDTO;
   }
 

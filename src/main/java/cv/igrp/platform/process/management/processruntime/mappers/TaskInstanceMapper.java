@@ -218,9 +218,9 @@ public class TaskInstanceMapper {
   }
 
 
-  public List<VariableDTO> toTaskVariableListDTO(Map<String,Object> variables) {
+  public List<TaskVariableDTO> toTaskVariableListDTO(Map<String,Object> variables) {
     return variables==null ? List.of() : variables.entrySet().stream()
-        .map(e-> new VariableDTO(e.getKey(),e.getValue()))
+        .map(e-> new TaskVariableDTO(e.getKey(),e.getValue()))
         .toList();
   }
 

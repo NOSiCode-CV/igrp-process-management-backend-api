@@ -29,22 +29,15 @@ public class ListTaskInstancesQueryHandler implements QueryHandler<ListTaskInsta
     this.userContext = userContext;
   }
 
-
   @IgrpQueryHandler
   @Transactional(readOnly = true)
   public ResponseEntity<TaskInstanceListPageDTO> handle(ListTaskInstancesQuery query) {
-
     final var filter = taskInstanceMapper.toFilter(query);
     final var currentUser = userContext.getCurrentUser();
-
     LOGGER.debug("User [{}] requested all tasks with filter [{}]", currentUser.getValue(), filter);
-
     final var taskInstances =  taskInstanceService.getAllTaskInstances(filter);
-
     LOGGER.debug("User [{}] retrieved [{}] tasks", currentUser.getValue(), taskInstances.getTotalElements());
-
     return ResponseEntity.ok(taskInstanceMapper.toTaskInstanceListPageDTO(taskInstances));
-
   }
 
 }

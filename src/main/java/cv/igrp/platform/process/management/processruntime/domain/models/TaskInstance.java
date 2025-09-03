@@ -111,49 +111,49 @@ public class TaskInstance {
   }
 
 
-  public void claim(Code user, String note) {
+  public void claim(TaskOperationData data) {
     if(this.status!=TaskInstanceStatus.CREATED) {
       throw IgrpResponseStatusException.of(HttpStatus.CONFLICT, String.format("Cannot Claim a Task in Status[%s]",this.status));
     }
-    this.assignedBy = Objects.requireNonNull(user, "User cannot be null!");
+    this.assignedBy = Objects.requireNonNull(data.getCurrentUser(), "User cannot be null!");
     this.status = TaskInstanceStatus.ASSIGNED;
     this.assignedAt = LocalDateTime.now();
-    createTaskInstanceEvent(TaskEventType.CLAIM,user,note);
+    createTaskInstanceEvent(TaskEventType.CLAIM,data.getCurrentUser(),data.getNote());
   }
 
 
-  public void assign(Code user, Code targetUser, Integer priority, String note) {
+  public void assign(TaskOperationData data) {
     if(this.status!=TaskInstanceStatus.CREATED) {
       throw IgrpResponseStatusException.of(HttpStatus.CONFLICT, String.format("Cannot Assign a Task in Status[%s]",this.status));
     }
-    this.assignedBy = Objects.requireNonNull(targetUser, "Target User cannot be null!");
+    this.assignedBy = Objects.requireNonNull(data.getTargetUser(), "Target User cannot be null!");
     this.assignedAt = LocalDateTime.now();
     this.status = TaskInstanceStatus.ASSIGNED;
     if(priority!=null)
       this.priority = priority;
-    createTaskInstanceEvent(TaskEventType.ASSIGN,user,note);
+    createTaskInstanceEvent(TaskEventType.ASSIGN,data.getCurrentUser(),data.getNote());
   }
 
 
-  public void unClaim(Code user, String note) {
+  public void unClaim(TaskOperationData data) {
     if(this.status!=TaskInstanceStatus.ASSIGNED) {
       throw IgrpResponseStatusException.of(HttpStatus.CONFLICT, String.format("Cannot Unclaim a Task in Status[%s]",this.status));
     }
     this.assignedAt = null;
     this.assignedBy = null;
     this.status = TaskInstanceStatus.CREATED;
-    createTaskInstanceEvent(TaskEventType.UNCLAIM, user, note);
+    createTaskInstanceEvent(TaskEventType.UNCLAIM, data.getCurrentUser(), data.getNote());
   }
 
 
-  public void complete(Code user) {
+  public void complete(TaskOperationData data) {
     if(this.status!=TaskInstanceStatus.ASSIGNED) {
       throw IgrpResponseStatusException.of(HttpStatus.CONFLICT, String.format("Cannot Complete a Task in Status[%s]",this.status));
     }
-    this.endedBy = Objects.requireNonNull(user, "Current User cannot be null!");
+    this.endedBy = Objects.requireNonNull(data.getCurrentUser(), "Current User cannot be null!");
     this.endedAt = LocalDateTime.now();
     this.status = TaskInstanceStatus.COMPLETED;
-    createTaskInstanceEvent(TaskEventType.COMPLETE,user,null);
+    createTaskInstanceEvent(TaskEventType.COMPLETE,data.getCurrentUser(),data.getNote());
   }
 
 

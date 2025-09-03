@@ -4,13 +4,10 @@
 package cv.igrp.platform.process.management.processruntime.application.dto;
 
 import cv.igrp.framework.stereotype.IgrpDTO;
-import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -18,13 +15,13 @@ import java.util.List;
 
 
 @IgrpDTO
-public class TaskDataDTO  {
+public class TaskVariableDTO  {
 
 
-  @Valid
-  private List<TaskVariableDTO> variables = new ArrayList<>();
 
-  @Valid
-  private List<TaskVariableDTO> forms = new ArrayList<>();
+  private String name ;
+
+
+  private Object value ;
 
 }
