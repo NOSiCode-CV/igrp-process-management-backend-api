@@ -32,12 +32,14 @@ class AssignTaskCommandHandlerTest {
   private UUID taskId;
   private String targetUserName;
   private String note;
+  private Integer priority;
 
   @BeforeEach
   void setUp() {
     taskId = UUID.randomUUID();
     targetUserName = "igrp@nosi.cv";
     note = "This is a note";
+    priority = 3;
     when(userContext.getCurrentUser()).thenReturn(Code.create("demo@nosi.cv"));
   }
 
@@ -64,6 +66,7 @@ class AssignTaskCommandHandlerTest {
         eq(taskId),
         eq(currentUser),
         eq(targetUser),
+        eq(priority),
         eq(note)
     );
 

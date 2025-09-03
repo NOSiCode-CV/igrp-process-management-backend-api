@@ -49,6 +49,9 @@ public class TaskInstanceListDTO  {
   private String businessKey ;
 
 
+  private Integer priority ;
+
+
   private String assignedBy ;
 
 

@@ -39,6 +39,7 @@ public class AssignTaskCommandHandler implements CommandHandler<AssignTaskComman
         UUID.fromString(command.getId()),
         currentUser,
         Code.create(command.getUser()),
+        command.getPriority(),
         command.getNote()
     );
 

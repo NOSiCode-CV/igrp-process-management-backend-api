@@ -114,6 +114,18 @@
       "primaryKey": false
     },
     {
+      "name": "priority",
+      "objectType": "java",
+      "type": "integer",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    },
+    {
       "name": "assignedBy",
       "objectType": "java",
       "type": "string",

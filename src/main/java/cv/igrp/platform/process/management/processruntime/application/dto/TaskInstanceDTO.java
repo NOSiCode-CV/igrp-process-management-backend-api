@@ -67,6 +67,9 @@ public class TaskInstanceDTO  {
   private String searchTerms ;
 
 
+  private Integer priority ;
+
+
   private LocalDateTime startedAt ;
 
 

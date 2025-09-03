@@ -28,6 +28,7 @@ public class TaskInstance {
   private final Code businessKey;
   private final Code applicationBase;
   private final String searchTerms;
+  private Integer priority;
   private TaskInstanceStatus status;
   private LocalDateTime startedAt;
   private final Code startedBy;
@@ -51,6 +52,7 @@ public class TaskInstance {
       Code businessKey,
       Code applicationBase,
       String searchTerms,
+      Integer priority,
       TaskInstanceStatus status,
       LocalDateTime startedAt,
       Code startedBy,
@@ -71,6 +73,7 @@ public class TaskInstance {
     this.businessKey = businessKey;
     this.applicationBase = applicationBase;
     this.searchTerms = searchTerms;
+    this.priority = priority;
     this.status = status;
     this.startedAt = startedAt;
     this.startedBy = startedBy;
@@ -114,10 +117,12 @@ public class TaskInstance {
   }
 
 
-  public void assign(Code user, Code targetUser, String note) {
+  public void assign(Code user, Code targetUser, Integer priority, String note) {
     this.assignedBy = Objects.requireNonNull(targetUser, "Target User cannot be null!");
     this.status = TaskInstanceStatus.ASSIGNED;
     this.assignedAt = LocalDateTime.now();
+    if(priority!=null)
+      this.priority = priority;
     createTaskInstanceEvent(TaskEventType.ASSIGN,user,note);
   }
 
@@ -151,26 +156,20 @@ public class TaskInstance {
   }
 
 
-  public TaskInstance withProperties(Code applicationBase,
-                                   ProcessNumber processNumber,
-                                   Code processName,
-                                   Code businessKey,
-                                   Identifier processInstanceId,
-                                   Code formKey, // if present overrides activity formKey
-                                   Code user
-  ) {
+  public TaskInstance withProperties(ProcessInstance processInstance, Code formKey, Code user) {
     return TaskInstance.builder()
         .id(this.id)
         .taskKey(this.taskKey)
         .externalId(this.externalId)
         .name(this.name)
         .startedAt(this.startedAt)
-        .formKey(formKey!=null ? formKey : this.formKey)
-        .applicationBase(applicationBase)
-        .processNumber(processNumber)
-        .processName(processName)
-        .businessKey(businessKey)
-        .processInstanceId(processInstanceId)
+        .formKey(formKey!=null ? formKey : this.formKey) // if present overrides activity formKey
+        .priority(processInstance.getPriority())
+        .applicationBase(processInstance.getApplicationBase())
+        .processNumber(processInstance.getNumber())
+        .processName(Code.create(processInstance.getName()))
+        .businessKey(processInstance.getBusinessKey())
+        .processInstanceId(processInstance.getId())
         .startedBy(user)
         .build();
   }

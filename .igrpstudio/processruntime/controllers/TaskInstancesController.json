@@ -215,6 +215,12 @@
           "name": "note",
           "isRequired": false,
           "description": "Assignment note"
+        },
+        {
+          "type": "integer",
+          "name": "priority",
+          "description": "Priotity of the Task",
+          "isRequired": false
         }
       ],
       "pathVariables": [

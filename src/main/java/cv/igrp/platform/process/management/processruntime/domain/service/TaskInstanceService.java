@@ -8,9 +8,7 @@ import cv.igrp.platform.process.management.processruntime.domain.repository.Task
 import cv.igrp.platform.process.management.shared.application.constants.ProcessInstanceStatus;
 import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
-import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
-import cv.igrp.platform.process.management.shared.domain.models.ProcessNumber;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.ProcessArtifactEntity;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.repository.ProcessArtifactEntityRepository;
 import org.springframework.stereotype.Service;
@@ -44,14 +42,7 @@ public class TaskInstanceService {
 
   public void createTaskInstancesByProcess(ProcessInstance processInstance) {
 
-    this.createNextTaskInstances(
-        processInstance.getId(),
-        processInstance.getNumber(),
-        processInstance.getEngineProcessNumber(),
-        processInstance.getName(),
-        processInstance.getBusinessKey(),
-        processInstance.getApplicationBase(),
-        Code.create(processInstance.getStartedBy()));
+    this.createNextTaskInstances(processInstance, Code.create(processInstance.getStartedBy()));
   }
 
 
@@ -79,9 +70,9 @@ public class TaskInstanceService {
   }
 
 
-  public void assignTask(UUID id, Code currentUser, Code targetUser, String note) {
+  public void assignTask(UUID id, Code currentUser, Code targetUser, Integer priority, String note) {
     var taskInstance = getByIdWihEvents(id);
-    taskInstance.assign(currentUser, targetUser, note);
+    taskInstance.assign(currentUser, targetUser, priority, note);
     this.save(taskInstance);
     // Call the process engine to assign a task
     runtimeProcessEngineRepository.assignTask(
@@ -124,15 +115,7 @@ public class TaskInstanceService {
     taskInstance.complete(currentUser);
     var completedTask = save(taskInstance);
 
-    this.createNextTaskInstances(
-        taskInstance.getProcessInstanceId(),
-        taskInstance.getProcessNumber(),
-        processInstance.getEngineProcessNumber(),
-        activityProcess.getName(),
-        processInstance.getBusinessKey(),
-        taskInstance.getApplicationBase(),
-        currentUser
-    );
+    this.createNextTaskInstances(processInstance, currentUser);
 
     if(activityProcess.getStatus() == ProcessInstanceStatus.COMPLETED){
       processInstance.complete(
@@ -168,32 +151,23 @@ public class TaskInstanceService {
 
 
 
-  void createNextTaskInstances(Identifier processInstanceId,
-                                       ProcessNumber processNumber,
-                                       Code engineProcessNumber,
-                                       String processName,
-                                       Code businessKey,
-                                       Code applicationBase,
-                                       Code user) {
+  void createNextTaskInstances(ProcessInstance processInstance, Code user) {
     // tasks from activiti
     final var activeTaskInstanceList = runtimeProcessEngineRepository
-        .getActiveTaskInstances(engineProcessNumber.getValue());
+        .getActiveTaskInstances(processInstance.getEngineProcessNumber().getValue());
 
     if(activeTaskInstanceList.isEmpty())
       return;
 
+    activeTaskInstanceList.forEach( t -> runtimeProcessEngineRepository
+        .setTaskPriority(t.getExternalId().getValue(),processInstance.getPriority()));
+
     final var artifactAssociations = processArtifactEntityRepository
-        .findAllByProcessDefinitionId(processInstanceId.getValue().toString())
+        .findAllByProcessDefinitionId(processInstance.getId().getValue().toString())
         .stream().collect( Collectors.toMap(ProcessArtifactEntity::getKey, a->Code.create(a.getFormKey())));
 
     activeTaskInstanceList.forEach( t-> this.createTask(
-        t.withProperties(applicationBase,
-            processNumber,
-            Code.create(processName),
-            businessKey,
-            processInstanceId,
-            artifactAssociations.get(t.getTaskKey().toString()),
-            user))
+        t.withProperties(processInstance, artifactAssociations.get(t.getTaskKey().toString()), user))
     );
   }
 

@@ -56,6 +56,7 @@ public class TaskInstanceMapper {
         ? taskInstance.getBusinessKey().getValue() : null);
     taskInstanceEntity.setApplicationBase(taskInstance.getApplicationBase().getValue());
     taskInstanceEntity.setSearchTerms(taskInstance.getSearchTerms());
+    taskInstanceEntity.setPriority(taskInstance.getPriority());
     taskInstanceEntity.setStatus(taskInstance.getStatus());
     taskInstanceEntity.setStartedBy(taskInstance.getStartedBy().getValue());
     taskInstanceEntity.setStartedAt(taskInstance.getStartedAt());
@@ -103,6 +104,7 @@ public class TaskInstanceMapper {
         .applicationBase(Code.create(taskInstanceEntity.getApplicationBase()))
         .status(taskInstanceEntity.getStatus())
         .searchTerms(taskInstanceEntity.getSearchTerms())
+        .priority(taskInstanceEntity.getPriority())
         .startedAt(taskInstanceEntity.getStartedAt())
         .startedBy(Code.create(taskInstanceEntity.getStartedBy()))
         .assignedAt(taskInstanceEntity.getAssignedAt())
@@ -143,6 +145,7 @@ public class TaskInstanceMapper {
     dto.setBusinessKey(model.getBusinessKey() != null ? model.getBusinessKey().getValue() : null);
     dto.setProcessName(model.getProcessName() != null ? model.getProcessName().getValue() : null);
     dto.setProcessKey(model.getProcessKey() != null ? model.getProcessKey().getValue() : null);
+    dto.setPriority(model.getPriority());
     dto.setStartedAt(model.getStartedAt());
     dto.setStartedBy(model.getStartedBy().getValue());
     dto.setAssignedBy(model.getAssignedBy()!=null ? model.getAssignedBy().getValue(): null);
@@ -171,6 +174,7 @@ public class TaskInstanceMapper {
     dto.setStatus(taskInstance.getStatus());
     dto.setStatusDesc(taskInstance.getStatus().getDescription());
     dto.setSearchTerms(taskInstance.getSearchTerms());
+    dto.setPriority(taskInstance.getPriority());
     dto.setStartedAt(taskInstance.getStartedAt());
     dto.setStartedBy(taskInstance.getStartedBy().getValue());
     dto.setAssignedBy(taskInstance.getAssignedBy()!=null?taskInstance.getAssignedBy().getValue():null);

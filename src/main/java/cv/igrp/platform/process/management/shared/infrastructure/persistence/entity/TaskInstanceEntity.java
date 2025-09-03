@@ -93,6 +93,10 @@ public class TaskInstanceEntity extends AuditEntity {
     private String searchTerms;
 
 
+    @Column(name="priority")
+    private Integer priority;
+
+
     @Column(name="ended_at")
     private LocalDateTime endedAt;
 
