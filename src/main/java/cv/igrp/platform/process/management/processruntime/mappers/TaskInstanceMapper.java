@@ -75,6 +75,7 @@ public class TaskInstanceMapper {
     taskInstanceEntity.setAssignedAt(taskInstance.getAssignedAt());
     taskInstanceEntity.setEndedBy(taskInstance.getEndedBy() != null ? taskInstance.getEndedBy().getValue() : null);
     taskInstanceEntity.setEndedAt(taskInstance.getEndedAt());
+    taskInstanceEntity.setPriority(taskInstance.getPriority());
     taskInstanceEntity.setSearchTerms(taskInstance.getSearchTerms());
   }
 
