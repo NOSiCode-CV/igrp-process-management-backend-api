@@ -65,7 +65,7 @@ public class ProcessInstanceMapper {
         .canceledBy(processInstanceEntity.getCanceledBy())
         .obsCancel(processInstanceEntity.getObsCancel())
         .applicationBase(Code.create(processInstanceEntity.getApplicationBase()))
-
+        .priority(processInstanceEntity.getPriority())
         .build();
   }
 
