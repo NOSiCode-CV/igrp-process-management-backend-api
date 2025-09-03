@@ -2,12 +2,14 @@ package cv.igrp.platform.process.management.processruntime.domain.models;
 
 import cv.igrp.platform.process.management.shared.application.constants.TaskEventType;
 import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
+import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import cv.igrp.platform.process.management.shared.domain.models.Name;
 import cv.igrp.platform.process.management.shared.domain.models.ProcessNumber;
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -110,6 +112,9 @@ public class TaskInstance {
 
 
   public void claim(Code user, String note) {
+    if(this.status!=TaskInstanceStatus.CREATED) {
+      throw IgrpResponseStatusException.of(HttpStatus.CONFLICT, String.format("Cannot Claim a Task in Status[%s]",this.status));
+    }
     this.assignedBy = Objects.requireNonNull(user, "User cannot be null!");
     this.status = TaskInstanceStatus.ASSIGNED;
     this.assignedAt = LocalDateTime.now();
@@ -118,9 +123,12 @@ public class TaskInstance {
 
 
   public void assign(Code user, Code targetUser, Integer priority, String note) {
+    if(this.status!=TaskInstanceStatus.CREATED) {
+      throw IgrpResponseStatusException.of(HttpStatus.CONFLICT, String.format("Cannot Assign a Task in Status[%s]",this.status));
+    }
     this.assignedBy = Objects.requireNonNull(targetUser, "Target User cannot be null!");
-    this.status = TaskInstanceStatus.ASSIGNED;
     this.assignedAt = LocalDateTime.now();
+    this.status = TaskInstanceStatus.ASSIGNED;
     if(priority!=null)
       this.priority = priority;
     createTaskInstanceEvent(TaskEventType.ASSIGN,user,note);
@@ -128,14 +136,20 @@ public class TaskInstance {
 
 
   public void unClaim(Code user, String note) {
-    this.status = TaskInstanceStatus.CREATED;
+    if(this.status!=TaskInstanceStatus.ASSIGNED) {
+      throw IgrpResponseStatusException.of(HttpStatus.CONFLICT, String.format("Cannot Unclaim a Task in Status[%s]",this.status));
+    }
     this.assignedAt = null;
     this.assignedBy = null;
+    this.status = TaskInstanceStatus.CREATED;
     createTaskInstanceEvent(TaskEventType.UNCLAIM, user, note);
   }
 
 
   public void complete(Code user) {
+    if(this.status!=TaskInstanceStatus.ASSIGNED) {
+      throw IgrpResponseStatusException.of(HttpStatus.CONFLICT, String.format("Cannot Complete a Task in Status[%s]",this.status));
+    }
     this.endedBy = Objects.requireNonNull(user, "Current User cannot be null!");
     this.endedAt = LocalDateTime.now();
     this.status = TaskInstanceStatus.COMPLETED;
