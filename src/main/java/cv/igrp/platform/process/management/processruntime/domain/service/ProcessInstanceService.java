@@ -36,7 +36,10 @@ public class ProcessInstanceService {
 
   public PageableLista<ProcessInstance> getAllProcessInstances(ProcessInstanceFilter filter) {
     PageableLista<ProcessInstance> pageableLista = processInstanceRepository.findAll(filter);
-    pageableLista.getContent().forEach(this::setProcessInstanceProgress);
+    pageableLista.getContent().forEach( processInstance ->{
+      setProcessInstanceProgress(processInstance);
+      setProcessInstanceVariables(processInstance);
+    });
     return pageableLista;
   }
 
@@ -44,16 +47,22 @@ public class ProcessInstanceService {
     ProcessInstance processInstance = processInstanceRepository.findById(id)
         .orElseThrow(() -> IgrpResponseStatusException.notFound("No process instance found with id: " + id));
     setProcessInstanceProgress(processInstance);
+    setProcessInstanceVariables(processInstance);
     return processInstance;
   }
 
   private void setProcessInstanceProgress(ProcessInstance processInstance){
-    List<ProcessInstanceTaskStatus> taskStatus = runtimeProcessEngineRepository.getProcessInstanceTaskStatus(processInstance.getNumber().getValue());
+    List<ProcessInstanceTaskStatus> taskStatus = runtimeProcessEngineRepository.getProcessInstanceTaskStatus(processInstance.getEngineProcessNumber().getValue());
     int totalTasks = taskStatus.size();
     long completedTasks = taskStatus.stream()
         .filter(processInstanceTaskStatus -> processInstanceTaskStatus.getStatus() == TaskInstanceStatus.COMPLETED)
         .count();
     processInstance.setProgress(totalTasks, (int) completedTasks);
+  }
+
+  private void setProcessInstanceVariables(ProcessInstance processInstance) {
+    var processVariables = runtimeProcessEngineRepository.getProcessVariables(processInstance.getEngineProcessNumber().getValue());
+    processInstance.setVariables(processVariables);
   }
 
   public ProcessInstance startProcessInstance(ProcessInstance processInstance, String user) {

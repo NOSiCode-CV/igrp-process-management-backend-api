@@ -6,6 +6,7 @@ import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import cv.igrp.platform.process.management.shared.domain.models.ProcessNumber;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
@@ -35,9 +36,10 @@ public class ProcessInstance {
   private String canceledBy;
   private String obsCancel;
   private ProcessInstanceStatus status;
-  private Map<String, Object> variables;
   private String name;
   private String progress;
+  @Setter
+  private Map<String, Object> variables;
 
   @Builder
   public ProcessInstance(Identifier id,
@@ -57,9 +59,9 @@ public class ProcessInstance {
                          String canceledBy,
                          String obsCancel,
                          ProcessInstanceStatus status,
-                         Map<String, Object> variables,
                          String name,
-                         String progress
+                         String progress,
+                         Map<String, Object> variables
                          ) {
     this.id = id == null ? Identifier.generate() : id;
     this.procReleaseKey = Objects.requireNonNull(procReleaseKey, "Process release key cannot be null");
@@ -78,9 +80,10 @@ public class ProcessInstance {
     this.canceledBy = canceledBy;
     this.obsCancel = obsCancel;
     this.status = status == null ? ProcessInstanceStatus.CREATED : status;
-    this.variables = variables == null ? new HashMap<>() : variables;
     this.name = name;
     this.progress = progress;
+
+    this.variables = variables == null ? new HashMap<>() : variables;
   }
 
   public void start(ProcessNumber number, Code engineProcessNumber, String version, String processName, String startedBy){
@@ -115,7 +118,7 @@ public class ProcessInstance {
     return UUID.randomUUID().toString();
   }
 
-  public void setProgress(int totalTasks, int completedTasks){
+  public void setProgress(int totalTasks, int completedTasks) {
     this.progress = String.format("%d/%d", completedTasks, totalTasks);
   }
 
