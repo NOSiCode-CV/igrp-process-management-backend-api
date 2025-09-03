@@ -170,6 +170,7 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
       List<ProcessVariableInstance> variables = processManagerAdapter.getProcessVariables(processInstanceId);
       if(variables==null)return new HashMap<>();//todo remove
       return variables.stream()
+          .filter(p->p.name()!=null&&p.value()!=null) //todo fix
           .collect(Collectors.toMap(ProcessVariableInstance::name, ProcessVariableInstance::value));
     } catch (Exception e) {
       LOGGER.error("Failed to retrieve variables for process with id={}", processInstanceId, e);
