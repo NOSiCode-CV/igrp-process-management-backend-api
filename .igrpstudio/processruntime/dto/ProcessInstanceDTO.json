@@ -237,7 +237,7 @@
     {
       "name": "variables",
       "objectType": "dto",
-      "type": "VariableDTO",
+      "type": "ProcessVariableDTO",
       "required": false,
       "before": false,
       "after": false,

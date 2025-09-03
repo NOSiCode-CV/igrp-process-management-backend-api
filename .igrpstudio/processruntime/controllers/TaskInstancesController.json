@@ -116,27 +116,18 @@
       "responses": {
         "204": {
           "name": "nocontent",
+          "description": "No Content",
           "content": {
             "": {
               "schema": {
-                "type": "TaskInstanceDTO",
-                "objectType": "dto",
+                "type": "string",
                 "name": "data",
-                "collectionType": "none",
-                "module": "processruntime"
+                "collectionType": "none"
               }
             }
           }
         }
       },
-      "requestParams": [
-        {
-          "type": "string",
-          "name": "note",
-          "isRequired": false,
-          "description": "Comment on task claim"
-        }
-      ],
       "pathVariables": [
         {
           "name": "id",
@@ -153,27 +144,18 @@
       "responses": {
         "204": {
           "name": "nocontent",
+          "description": "No content",
           "content": {
             "": {
               "schema": {
-                "type": "TaskInstanceDTO",
-                "objectType": "dto",
+                "type": "string",
                 "name": "data",
-                "collectionType": "none",
-                "module": "processruntime"
+                "collectionType": "none"
               }
             }
           }
         }
       },
-      "requestParams": [
-        {
-          "type": "string",
-          "name": "note",
-          "description": "Comment on task unclaim",
-          "isRequired": true
-        }
-      ],
       "pathVariables": [
         {
           "name": "id",
@@ -187,42 +169,34 @@
       "actionName": "assignTask",
       "path": "{id}/assign",
       "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "collectionType": "none",
+              "name": "data",
+              "type": "AssignTaskDTO",
+              "objectType": "dto",
+              "module": "processruntime"
+            }
+          }
+        }
+      },
       "responses": {
         "204": {
           "name": "nocontent",
+          "description": "No content",
           "content": {
             "": {
               "schema": {
-                "type": "TaskInstanceDTO",
-                "objectType": "dto",
+                "type": "string",
                 "name": "data",
-                "collectionType": "none",
-                "module": "processruntime"
+                "collectionType": "none"
               }
             }
           }
         }
       },
-      "requestParams": [
-        {
-          "type": "string",
-          "name": "user",
-          "isRequired": true,
-          "description": "User receiving the task"
-        },
-        {
-          "type": "string",
-          "name": "note",
-          "isRequired": false,
-          "description": "Assignment note"
-        },
-        {
-          "type": "integer",
-          "name": "priority",
-          "description": "Priotity of the Task",
-          "isRequired": false
-        }
-      ],
       "pathVariables": [
         {
           "name": "id",
@@ -394,7 +368,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "VariableDTO",
+                "type": "TaskVariableDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "list",
