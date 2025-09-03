@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Repository;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -167,6 +168,7 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
   public Map<String, Object> getProcessVariables(String processInstanceId) {
     try {
       List<ProcessVariableInstance> variables = processManagerAdapter.getProcessVariables(processInstanceId);
+      if(variables==null)return new HashMap<>();//todo remove
       return variables.stream()
           .collect(Collectors.toMap(ProcessVariableInstance::name, ProcessVariableInstance::value));
     } catch (Exception e) {
