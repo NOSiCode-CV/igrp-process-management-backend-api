@@ -22,9 +22,9 @@ public class TaskDataDTO  {
 
 
   @Valid
-  private List<TaskVariableDTO> variables = new ArrayList<>();
+  private List<VariableDTO> variables = new ArrayList<>();
 
   @Valid
-  private List<TaskVariableDTO> forms = new ArrayList<>();
+  private List<VariableDTO> forms = new ArrayList<>();
 
 }

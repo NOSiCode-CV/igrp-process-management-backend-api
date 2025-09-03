@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 
 
 @IgrpDTO
-public class TaskVariableDTO {
+public class VariableDTO  {
 
 
 

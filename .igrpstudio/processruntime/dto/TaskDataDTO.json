@@ -8,7 +8,7 @@
     {
       "name": "variables",
       "objectType": "dto",
-      "type": "TaskVariableDTO",
+      "type": "VariableDTO",
       "required": false,
       "before": false,
       "after": false,
@@ -22,7 +22,7 @@
     {
       "name": "forms",
       "objectType": "dto",
-      "type": "TaskVariableDTO",
+      "type": "VariableDTO",
       "required": false,
       "before": false,
       "after": false,

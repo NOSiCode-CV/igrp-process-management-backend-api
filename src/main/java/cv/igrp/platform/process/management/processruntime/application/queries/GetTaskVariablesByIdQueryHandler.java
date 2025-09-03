@@ -2,7 +2,7 @@ package cv.igrp.platform.process.management.processruntime.application.queries;
 
 import cv.igrp.framework.core.domain.QueryHandler;
 import cv.igrp.framework.stereotype.IgrpQueryHandler;
-import cv.igrp.platform.process.management.processruntime.application.dto.TaskVariableDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.VariableDTO;
 import cv.igrp.platform.process.management.processruntime.domain.service.TaskInstanceService;
 import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
 import cv.igrp.platform.process.management.shared.security.UserContext;
@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Component
-public class GetTaskVariablesByIdQueryHandler implements QueryHandler<GetTaskVariablesByIdQuery, ResponseEntity<List<TaskVariableDTO>>>{
+public class GetTaskVariablesByIdQueryHandler implements QueryHandler<GetTaskVariablesByIdQuery, ResponseEntity<List<VariableDTO>>>{
 
   private static final Logger LOGGER = LoggerFactory.getLogger(GetTaskVariablesByIdQueryHandler.class);
 
@@ -34,7 +34,7 @@ public class GetTaskVariablesByIdQueryHandler implements QueryHandler<GetTaskVar
 
   @IgrpQueryHandler
   @Transactional(readOnly = true)
-  public ResponseEntity<List<TaskVariableDTO>> handle(GetTaskVariablesByIdQuery query) {
+  public ResponseEntity<List<VariableDTO>> handle(GetTaskVariablesByIdQuery query) {
     final var taskId = UUID.fromString(query.getId());
     final var currentUser = userContext.getCurrentUser();
 

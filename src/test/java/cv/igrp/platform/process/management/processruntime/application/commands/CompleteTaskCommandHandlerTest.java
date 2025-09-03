@@ -2,7 +2,7 @@ package cv.igrp.platform.process.management.processruntime.application.commands;
 
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskDataDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceDTO;
-import cv.igrp.platform.process.management.processruntime.application.dto.TaskVariableDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.VariableDTO;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
 import cv.igrp.platform.process.management.processruntime.domain.service.TaskInstanceService;
 import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
@@ -56,10 +56,10 @@ public class CompleteTaskCommandHandlerTest {
     forms.put("idade", Integer.valueOf(35));
     taskDataDTO = new TaskDataDTO();
     taskDataDTO.setVariables(variables.entrySet().stream()
-        .map(e -> new TaskVariableDTO(e.getKey(), e.getValue()))
+        .map(e -> new VariableDTO(e.getKey(), e.getValue()))
         .toList());
     taskDataDTO.setForms(forms.entrySet().stream()
-        .map(e -> new TaskVariableDTO(e.getKey(), e.getValue()))
+        .map(e -> new VariableDTO(e.getKey(), e.getValue()))
         .toList());
     currenteUser = Code.create("demo@nosi.cv");
     when(userContext.getCurrentUser()).thenReturn(currenteUser);

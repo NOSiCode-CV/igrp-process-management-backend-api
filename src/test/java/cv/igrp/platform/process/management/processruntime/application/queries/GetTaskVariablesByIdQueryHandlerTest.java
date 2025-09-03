@@ -1,6 +1,6 @@
 package cv.igrp.platform.process.management.processruntime.application.queries;
 
-import cv.igrp.platform.process.management.processruntime.application.dto.TaskVariableDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.VariableDTO;
 import cv.igrp.platform.process.management.processruntime.domain.service.TaskInstanceService;
 import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
@@ -36,7 +36,7 @@ class GetTaskVariablesByIdQueryHandlerTest {
 
   private GetTaskVariablesByIdQuery query;
   private UUID taskId;
-  private List<TaskVariableDTO> taskVariablesListDTO;
+  private List<VariableDTO> taskVariablesListDTO;
   private Map<String,Object> taskVariables;
 
   @BeforeEach
@@ -50,8 +50,8 @@ class GetTaskVariablesByIdQueryHandlerTest {
 
     // Simula o DTO retornado pelo mapper
     taskVariablesListDTO = new ArrayList<>(List.of(
-        new TaskVariableDTO("name", "Maria"),
-        new TaskVariableDTO("age", 35)));
+        new VariableDTO("name", "Maria"),
+        new VariableDTO("age", 35)));
 
     when(userContext.getCurrentUser()).thenReturn(Code.create("demo@nosi.cv"));
     when(taskInstanceService.getTaskVariables(taskId)).thenReturn(taskVariables);
@@ -63,7 +63,7 @@ class GetTaskVariablesByIdQueryHandlerTest {
   @Test
   void testHandleGetTaskVariablesByIdQuery() {
 
-    ResponseEntity<List<TaskVariableDTO>> response = handler.handle(query);
+    ResponseEntity<List<VariableDTO>> response = handler.handle(query);
 
     assertNotNull(response);
     assertTrue(response.getStatusCode().is2xxSuccessful());

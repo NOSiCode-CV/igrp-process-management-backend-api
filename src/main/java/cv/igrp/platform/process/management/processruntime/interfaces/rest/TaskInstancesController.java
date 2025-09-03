@@ -407,14 +407,14 @@ public class TaskInstancesController {
           content = @Content(
               mediaType = "application/json",
               schema = @Schema(
-                  implementation = TaskVariableDTO.class,
+                  implementation = VariableDTO.class,
                   type = "object")
           )
       )
     }
   )
 
-  public ResponseEntity<List<TaskVariableDTO>> getTaskVariablesById(
+  public ResponseEntity<List<VariableDTO>> getTaskVariablesById(
     @PathVariable(value = "id") String id)
   {
 
@@ -422,7 +422,7 @@ public class TaskInstancesController {
 
       final var query = new GetTaskVariablesByIdQuery(id);
 
-      ResponseEntity<List<TaskVariableDTO>> response = queryBus.handle(query);
+      ResponseEntity<List<VariableDTO>> response = queryBus.handle(query);
 
       LOGGER.debug("Operation finished");
 

@@ -388,7 +388,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "TaskVariableDTO",
+                "type": "VariableDTO",
                 "objectType": "dto",
                 "name": "data",
                 "collectionType": "list",

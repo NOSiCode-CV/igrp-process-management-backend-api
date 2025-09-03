@@ -1,7 +1,7 @@
 {
   "type": "dto",
   "module": "processruntime",
-  "name": "TaskVariableDTO",
+  "name": "VariableDTO",
   "template": "classic",
   "enableCustonValidation": false,
   "attributes": [
