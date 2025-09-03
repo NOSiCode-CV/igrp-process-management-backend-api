@@ -6,7 +6,6 @@ import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import cv.igrp.platform.process.management.shared.domain.models.ProcessNumber;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
@@ -38,7 +37,6 @@ public class ProcessInstance {
   private ProcessInstanceStatus status;
   private String name;
   private String progress;
-  @Setter
   private Map<String, Object> variables;
 
   @Builder
@@ -82,7 +80,6 @@ public class ProcessInstance {
     this.status = status == null ? ProcessInstanceStatus.CREATED : status;
     this.name = name;
     this.progress = progress;
-
     this.variables = variables == null ? new HashMap<>() : variables;
   }
 
@@ -120,6 +117,10 @@ public class ProcessInstance {
 
   public void setProgress(int totalTasks, int completedTasks) {
     this.progress = String.format("%d/%d", completedTasks, totalTasks);
+  }
+
+  public void addVariables(Map<String,Object> variables){
+    this.variables.putAll(variables);
   }
 
 }
