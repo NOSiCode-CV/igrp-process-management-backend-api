@@ -34,6 +34,7 @@ public class CompleteTaskCommandHandler implements CommandHandler<CompleteTaskCo
   @IgrpCommandHandler
   @Transactional
   public ResponseEntity<TaskInstanceDTO> handle(CompleteTaskCommand command) {
+
     final var currentUser = userContext.getCurrentUser();
     LOGGER.info("User [{}] started completing task [{}]", currentUser.getValue(), command.getId());
 
@@ -53,6 +54,7 @@ public class CompleteTaskCommandHandler implements CommandHandler<CompleteTaskCo
             .forms(forms)
             .build()
     );
+
     LOGGER.info("User [{}] finished completing task [{}]", currentUser.getValue(), command.getId());
     return ResponseEntity.ok(taskInstanceMapper.toTaskInstanceDTO(taskInstanceResp));
   }
