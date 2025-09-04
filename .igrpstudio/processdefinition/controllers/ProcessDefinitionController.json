@@ -223,7 +223,7 @@
     },
     {
       "actionName": "getProcessSequence",
-      "path": "{id}/sequence",
+      "path": "{key}/sequence",
       "method": "GET",
       "responses": {
         "200": {
@@ -243,16 +243,16 @@
       },
       "pathVariables": [
         {
-          "name": "id",
+          "name": "key",
           "type": "string",
           "isRequired": true,
-          "description": "id of the sequence"
+          "description": "Process definition key"
         }
       ]
     },
     {
       "actionName": "createProcessSequence",
-      "path": "{id}/sequence",
+      "path": "{key}/sequence",
       "method": "POST",
       "requestBody": {
         "content": {
@@ -286,9 +286,10 @@
       },
       "pathVariables": [
         {
-          "name": "id",
+          "name": "key",
           "type": "string",
-          "isRequired": true
+          "isRequired": true,
+          "description": "Process definition key"
         }
       ]
     }
