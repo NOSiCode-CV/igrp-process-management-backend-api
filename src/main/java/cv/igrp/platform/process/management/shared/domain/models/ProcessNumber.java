@@ -8,7 +8,7 @@ import java.util.Objects;
 @Getter
 public class ProcessNumber {
 
-  public final String value;
+  private final String value;
 
   @Builder
   public ProcessNumber(String value) {

@@ -77,7 +77,7 @@ public class TaskInstanceService {
     // Call the process engine to assign a task
     runtimeProcessEngineRepository.assignTask(
         taskInstance.getExternalId().getValue(),
-        data.getTargetUser().getValue(),
+        taskInstance.getAssignedBy().getValue(),
         data.getNote()
     );
   }
