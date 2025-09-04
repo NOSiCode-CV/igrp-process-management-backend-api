@@ -1,5 +1,7 @@
 package cv.igrp.platform.process.management.processruntime.application.commands;
 
+import cv.igrp.platform.process.management.processruntime.application.dto.AssignTaskDTO;
+import cv.igrp.platform.process.management.processruntime.domain.models.TaskOperationData;
 import cv.igrp.platform.process.management.processruntime.domain.service.TaskInstanceService;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.security.UserContext;
@@ -9,10 +11,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.ResponseEntity;
 
 import java.util.UUID;
 
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class AssignTaskCommandHandlerTest {
@@ -24,50 +29,38 @@ class AssignTaskCommandHandlerTest {
   private UserContext userContext;
 
   @InjectMocks
-  private AssignTaskCommandHandler assignTaskCommandHandler;
+  private AssignTaskCommandHandler handler;
 
-  private UUID taskId;
-  private String targetUserName;
-  private String note;
-  private Integer priority;
+  private AssignTaskCommand command;
 
   @BeforeEach
   void setUp() {
-    taskId = UUID.randomUUID();
-    targetUserName = "igrp@nosi.cv";
-    note = "This is a note";
-    priority = 3;
-    when(userContext.getCurrentUser()).thenReturn(Code.create("demo@nosi.cv"));
+    String taskId = UUID.randomUUID().toString();
+    String currentUserName = "demo@nosi.cv";
+    String targetUserName = "igrp@nosi.cv";
+    String note = "This is a note";
+    Integer priority = 3;
+
+    when(userContext.getCurrentUser()).thenReturn(Code.create(currentUserName));
+
+    AssignTaskDTO dto = new AssignTaskDTO(targetUserName, priority, note);
+    command = new AssignTaskCommand();
+    command.setId(taskId);
+    command.setAssigntaskdto(dto);
   }
 
   @Test
-  void handle_shouldCallAssignTaskServiceAndReturnNoContent() {
-    // Given
-    /*AssignTaskCommand command = new AssignTaskCommand();
-    command.setId(taskId.toString());
-    command.setUser(targetUserName);
-    command.setNote(note);
-
-    Code currentUser = Code.create("demo@nosi.cv");
-    Code targetUser = Code.create(targetUserName);
-
+  void handle_shouldInvokeServiceAndReturnNoContent() {
     // When
-    ResponseEntity<String> response = assignTaskCommandHandler.handle(command);
+    ResponseEntity<String> response = handler.handle(command);
 
     // Then
     assertNotNull(response);
-    assertEquals(204, response.getStatusCodeValue()); // noContent
+    assertEquals(204, response.getStatusCodeValue());
 
-    // Checks if the service was called with the correct parameters
-    verify(taskInstanceService).assignTask(
-        eq(taskId),
-        eq(currentUser),
-        eq(targetUser),
-        eq(priority),
-        eq(note)
-    );
+    // verify
+    verify(taskInstanceService, times(1)).assignTask(any(TaskOperationData.class));
 
-    // Any other interaction
-    verifyNoMoreInteractions(taskInstanceService, userContext);*/
+    verifyNoMoreInteractions(taskInstanceService, userContext);
   }
 }

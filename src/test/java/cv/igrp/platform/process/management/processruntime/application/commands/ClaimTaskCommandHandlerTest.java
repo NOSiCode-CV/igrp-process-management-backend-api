@@ -1,5 +1,6 @@
 package cv.igrp.platform.process.management.processruntime.application.commands;
 
+import cv.igrp.platform.process.management.processruntime.domain.models.TaskOperationData;
 import cv.igrp.platform.process.management.processruntime.domain.service.TaskInstanceService;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.security.UserContext;
@@ -9,13 +10,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.ResponseEntity;
 
 import java.util.UUID;
 
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class ClaimTaskCommandHandlerTest {
+class ClaimTaskCommandHandlerTest {
 
   @Mock
   private TaskInstanceService taskInstanceService;
@@ -24,42 +28,33 @@ public class ClaimTaskCommandHandlerTest {
   private UserContext userContext;
 
   @InjectMocks
-  private ClaimTaskCommandHandler claimTaskCommandHandler;
+  private ClaimTaskCommandHandler handler;
 
-  private UUID taskId;
-  private String note;
-  private Code currentUser;
+  private ClaimTaskCommand command;
 
-    @BeforeEach
-    void setUp() {
-      taskId = UUID.randomUUID();
-      note = "This is a note";
-      currentUser = Code.create("demo@nosi.cv");
-      when(userContext.getCurrentUser()).thenReturn(currentUser);
-    }
+  @BeforeEach
+  void setUp() {
+    String taskId = UUID.randomUUID().toString();
+    String currentUserName = "demo@nosi.cv";
+
+    when(userContext.getCurrentUser()).thenReturn(Code.create(currentUserName));
+
+    command = new ClaimTaskCommand();
+    command.setId(taskId);
+  }
 
   @Test
-  void handle_shouldCallClaimTaskServiceAndReturnNoContent() {
-    // Given
-    /*ClaimTaskCommand command = new ClaimTaskCommand();
-    command.setId(taskId.toString());
-    command.setNote(note);
-
+  void handle_shouldInvokeServiceAndReturnNoContent() {
     // When
-    ResponseEntity<String> response = claimTaskCommandHandler.handle(command);
+    ResponseEntity<String> response = handler.handle(command);
 
     // Then
     assertNotNull(response);
-    assertEquals(204, response.getStatusCodeValue()); // noContent
+    assertEquals(204, response.getStatusCodeValue());
 
-    // Checks if the service was called with the correct parameters
-    verify(taskInstanceService).claimTask(
-        eq(taskId),
-        eq(currentUser),
-        eq(note)
-    );
+    // Verify
+    verify(taskInstanceService, times(1)).claimTask(any(TaskOperationData.class));
 
-    // Any other interaction
-    verifyNoMoreInteractions(taskInstanceService, userContext);*/
+    verifyNoMoreInteractions(taskInstanceService, userContext);
   }
 }
