@@ -102,7 +102,7 @@
       "primaryKey": false
     },
     {
-      "name": "processDefinitionId",
+      "name": "processDefinitionKey",
       "objectType": "java",
       "type": "string",
       "required": false,

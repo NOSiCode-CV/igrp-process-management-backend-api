@@ -34,10 +34,10 @@ public class CreateProcessSequenceCommandHandler implements CommandHandler<Creat
    public ResponseEntity<ProcessSequenceDTO> handle(CreateProcessSequenceCommand command) {
      final var currentUser = userContext.getCurrentUser();
 
-     LOGGER.info("User [{}] started creating sequence for process [{}]", currentUser.getValue(), command.getId());
+     LOGGER.info("User [{}] started creating sequence for process definition key [{}]", currentUser.getValue(), command.getKey());
 
      var sequenceReq = ProcessSequence.builder()
-         .processDefinitionId(Code.create(command.getId()))
+         .processDefinitionKey(Code.create(command.getKey()))
          .name(Name.create(command.getSequencerequestdto().getName()))
          .prefix(Code.create(command.getSequencerequestdto().getPrefix()))
          .dateFormat(command.getSequencerequestdto().getDateFormat())
@@ -48,7 +48,7 @@ public class CreateProcessSequenceCommandHandler implements CommandHandler<Creat
 
      var sequenceResp = processSequenceService.save(sequenceReq);
 
-     LOGGER.info("User [{}] finished creating sequence for process [{}]", currentUser.getValue(), command.getId());
+     LOGGER.info("User [{}] finished creating sequence for process definition key [{}]", currentUser.getValue(), command.getKey());
 
      return ResponseEntity.ok(processSequenceMapper.toDTO(sequenceResp));
    }

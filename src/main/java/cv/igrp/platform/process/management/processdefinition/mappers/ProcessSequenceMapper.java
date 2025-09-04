@@ -22,7 +22,7 @@ public class ProcessSequenceMapper {
         .dateFormat(dto.getDateFormat())
         .nextNumber(dto.getNextNumber())
         .numberIncrement(dto.getNumberIncrement())
-        .processDefinitionId(Code.create(dto.getProcessDefinitionId()))
+        .processDefinitionKey(Code.create(dto.getProcessDefinitionKey()))
         .build();
   }
 
@@ -37,7 +37,7 @@ public class ProcessSequenceMapper {
     entity.setDateFormat(model.getDateFormat());
     entity.setNextNumber(model.getNextNumber());
     entity.setNumberIncrement(model.getNumberIncrement());
-    entity.setProcessDefinitionId(model.getProcessDefinitionId().getValue());
+    entity.setProcessDefinitionKey(model.getProcessDefinitionKey().getValue());
     return  entity;
   }
 
@@ -52,7 +52,7 @@ public class ProcessSequenceMapper {
         .dateFormat(entity.getDateFormat())
         .nextNumber(entity.getNextNumber())
         .numberIncrement(entity.getNumberIncrement())
-        .processDefinitionId(Code.create(entity.getProcessDefinitionId()))
+        .processDefinitionKey(Code.create(entity.getProcessDefinitionKey()))
         .build();
   }
 
@@ -67,7 +67,7 @@ public class ProcessSequenceMapper {
     dto.setDateFormat(model.getDateFormat());
     dto.setNextNumber(model.getNextNumber());
     dto.setNumberIncrement(model.getNumberIncrement());
-    dto.setProcessDefinitionId(model.getProcessDefinitionId().getValue());
+    dto.setProcessDefinitionKey(model.getProcessDefinitionKey().getValue());
     return dto;
   }
 

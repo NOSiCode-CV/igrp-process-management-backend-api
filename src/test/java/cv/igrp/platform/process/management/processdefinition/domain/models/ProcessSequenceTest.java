@@ -23,7 +23,7 @@ class ProcessSequenceTest {
         .dateFormat("yyyyMMdd")
         .nextNumber(1L)
         .numberIncrement((short) 1)
-        .processDefinitionId(Code.create("process-123"));
+        .processDefinitionKey(Code.create("process-123"));
   }
 
   @Test

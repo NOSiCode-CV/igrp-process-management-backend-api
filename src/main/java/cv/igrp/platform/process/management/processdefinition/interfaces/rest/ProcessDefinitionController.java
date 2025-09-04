@@ -273,7 +273,7 @@ public class ProcessDefinitionController {
   }
 
   @GetMapping(
-    value = "{id}/sequence"
+    value = "{key}/sequence"
   )
   @Operation(
     summary = "GET method to handle operations for getProcessSequence",
@@ -293,12 +293,12 @@ public class ProcessDefinitionController {
   )
 
   public ResponseEntity<ProcessSequenceDTO> getProcessSequence(
-    @PathVariable(value = "id") String id)
+    @PathVariable(value = "key") String key)
   {
 
       LOGGER.debug("Operation started");
 
-      final var query = new GetProcessSequenceQuery(id);
+      final var query = new GetProcessSequenceQuery(key);
 
       ResponseEntity<ProcessSequenceDTO> response = queryBus.handle(query);
 
@@ -310,7 +310,7 @@ public class ProcessDefinitionController {
   }
 
   @PostMapping(
-    value = "{id}/sequence"
+    value = "{key}/sequence"
   )
   @Operation(
     summary = "POST method to handle operations for createProcessSequence",
@@ -330,12 +330,12 @@ public class ProcessDefinitionController {
   )
 
   public ResponseEntity<ProcessSequenceDTO> createProcessSequence(@Valid @RequestBody SequenceRequestDTO createProcessSequenceRequest
-    , @PathVariable(value = "id") String id)
+    , @PathVariable(value = "key") String key)
   {
 
       LOGGER.debug("Operation started");
 
-      final var command = new CreateProcessSequenceCommand(createProcessSequenceRequest, id);
+      final var command = new CreateProcessSequenceCommand(createProcessSequenceRequest, key);
 
        ResponseEntity<ProcessSequenceDTO> response = commandBus.send(command);
 

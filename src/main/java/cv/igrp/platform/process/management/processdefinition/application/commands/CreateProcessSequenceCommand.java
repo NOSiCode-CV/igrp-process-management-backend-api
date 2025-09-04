@@ -14,7 +14,7 @@ public class CreateProcessSequenceCommand implements Command {
 
 
   private SequenceRequestDTO sequencerequestdto;
-  @NotBlank(message = "The field <id> is required")
-  private String id;
+  @NotBlank(message = "The field <key> is required")
+  private String key;
 
 }

@@ -14,14 +14,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 
-import java.util.UUID;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class GetProcessSequenceQueryHandlerTest {
+class GetProcessSequenceQueryHandlerTest {
 
   @Mock
   private ProcessSequenceService processSequenceService;
@@ -38,22 +36,25 @@ public class GetProcessSequenceQueryHandlerTest {
   private GetProcessSequenceQuery query;
   private ProcessSequence processSequenceMock;
   private ProcessSequenceDTO processSequenceDTOMock;
-  private String sequenceId;
+  private String processDefinitionKey;
 
   @BeforeEach
   void setUp() {
 
-    sequenceId = UUID.randomUUID().toString();
+    processDefinitionKey = "process-123";
 
-    query = new GetProcessSequenceQuery(sequenceId);
+    query = new GetProcessSequenceQuery(processDefinitionKey);
 
     processSequenceMock = mock(ProcessSequence.class);
     processSequenceDTOMock = mock(ProcessSequenceDTO.class);
 
     when(userContext.getCurrentUser()).thenReturn(Code.create("demo@nosi.cv"));
 
-    when(processSequenceService.getSequenceByProcessDefinitionId(Code.create(sequenceId)))
+    when(processSequenceService.getSequenceByProcessDefinitionKey(Code.create(processDefinitionKey)))
         .thenReturn(processSequenceMock);
+
+    when(processSequenceMock.getProcessDefinitionKey())
+        .thenReturn(Code.create(processDefinitionKey));
 
     when(processSequenceMapper.toDTO(processSequenceMock))
         .thenReturn(processSequenceDTOMock);
@@ -68,7 +69,7 @@ public class GetProcessSequenceQueryHandlerTest {
     assertEquals(processSequenceDTOMock, response.getBody());
 
     verify(userContext).getCurrentUser();
-    verify(processSequenceService).getSequenceByProcessDefinitionId(Code.create(sequenceId));
+    verify(processSequenceService).getSequenceByProcessDefinitionKey(Code.create(processDefinitionKey));
     verify(processSequenceMapper).toDTO(processSequenceMock);
 
   }

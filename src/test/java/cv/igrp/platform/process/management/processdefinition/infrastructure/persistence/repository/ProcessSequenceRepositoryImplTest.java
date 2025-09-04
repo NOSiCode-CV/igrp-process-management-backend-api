@@ -33,9 +33,12 @@ class ProcessSequenceRepositoryImplTest {
 
   private ProcessInstanceSequenceEntity entity;
   private ProcessSequence model;
+  private String processKey;
 
   @BeforeEach
   void setUp() {
+
+    processKey = "process-123";
 
     entity = new ProcessInstanceSequenceEntity();
     model = ProcessSequence.builder()
@@ -47,32 +50,32 @@ class ProcessSequenceRepositoryImplTest {
         .dateFormat("yyyyMMdd")
         .nextNumber(1L)
         .numberIncrement((short) 1)
-        .processDefinitionId(Code.create("process-123")).build();
+        .processDefinitionKey(Code.create(processKey)).build();
   }
 
   @Test
-  void testFindByProcessDefinitionId_found() {
-    when(sequenceEntityRepository.findByProcessDefinitionId("process-123"))
+  void testFindByProcessDefinitionKey_found() {
+    when(sequenceEntityRepository.findByProcessDefinitionKey(processKey))
         .thenReturn(Optional.of(entity));
     when(sequenceMapper.toModel(entity)).thenReturn(model);
 
-    Optional<ProcessSequence> result = repository.findByProcessDefinitionId("process-123");
+    Optional<ProcessSequence> result = repository.findByProcessDefinitionKey(processKey);
 
     assertTrue(result.isPresent());
     assertEquals("MySequence", result.get().getName().getValue());
-    verify(sequenceEntityRepository).findByProcessDefinitionId("process-123");
+    verify(sequenceEntityRepository).findByProcessDefinitionKey(processKey);
     verify(sequenceMapper).toModel(entity);
   }
 
   @Test
-  void testFindByProcessDefinitionId_notFound() {
-    when(sequenceEntityRepository.findByProcessDefinitionId("process-123"))
+  void testFindByProcessDefinitionKey_notFound() {
+    when(sequenceEntityRepository.findByProcessDefinitionKey(processKey))
         .thenReturn(Optional.empty());
 
-    Optional<ProcessSequence> result = repository.findByProcessDefinitionId("process-123");
+    Optional<ProcessSequence> result = repository.findByProcessDefinitionKey(processKey);
 
     assertTrue(result.isEmpty());
-    verify(sequenceEntityRepository).findByProcessDefinitionId("process-123");
+    verify(sequenceEntityRepository).findByProcessDefinitionKey(processKey);
     verify(sequenceMapper, never()).toModel(any(ProcessInstanceSequenceEntity.class));
   }
 
@@ -92,29 +95,29 @@ class ProcessSequenceRepositoryImplTest {
   }
 
   @Test
-  void testFindByProcessDefinitionIdForUpdate_found() {
-    when(sequenceEntityRepository.findByProcessDefinitionIdForUpdate("process-123"))
+  void testFindByProcessDefinitionKeyForUpdate_found() {
+    when(sequenceEntityRepository.findByProcessDefinitionKeyForUpdate(processKey))
         .thenReturn(Optional.of(entity));
     when(sequenceMapper.toModel(entity)).thenReturn(model);
 
-    Optional<ProcessSequence> result = repository.findByProcessDefinitionIdForUpdate("process-123");
+    Optional<ProcessSequence> result = repository.findByProcessDefinitionKeyForUpdate(processKey);
 
     assertTrue(result.isPresent());
     assertEquals("MySequence", result.get().getName().getValue());
-    verify(sequenceEntityRepository).findByProcessDefinitionIdForUpdate("process-123");
+    verify(sequenceEntityRepository).findByProcessDefinitionKeyForUpdate(processKey);
     verify(sequenceMapper).toModel(entity);
   }
 
 
   @Test
-  void testFindByProcessDefinitionIdForUpdate_notFound() {
-    when(sequenceEntityRepository.findByProcessDefinitionIdForUpdate("process-123"))
+  void testFindByProcessDefinitionKeyForUpdate_notFound() {
+    when(sequenceEntityRepository.findByProcessDefinitionKeyForUpdate(processKey))
         .thenReturn(Optional.empty());
 
-    Optional<ProcessSequence> result = repository.findByProcessDefinitionIdForUpdate("process-123");
+    Optional<ProcessSequence> result = repository.findByProcessDefinitionKeyForUpdate(processKey);
 
     assertTrue(result.isEmpty());
-    verify(sequenceEntityRepository).findByProcessDefinitionIdForUpdate("process-123");
+    verify(sequenceEntityRepository).findByProcessDefinitionKeyForUpdate(processKey);
     verify(sequenceMapper, never()).toModel(any(ProcessInstanceSequenceEntity.class));
   }
 }

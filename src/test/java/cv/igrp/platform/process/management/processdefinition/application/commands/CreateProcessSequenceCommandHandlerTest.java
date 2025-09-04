@@ -55,7 +55,7 @@ public class CreateProcessSequenceCommandHandlerTest {
       requestDto.setNumberIncrement((short)1);
 
       var command = new CreateProcessSequenceCommand();
-      command.setId("process-123");
+      command.setKey("process-123");
       command.setSequencerequestdto(requestDto);
 
       var savedSequence = mock(ProcessSequence.class);

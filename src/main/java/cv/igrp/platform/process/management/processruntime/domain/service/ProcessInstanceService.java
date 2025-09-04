@@ -73,7 +73,7 @@ public class ProcessInstanceService {
         processInstance.getVariables()
     );
 
-    var number = processSequenceService.getGeneratedProcessNumberByProcessDefinitionId(process.getProcReleaseId());
+    var number = processSequenceService.getGeneratedProcessNumberByProcessDefinitionKey(process.getProcReleaseKey());
 
     processInstance.start(number, process.getEngineProcessNumber(), process.getVersion(), process.getName(), user);
 

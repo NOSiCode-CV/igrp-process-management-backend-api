@@ -44,6 +44,6 @@ public class ProcessSequenceDTO  {
   private short numberIncrement ;
 
 
-  private String processDefinitionId ;
+  private String processDefinitionKey ;
 
 }

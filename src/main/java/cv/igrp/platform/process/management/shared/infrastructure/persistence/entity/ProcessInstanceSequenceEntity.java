@@ -67,9 +67,9 @@ public class ProcessInstanceSequenceEntity extends AuditEntity {
     private short numberIncrement;
 
 
-    @NotBlank(message = "processDefinitionId is mandatory")
-    @Column(name="process_definition_id", nullable = false)
-    private String processDefinitionId;
+    @NotBlank(message = "processDefinitionKey is mandatory")
+    @Column(name="process_definition_key", nullable = false)
+    private String processDefinitionKey;
 
 
 }
