@@ -291,19 +291,19 @@ class TaskInstanceServiceTest {
     Map<String, Object> forms = Map.of("Name", "Maria","Age",18);
     Map<String, Object> variables = Map.of("v1", "val1");
 
-    var operation = TaskOperationData.builder()
-        .id(taskId.toString())
-        .currentUser(currentUser)
-        .variables(variables)
-        .forms(forms)
-        .build();
+    var mockOperation = mock(TaskOperationData.class);
+    when(mockOperation.getId()).thenReturn(Identifier.create(taskId));
+    when(mockOperation.getCurrentUser()).thenReturn(currentUser);
+    when(mockOperation.getVariables()).thenReturn(variables);
+    when(mockOperation.getForms()).thenReturn(forms);
+    doNothing().when(mockOperation).validateSubmitedVariablesAndForms();
 
     // mocks
     TaskInstance mockTask = mock(TaskInstance.class);
     ProcessInstance mockProc = mock(ProcessInstance.class);
     ProcessInstance mockActivityProc = mock(ProcessInstance.class);
 
-    doReturn(mockTask).when(taskInstanceService).getByIdWihEvents(operation.getId());
+    doReturn(mockTask).when(taskInstanceService).getByIdWihEvents(Identifier.create(taskId));
 
     when(mockTask.getProcessInstanceId()).thenReturn(Identifier.generate());
     when(mockTask.getExternalId()).thenReturn(Code.create(externalId));
@@ -330,12 +330,13 @@ class TaskInstanceServiceTest {
         mockProc, currentUser);
 
     // Act
-    TaskInstance result = taskInstanceService.completeTask(operation);
+    TaskInstance result = taskInstanceService.completeTask(mockOperation);
 
     // Assert
     assertThat(result).isEqualTo(mockTask);
     verify(runtimeProcessEngineRepository).completeTask(externalId,forms,variables);
-    verify(mockTask).complete(operation);
+    verify(mockTask).complete(mockOperation);
+    verify(mockOperation).validateSubmitedVariablesAndForms();
     verify(processInstanceRepository).save(mockProc);
     verify(taskInstanceService).createNextTaskInstances(mockProc, currentUser);
 
