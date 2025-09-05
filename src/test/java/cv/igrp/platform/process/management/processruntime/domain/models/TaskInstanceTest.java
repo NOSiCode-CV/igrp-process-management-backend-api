@@ -1,24 +1,43 @@
 package cv.igrp.platform.process.management.processruntime.domain.models;
 
+import cv.igrp.platform.process.management.shared.application.constants.TaskEventType;
+import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
+import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.platform.process.management.shared.domain.models.Code;
+import cv.igrp.platform.process.management.shared.domain.models.Identifier;
+import cv.igrp.platform.process.management.shared.domain.models.Name;
+import cv.igrp.platform.process.management.shared.domain.models.ProcessNumber;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class TaskInstanceTest {
-/*
+
   private TaskInstance task;
 
   @Mock
   private Code currentUser;
+
+  private String taskId;
 
 
   @BeforeEach
   void setUp() {
 
     currentUser = Code.create("demo@nosi.cv");
+    taskId = UUID.randomUUID().toString();
 
     task = TaskInstance.builder()
-        .id(Identifier.generate())
+        .id(Identifier.create(taskId))
         .taskKey(Code.create("T1"))
         .formKey(Code.create("F1"))
         .name(Name.create("Task Test"))
@@ -27,10 +46,9 @@ class TaskInstanceTest {
         .processNumber(ProcessNumber.create("P123"))
         .applicationBase(Code.create("APP"))
         .processName(Code.create("PROC"))
-        .taskInstanceEvents(List.of())
+        .startedBy(Code.create("igrp@nosi.cv"))
+        .taskInstanceEvents(new ArrayList<>())
         .build();
-
-    currentUser = Code.create("demo@nosi.cv");
   }
 
   @Test
@@ -50,69 +68,182 @@ class TaskInstanceTest {
   @Test
   void testClaim_ShouldGenerateClaimEvent() {
 
-    task.claim(currentUser,"Claiming task");
+    var operation = TaskOperationData.builder()
+        .id(taskId)
+        .currentUser(currentUser)
+        .note("Claiming task").build();
+
+    task.create();
+
+    task.claim(operation);
 
     assertEquals(TaskInstanceStatus.ASSIGNED, task.getStatus());
-    assertEquals(1, task.getTaskInstanceEvents().size());
+    assertNotNull(task.getAssignedAt());
+    assertEquals(currentUser, task.getAssignedBy());
 
-    TaskInstanceEvent event = task.getTaskInstanceEvents().getLast();
-    assertEquals(TaskEventType.CLAIM, event.getEventType());
-    assertEquals("Claiming task", event.getNote());
+    assertFalse(task.getTaskInstanceEvents().isEmpty());
+    var lastEvent = task.getTaskInstanceEvents().get(task.getTaskInstanceEvents().size() - 1);
+    assertEquals(TaskEventType.CLAIM, lastEvent.getEventType());
+    assertEquals(currentUser, lastEvent.getPerformedBy());
   }
 
-//  @Test
-//  void testAssign_ShouldThrowIfUserIsNull() {
-//    assertThrows( IllegalStateException.class,
-//        () -> task.assign(currentUser, Code.create("igrp@nosi.cv"),"Claiming task"));
-//  }
+  @Test
+  void testClaim_ShouldThrow_WhenTaskAlreadyAssigned() {
+    var operation1 = TaskOperationData.builder()
+        .id(taskId)
+        .currentUser(currentUser)
+        .note("First claim")
+        .build();
+
+    task.create();
+    task.claim(operation1); // agora status = ASSIGNED
+
+    var operation2 = TaskOperationData.builder()
+        .id(taskId)
+        .currentUser(Code.create("another.user@nosi.cv"))
+        .note("Trying to claim again")
+        .build();
+
+    var ex = assertThrows(IgrpResponseStatusException.class, () -> task.claim(operation2));
+    assertTrue(ex.getMessage().contains("Cannot Claim a Task in Status[ASSIGNED]"));
+  }
+
+
 
   @Test
-  void testComplete_ShouldGenerateCompleteEvent() {
+  void testAssign_ShouldSucceed_WhenTaskIsCreated() {
 
-    task.complete(currentUser);
+    var targetUser = "mybrother@nosi.cv";
+
+    var operation = TaskOperationData.builder()
+        .id(taskId)
+        .currentUser(currentUser)
+        .targetUser(targetUser)
+        .note("Assign task").build();
+
+    task.create();
+
+    task.assign(operation);
+
+    assertEquals(TaskInstanceStatus.ASSIGNED, task.getStatus());
+    assertNotNull(task.getAssignedAt());
+    assertEquals(Code.create(targetUser), task.getAssignedBy());
+
+    assertFalse(task.getTaskInstanceEvents().isEmpty());
+    var lastEvent = task.getTaskInstanceEvents().get(task.getTaskInstanceEvents().size() - 1);
+    assertEquals(TaskEventType.ASSIGN, lastEvent.getEventType());
+    assertEquals(currentUser, lastEvent.getPerformedBy());
+  }
+
+  @Test
+  void testAssign_ShouldThrow_WhenTaskAlreadyAssigned() {
+    var operation = TaskOperationData.builder()
+        .id(taskId)
+        .currentUser(currentUser)
+        .targetUser("user1@nosi.cv")
+        .note("Assign once").build();
+
+    task.create();
+    task.assign(operation);
+
+    var operation2 = TaskOperationData.builder()
+        .id(taskId)
+        .currentUser(currentUser)
+        .targetUser("user2@nosi.cv")
+        .note("Assign again").build();
+
+    var ex = assertThrows(IgrpResponseStatusException.class, () -> task.assign(operation2));
+    assertTrue(ex.getMessage().contains("Cannot Assign a Task in Status[ASSIGNED]"));
+  }
+
+
+  @Test
+  void testComplete_ShouldSucceed_WhenTaskIsAssigned() {
+    var claimOperation = TaskOperationData.builder()
+        .id(taskId)
+        .currentUser(currentUser)
+        .note("Claiming before complete")
+        .build();
+
+    task.create();
+    task.claim(claimOperation);
+
+    var completeOperation = TaskOperationData.builder()
+        .id(taskId)
+        .currentUser(currentUser)
+        .note("Completing the task")
+        .build();
+
+    task.complete(completeOperation);
 
     assertEquals(TaskInstanceStatus.COMPLETED, task.getStatus());
     assertNotNull(task.getEndedAt());
-    assertEquals(1, task.getTaskInstanceEvents().size());
+    assertEquals(currentUser, task.getEndedBy());
 
-    TaskInstanceEvent event = task.getTaskInstanceEvents().getLast();
-    assertEquals(TaskEventType.COMPLETE, event.getEventType());
+    var lastEvent = task.getTaskInstanceEvents().get(task.getTaskInstanceEvents().size() - 1);
+    assertEquals(TaskEventType.COMPLETE, lastEvent.getEventType());
+    assertEquals(currentUser, lastEvent.getPerformedBy());
   }
 
   @Test
+  void testComplete_ShouldThrow_WhenTaskNotAssigned() {
+    var completeOperation = TaskOperationData.builder()
+        .id(taskId)
+        .currentUser(currentUser)
+        .note("Trying to complete without claim/assign")
+        .build();
+
+    task.create(); // status = CREATED (não ASSIGNED)
+
+    var ex = assertThrows(IgrpResponseStatusException.class,
+        () -> task.complete(completeOperation));
+
+    assertTrue(ex.getMessage().contains("Cannot Complete a Task in Status[CREATED]"));
+  }
+
+
+
+  @Test
   void withProperties_shouldReturnNewTaskInstanceWithUpdatedFields() {
-    TaskInstance original = TaskInstance.builder()
+
+    var oldForm = "oldForm";
+    var newForm = "newForm";
+
+    var original = TaskInstance.builder()
         .id(Identifier.generate())
         .taskKey(Code.create("task-key"))
         .externalId(Code.create("ext-id"))
         .name(Name.create("My Task"))
-        .formKey(Code.create("oldForm"))
+        .formKey(Code.create(oldForm))
         .startedAt(LocalDateTime.now())
         .build();
 
-    Code newFormKey = Code.create("newForm");
-    Code newAppBase = Code.create("APP");
-    ProcessNumber newProcNumber = ProcessNumber.create("P123");
-    Code newProcName = Code.create("procName");
-    Code newBizKey = Code.create("bizKey");
-    Identifier procInstId = Identifier.generate();
-    Code startedBy = Code.create("user1");
+    var processInstance = ProcessInstance.builder()
+        .applicationBase(Code.create("APP_BASE"))
+        .procReleaseKey(Code.create("PROC_RELEASE_KEY"))
+        .procReleaseId(Code.create("PROC_RELEASE_ID"))
+        .id(Identifier.generate())
+        .name("Process Name")
+        .number(ProcessNumber.create("NUM_1234"))
+        .businessKey(Code.create("BUS_KEY"))
+        .build();
 
-    TaskInstance result = original.withProperties(
-        newAppBase, newProcNumber, newProcName,
-        newBizKey, procInstId, newFormKey, startedBy
-    );
+    Code newFormKey = Code.create(newForm);
+    Code startedBy = Code.create("igrp@nosi.cv");
 
+    TaskInstance result = original.withProperties(processInstance, newFormKey, startedBy);
+
+    assertEquals(processInstance.getApplicationBase(), result.getApplicationBase());
+    assertEquals(processInstance.getId(), result.getProcessInstanceId());
+    assertEquals(processInstance.getNumber(), result.getProcessNumber());
+    assertEquals(processInstance.getName(), result.getProcessName().getValue());
+    assertEquals(processInstance.getBusinessKey(), result.getBusinessKey());
     assertEquals(newFormKey, result.getFormKey());
-    assertEquals(newAppBase, result.getApplicationBase());
-    assertEquals(newProcNumber, result.getProcessNumber());
-    assertEquals(newProcName, result.getProcessName());
-    assertEquals(newBizKey, result.getBusinessKey());
-    assertEquals(procInstId, result.getProcessInstanceId());
     assertEquals(startedBy, result.getStartedBy());
 
     assertNotEquals(original, result);
-    assertEquals("oldForm", original.getFormKey().getValue());
-  }*/
+    assertEquals(oldForm, original.getFormKey().getValue());
+    assertEquals(newForm, result.getFormKey().getValue());
+  }
 
 }
