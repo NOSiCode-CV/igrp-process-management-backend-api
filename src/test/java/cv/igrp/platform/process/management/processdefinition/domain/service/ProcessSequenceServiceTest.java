@@ -27,47 +27,50 @@ class ProcessSequenceServiceTest {
   private ProcessSequenceRepository processSequenceRepository;
 
   private Code processDefinitionKey;
+  private Code applicationCode;
   private ProcessSequence sequence;
 
   @BeforeEach
   void setUp() {
     processDefinitionKey = Code.create("process-123");
+    applicationCode = Code.create("app-ABC");
     sequence = mock(ProcessSequence.class);
   }
 
 
   @Test
-  void testGetSequenceByProcessDefinitionId_found() {
-    when(processSequenceRepository.findByProcessDefinitionKey(processDefinitionKey.getValue()))
+  void testGetSequenceByProcessAndApplicationByProcessDefinitionId_found() {
+    when(processSequenceRepository.findByProcessAndApplication(processDefinitionKey.getValue(),applicationCode.getValue()))
         .thenReturn(Optional.of(sequence));
 
-    ProcessSequence result = processSequenceService.getSequenceByProcessDefinitionKey(processDefinitionKey);
+    ProcessSequence result = processSequenceService.getSequenceByProcessAndApplication(processDefinitionKey,applicationCode);
 
     assertNotNull(result);
     assertEquals(sequence, result);
-    verify(processSequenceRepository).findByProcessDefinitionKey(processDefinitionKey.getValue());
+    verify(processSequenceRepository).findByProcessAndApplication(processDefinitionKey.getValue(),applicationCode.getValue());
   }
 
 
   @Test
-  void testGetSequenceByProcessDefinitionId_notFound() {
-    when(processSequenceRepository.findByProcessDefinitionKey(processDefinitionKey.getValue()))
+  void testGetSequenceByProcessAndApplicationByProcessDefinitionId_notFound() {
+    when(processSequenceRepository.findByProcessAndApplication(processDefinitionKey.getValue(),applicationCode.getValue()))
         .thenReturn(Optional.empty());
 
     IgrpResponseStatusException ex = assertThrows(IgrpResponseStatusException.class,
-        () -> processSequenceService.getSequenceByProcessDefinitionKey(processDefinitionKey));
+        () -> processSequenceService.getSequenceByProcessAndApplication(processDefinitionKey,applicationCode));
 
     assertTrue(ex.getMessage().contains("Process Sequence not found"));
-    verify(processSequenceRepository).findByProcessDefinitionKey(processDefinitionKey.getValue());
+    verify(processSequenceRepository).findByProcessAndApplication(processDefinitionKey.getValue(),applicationCode.getValue());
   }
 
 
   @Test
   void testSave_newSequence() {
     // Simula que não existe sequência no banco
-    when(processSequenceRepository.findByProcessDefinitionKeyForUpdate(processDefinitionKey.getValue()))
+    when(processSequenceRepository.findForUpdate(processDefinitionKey.getValue(),applicationCode.getValue()))
         .thenReturn(Optional.empty());
     when(sequence.getProcessDefinitionKey()).thenReturn(processDefinitionKey);
+    when(sequence.getApplicationCode()).thenReturn(applicationCode);
     when(sequence.newInstance()).thenReturn(sequence);
     doNothing().when(sequence).validate();
     when(processSequenceRepository.save(sequence)).thenReturn(sequence);
@@ -84,12 +87,12 @@ class ProcessSequenceServiceTest {
   void testGetGeneratedProcessNumberByProcessDefinitionId() {
     ProcessNumber processNumber = mock(ProcessNumber.class);
 
-    when(processSequenceRepository.findByProcessDefinitionKeyForUpdate(processDefinitionKey.getValue()))
+    when(processSequenceRepository.findForUpdate(processDefinitionKey.getValue(), applicationCode.getValue()))
         .thenReturn(Optional.of(sequence));
     when(sequence.generateNextProcessNumberAndIncrement()).thenReturn(processNumber);
     when(processSequenceRepository.save(sequence)).thenReturn(sequence);
 
-    ProcessNumber result = processSequenceService.getGeneratedProcessNumberByProcessDefinitionKey(processDefinitionKey);
+    ProcessNumber result = processSequenceService.getGeneratedProcessNumber(processDefinitionKey,applicationCode);
 
     assertNotNull(result);
     assertEquals(processNumber, result);

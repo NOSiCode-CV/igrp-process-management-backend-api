@@ -1,5 +1,6 @@
 package cv.igrp.platform.process.management.processruntime.domain.models;
 
+import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import lombok.Builder;
@@ -37,8 +38,15 @@ public class TaskOperationData {
     this.forms = (forms!=null) ? forms : Map.of();
   }
 
-  public void validateSubmitedInfo() {
-    // todo
+  public void validateSubmitedVariablesAndForms() {
+    variables.forEach((k,v)->{
+      if(k==null || v==null)
+        throw IgrpResponseStatusException.badRequest("Invalid param for variable [name:"+ k +"] [value:"+ v +"]");
+    });
+    forms.forEach((k,v)->{
+      if(k==null || v==null)
+        throw IgrpResponseStatusException.badRequest("Invalid param for form [name:"+ k +"] [value:"+ v +"]");
+    });
   }
 
 }

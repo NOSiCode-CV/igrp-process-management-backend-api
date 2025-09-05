@@ -26,23 +26,24 @@ public class ProcessSequenceRepositoryImpl implements ProcessSequenceRepository 
 
 
   @Override
-  public Optional<ProcessSequence> findByProcessDefinitionKey(String processDefinitionKey) {
-    LOGGER.debug("Fetching ProcessSequence with processDefinitionKey={}", processDefinitionKey);
-    return sequenceEntityRepository.findByProcessDefinitionKey(processDefinitionKey).map(sequenceMapper::toModel);
+  public Optional<ProcessSequence> findByProcessAndApplication(String processDefinitionKey, String applicationCode) {
+    LOGGER.debug("Fetching ProcessSequence with processDefinitionKey={} and applicationCode={}", processDefinitionKey, applicationCode);
+    return sequenceEntityRepository.findByProcessDefinitionKeyAndApplicationCode(processDefinitionKey, applicationCode).map(sequenceMapper::toModel);
   }
 
 
   @Override
   public ProcessSequence save(ProcessSequence model) {
-    LOGGER.debug("Saving ProcessSequence with id={} and processDefinitionKey={}",
-        model.getId(), model.getProcessDefinitionKey().getValue());
+    LOGGER.debug("Saving ProcessSequence with id={} and processDefinitionKey={} and applicationCode={}",
+        model.getId(), model.getProcessDefinitionKey().getValue(), model.getApplicationCode().getValue());
     return sequenceMapper.toModel(sequenceEntityRepository.save(sequenceMapper.toEntity(model)));
   }
 
+
   @Override
-  public Optional<ProcessSequence> findByProcessDefinitionKeyForUpdate(String processDefinitionKey) {
-    LOGGER.debug("Fetching (FOR UPDATE) ProcessSequence with processDefinitionKey={}", processDefinitionKey);
-    return sequenceEntityRepository.findByProcessDefinitionKeyForUpdate(processDefinitionKey).map(sequenceMapper::toModel);
+  public Optional<ProcessSequence> findForUpdate(String processDefinitionKey, String applicationCode) {
+    LOGGER.debug("Fetching (FOR UPDATE) ProcessSequence with processDefinitionKey={} and applicationCode={}", processDefinitionKey,applicationCode);
+    return sequenceEntityRepository.findForUpdate(processDefinitionKey,applicationCode).map(sequenceMapper::toModel);
   }
 
 }

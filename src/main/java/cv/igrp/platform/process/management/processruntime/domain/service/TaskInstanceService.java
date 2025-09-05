@@ -98,7 +98,7 @@ public class TaskInstanceService {
 
     var taskInstance = getByIdWihEvents(data.getId());
     taskInstance.complete(data);
-    data.validateSubmitedInfo();
+    data.validateSubmitedVariablesAndForms();
     var completedTask = save(taskInstance);
     // Call the process engine to complete a task
     runtimeProcessEngineRepository.completeTask(

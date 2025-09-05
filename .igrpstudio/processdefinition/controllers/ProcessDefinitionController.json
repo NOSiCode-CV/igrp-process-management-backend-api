@@ -223,7 +223,7 @@
     },
     {
       "actionName": "getProcessSequence",
-      "path": "{key}/sequence",
+      "path": "{processKey}/applications/{applicationCode}sequence",
       "method": "GET",
       "responses": {
         "200": {
@@ -243,31 +243,23 @@
       },
       "pathVariables": [
         {
-          "name": "key",
+          "name": "processKey",
           "type": "string",
           "isRequired": true,
           "description": "Process definition key"
+        },
+        {
+          "name": "applicationCode",
+          "type": "string",
+          "isRequired": true,
+          "description": "Application Code"
         }
       ]
     },
     {
       "actionName": "createProcessSequence",
-      "path": "{key}/sequence",
+      "path": "{processKey}/applications/{applicationCode}sequence",
       "method": "POST",
-      "requestBody": {
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "SequenceRequestDTO",
-              "collectionType": "none",
-              "name": "requestDto",
-              "objectType": "dto",
-              "module": "processdefinition",
-              "nullable": true
-            }
-          }
-        }
-      },
       "responses": {
         "200": {
           "name": "OK",
@@ -286,12 +278,32 @@
       },
       "pathVariables": [
         {
-          "name": "key",
+          "name": "processKey",
           "type": "string",
           "isRequired": true,
           "description": "Process definition key"
+        },
+        {
+          "name": "applicationCode",
+          "type": "string",
+          "isRequired": true,
+          "description": "Application code"
         }
-      ]
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "SequenceRequestDTO",
+              "collectionType": "none",
+              "name": "requestDto",
+              "objectType": "dto",
+              "module": "processdefinition",
+              "nullable": true
+            }
+          }
+        }
+      }
     }
   ],
   "id": "o9isd9wv95-CONTROLLER"

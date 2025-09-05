@@ -6,9 +6,9 @@ import java.util.Optional;
 
 public interface ProcessSequenceRepository {
 
-  Optional<ProcessSequence> findByProcessDefinitionKey(String processDefinitionKey);
+  Optional<ProcessSequence> findByProcessAndApplication(String processDefinitionKey, String applicationCode);
 
-  Optional<ProcessSequence> findByProcessDefinitionKeyForUpdate(String processDefinitionKey);
+  Optional<ProcessSequence> findForUpdate(String processDefinitionKey, String applicationCode);
 
   ProcessSequence save(ProcessSequence model);
 

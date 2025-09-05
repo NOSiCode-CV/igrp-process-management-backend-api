@@ -46,4 +46,7 @@ public class ProcessSequenceDTO  {
 
   private String processDefinitionKey ;
 
+
+  private String applicationCode ;
+
 }

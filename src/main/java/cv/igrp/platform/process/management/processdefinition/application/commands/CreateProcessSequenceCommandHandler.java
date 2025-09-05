@@ -3,11 +3,8 @@ package cv.igrp.platform.process.management.processdefinition.application.comman
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import cv.igrp.platform.process.management.processdefinition.application.dto.ProcessSequenceDTO;
-import cv.igrp.platform.process.management.processdefinition.domain.models.ProcessSequence;
 import cv.igrp.platform.process.management.processdefinition.domain.service.ProcessSequenceService;
 import cv.igrp.platform.process.management.processdefinition.mappers.ProcessSequenceMapper;
-import cv.igrp.platform.process.management.shared.domain.models.Code;
-import cv.igrp.platform.process.management.shared.domain.models.Name;
 import cv.igrp.platform.process.management.shared.security.UserContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,21 +31,11 @@ public class CreateProcessSequenceCommandHandler implements CommandHandler<Creat
    public ResponseEntity<ProcessSequenceDTO> handle(CreateProcessSequenceCommand command) {
      final var currentUser = userContext.getCurrentUser();
 
-     LOGGER.info("User [{}] started creating sequence for process definition key [{}]", currentUser.getValue(), command.getKey());
+     LOGGER.info("User [{}] started creating sequence for process definition key [{}]", currentUser.getValue(), command.getProcessKey());
 
-     var sequenceReq = ProcessSequence.builder()
-         .processDefinitionKey(Code.create(command.getKey()))
-         .name(Name.create(command.getSequencerequestdto().getName()))
-         .prefix(Code.create(command.getSequencerequestdto().getPrefix()))
-         .dateFormat(command.getSequencerequestdto().getDateFormat())
-         .padding(command.getSequencerequestdto().getPadding())
-         .checkDigitSize(command.getSequencerequestdto().getCheckDigitSize())
-         .numberIncrement(command.getSequencerequestdto().getNumberIncrement())
-         .build();
+     var sequenceResp = processSequenceService.save(processSequenceMapper.toModel(command));
 
-     var sequenceResp = processSequenceService.save(sequenceReq);
-
-     LOGGER.info("User [{}] finished creating sequence for process definition key [{}]", currentUser.getValue(), command.getKey());
+     LOGGER.info("User [{}] finished creating sequence for process definition key [{}]", currentUser.getValue(), command.getProcessKey());
 
      return ResponseEntity.ok(processSequenceMapper.toDTO(sequenceResp));
    }

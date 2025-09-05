@@ -21,7 +21,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class CreateProcessSequenceCommandHandlerTest {
+class CreateProcessSequenceCommandHandlerTest {
 
   @Mock
   private ProcessSequenceService processSequenceService;
@@ -55,10 +55,12 @@ public class CreateProcessSequenceCommandHandlerTest {
       requestDto.setNumberIncrement((short)1);
 
       var command = new CreateProcessSequenceCommand();
-      command.setKey("process-123");
+      command.setProcessKey("process-123");
+      command.setApplicationCode("app-ABC");
       command.setSequencerequestdto(requestDto);
 
       var savedSequence = mock(ProcessSequence.class);
+      when(processSequenceMapper.toModel(command)).thenReturn(savedSequence);
       when(processSequenceService.save(any(ProcessSequence.class))).thenReturn(savedSequence);
 
       var dto = new ProcessSequenceDTO();
@@ -72,6 +74,7 @@ public class CreateProcessSequenceCommandHandlerTest {
       assertEquals(dto, response.getBody());
 
       verify(userContext).getCurrentUser();
+      verify(processSequenceMapper).toModel(command);
       verify(processSequenceService).save(any(ProcessSequence.class));
       verify(processSequenceMapper).toDTO(savedSequence);
     }

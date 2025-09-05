@@ -22,19 +22,19 @@ public class SequenceRequestDTO  {
   @NotBlank(message = "The field <name> is required")
 
   private String name ;
-
+  @NotBlank(message = "The field <prefix> is required")
 
   private String prefix ;
-
+  @NotBlank(message = "The field <dateFormat> is required")
 
   private String dateFormat ;
-
+  @NotNull(message = "The field <checkDigitSize> is required")
 
   private short checkDigitSize ;
-
+  @NotNull(message = "The field <padding> is required")
 
   private short padding ;
-  @NotNull(message = "The field <numberIncrement> is required")
+
 
   private short numberIncrement ;
 

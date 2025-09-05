@@ -34,11 +34,13 @@ class ProcessSequenceRepositoryImplTest {
   private ProcessInstanceSequenceEntity entity;
   private ProcessSequence model;
   private String processKey;
+  private String applicationCode;
 
   @BeforeEach
   void setUp() {
 
     processKey = "process-123";
+    applicationCode = "app-ABC";
 
     entity = new ProcessInstanceSequenceEntity();
     model = ProcessSequence.builder()
@@ -50,32 +52,33 @@ class ProcessSequenceRepositoryImplTest {
         .dateFormat("yyyyMMdd")
         .nextNumber(1L)
         .numberIncrement((short) 1)
-        .processDefinitionKey(Code.create(processKey)).build();
+        .processDefinitionKey(Code.create(processKey))
+        .applicationCode(Code.create(applicationCode)).build();
   }
 
   @Test
-  void testFindByProcessDefinitionKey_found() {
-    when(sequenceEntityRepository.findByProcessDefinitionKey(processKey))
+  void testFind_found() {
+    when(sequenceEntityRepository.findByProcessDefinitionKeyAndApplicationCode(processKey, applicationCode))
         .thenReturn(Optional.of(entity));
     when(sequenceMapper.toModel(entity)).thenReturn(model);
 
-    Optional<ProcessSequence> result = repository.findByProcessDefinitionKey(processKey);
+    Optional<ProcessSequence> result = repository.findByProcessAndApplication(processKey, applicationCode);
 
     assertTrue(result.isPresent());
     assertEquals("MySequence", result.get().getName().getValue());
-    verify(sequenceEntityRepository).findByProcessDefinitionKey(processKey);
+    verify(sequenceEntityRepository).findByProcessDefinitionKeyAndApplicationCode(processKey, applicationCode);
     verify(sequenceMapper).toModel(entity);
   }
 
   @Test
   void testFindByProcessDefinitionKey_notFound() {
-    when(sequenceEntityRepository.findByProcessDefinitionKey(processKey))
+    when(sequenceEntityRepository.findByProcessDefinitionKeyAndApplicationCode(processKey, applicationCode))
         .thenReturn(Optional.empty());
 
-    Optional<ProcessSequence> result = repository.findByProcessDefinitionKey(processKey);
+    Optional<ProcessSequence> result = repository.findByProcessAndApplication(processKey, applicationCode);
 
     assertTrue(result.isEmpty());
-    verify(sequenceEntityRepository).findByProcessDefinitionKey(processKey);
+    verify(sequenceEntityRepository).findByProcessDefinitionKeyAndApplicationCode(processKey, applicationCode);
     verify(sequenceMapper, never()).toModel(any(ProcessInstanceSequenceEntity.class));
   }
 
@@ -96,28 +99,28 @@ class ProcessSequenceRepositoryImplTest {
 
   @Test
   void testFindByProcessDefinitionKeyForUpdate_found() {
-    when(sequenceEntityRepository.findByProcessDefinitionKeyForUpdate(processKey))
+    when(sequenceEntityRepository.findForUpdate(processKey, applicationCode))
         .thenReturn(Optional.of(entity));
     when(sequenceMapper.toModel(entity)).thenReturn(model);
 
-    Optional<ProcessSequence> result = repository.findByProcessDefinitionKeyForUpdate(processKey);
+    Optional<ProcessSequence> result = repository.findForUpdate(processKey, applicationCode);
 
     assertTrue(result.isPresent());
     assertEquals("MySequence", result.get().getName().getValue());
-    verify(sequenceEntityRepository).findByProcessDefinitionKeyForUpdate(processKey);
+    verify(sequenceEntityRepository).findForUpdate(processKey, applicationCode);
     verify(sequenceMapper).toModel(entity);
   }
 
 
   @Test
   void testFindByProcessDefinitionKeyForUpdate_notFound() {
-    when(sequenceEntityRepository.findByProcessDefinitionKeyForUpdate(processKey))
+    when(sequenceEntityRepository.findForUpdate(processKey, applicationCode))
         .thenReturn(Optional.empty());
 
-    Optional<ProcessSequence> result = repository.findByProcessDefinitionKeyForUpdate(processKey);
+    Optional<ProcessSequence> result = repository.findForUpdate(processKey, applicationCode);
 
     assertTrue(result.isEmpty());
-    verify(sequenceEntityRepository).findByProcessDefinitionKeyForUpdate(processKey);
+    verify(sequenceEntityRepository).findForUpdate(processKey, applicationCode);
     verify(sequenceMapper, never()).toModel(any(ProcessInstanceSequenceEntity.class));
   }
 }

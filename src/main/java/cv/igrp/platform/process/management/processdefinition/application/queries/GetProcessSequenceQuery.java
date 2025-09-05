@@ -12,7 +12,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class GetProcessSequenceQuery implements Query {
 
-  @NotBlank(message = "The field <key> is required")
-  private String key;
+  @NotBlank(message = "The field <processKey> is required")
+  private String processKey;
+  @NotBlank(message = "The field <applicationCode> is required")
+  private String applicationCode;
 
 }

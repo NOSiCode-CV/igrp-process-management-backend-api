@@ -1,5 +1,6 @@
 package cv.igrp.platform.process.management.processdefinition.mappers;
 
+import cv.igrp.platform.process.management.processdefinition.application.commands.CreateProcessSequenceCommand;
 import cv.igrp.platform.process.management.processdefinition.application.dto.ProcessSequenceDTO;
 import cv.igrp.platform.process.management.processdefinition.domain.models.ProcessSequence;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
@@ -12,17 +13,16 @@ import org.springframework.stereotype.Component;
 public class ProcessSequenceMapper {
 
 
-  public ProcessSequence toModel(ProcessSequenceDTO dto) {
-    return  ProcessSequence.builder()
-        .id(Identifier.create(dto.getId()))
-        .name(Name.create(dto.getName()))
-        .prefix(Code.create(dto.getPrefix()))
-        .checkDigitSize(dto.getCheckDigitSize())
-        .padding(dto.getPadding())
-        .dateFormat(dto.getDateFormat())
-        .nextNumber(dto.getNextNumber())
-        .numberIncrement(dto.getNumberIncrement())
-        .processDefinitionKey(Code.create(dto.getProcessDefinitionKey()))
+  public ProcessSequence toModel(CreateProcessSequenceCommand command) {
+    return ProcessSequence.builder()
+        .processDefinitionKey(Code.create(command.getProcessKey()))
+        .applicationCode(Code.create(command.getApplicationCode()))
+        .name(Name.create(command.getSequencerequestdto().getName()))
+        .prefix(Code.create(command.getSequencerequestdto().getPrefix()))
+        .dateFormat(command.getSequencerequestdto().getDateFormat())
+        .padding(command.getSequencerequestdto().getPadding())
+        .checkDigitSize(command.getSequencerequestdto().getCheckDigitSize())
+        .numberIncrement(command.getSequencerequestdto().getNumberIncrement())
         .build();
   }
 
@@ -38,6 +38,7 @@ public class ProcessSequenceMapper {
     entity.setNextNumber(model.getNextNumber());
     entity.setNumberIncrement(model.getNumberIncrement());
     entity.setProcessDefinitionKey(model.getProcessDefinitionKey().getValue());
+    entity.setApplicationCode(model.getApplicationCode().getValue());
     return  entity;
   }
 
@@ -53,6 +54,7 @@ public class ProcessSequenceMapper {
         .nextNumber(entity.getNextNumber())
         .numberIncrement(entity.getNumberIncrement())
         .processDefinitionKey(Code.create(entity.getProcessDefinitionKey()))
+        .applicationCode(Code.create(entity.getApplicationCode()))
         .build();
   }
 
@@ -68,6 +70,7 @@ public class ProcessSequenceMapper {
     dto.setNextNumber(model.getNextNumber());
     dto.setNumberIncrement(model.getNumberIncrement());
     dto.setProcessDefinitionKey(model.getProcessDefinitionKey().getValue());
+    dto.setApplicationCode(model.getProcessDefinitionKey().getValue());
     return dto;
   }
 

@@ -5,10 +5,7 @@ package cv.igrp.platform.process.management.shared.infrastructure.persistence.en
 
 import cv.igrp.framework.stereotype.IgrpEntity;
 import cv.igrp.platform.process.management.shared.config.AuditEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -25,7 +22,15 @@ import java.util.UUID;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "t_process_instance_sequence")
+@Table(name = "t_process_instance_sequence",
+  uniqueConstraints = {
+    @UniqueConstraint(
+      name = "sequence_uk_processdef_application",
+      columnNames = {
+        "application_code","process_definition_key"
+      }
+    )
+  })
 public class ProcessInstanceSequenceEntity extends AuditEntity {
 
     @Id
@@ -70,6 +75,11 @@ public class ProcessInstanceSequenceEntity extends AuditEntity {
     @NotBlank(message = "processDefinitionKey is mandatory")
     @Column(name="process_definition_key", nullable = false)
     private String processDefinitionKey;
+
+
+    @NotBlank(message = "applicationCode is mandatory")
+    @Column(name="application_code", nullable = false)
+    private String applicationCode;
 
 
 }
