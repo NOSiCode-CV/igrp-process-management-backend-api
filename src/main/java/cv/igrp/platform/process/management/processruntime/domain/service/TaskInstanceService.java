@@ -171,7 +171,7 @@ public class TaskInstanceService {
   }
 
 
-  private void createTask(TaskInstance taskInstance) {
+  void createTask(TaskInstance taskInstance) {
     taskInstance.create();
     taskInstanceRepository.create(taskInstance);
     this.saveCurrentEvent(taskInstance.getTaskInstanceEvents().getFirst());

@@ -273,7 +273,7 @@ public class ProcessDefinitionController {
   }
 
   @GetMapping(
-    value = "{processKey}/applications/{applicationCode}sequence"
+    value = "{processKey}/applications/{applicationCode}/sequence"
   )
   @Operation(
     summary = "GET method to handle operations for getProcessSequence",
@@ -310,7 +310,7 @@ public class ProcessDefinitionController {
   }
 
   @PostMapping(
-    value = "{processKey}/applications/{applicationCode}sequence"
+    value = "{processKey}/applications/{applicationCode}/sequence"
   )
   @Operation(
     summary = "POST method to handle operations for createProcessSequence",

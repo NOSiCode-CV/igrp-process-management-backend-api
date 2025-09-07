@@ -223,7 +223,7 @@
     },
     {
       "actionName": "getProcessSequence",
-      "path": "{processKey}/applications/{applicationCode}sequence",
+      "path": "{processKey}/applications/{applicationCode}/sequence",
       "method": "GET",
       "responses": {
         "200": {
@@ -258,8 +258,22 @@
     },
     {
       "actionName": "createProcessSequence",
-      "path": "{processKey}/applications/{applicationCode}sequence",
+      "path": "{processKey}/applications/{applicationCode}/sequence",
       "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "SequenceRequestDTO",
+              "collectionType": "none",
+              "name": "requestDto",
+              "objectType": "dto",
+              "module": "processdefinition",
+              "nullable": true
+            }
+          }
+        }
+      },
       "responses": {
         "200": {
           "name": "OK",
@@ -289,21 +303,7 @@
           "isRequired": true,
           "description": "Application code"
         }
-      ],
-      "requestBody": {
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "SequenceRequestDTO",
-              "collectionType": "none",
-              "name": "requestDto",
-              "objectType": "dto",
-              "module": "processdefinition",
-              "nullable": true
-            }
-          }
-        }
-      }
+      ]
     }
   ],
   "id": "o9isd9wv95-CONTROLLER"

@@ -51,7 +51,7 @@ public class ProcessInstanceService {
     return processInstance;
   }
 
-  private void setProcessInstanceProgress(ProcessInstance processInstance){
+  void setProcessInstanceProgress(ProcessInstance processInstance){
     List<ProcessInstanceTaskStatus> taskStatus = runtimeProcessEngineRepository.getProcessInstanceTaskStatus(processInstance.getEngineProcessNumber().getValue());
     int totalTasks = taskStatus.size();
     long completedTasks = taskStatus.stream()
@@ -60,7 +60,7 @@ public class ProcessInstanceService {
     processInstance.setProgress(totalTasks, (int) completedTasks);
   }
 
-  private void addProcessVariables(ProcessInstance processInstance) {
+  void addProcessVariables(ProcessInstance processInstance) {
     var processVariables = runtimeProcessEngineRepository.getProcessVariables(processInstance.getEngineProcessNumber().getValue());
     processInstance.addVariables(processVariables);
   }

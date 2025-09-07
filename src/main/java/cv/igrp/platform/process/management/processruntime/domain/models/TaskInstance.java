@@ -129,15 +129,15 @@ public class TaskInstance {
     this.assignedBy = Objects.requireNonNull(data.getTargetUser(), "Target User cannot be null!");
     this.assignedAt = LocalDateTime.now();
     this.status = TaskInstanceStatus.ASSIGNED;
-    if(priority!=null)
-      this.priority = priority;
+    if(data.getPriority()!=null && data.getPriority()!=0)
+      this.priority = data.getPriority();
     createTaskInstanceEvent(TaskEventType.ASSIGN,data.getCurrentUser(),data.getNote());
   }
 
 
   public void unClaim(TaskOperationData data) {
     if(this.status!=TaskInstanceStatus.ASSIGNED) {
-      throw IgrpResponseStatusException.of(HttpStatus.CONFLICT, String.format("Cannot Unclaim a Task in Status[%s]",this.status));
+      throw IgrpResponseStatusException.of(HttpStatus.CONFLICT, String.format("Cannot UnClaim a Task in Status[%s]",this.status));
     }
     this.assignedAt = null;
     this.assignedBy = null;
