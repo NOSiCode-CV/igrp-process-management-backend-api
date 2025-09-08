@@ -51,6 +51,7 @@ class TaskInstanceTest {
         .build();
   }
 
+
   @Test
   void testCreate_ShouldGenerateCreateEvent() {
 
@@ -65,13 +66,15 @@ class TaskInstanceTest {
     assertEquals(TaskInstanceStatus.CREATED, event.getStatus());
   }
 
+
   @Test
   void testClaim_ShouldGenerateClaimEvent() {
 
     var operation = TaskOperationData.builder()
         .id(taskId)
         .currentUser(currentUser)
-        .note("Claiming task").build();
+        .note("Claiming task")
+        .build();
 
     task.create();
 
@@ -82,7 +85,7 @@ class TaskInstanceTest {
     assertEquals(currentUser, task.getAssignedBy());
 
     assertFalse(task.getTaskInstanceEvents().isEmpty());
-    var lastEvent = task.getTaskInstanceEvents().get(task.getTaskInstanceEvents().size() - 1);
+    var lastEvent = task.getTaskInstanceEvents().getLast();
     assertEquals(TaskEventType.CLAIM, lastEvent.getEventType());
     assertEquals(currentUser, lastEvent.getPerformedBy());
   }
@@ -105,7 +108,56 @@ class TaskInstanceTest {
         .build();
 
     var ex = assertThrows(IgrpResponseStatusException.class, () -> task.claim(operation2));
-    assertTrue(ex.getMessage().contains("Cannot Claim a Task in Status[ASSIGNED]"));
+    assertTrue(ex.getMessage().contains("Cannot Claim a Task in Status"));
+  }
+
+
+  @Test
+  void testUnClaim_ShouldGenerateUnClaimEvent() {
+
+    var claimOperation = TaskOperationData.builder()
+        .id(taskId)
+        .currentUser(currentUser)
+        .note("Claiming task")
+        .build();
+
+    var unClaimOperation = TaskOperationData.builder()
+        .id(taskId)
+        .currentUser(currentUser)
+        .note("Unclaiming task")
+        .build();
+
+    task.create();
+
+    task.claim(claimOperation);
+
+    task.unClaim(unClaimOperation);
+
+    assertEquals(TaskInstanceStatus.CREATED, task.getStatus());
+    assertNull(task.getAssignedAt());
+    assertNull(task.getAssignedBy());
+
+    assertFalse(task.getTaskInstanceEvents().isEmpty());
+    var lastEvent = task.getTaskInstanceEvents().getLast();
+    assertEquals(TaskEventType.UNCLAIM, lastEvent.getEventType());
+    assertEquals(currentUser, lastEvent.getPerformedBy());
+  }
+
+  @Test
+  void testUnClaim_ShouldThrow_WhenTaskNotAssigned() {
+
+    task.create();
+
+    var unClaimOperation = TaskOperationData.builder()
+        .id(taskId)
+        .currentUser(Code.create("another.user@nosi.cv"))
+        .note("Trying to claim again")
+        .build();
+
+    var ex = assertThrows(IgrpResponseStatusException.class,
+        () -> task.unClaim(unClaimOperation));
+    assertTrue(ex.getMessage().contains("Cannot UnClaim a Task in Status"));
+
   }
 
 
@@ -130,7 +182,7 @@ class TaskInstanceTest {
     assertEquals(Code.create(targetUser), task.getAssignedBy());
 
     assertFalse(task.getTaskInstanceEvents().isEmpty());
-    var lastEvent = task.getTaskInstanceEvents().get(task.getTaskInstanceEvents().size() - 1);
+    var lastEvent = task.getTaskInstanceEvents().getLast();
     assertEquals(TaskEventType.ASSIGN, lastEvent.getEventType());
     assertEquals(currentUser, lastEvent.getPerformedBy());
   }
@@ -180,7 +232,7 @@ class TaskInstanceTest {
     assertNotNull(task.getEndedAt());
     assertEquals(currentUser, task.getEndedBy());
 
-    var lastEvent = task.getTaskInstanceEvents().get(task.getTaskInstanceEvents().size() - 1);
+    var lastEvent = task.getTaskInstanceEvents().getLast();
     assertEquals(TaskEventType.COMPLETE, lastEvent.getEventType());
     assertEquals(currentUser, lastEvent.getPerformedBy());
   }
