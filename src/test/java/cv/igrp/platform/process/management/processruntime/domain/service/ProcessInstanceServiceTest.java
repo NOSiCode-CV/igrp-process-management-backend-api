@@ -141,6 +141,7 @@ class ProcessInstanceServiceTest {
     ProcessInstance processInstance = mock(ProcessInstance.class);
     when(processInstance.getProcReleaseId()).thenReturn(procReleaseId);
     when(processInstance.getBusinessKey()).thenReturn(businessKey);
+    when(processInstance.getApplicationBase()).thenReturn(applicationCode);
     when(processInstance.getVariables()).thenReturn(Map.of());
 
     // 2️⃣ Mock do engine
@@ -149,7 +150,7 @@ class ProcessInstanceServiceTest {
         anyString(), anyString(), anyMap())).thenReturn(runningProcessInstance);
 
     when(runningProcessInstance.getProcReleaseKey()).thenReturn(proReleaseKey);
-    when(runningProcessInstance.getApplicationBase()).thenReturn(applicationCode);
+    //when(runningProcessInstance.getApplicationBase()).thenReturn(applicationCode);
     when(runningProcessInstance.getEngineProcessNumber()).thenReturn(engineProcessNumber);
     when(runningProcessInstance.getVersion()).thenReturn(processVersion);
     when(runningProcessInstance.getName()).thenReturn(processName);
