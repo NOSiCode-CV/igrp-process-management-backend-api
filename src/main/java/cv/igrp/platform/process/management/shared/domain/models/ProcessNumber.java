@@ -4,8 +4,6 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
-import java.util.Objects;
-
 @Getter
 @EqualsAndHashCode
 public class ProcessNumber {
@@ -14,7 +12,9 @@ public class ProcessNumber {
 
   @Builder
   public ProcessNumber(String value) {
-    this.value = Objects.requireNonNull(value,"Value cannot be null");
+    if (value == null || value.trim().isEmpty())
+      throw new IllegalArgumentException("The value of the processNumber is required.");
+    this.value = value;
   }
 
   public static ProcessNumber create(String value) {
