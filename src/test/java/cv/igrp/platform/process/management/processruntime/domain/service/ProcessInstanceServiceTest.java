@@ -22,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -150,7 +151,6 @@ class ProcessInstanceServiceTest {
         anyString(), anyString(), anyMap())).thenReturn(runningProcessInstance);
 
     when(runningProcessInstance.getProcReleaseKey()).thenReturn(proReleaseKey);
-    //when(runningProcessInstance.getApplicationBase()).thenReturn(applicationCode);
     when(runningProcessInstance.getEngineProcessNumber()).thenReturn(engineProcessNumber);
     when(runningProcessInstance.getVersion()).thenReturn(processVersion);
     when(runningProcessInstance.getName()).thenReturn(processName);
@@ -174,6 +174,66 @@ class ProcessInstanceServiceTest {
     verify(taskInstanceService).createTaskInstancesByProcess(runningProcessInstance);
 
     assertEquals(runningProcessInstance,result);
+  }
+
+
+  @Test
+  void startProcessInstance_shouldCompleteProcess_whenEngineReturnsCompleted() {
+    // Arrange
+    var procReleaseId = Code.create("REL-123");
+    var businessKey = Code.create("BK-001");
+    var processNumber = ProcessNumber.create("PROC-123");
+    var engineProcessNumber = Code.create("ENG-PROC-123");
+    var applicationCode = Code.create("APP-52");
+    var proReleaseKey = Code.create("PROC-KEY");
+    var processVersion = "v1";
+    var processName = "MyProcess";
+    var endedAt = LocalDateTime.now();
+    var endedBy = "system@nosi.cv";
+
+    ProcessInstance processInstance = mock(ProcessInstance.class);
+    when(processInstance.getProcReleaseId()).thenReturn(procReleaseId);
+    when(processInstance.getApplicationBase()).thenReturn(applicationCode);
+    when(processInstance.getBusinessKey()).thenReturn(businessKey);
+    when(processInstance.getVariables()).thenReturn(Map.of());
+
+    // Mocks
+    ProcessInstance engineProcessInstance = mock(ProcessInstance.class);
+    when(runtimeProcessEngineRepository.startProcessInstanceById(anyString(), anyString(), anyMap()))
+        .thenReturn(engineProcessInstance);
+
+    when(engineProcessInstance.getProcReleaseKey()).thenReturn(proReleaseKey);
+    when(engineProcessInstance.getEngineProcessNumber()).thenReturn(engineProcessNumber);
+    when(engineProcessInstance.getVersion()).thenReturn(processVersion);
+    when(engineProcessInstance.getName()).thenReturn(processName);
+    when(engineProcessInstance.getStatus()).thenReturn(ProcessInstanceStatus.COMPLETED);
+    when(engineProcessInstance.getEndedAt()).thenReturn(endedAt);
+    when(engineProcessInstance.getEndedBy()).thenReturn(endedBy);
+
+    when(processSequenceService.getGeneratedProcessNumber(any(), any())).thenReturn(processNumber);
+
+    ProcessInstance runningProcessInstance = mock(ProcessInstance.class);
+    when(processInstanceRepository.save(processInstance)).thenReturn(runningProcessInstance);
+    when(processInstanceRepository.save(runningProcessInstance)).thenReturn(runningProcessInstance);
+
+    doNothing().when(taskInstanceService).createTaskInstancesByProcess(runningProcessInstance);
+
+    // Act
+    ProcessInstance result = processInstanceService.startProcessInstance(processInstance, currentUser);
+
+    // Verify
+    verify(runtimeProcessEngineRepository).startProcessInstanceById(
+        eq(procReleaseId.getValue()), eq(businessKey.getValue()), eq(Map.of())
+    );
+    verify(processSequenceService).getGeneratedProcessNumber(eq(proReleaseKey), eq(applicationCode));
+    verify(processInstance).start(eq(processNumber), eq(engineProcessNumber),
+        eq(processVersion), eq(processName), eq(currentUser));
+    verify(processInstanceRepository).save(processInstance);
+    verify(taskInstanceService).createTaskInstancesByProcess(runningProcessInstance);
+    verify(runningProcessInstance).complete(eq(endedAt), eq(endedBy));
+    verify(processInstanceRepository).save(runningProcessInstance);
+
+    assertEquals(runningProcessInstance, result);
   }
 
 
@@ -202,7 +262,7 @@ class ProcessInstanceServiceTest {
     when(runtimeProcessEngineRepository.getProcessInstanceTaskStatus("PROC-123"))
         .thenReturn(mockStatus);
 
-    // execução
+    // act
     List<ProcessInstanceTaskStatus> result = processInstanceService.getProcessInstanceTaskStatus(processId);
 
     // asserts
