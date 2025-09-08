@@ -15,8 +15,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 
-import java.util.UUID;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
@@ -47,11 +45,13 @@ class GetTaskInstanceByIdQueryHandlerTest {
   @BeforeEach
   void setUp() {
     taskId = Identifier.generate();
-    query = new GetTaskInstanceByIdQuery(UUID.randomUUID().toString());
+    query = new GetTaskInstanceByIdQuery(taskId.getValue().toString());
     taskInstanceMock = mock(TaskInstance.class);
     taskInstanceDTOMock = mock(TaskInstanceDTO.class);
 
     when(userContext.getCurrentUser()).thenReturn(Code.create("demo@nosi.cv"));
+
+    when(taskInstanceMock.getId()).thenReturn(taskId);
 
     when(taskInstanceService.getByIdWihEvents(taskId))
         .thenReturn(taskInstanceMock);
