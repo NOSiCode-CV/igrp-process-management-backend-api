@@ -187,9 +187,7 @@ class ProcessInstanceServiceTest {
     when(mockEngProcNumber.getValue()).thenReturn("PROC-123");
     when(mockInstance.getEngineProcessNumber()).thenReturn(mockEngProcNumber);
 
-    // spy to override getProcessInstanceById
-    ProcessInstanceService spyService = spy(processInstanceService);
-    doReturn(mockInstance).when(spyService).getProcessInstanceById(processId);
+    doReturn(mockInstance).when(processInstanceService).getProcessInstanceById(processId);
 
     // mock of external repository
     List<ProcessInstanceTaskStatus> mockStatus = List.of(
@@ -204,7 +202,7 @@ class ProcessInstanceServiceTest {
         .thenReturn(mockStatus);
 
     // execução
-    List<ProcessInstanceTaskStatus> result = spyService.getProcessInstanceTaskStatus(processId);
+    List<ProcessInstanceTaskStatus> result = processInstanceService.getProcessInstanceTaskStatus(processId);
 
     // asserts
     assertNotNull(result);
@@ -215,7 +213,7 @@ class ProcessInstanceServiceTest {
     assertEquals(TaskInstanceStatus.COMPLETED, result.get(1).getStatus());
 
     // verify
-    verify(spyService).getProcessInstanceById(processId);
+    verify(processInstanceService).getProcessInstanceById(processId);
     verify(runtimeProcessEngineRepository).getProcessInstanceTaskStatus("PROC-123");
 
   }
