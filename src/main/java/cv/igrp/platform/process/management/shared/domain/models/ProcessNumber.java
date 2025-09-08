@@ -1,11 +1,13 @@
 package cv.igrp.platform.process.management.shared.domain.models;
 
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.util.Objects;
 
 @Getter
+@EqualsAndHashCode
 public class ProcessNumber {
 
   private final String value;

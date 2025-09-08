@@ -70,7 +70,7 @@ public class ProcessSequenceMapper {
     dto.setNextNumber(model.getNextNumber());
     dto.setNumberIncrement(model.getNumberIncrement());
     dto.setProcessDefinitionKey(model.getProcessDefinitionKey().getValue());
-    dto.setApplicationCode(model.getProcessDefinitionKey().getValue());
+    dto.setApplicationCode(model.getApplicationCode().getValue());
     return dto;
   }
 
