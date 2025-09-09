@@ -31,6 +31,10 @@
             <id>igrp-framework-releases</id>
             <url>https://sonatype.nosi.cv/repository/igrp-framework-releases/</url>
         </repository>
+        <repository>
+            <id>igrp-framework</id>
+            <url>https://sonatype.nosi.cv/repository/igrp-framework/</url>
+        </repository>
     </repositories>
     <properties>
         <igrp.version>0.1.0-beta.1</igrp.version>
@@ -47,10 +51,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-rest</artifactId>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>

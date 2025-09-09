@@ -69,7 +69,7 @@ public class ProcessDeploymentRepositoryImpl implements ProcessDeploymentReposit
   public PageableLista<ProcessDeployment> findAll(ProcessDeploymentFilter filter) {
     ProcessFilter processFilter = toProcessFilter(filter);
 
-    List<ProcessDefinition> definitions = processManagerAdapter.getDeployedProcesses(processFilter);
+    List<ProcessDefinition> definitions = processDefinitionAdapter.getDeployedProcesses(processFilter);
 
     List<ProcessDeployment> content = definitions.stream()
         .map(def -> ProcessDeployment.builder()
@@ -102,7 +102,7 @@ public class ProcessDeploymentRepositoryImpl implements ProcessDeploymentReposit
 
   @Override
   public List<ProcessArtifact> findAllArtifacts(String processDefinitionId) {
-    List<cv.igrp.framework.runtime.core.engine.task.model.ProcessArtifact> artifacts = taskQueryService.getProcessArtifacts(processDefinitionId);
+    List<cv.igrp.framework.runtime.core.engine.task.model.ProcessArtifact> artifacts = processDefinitionAdapter.getProcessArtifacts(processDefinitionId);
     return artifacts.stream().map(artifact -> ProcessArtifact.builder()
         .formKey(Code.create(artifact.formKey() != null ? artifact.formKey() : "NOT_SET"))
         .name(Name.create(artifact.taskName() != null ? artifact.taskName() : "NOT_SET"))
