@@ -1,0 +1,31 @@
+{
+  "type": "enum",
+  "module": "shared",
+  "name": "Status",
+  "values": [
+    {
+      "name": "ACTIVE",
+      "attributes": [
+        "ACTIVE",
+        "Ativo"
+      ]
+    },
+    {
+      "name": "INACTIVE",
+      "attributes": [
+        "INACTIVE",
+        "Inactive"
+      ]
+    }
+  ],
+  "attributes": [
+    {
+      "type": "string",
+      "name": "Code"
+    },
+    {
+      "type": "string",
+      "name": "Description"
+    }
+  ]
+}

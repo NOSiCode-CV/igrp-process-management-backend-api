@@ -1,0 +1,52 @@
+{
+  "type": "enum",
+  "module": "shared",
+  "name": "TaskInstanceStatus",
+  "values": [
+    {
+      "name": "CREATED",
+      "attributes": [
+        "CREATED",
+        "Criado"
+      ]
+    },
+    {
+      "name": "ASSIGNED",
+      "attributes": [
+        "ASSIGNED",
+        "Atribuido"
+      ]
+    },
+    {
+      "name": "SUSPENDED",
+      "attributes": [
+        "SUSPENDED",
+        "Suspenso"
+      ]
+    },
+    {
+      "name": "COMPLETED",
+      "attributes": [
+        "COMPLETED",
+        "Completo"
+      ]
+    },
+    {
+      "name": "CANCELED",
+      "attributes": [
+        "CANCELED",
+        "Cancelado"
+      ]
+    }
+  ],
+  "attributes": [
+    {
+      "type": "string",
+      "name": "Code"
+    },
+    {
+      "type": "string",
+      "name": "Description"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsd="http://www.w3.org/2001/XMLSchema" id="model-885ca707-5cba-48a5-9166-88266d81dbe0" name="inscricao-contribuinte" targetNamespace="http://bpmn.io/schema/bpmn" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd">
+    <process id="deployment_process_key" name="inscricao-contribuinte" isExecutable="true">
+        <documentation>Inscrição de Contribuinte</documentation>
+        <startEvent id="Event_1">
+            <outgoing>SequenceFlow_15p3rw8</outgoing>
+        </startEvent>
+        <sequenceFlow id="SequenceFlow_15p3rw8" sourceRef="Event_1" targetRef="Task_01nb940" />
+        <sequenceFlow id="SequenceFlow_1cahcn6" sourceRef="Task_0f5pxj1" targetRef="Task_1k473v7" />
+        <endEvent id="EndEvent_1pscdxe">
+            <incoming>SequenceFlow_0hxw2oj</incoming>
+        </endEvent>
+        <sequenceFlow id="SequenceFlow_0hxw2oj" sourceRef="Task_1k473v7" targetRef="EndEvent_1pscdxe" />
+        <sequenceFlow id="SequenceFlow_1gfz4pu" sourceRef="Task_01nb940" targetRef="Task_0f5pxj1" />
+        <userTask id="Task_01nb940" name="Pedido" activiti:candidateGroups="group1">
+            <incoming>SequenceFlow_15p3rw8</incoming>
+            <outgoing>SequenceFlow_1gfz4pu</outgoing>
+        </userTask>
+        <userTask id="Task_0f5pxj1" name="Qualificação" activiti:candidateGroups="group2">
+            <incoming>SequenceFlow_1gfz4pu</incoming>
+            <outgoing>SequenceFlow_1cahcn6</outgoing>
+        </userTask>
+        <userTask id="Task_1k473v7" name="Notificação" activiti:formKey="form_notificacao" activiti:candidateGroups="group3">
+            <incoming>SequenceFlow_1cahcn6</incoming>
+            <outgoing>SequenceFlow_0hxw2oj</outgoing>
+        </userTask>
+    </process>
+    <bpmndi:BPMNDiagram id="BPMNDiagram_deployment_process_key">
+        <bpmndi:BPMNPlane id="BPMNPlane_deployment_process_key" bpmnElement="deployment_process_key">
+            <bpmndi:BPMNShape id="BPMNShape_Event_1" bpmnElement="Event_1">
+                <omgdc:Bounds x="132" y="92" width="36" height="36" />
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape id="BPMNShape_EndEvent_1pscdxe" bpmnElement="EndEvent_1pscdxe">
+                <omgdc:Bounds x="422" y="312" width="36" height="36" />
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape id="BPMNShape_Task_01nb940" bpmnElement="Task_01nb940">
+                <omgdc:Bounds x="240" y="70" width="100" height="80" />
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape id="BPMNShape_Task_0f5pxj1" bpmnElement="Task_0f5pxj1">
+                <omgdc:Bounds x="390" y="70" width="100" height="80" />
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape id="BPMNShape_Task_1k473v7" bpmnElement="Task_1k473v7">
+                <omgdc:Bounds x="390" y="190" width="100" height="80" />
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_15p3rw8" bpmnElement="SequenceFlow_15p3rw8">
+                <omgdi:waypoint x="168" y="110" />
+                <omgdi:waypoint x="240" y="110" />
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_1cahcn6" bpmnElement="SequenceFlow_1cahcn6">
+                <omgdi:waypoint x="440" y="150" />
+                <omgdi:waypoint x="440" y="190" />
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_0hxw2oj" bpmnElement="SequenceFlow_0hxw2oj">
+                <omgdi:waypoint x="440" y="270" />
+                <omgdi:waypoint x="440" y="312" />
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_1gfz4pu" bpmnElement="SequenceFlow_1gfz4pu">
+                <omgdi:waypoint x="340" y="110" />
+                <omgdi:waypoint x="390" y="110" />
+            </bpmndi:BPMNEdge>
+        </bpmndi:BPMNPlane>
+    </bpmndi:BPMNDiagram>
+</definitions>

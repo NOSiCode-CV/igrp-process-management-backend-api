@@ -1,0 +1,310 @@
+{
+  "type": "controller",
+  "name": "ProcessDefinition",
+  "module": "processdefinition",
+  "description": "Process Definition Management",
+  "basePath": "process-definitions",
+  "actions": [
+    {
+      "actionName": "deployProcess",
+      "path": "deploy",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ProcessDeploymentRequestDTO",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "processdefinition"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "OK",
+          "description": "Process deploymeny",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProcessDeploymentDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "processdefinition"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "listDeployments",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "description": "List of deployments",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProcessDeploymentListPageDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "processdefinition"
+              }
+            }
+          }
+        }
+      },
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "applicationBase",
+          "description": "Application Code",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "processName",
+          "isRequired": false,
+          "description": "Process Name"
+        },
+        {
+          "type": "integer",
+          "name": "page",
+          "value": "0",
+          "isRequired": true,
+          "description": "Current Page"
+        },
+        {
+          "type": "integer",
+          "name": "size",
+          "value": "20",
+          "isRequired": true,
+          "description": "Page Size"
+        }
+      ]
+    },
+    {
+      "actionName": "createArtifact",
+      "path": "{id}/artifacts",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "collectionType": "none",
+              "name": "data",
+              "type": "ProcessArtifactRequestDTO",
+              "objectType": "dto",
+              "module": "processdefinition",
+              "description": "Project Artifact Data"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "OK",
+          "description": "Persisted Project Artifact",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProcessArtifactDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "processdefinition"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true,
+          "description": "ID of Process Definition"
+        }
+      ]
+    },
+    {
+      "actionName": "deleteArtifact",
+      "path": "artifacts/{id}",
+      "method": "DELETE",
+      "responses": {
+        "204": {
+          "name": "OK",
+          "description": "No Content",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true,
+          "description": "ID of an artifact"
+        }
+      ]
+    },
+    {
+      "actionName": "getArtifactsByProcessDefinitionId",
+      "path": "{id}/artifacts",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "description": "List of Process Artifacts",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProcessArtifactDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "processdefinition"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true,
+          "description": "ID of the Process Definition"
+        }
+      ]
+    },
+    {
+      "actionName": "getDeployedArtifactsByProcessDefinitionId",
+      "path": "{id}/deployed-artifacts",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "description": "List of Deployed Process Artifact",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProcessArtifactDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "processdefinition"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true,
+          "description": "ID of the Process Definition"
+        }
+      ]
+    },
+    {
+      "actionName": "getProcessSequence",
+      "path": "{processKey}/applications/{applicationCode}/sequence",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProcessSequenceDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "processdefinition"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "processKey",
+          "type": "string",
+          "isRequired": true,
+          "description": "Process definition key"
+        },
+        {
+          "name": "applicationCode",
+          "type": "string",
+          "isRequired": true,
+          "description": "Application Code"
+        }
+      ]
+    },
+    {
+      "actionName": "createProcessSequence",
+      "path": "{processKey}/applications/{applicationCode}/sequence",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "SequenceRequestDTO",
+              "collectionType": "none",
+              "name": "requestDto",
+              "objectType": "dto",
+              "module": "processdefinition",
+              "nullable": true
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProcessSequenceDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "processdefinition"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "processKey",
+          "type": "string",
+          "isRequired": true,
+          "description": "Process definition key"
+        },
+        {
+          "name": "applicationCode",
+          "type": "string",
+          "isRequired": true,
+          "description": "Application code"
+        }
+      ]
+    }
+  ],
+  "id": "o9isd9wv95-CONTROLLER"
+}
