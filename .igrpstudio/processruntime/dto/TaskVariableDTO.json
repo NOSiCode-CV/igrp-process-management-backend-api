@@ -1,0 +1,34 @@
+{
+  "type": "dto",
+  "module": "processruntime",
+  "name": "TaskVariableDTO",
+  "template": "classic",
+  "enableCustonValidation": false,
+  "attributes": [
+    {
+      "name": "name",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    },
+    {
+      "name": "value",
+      "objectType": "java",
+      "type": "object",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    }
+  ],
+  "id": "h1wevor5ic"
+}

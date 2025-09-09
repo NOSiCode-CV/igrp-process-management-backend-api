@@ -1,0 +1,84 @@
+{
+  "type": "dto",
+  "module": "processruntime",
+  "name": "StartProcessRequestDTO",
+  "template": "classic",
+  "enableCustonValidation": false,
+  "attributes": [
+    {
+      "name": "processDefinitionId",
+      "objectType": "java",
+      "type": "string",
+      "required": true,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    },
+    {
+      "name": "processKey",
+      "objectType": "java",
+      "type": "string",
+      "required": true,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    },
+    {
+      "name": "businessKey",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    },
+    {
+      "name": "applicationBase",
+      "objectType": "java",
+      "type": "string",
+      "required": true,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    },
+    {
+      "name": "priority",
+      "objectType": "java",
+      "type": "integer",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    },
+    {
+      "name": "variables",
+      "objectType": "dto",
+      "type": "ProcessVariableDTO",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false,
+      "module": "processruntime",
+      "collectionType": "list"
+    }
+  ],
+  "id": "js6stijo7e"
+}

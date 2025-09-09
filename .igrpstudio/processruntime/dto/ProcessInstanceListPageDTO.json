@@ -1,0 +1,28 @@
+{
+  "type": "dto",
+  "module": "processruntime",
+  "name": "ProcessInstanceListPageDTO",
+  "template": "classic",
+  "enableCustonValidation": false,
+  "extends": {
+    "name": "Page",
+    "module": "shared"
+  },
+  "attributes": [
+    {
+      "name": "content",
+      "objectType": "dto",
+      "type": "ProcessInstanceDTO",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false,
+      "module": "processruntime",
+      "collectionType": "list"
+    }
+  ],
+  "id": "r9uhcmpe2r"
+}

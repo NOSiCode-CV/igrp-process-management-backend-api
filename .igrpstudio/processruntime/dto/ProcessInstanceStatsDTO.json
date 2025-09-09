@@ -1,0 +1,82 @@
+{
+  "type": "dto",
+  "module": "processruntime",
+  "name": "ProcessInstanceStatsDTO",
+  "template": "classic",
+  "enableCustonValidation": false,
+  "attributes": [
+    {
+      "name": "totalProcessInstances",
+      "objectType": "java",
+      "type": "long",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    },
+    {
+      "name": "totalCreatedProcess",
+      "objectType": "java",
+      "type": "long",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    },
+    {
+      "name": "totalRunningProcess",
+      "objectType": "java",
+      "type": "long",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    },
+    {
+      "name": "totalCompletedProcess",
+      "objectType": "java",
+      "type": "long",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    },
+    {
+      "name": "totalSuspendedProcess",
+      "objectType": "java",
+      "type": "long",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    },
+    {
+      "name": "totalCanceledProcess",
+      "objectType": "java",
+      "type": "long",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    }
+  ],
+  "id": "9dmn58f8d4"
+}

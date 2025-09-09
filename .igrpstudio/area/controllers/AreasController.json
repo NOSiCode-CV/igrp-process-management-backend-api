@@ -1,0 +1,370 @@
+{
+  "type": "controller",
+  "name": "Areas",
+  "module": "area",
+  "description": "Area and Process Definition Management",
+  "basePath": "areas",
+  "actions": [
+    {
+      "actionName": "listAreas",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "description": "List of areas",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AreaListPageDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "area"
+              }
+            }
+          }
+        }
+      },
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "code",
+          "description": "Code of the area",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "name",
+          "description": "Name of the area",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "applicationBase",
+          "description": "Application code",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "status",
+          "description": "Status",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "parentId",
+          "description": "ID of the parent area",
+          "isRequired": false
+        },
+        {
+          "type": "integer",
+          "name": "page",
+          "description": "Current page",
+          "isRequired": false
+        },
+        {
+          "type": "integer",
+          "name": "size",
+          "description": "Page size",
+          "isRequired": false
+        }
+      ]
+    },
+    {
+      "actionName": "createArea",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "collectionType": "none",
+              "name": "data",
+              "type": "AreaRequestDTO",
+              "objectType": "dto",
+              "module": "area"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "OK",
+          "description": "Persisted Area",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AreaDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "area"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getAreaById",
+      "path": "{id}",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "description": "Area Info",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AreaDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "area"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true,
+          "description": "ID of an area"
+        }
+      ]
+    },
+    {
+      "actionName": "updateArea",
+      "path": "{id}",
+      "method": "PUT",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AreaRequestDTO",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "area"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "description": "Updated area",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "AreaDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "area"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true,
+          "description": "ID of the area"
+        }
+      ]
+    },
+    {
+      "actionName": "deleteArea",
+      "path": "{id}",
+      "method": "DELETE",
+      "responses": {
+        "204": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true,
+          "description": "ID of the area"
+        }
+      ]
+    },
+    {
+      "actionName": "listProcessDefinitions",
+      "path": "{areaId}/process-definitions",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "description": "List of process definition of an area",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProcessDefinitionListPage",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "area"
+              }
+            }
+          }
+        }
+      },
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "processKey",
+          "description": "Process Key",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "status",
+          "description": "Status",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "releaseId",
+          "description": "Process definition ID",
+          "isRequired": false
+        },
+        {
+          "type": "integer",
+          "name": "page",
+          "description": "Current page",
+          "isRequired": false
+        },
+        {
+          "type": "integer",
+          "name": "size",
+          "description": "Page size",
+          "isRequired": false
+        }
+      ],
+      "pathVariables": [
+        {
+          "name": "areaId",
+          "type": "string",
+          "isRequired": true,
+          "description": "ID of the area"
+        }
+      ]
+    },
+    {
+      "actionName": "createProcessDefinition",
+      "path": "{areaId}/process-definitions",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ProcessDefinitionRequestDTO",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "area",
+              "description": "The project reques data"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "OK",
+          "description": "Persisted process definition",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProcessDefinitionDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "area"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "areaId",
+          "type": "string",
+          "isRequired": true,
+          "description": "ID of the area"
+        }
+      ]
+    },
+    {
+      "actionName": "removeProcessDefinition",
+      "path": "{areaId}/process-definitions/{processDefinitionId}",
+      "method": "DELETE",
+      "responses": {
+        "204": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "areaId",
+          "type": "string",
+          "isRequired": true,
+          "description": "ID of the area"
+        },
+        {
+          "name": "processDefinitionId",
+          "type": "string",
+          "isRequired": true,
+          "description": "ID of the process definition"
+        }
+      ]
+    },
+    {
+      "actionName": "listAreaStatus",
+      "path": "status",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "description": "List of area status",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ConfigParameterDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "shared"
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "id": "eyv1ps0zwe-CONTROLLER"
+}
