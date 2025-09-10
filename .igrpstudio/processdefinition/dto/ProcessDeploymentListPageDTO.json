@@ -1,0 +1,28 @@
+{
+  "type": "dto",
+  "module": "processdefinition",
+  "name": "ProcessDeploymentListPageDTO",
+  "template": "classic",
+  "enableCustonValidation": false,
+  "extends": {
+    "name": "Page",
+    "module": "shared"
+  },
+  "attributes": [
+    {
+      "name": "content",
+      "objectType": "dto",
+      "type": "ProcessDeploymentListDTO",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false,
+      "module": "processdefinition",
+      "collectionType": "list"
+    }
+  ],
+  "id": "f2fh7a32tq"
+}

@@ -1,0 +1,52 @@
+{
+  "type": "enum",
+  "module": "shared",
+  "name": "ProcessInstanceStatus",
+  "values": [
+    {
+      "name": "RUNNING",
+      "attributes": [
+        "RUNNING",
+        "Running"
+      ]
+    },
+    {
+      "name": "CREATED",
+      "attributes": [
+        "CREATED",
+        "CREATED"
+      ]
+    },
+    {
+      "name": "SUSPENDED",
+      "attributes": [
+        "SUSPENDED",
+        "SUSPENDED"
+      ]
+    },
+    {
+      "name": "CANCELED",
+      "attributes": [
+        "CANCELED",
+        "CANCELED"
+      ]
+    },
+    {
+      "name": "COMPLETED",
+      "attributes": [
+        "COMPLETED",
+        "COMPLETED"
+      ]
+    }
+  ],
+  "attributes": [
+    {
+      "type": "string",
+      "name": "Code"
+    },
+    {
+      "type": "string",
+      "name": "Description"
+    }
+  ]
+}

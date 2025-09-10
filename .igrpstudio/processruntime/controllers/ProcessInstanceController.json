@@ -1,0 +1,219 @@
+{
+  "type": "controller",
+  "name": "ProcessInstance",
+  "module": "processruntime",
+  "description": "Process Instance Management",
+  "basePath": "process-instances",
+  "actions": [
+    {
+      "actionName": "listProcessInstances",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "description": "List of process instances",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProcessInstanceListPageDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "processruntime"
+              }
+            }
+          }
+        }
+      },
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "number",
+          "description": "Process Number",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "procReleaseKey",
+          "description": "Process Key",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "procReleaseId",
+          "description": "Process Definition ID",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "status",
+          "description": "Process Status",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "searchTerms",
+          "description": "Serach Terms",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "applicationBase",
+          "description": "Application Code",
+          "isRequired": false
+        },
+        {
+          "type": "integer",
+          "name": "page",
+          "description": "Current Page",
+          "isRequired": false
+        },
+        {
+          "type": "integer",
+          "name": "size",
+          "description": "Page Size",
+          "isRequired": false
+        }
+      ]
+    },
+    {
+      "actionName": "startProcessInstance",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "StartProcessRequestDTO",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "processruntime",
+              "description": "Start process request data"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "OK",
+          "description": "Started process instance",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProcessInstanceDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "processruntime"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getProcessInstanceById",
+      "path": "{id}",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "description": "Process Instance Info",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProcessInstanceDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "processruntime"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true,
+          "description": "ID of the process instance"
+        }
+      ]
+    },
+    {
+      "actionName": "listProcessInstanceStatus",
+      "path": "status",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "description": "List of process instance status",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ConfigParameterDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "shared"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getTaskStatus",
+      "path": "{id}/task-status",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "description": "List of task status of the process instance",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProcessInstanceTaskStatusDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "processruntime"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true,
+          "description": "ID of the process instance"
+        }
+      ]
+    },
+    {
+      "actionName": "getProcessInstanceStatistics",
+      "path": "stats",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProcessInstanceStats",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "processruntime"
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "id": "pyn9bsrz1z-CONTROLLER"
+}

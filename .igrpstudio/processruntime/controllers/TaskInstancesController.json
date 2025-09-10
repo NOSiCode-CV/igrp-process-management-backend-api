@@ -1,0 +1,433 @@
+{
+  "type": "controller",
+  "name": "TaskInstances",
+  "module": "processruntime",
+  "description": "Task Instances Management",
+  "basePath": "tasks-instances",
+  "actions": [
+    {
+      "actionName": "listTaskInstances",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "description": "List of task instances",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TaskInstanceListPageDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "processruntime"
+              }
+            }
+          }
+        }
+      },
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "processInstanceId",
+          "description": "Process Instance Id",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "processNumber",
+          "description": "Process Number",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "processName",
+          "description": "Process Definition Key",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "user",
+          "description": "User UID",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "status",
+          "description": "Status of the task instance",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "dateFrom",
+          "isRequired": false,
+          "description": "Data de"
+        },
+        {
+          "type": "string",
+          "name": "dateTo",
+          "isRequired": false,
+          "description": "Data até"
+        },
+        {
+          "type": "integer",
+          "name": "page",
+          "isRequired": false
+        },
+        {
+          "type": "integer",
+          "name": "size",
+          "isRequired": false
+        }
+      ]
+    },
+    {
+      "actionName": "getTaskInstanceById",
+      "path": "{id}",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "description": "Task Instance Info",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TaskInstanceDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "processruntime"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "claimTask",
+      "path": "{id}/claim",
+      "method": "POST",
+      "responses": {
+        "204": {
+          "name": "nocontent",
+          "description": "No Content",
+          "content": {
+            "": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true,
+          "description": "ID of the task instance"
+        }
+      ]
+    },
+    {
+      "actionName": "unClaimTask",
+      "path": "{id}/unclaim",
+      "method": "POST",
+      "responses": {
+        "204": {
+          "name": "nocontent",
+          "description": "No content",
+          "content": {
+            "": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true,
+          "description": "ID of the task instance"
+        }
+      ]
+    },
+    {
+      "actionName": "assignTask",
+      "path": "{id}/assign",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "collectionType": "none",
+              "name": "data",
+              "type": "AssignTaskDTO",
+              "objectType": "dto",
+              "module": "processruntime"
+            }
+          }
+        }
+      },
+      "responses": {
+        "204": {
+          "name": "nocontent",
+          "description": "No content",
+          "content": {
+            "": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true,
+          "description": "ID of the task instance"
+        }
+      ]
+    },
+    {
+      "actionName": "completeTask",
+      "path": "{id}/complete",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "TaskDataDTO",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "processruntime"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TaskInstanceDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "processruntime"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true,
+          "description": "ID of the task instance"
+        }
+      ]
+    },
+    {
+      "actionName": "getAllMyTasks",
+      "path": "me",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "description": "List All My Tasks",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TaskInstanceListPageDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "processruntime"
+              }
+            }
+          }
+        }
+      },
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "processInstanceId",
+          "description": "Process Instance Id",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "processNumber",
+          "isRequired": false,
+          "description": "Process Number or Business Key"
+        },
+        {
+          "type": "string",
+          "name": "processName",
+          "isRequired": false,
+          "description": "Process Name"
+        },
+        {
+          "type": "string",
+          "name": "status",
+          "isRequired": false,
+          "description": "Status of the task instance"
+        },
+        {
+          "type": "string",
+          "name": "dateFrom",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "dateTo",
+          "isRequired": false
+        },
+        {
+          "type": "integer",
+          "name": "page",
+          "isRequired": false
+        },
+        {
+          "type": "integer",
+          "name": "size",
+          "isRequired": false
+        }
+      ]
+    },
+    {
+      "actionName": "listTaskInstanceStatus",
+      "path": "status",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ConfigParameterDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "shared"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "listTaskInstanceEventType",
+      "path": "event_type",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ConfigParameterDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "shared"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getTaskVariablesById",
+      "path": "{id}/variables",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TaskVariableDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "processruntime"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "getTaskInstanceStatistics",
+      "path": "stats",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TaskInstanceStatsDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "processruntime"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "getMyTaskInstanceStatistics",
+      "path": "stats/me",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TaskInstanceStatsDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "processruntime"
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "id": "s7o1wob8tj-CONTROLLER"
+}

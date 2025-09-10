@@ -1,0 +1,52 @@
+{
+  "type": "enum",
+  "module": "shared",
+  "name": "TaskEventType",
+  "values": [
+    {
+      "name": "CREATE",
+      "attributes": [
+        "CREATE",
+        "Criar"
+      ]
+    },
+    {
+      "name": "CLAIM",
+      "attributes": [
+        "CLAIM",
+        "Assumir"
+      ]
+    },
+    {
+      "name": "ASSIGN",
+      "attributes": [
+        "ASSIGN",
+        "Atribuir"
+      ]
+    },
+    {
+      "name": "UNCLAIM",
+      "attributes": [
+        "UNCLAIM",
+        "Libertar"
+      ]
+    },
+    {
+      "name": "COMPLETE",
+      "attributes": [
+        "COMPLETE",
+        "Terminar"
+      ]
+    }
+  ],
+  "attributes": [
+    {
+      "type": "string",
+      "name": "Code"
+    },
+    {
+      "type": "string",
+      "name": "Description"
+    }
+  ]
+}
