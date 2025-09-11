@@ -135,7 +135,7 @@ class ProcessDeploymentRepositoryImplTest {
         false
     );
 
-    when(processManagerAdapter.getDeployedProcesses(any(ProcessFilter.class)))
+    when(processDefinitionAdapter.getDeployedProcesses(any(ProcessFilter.class)))
         .thenReturn(List.of(processDefinition));
 
     // Act
@@ -156,7 +156,7 @@ class ProcessDeploymentRepositoryImplTest {
     assertEquals(processDefinition.deploymentId(), item.getDeploymentId());
     assertTrue(item.isDeployed());
 
-    verify(processManagerAdapter).getDeployedProcesses(any(ProcessFilter.class));
+    verify(processDefinitionAdapter).getDeployedProcesses(any(ProcessFilter.class));
 
   }
 
@@ -171,7 +171,7 @@ class ProcessDeploymentRepositoryImplTest {
             "/path/to/form/task_1"
         );
 
-    when(taskQueryService.getProcessArtifacts(processDefinitionId))
+    when(processDefinitionAdapter.getProcessArtifacts(processDefinitionId))
         .thenReturn(List.of(artifact1));
 
     // Act
@@ -187,7 +187,7 @@ class ProcessDeploymentRepositoryImplTest {
     assertEquals("Task 1", actualArtifact.getName().getValue());
     assertEquals(processDefinitionId, actualArtifact.getProcessDefinitionId().getValue());
 
-    verify(taskQueryService).getProcessArtifacts(processDefinitionId);
+    verify(processDefinitionAdapter).getProcessArtifacts(processDefinitionId);
 
   }
 
