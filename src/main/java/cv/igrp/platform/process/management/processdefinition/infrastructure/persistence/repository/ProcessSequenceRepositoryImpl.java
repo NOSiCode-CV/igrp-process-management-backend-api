@@ -28,7 +28,7 @@ public class ProcessSequenceRepositoryImpl implements ProcessSequenceRepository 
   @Override
   public Optional<ProcessSequence> findByProcessAndApplication(String processDefinitionKey) {
     LOGGER.debug("Fetching ProcessSequence with processDefinitionKey={}", processDefinitionKey);
-    return sequenceEntityRepository.findByProcessDefinitionKeyAndApplicationCode(processDefinitionKey).map(sequenceMapper::toModel);
+    return sequenceEntityRepository.findByProcessDefinitionKey(processDefinitionKey).map(sequenceMapper::toModel);
   }
 
 

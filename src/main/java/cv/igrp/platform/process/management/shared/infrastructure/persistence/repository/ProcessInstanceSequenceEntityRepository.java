@@ -18,7 +18,7 @@ public interface ProcessInstanceSequenceEntityRepository extends
     JpaRepository<ProcessInstanceSequenceEntity, UUID>,
     JpaSpecificationExecutor<ProcessInstanceSequenceEntity>
 {
-  Optional<ProcessInstanceSequenceEntity> findByProcessDefinitionKeyAndApplicationCode(String processDefinitionKey);
+  Optional<ProcessInstanceSequenceEntity> findByProcessDefinitionKey(String processDefinitionKey);
 
   @Lock(LockModeType.PESSIMISTIC_WRITE)
   @Query("""

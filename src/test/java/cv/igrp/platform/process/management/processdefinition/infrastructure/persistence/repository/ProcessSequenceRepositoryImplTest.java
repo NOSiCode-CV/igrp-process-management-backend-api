@@ -55,7 +55,7 @@ class ProcessSequenceRepositoryImplTest {
 
   @Test
   void testFind_found() {
-    when(sequenceEntityRepository.findByProcessDefinitionKeyAndApplicationCode(processKey))
+    when(sequenceEntityRepository.findByProcessDefinitionKey(processKey))
         .thenReturn(Optional.of(entity));
     when(sequenceMapper.toModel(entity)).thenReturn(model);
 
@@ -63,19 +63,19 @@ class ProcessSequenceRepositoryImplTest {
 
     assertTrue(result.isPresent());
     assertEquals("MySequence", result.get().getName().getValue());
-    verify(sequenceEntityRepository).findByProcessDefinitionKeyAndApplicationCode(processKey);
+    verify(sequenceEntityRepository).findByProcessDefinitionKey(processKey);
     verify(sequenceMapper).toModel(entity);
   }
 
   @Test
   void testFindByProcessDefinitionKey_notFound() {
-    when(sequenceEntityRepository.findByProcessDefinitionKeyAndApplicationCode(processKey))
+    when(sequenceEntityRepository.findByProcessDefinitionKey(processKey))
         .thenReturn(Optional.empty());
 
     Optional<ProcessSequence> result = repository.findByProcessAndApplication(processKey);
 
     assertTrue(result.isEmpty());
-    verify(sequenceEntityRepository).findByProcessDefinitionKeyAndApplicationCode(processKey);
+    verify(sequenceEntityRepository).findByProcessDefinitionKey(processKey);
     verify(sequenceMapper, never()).toModel(any(ProcessInstanceSequenceEntity.class));
   }
 
