@@ -38,7 +38,7 @@ public class SecurityConfig {
   @Value("${spring.profiles.active}")
   private String activeProfile;
 
-  @Value("${auth.jwt.issuer}")
+  @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
   private String jwtIssuer;
 
   @Bean
