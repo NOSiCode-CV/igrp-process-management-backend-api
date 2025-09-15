@@ -21,4 +21,5 @@ public class JwtDecoderConfiguration {
   public JwtDecoder jwtDecoder() {
     return NimbusJwtDecoder.withIssuerLocation(url).build();
   }
+
 }
