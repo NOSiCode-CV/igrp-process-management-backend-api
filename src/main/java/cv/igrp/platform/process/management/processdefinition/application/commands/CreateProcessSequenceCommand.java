@@ -14,9 +14,7 @@ public class CreateProcessSequenceCommand implements Command {
 
 
   private SequenceRequestDTO sequencerequestdto;
-  @NotBlank(message = "The field <processKey> is required")
-  private String processKey;
-  @NotBlank(message = "The field <applicationCode> is required")
-  private String applicationCode;
+  @NotBlank(message = "The field <processDefinitionKey> is required")
+  private String processDefinitionKey;
 
 }

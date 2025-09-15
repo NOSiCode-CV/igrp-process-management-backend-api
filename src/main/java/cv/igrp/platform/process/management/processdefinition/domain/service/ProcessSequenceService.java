@@ -25,20 +25,17 @@ public class ProcessSequenceService {
   }
 
 
-  public ProcessSequence getSequenceByProcessAndApplication(Code processDefinitionKey, Code applicationCode) {
-    return processSequenceRepository.findByProcessAndApplication(processDefinitionKey.getValue(), applicationCode.getValue())
+  public ProcessSequence getSequenceByProcessAndApplication(Code processDefinitionKey) {
+    return processSequenceRepository.findByProcessAndApplication(processDefinitionKey.getValue())
         .orElseThrow(() -> IgrpResponseStatusException.notFound(
-            "Process Sequence not found for processDefinitionKey[" + processDefinitionKey.getValue()
-            + "] and applicationCode["+ applicationCode.getValue() +"]"));
+            "Process Sequence not found for processDefinitionKey[" + processDefinitionKey.getValue() + "]"));
   }
 
 
   @Transactional
   public ProcessSequence save(ProcessSequence processSequence) {
     var dbSequence = getProcessSequenceAsLocked(
-        processSequence.getProcessDefinitionKey(),
-        processSequence.getApplicationCode()
-    );
+        processSequence.getProcessDefinitionKey());
     final ProcessSequence sequenceResult;
     if(dbSequence.isEmpty())
       sequenceResult = processSequence.newInstance();
@@ -51,23 +48,22 @@ public class ProcessSequenceService {
   }
 
 
-  public ProcessNumber getGeneratedProcessNumber(Code processDefinitionKey, Code applicationCode){
-    var sequence = getProcessSequenceAsLocked(processDefinitionKey, applicationCode)
+  public ProcessNumber getGeneratedProcessNumber(Code processDefinitionKey){
+    var sequence = getProcessSequenceAsLocked(processDefinitionKey)
         .orElseThrow(() -> IgrpResponseStatusException.notFound(
-            "Process Sequence not found for processDefinitionKey[" + processDefinitionKey.getValue()
-                + "] and applicationCode["+ applicationCode.getValue() +"]"));
+            "Process Sequence not found for processDefinitionKey[" + processDefinitionKey.getValue() + "]"));
     var processNumber = sequence.generateNextProcessNumberAndIncrement();
     processSequenceRepository.save(sequence);
     return processNumber;
   }
 
 
-  private Optional<ProcessSequence> getProcessSequenceAsLocked(Code processDefinitionKey, Code applicationCode) {
+  private Optional<ProcessSequence> getProcessSequenceAsLocked(Code processDefinitionKey) {
     int attempts = 0;
     while (true) {
       attempts++;
       try {
-        return processSequenceRepository.findForUpdate(processDefinitionKey.getValue(), applicationCode.getValue());
+        return processSequenceRepository.findForUpdate(processDefinitionKey.getValue());
       } catch (PessimisticLockException | LockTimeoutException e) {
         if (attempts >= MAX_RETRIES) {
           throw new IllegalStateException("Failed to acquire lock after " + attempts + " attempts", e);

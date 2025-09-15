@@ -15,8 +15,7 @@ public class ProcessSequenceMapper {
 
   public ProcessSequence toModel(CreateProcessSequenceCommand command) {
     return ProcessSequence.builder()
-        .processDefinitionKey(Code.create(command.getProcessKey()))
-        .applicationCode(Code.create(command.getApplicationCode()))
+        .processDefinitionKey(Code.create(command.getProcessDefinitionKey()))
         .name(Name.create(command.getSequencerequestdto().getName()))
         .prefix(Code.create(command.getSequencerequestdto().getPrefix()))
         .dateFormat(command.getSequencerequestdto().getDateFormat())
@@ -38,7 +37,6 @@ public class ProcessSequenceMapper {
     entity.setNextNumber(model.getNextNumber());
     entity.setNumberIncrement(model.getNumberIncrement());
     entity.setProcessDefinitionKey(model.getProcessDefinitionKey().getValue());
-    entity.setApplicationCode(model.getApplicationCode().getValue());
     return  entity;
   }
 
@@ -54,7 +52,6 @@ public class ProcessSequenceMapper {
         .nextNumber(entity.getNextNumber())
         .numberIncrement(entity.getNumberIncrement())
         .processDefinitionKey(Code.create(entity.getProcessDefinitionKey()))
-        .applicationCode(Code.create(entity.getApplicationCode()))
         .build();
   }
 
@@ -70,7 +67,6 @@ public class ProcessSequenceMapper {
     dto.setNextNumber(model.getNextNumber());
     dto.setNumberIncrement(model.getNumberIncrement());
     dto.setProcessDefinitionKey(model.getProcessDefinitionKey().getValue());
-    dto.setApplicationCode(model.getApplicationCode().getValue());
     return dto;
   }
 
