@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
@@ -19,6 +20,8 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
+
+import java.util.HashSet;
 
 /**
  * Security configuration class for setting up OAuth2 and JWT authentication with Keycloak.
@@ -99,11 +102,22 @@ public class SecurityConfig {
    */
   @Bean
   public JwtAuthenticationConverter jwtAuthenticationConverter() {
-    var converter = new JwtAuthenticationConverter();
     var grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-    converter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
+
+    var converter = new JwtAuthenticationConverter();
+    converter.setJwtGrantedAuthoritiesConverter(jwt -> {
+
+      var authorities = new HashSet<>(grantedAuthoritiesConverter.convert(jwt));
+
+      authorities.add(new SimpleGrantedAuthority("ROLE_ACTIVITI_ADMIN"));
+      authorities.add(new SimpleGrantedAuthority("ROLE_ACTIVITI_USER"));
+
+      return authorities;
+    });
+
     return converter;
   }
+
 
   /**
    * Creates a bean for an OAuth2AuthorizedClientProvider that supports token exchange.
