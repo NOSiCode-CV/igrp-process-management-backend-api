@@ -36,14 +36,11 @@ public class GetProcessSequenceQueryHandler implements QueryHandler<GetProcessSe
 
      final var currentUser = userContext.getCurrentUser();
 
-     LOGGER.debug("User [{}] requested sequence for processDefinitionKey[{}] and applicationCode[{}]",
-         currentUser.getValue(), query.getProcessKey(), query.getApplicationCode());
+     LOGGER.debug("User [{}] requested sequence for processDefinitionKey [{}]", currentUser.getValue(), query.getProcessDefinitionKey());
 
-     final var processSequence = processSequenceService.getSequenceByProcessAndApplication(
-         Code.create(query.getProcessKey()), Code.create(query.getApplicationCode()));
+     final var processSequence = processSequenceService.getSequenceByProcessAndApplication(Code.create(query.getProcessDefinitionKey()));
 
-     LOGGER.debug("Retrieved Sequence with processDefinitionKey [{}] and applicationCode [{}] for user [{}]",
-         processSequence.getProcessDefinitionKey().getValue(), processSequence.getApplicationCode().getValue(), currentUser.getValue());
+     LOGGER.debug("Retrieved Sequence with processDefinitionKey [{}] for user [{}]", processSequence.getProcessDefinitionKey().getValue(), currentUser.getValue());
 
      return ResponseEntity.ok(processSequenceMapper.toDTO(processSequence));
 

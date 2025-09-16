@@ -40,11 +40,11 @@ public class TaskOperationData {
 
   public void validateSubmitedVariablesAndForms() {
     variables.forEach((k,v)->{
-      if(k==null || v==null)
+      if(k==null || k.isBlank() || v==null)
         throw IgrpResponseStatusException.badRequest("Invalid param for variable [name:"+ k +"] [value:"+ v +"]");
     });
     forms.forEach((k,v)->{
-      if(k==null || v==null)
+      if(k==null || k.isBlank() || v==null)
         throw IgrpResponseStatusException.badRequest("Invalid param for form [name:"+ k +"] [value:"+ v +"]");
     });
   }

@@ -223,7 +223,7 @@
     },
     {
       "actionName": "getProcessSequence",
-      "path": "{processKey}/applications/{applicationCode}/sequence",
+      "path": "{processDefinitionKey}/sequence",
       "method": "GET",
       "responses": {
         "200": {
@@ -243,22 +243,16 @@
       },
       "pathVariables": [
         {
-          "name": "processKey",
+          "name": "processDefinitionKey",
           "type": "string",
           "isRequired": true,
           "description": "Process definition key"
-        },
-        {
-          "name": "applicationCode",
-          "type": "string",
-          "isRequired": true,
-          "description": "Application Code"
         }
       ]
     },
     {
       "actionName": "createProcessSequence",
-      "path": "{processKey}/applications/{applicationCode}/sequence",
+      "path": "{processDefinitionKey}/sequence",
       "method": "POST",
       "requestBody": {
         "content": {
@@ -292,16 +286,10 @@
       },
       "pathVariables": [
         {
-          "name": "processKey",
+          "name": "processDefinitionKey",
           "type": "string",
           "isRequired": true,
           "description": "Process definition key"
-        },
-        {
-          "name": "applicationCode",
-          "type": "string",
-          "isRequired": true,
-          "description": "Application code"
         }
       ]
     }

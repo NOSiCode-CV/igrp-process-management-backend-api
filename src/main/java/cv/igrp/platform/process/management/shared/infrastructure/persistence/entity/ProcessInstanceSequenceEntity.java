@@ -25,9 +25,9 @@ import java.util.UUID;
 @Table(name = "t_process_instance_sequence",
   uniqueConstraints = {
     @UniqueConstraint(
-      name = "sequence_uk_processdef_application",
+      name = "sequence_uk_process_definition_key",
       columnNames = {
-        "application_code","process_definition_key"
+        "process_definition_key"
       }
     )
   })
@@ -75,11 +75,6 @@ public class ProcessInstanceSequenceEntity extends AuditEntity {
     @NotBlank(message = "processDefinitionKey is mandatory")
     @Column(name="process_definition_key", nullable = false)
     private String processDefinitionKey;
-
-
-    @NotBlank(message = "applicationCode is mandatory")
-    @Column(name="application_code", nullable = false)
-    private String applicationCode;
 
 
 }

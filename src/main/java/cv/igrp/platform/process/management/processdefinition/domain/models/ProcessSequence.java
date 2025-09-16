@@ -29,7 +29,6 @@ public class ProcessSequence {
   private Long nextNumber;
   private final Short numberIncrement;
   private final Code processDefinitionKey;
-  private final Code applicationCode;
 
   @Builder
   public ProcessSequence(Identifier id,
@@ -40,8 +39,7 @@ public class ProcessSequence {
                          String dateFormat,
                          Long nextNumber,
                          Short numberIncrement,
-                         Code processDefinitionKey,
-                         Code applicationCode)
+                         Code processDefinitionKey)
   {
     this.id = id;
     this.name = Objects.requireNonNull(name, "Name cannot be null");
@@ -52,7 +50,6 @@ public class ProcessSequence {
     this.nextNumber = nextNumber;
     this.numberIncrement = Objects.requireNonNull(numberIncrement, "NumberIncrement cannot be null");
     this.processDefinitionKey = Objects.requireNonNull(processDefinitionKey, "ProcessDefinitionKey cannot be null");
-    this.applicationCode = Objects.requireNonNull(applicationCode, "ApplicationCode cannot be null");
   }
 
 
@@ -93,9 +90,6 @@ public class ProcessSequence {
       throw IgrpResponseStatusException.badRequest("processDefinitionKey must not be null.");
     }
 
-    if (applicationCode == null) {
-      throw IgrpResponseStatusException.badRequest("applicationCode must not be null.");
-    }
   }
 
 
@@ -120,7 +114,6 @@ public class ProcessSequence {
         .nextNumber(this.nextNumber == null ? 1L : this.nextNumber)
         .numberIncrement(this.numberIncrement)
         .processDefinitionKey(this.processDefinitionKey)
-        .applicationCode(this.applicationCode)
         .build();
   }
 

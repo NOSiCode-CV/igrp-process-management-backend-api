@@ -142,7 +142,6 @@ class ProcessInstanceServiceTest {
     ProcessInstance processInstance = mock(ProcessInstance.class);
     when(processInstance.getProcReleaseId()).thenReturn(procReleaseId);
     when(processInstance.getBusinessKey()).thenReturn(businessKey);
-    when(processInstance.getApplicationBase()).thenReturn(applicationCode);
     when(processInstance.getVariables()).thenReturn(Map.of());
 
     // 2️⃣ Mock do engine
@@ -156,7 +155,7 @@ class ProcessInstanceServiceTest {
     when(runningProcessInstance.getName()).thenReturn(processName);
     when(runningProcessInstance.getStatus()).thenReturn(ProcessInstanceStatus.RUNNING);
 
-    when(processSequenceService.getGeneratedProcessNumber(any(),any()))
+    when(processSequenceService.getGeneratedProcessNumber(any()))
         .thenReturn(processNumber);
 
     when(processInstanceRepository.save(processInstance)).thenReturn(runningProcessInstance);
@@ -167,7 +166,7 @@ class ProcessInstanceServiceTest {
 
     verify(runtimeProcessEngineRepository).startProcessInstanceById(
         eq(procReleaseId.getValue()), eq(businessKey.getValue()), eq(Map.of()));
-    verify(processSequenceService).getGeneratedProcessNumber(eq(proReleaseKey),eq(applicationCode));
+    verify(processSequenceService).getGeneratedProcessNumber(eq(proReleaseKey));
     verify(processInstance).start(eq(processNumber),eq(engineProcessNumber),
         eq(processVersion),eq(processName),eq(currentUser));
     verify(processInstanceRepository).save(processInstance);
@@ -193,7 +192,6 @@ class ProcessInstanceServiceTest {
 
     ProcessInstance processInstance = mock(ProcessInstance.class);
     when(processInstance.getProcReleaseId()).thenReturn(procReleaseId);
-    when(processInstance.getApplicationBase()).thenReturn(applicationCode);
     when(processInstance.getBusinessKey()).thenReturn(businessKey);
     when(processInstance.getVariables()).thenReturn(Map.of());
 
@@ -210,7 +208,7 @@ class ProcessInstanceServiceTest {
     when(engineProcessInstance.getEndedAt()).thenReturn(endedAt);
     when(engineProcessInstance.getEndedBy()).thenReturn(endedBy);
 
-    when(processSequenceService.getGeneratedProcessNumber(any(), any())).thenReturn(processNumber);
+    when(processSequenceService.getGeneratedProcessNumber(any())).thenReturn(processNumber);
 
     ProcessInstance runningProcessInstance = mock(ProcessInstance.class);
     when(processInstanceRepository.save(processInstance)).thenReturn(runningProcessInstance);
@@ -225,7 +223,7 @@ class ProcessInstanceServiceTest {
     verify(runtimeProcessEngineRepository).startProcessInstanceById(
         eq(procReleaseId.getValue()), eq(businessKey.getValue()), eq(Map.of())
     );
-    verify(processSequenceService).getGeneratedProcessNumber(eq(proReleaseKey), eq(applicationCode));
+    verify(processSequenceService).getGeneratedProcessNumber(eq(proReleaseKey));
     verify(processInstance).start(eq(processNumber), eq(engineProcessNumber),
         eq(processVersion), eq(processName), eq(currentUser));
     verify(processInstanceRepository).save(processInstance);
