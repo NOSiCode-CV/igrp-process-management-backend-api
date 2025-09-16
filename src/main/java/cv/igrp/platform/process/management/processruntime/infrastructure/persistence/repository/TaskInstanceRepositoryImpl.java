@@ -125,8 +125,10 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
     }
 
     if (filter.getUser() != null) {
-      spec = spec.and((root, query, cb) ->
-          cb.equal(root.get("startedBy"), filter.getUser().getValue()));
+      spec = spec.and((root, query, cb) -> cb.or(
+          cb.equal(root.get("assignedBy"), filter.getUser().getValue()),
+          cb.equal(root.get("startedBy"), filter.getUser().getValue())
+      ));
     }
 
     if (filter.getSearchTerms() != null) {
