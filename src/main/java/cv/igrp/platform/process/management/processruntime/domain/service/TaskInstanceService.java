@@ -96,36 +96,47 @@ public class TaskInstanceService {
 
   public TaskInstance completeTask(TaskOperationData data) {
 
+    // 1. Load the task and mark it complete
     var taskInstance = getByIdWihEvents(data.getId());
     taskInstance.complete(data);
     data.validateSubmitedVariablesAndForms();
+    
+    // 2. Persist the completed task
     var completedTask = save(taskInstance);
-    // Call the process engine to complete a task
+
+    // 3. Load the process instance BEFORE completing the task in the engine
+    var processInstance = processInstanceRepository
+        .findById(taskInstance.getProcessInstanceId().getValue())
+        .orElseThrow(() -> IgrpResponseStatusException.notFound(
+            "No Process Instance found with id: " + taskInstance.getProcessInstanceId().getValue()
+        ));
+
+    // 4. Complete the task in the process engine
     runtimeProcessEngineRepository.completeTask(
         taskInstance.getExternalId().getValue(),
         data.getForms(),
         data.getVariables()
     );
 
-    var processInstance  = processInstanceRepository
-        .findById(taskInstance.getProcessInstanceId().getValue()).orElseThrow(
-            () -> IgrpResponseStatusException.notFound("No Process Instance found with id: " + taskInstance.getProcessInstanceId().getValue()));
-
+    // 5. Check the latest state of the process
     var activityProcess = runtimeProcessEngineRepository
         .getProcessInstanceById(processInstance.getEngineProcessNumber().getValue());
 
-    this.createNextTaskInstances(processInstance, data.getCurrentUser());
-
-    if(activityProcess.getStatus() == ProcessInstanceStatus.COMPLETED){
-      processInstance.complete(
-          activityProcess.getEndedAt(),
-          activityProcess.getEndedBy() != null ? activityProcess.getEndedBy() : data.getCurrentUser().getValue()
-      );
-      processInstanceRepository.save(processInstance);
+    if (activityProcess.getStatus() == ProcessInstanceStatus.COMPLETED) {
+        // Process has ended — mark it completed in your domain model
+        processInstance.complete(
+            activityProcess.getEndedAt(),
+            activityProcess.getEndedBy() != null ? activityProcess.getEndedBy() : data.getCurrentUser().getValue()
+        );
+        processInstanceRepository.save(processInstance);
+    } else {
+        // Process still running — create next user tasks
+        this.createNextTaskInstances(processInstance, data.getCurrentUser());
     }
 
     return completedTask;
-  }
+}
+
 
 
   public PageableLista<TaskInstance> getAllTaskInstances(TaskInstanceFilter filter) {
