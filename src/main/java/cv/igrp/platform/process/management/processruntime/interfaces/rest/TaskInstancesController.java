@@ -69,6 +69,7 @@ public class TaskInstancesController {
     @RequestParam(value = "processInstanceId", required = false) String processInstanceId,
     @RequestParam(value = "processNumber", required = false) String processNumber,
     @RequestParam(value = "processName", required = false) String processName,
+    @RequestParam(value = "candidateGroups", required = false) String candidateGroups,
     @RequestParam(value = "user", required = false) String user,
     @RequestParam(value = "status", required = false) String status,
     @RequestParam(value = "dateFrom", required = false) String dateFrom,
@@ -79,7 +80,7 @@ public class TaskInstancesController {
 
       LOGGER.debug("Operation started");
 
-      final var query = new ListTaskInstancesQuery(processInstanceId, processNumber, processName, user, status, dateFrom, dateTo, page, size);
+      final var query = new ListTaskInstancesQuery(processInstanceId, processNumber, processName, candidateGroups, user, status, dateFrom, dateTo, page, size);
 
       ResponseEntity<TaskInstanceListPageDTO> response = queryBus.handle(query);
 
@@ -299,6 +300,7 @@ public class TaskInstancesController {
     @RequestParam(value = "processInstanceId", required = false) String processInstanceId,
     @RequestParam(value = "processNumber", required = false) String processNumber,
     @RequestParam(value = "processName", required = false) String processName,
+    @RequestParam(value = "candidateGroups", required = false) String candidateGroups,
     @RequestParam(value = "status", required = false) String status,
     @RequestParam(value = "dateFrom", required = false) String dateFrom,
     @RequestParam(value = "dateTo", required = false) String dateTo,
@@ -308,7 +310,7 @@ public class TaskInstancesController {
 
       LOGGER.debug("Operation started");
 
-      final var query = new GetAllMyTasksQuery(processInstanceId, processNumber, processName, status, dateFrom, dateTo, page, size);
+      final var query = new GetAllMyTasksQuery(processInstanceId, processNumber, processName, candidateGroups, status, dateFrom, dateTo, page, size);
 
       ResponseEntity<TaskInstanceListPageDTO> response = queryBus.handle(query);
 

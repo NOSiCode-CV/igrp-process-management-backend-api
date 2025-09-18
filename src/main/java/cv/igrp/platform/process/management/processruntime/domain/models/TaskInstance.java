@@ -23,6 +23,7 @@ public class TaskInstance {
   private final Code formKey;
   private final Name name;
   private final Code externalId;
+  private final Code candidateGroups;
   private final Identifier processInstanceId;
   private final ProcessNumber processNumber;
   private final Code processName;
@@ -47,6 +48,7 @@ public class TaskInstance {
       Code formKey,
       Name name,
       Code externalId,
+      Code candidateGroups,
       Identifier processInstanceId,
       Code processName,
       ProcessNumber processNumber,
@@ -70,6 +72,7 @@ public class TaskInstance {
     this.name = Objects.requireNonNull(name, "The Name of the task cannot be null!");
     this.externalId = Objects.requireNonNull(externalId, "External Id cannot be null!");
     this.processInstanceId = processInstanceId;
+    this.candidateGroups = candidateGroups;
     this.processNumber = processNumber;
     this.processName = processName;
     this.businessKey = businessKey;
@@ -177,11 +180,9 @@ public class TaskInstance {
         .externalId(this.externalId)
         .name(this.name)
         .startedAt(this.startedAt)
+        .candidateGroups(this.candidateGroups)
         .formKey(formKey!=null ? formKey : this.formKey) // if present overrides activity formKey
         .priority(processInstance.getPriority())
-        .applicationBase(processInstance.getApplicationBase())
-        .processNumber(processInstance.getNumber())
-        .processName(Code.create(processInstance.getName()))
         .businessKey(processInstance.getBusinessKey())
         .processInstanceId(processInstance.getId())
         .startedBy(user)

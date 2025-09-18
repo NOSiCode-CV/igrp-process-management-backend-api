@@ -1,11 +1,11 @@
 package cv.igrp.platform.process.management.processruntime.application.queries;
 
 import cv.igrp.framework.core.domain.Query;
-import jakarta.validation.constraints.*;
-
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
 
 
 @Data
@@ -19,6 +19,8 @@ public class ListTaskInstancesQuery implements Query {
   private String processNumber;
   @NotBlank(message = "The field <processName> is required")
   private String processName;
+  @NotBlank(message = "The field <candidateGroups> is required")
+  private String candidateGroups;
   @NotBlank(message = "The field <user> is required")
   private String user;
   @NotBlank(message = "The field <status> is required")

@@ -40,6 +40,9 @@ public class TaskInstanceDTO  {
   private String externalId ;
 
 
+  private String candidateGroups ;
+
+
   private UUID processInstanceId ;
 
 

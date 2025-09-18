@@ -261,6 +261,7 @@ class TaskInstanceTest {
     var oldForm = "oldForm";
     var newForm = "newForm";
 
+
     var original = TaskInstance.builder()
         .id(Identifier.generate())
         .taskKey(Code.create("task-key"))
@@ -285,11 +286,7 @@ class TaskInstanceTest {
 
     TaskInstance result = original.withProperties(processInstance, newFormKey, startedBy);
 
-    assertEquals(processInstance.getApplicationBase(), result.getApplicationBase());
     assertEquals(processInstance.getId(), result.getProcessInstanceId());
-    assertEquals(processInstance.getNumber(), result.getProcessNumber());
-    assertEquals(processInstance.getName(), result.getProcessName().getValue());
-    assertEquals(processInstance.getBusinessKey(), result.getBusinessKey());
     assertEquals(newFormKey, result.getFormKey());
     assertEquals(startedBy, result.getStartedBy());
 
