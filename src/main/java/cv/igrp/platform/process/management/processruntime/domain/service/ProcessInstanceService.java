@@ -61,8 +61,8 @@ public class ProcessInstanceService {
   }
 
   void addProcessVariables(ProcessInstance processInstance) {
-    //var processVariables = runtimeProcessEngineRepository.getProcessVariables(processInstance.getEngineProcessNumber().getValue());
-    //processInstance.addVariables(processVariables);
+    var processVariables = runtimeProcessEngineRepository.getProcessVariables(processInstance.getEngineProcessNumber().getValue());
+    processInstance.addVariables(processVariables);
   }
 
   public ProcessInstance startProcessInstance(ProcessInstance processInstance, String user) {
