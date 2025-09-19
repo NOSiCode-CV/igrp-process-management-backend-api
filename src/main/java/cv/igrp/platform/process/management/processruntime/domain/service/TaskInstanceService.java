@@ -111,16 +111,16 @@ public class TaskInstanceService {
             "No Process Instance found with id: " + taskInstance.getProcessInstanceId().getValue()
         ));
 
+        // 5. Check the latest state of the process //for review
+    var activityProcess = runtimeProcessEngineRepository
+        .getProcessInstanceById(processInstance.getEngineProcessNumber().getValue());
+
     // 4. Complete the task in the process engine
     runtimeProcessEngineRepository.completeTask(
         taskInstance.getExternalId().getValue(),
         data.getForms(),
         data.getVariables()
     );
-
-    // 5. Check the latest state of the process
-    var activityProcess = runtimeProcessEngineRepository
-        .getProcessInstanceById(processInstance.getEngineProcessNumber().getValue());
 
     if (activityProcess.getStatus() == ProcessInstanceStatus.COMPLETED) {
         // Process has ended — mark it completed in your domain model
