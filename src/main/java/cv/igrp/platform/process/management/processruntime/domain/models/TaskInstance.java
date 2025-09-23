@@ -93,17 +93,8 @@ public class TaskInstance {
 
 
   public void create() {
-    if(applicationBase==null) {
-      throw new IllegalStateException("ApplicationBase cannot be null!");
-    }
-    if(processName ==null) {
-      throw new IllegalStateException("Process Name cannot be null!");
-    }
     if(processInstanceId==null) {
       throw new IllegalStateException("Process Instance Id cannot be null!");
-    }
-    if(processNumber==null) {
-      throw new IllegalStateException("ProcessNumber cannot be null!");
     }
     if(startedBy==null) {
       throw new IllegalStateException("User cannot be null!");

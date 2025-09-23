@@ -1,0 +1,59 @@
+{
+  "type": "enum",
+  "module": "shared",
+  "name": "VariableType",
+  "values": [
+    {
+      "name": "STRING",
+      "attributes": [
+        "STRING",
+        "STRING"
+      ]
+    },
+    {
+      "name": "INTEGER",
+      "attributes": [
+        "INTEGER",
+        "INTEGER"
+      ]
+    },
+    {
+      "name": "LONG",
+      "attributes": [
+        "LONG",
+        "LONG"
+      ]
+    },
+    {
+      "name": "DOUBLE",
+      "attributes": [
+        "DOUBLE",
+        "DOUBLE"
+      ]
+    },
+    {
+      "name": "BOOLEAN",
+      "attributes": [
+        "BOOLEAN",
+        "BOOLEAN"
+      ]
+    },
+    {
+      "name": "JSON",
+      "attributes": [
+        "JSON",
+        "JSON"
+      ]
+    }
+  ],
+  "attributes": [
+    {
+      "type": "string",
+      "name": "Code"
+    },
+    {
+      "type": "string",
+      "name": "Description"
+    }
+  ]
+}
