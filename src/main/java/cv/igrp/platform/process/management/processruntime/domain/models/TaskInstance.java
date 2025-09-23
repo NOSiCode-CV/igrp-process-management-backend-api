@@ -18,12 +18,12 @@ import java.util.Objects;
 
 @Getter
 public class TaskInstance {
+
   private final Identifier id;
   private final Code taskKey;
   private final Code formKey;
   private final Name name;
   private final Code externalId;
-  private final Code candidateGroups;
   private final Identifier processInstanceId;
   private final ProcessNumber processNumber;
   private final Code processName;
@@ -40,6 +40,7 @@ public class TaskInstance {
   private LocalDateTime endedAt;
   private Code endedBy;
   private final List<TaskInstanceEvent> taskInstanceEvents;
+  private List<String> candidateGroups;
 
   @Builder
   public TaskInstance(
@@ -48,7 +49,6 @@ public class TaskInstance {
       Code formKey,
       Name name,
       Code externalId,
-      Code candidateGroups,
       Identifier processInstanceId,
       Code processName,
       ProcessNumber processNumber,
@@ -64,7 +64,8 @@ public class TaskInstance {
       Code assignedBy,
       LocalDateTime endedAt,
       Code endedBy,
-      List<TaskInstanceEvent> taskInstanceEvents
+      List<TaskInstanceEvent> taskInstanceEvents,
+      List<String> candidateGroups
   ) {
     this.id = id == null ? Identifier.generate() : id;
     this.taskKey = Objects.requireNonNull(taskKey, "Task Key cannot be null!");
@@ -88,6 +89,7 @@ public class TaskInstance {
     this.endedBy = endedBy;
     this.taskInstanceEvents = taskInstanceEvents != null ? taskInstanceEvents : new ArrayList<>();
     this.processKey = processKey;
+    this.candidateGroups = candidateGroups == null ? new ArrayList<>() : candidateGroups;
   }
 
 

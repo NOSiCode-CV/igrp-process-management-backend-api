@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static cv.igrp.platform.process.management.shared.util.DateUtil.utilDateToLocalDateTime;
 
@@ -37,8 +38,8 @@ public class TaskInstanceMapper {
         .externalId(Code.create(taskInfo.id()))
         .formKey(taskInfo.formKey()!=null ? Code.create(taskInfo.formKey()) : null)
         .name(Name.create(taskInfo.name() != null ? taskInfo.name() : "NOT SET"))
-        //.candidateGroups(taskInfo.getCandidateGroups()) todo uncoment after add to taskinfo
         .startedAt(utilDateToLocalDateTime.apply(taskInfo.createdTime()))
+        .candidateGroups(taskInfo.candidateGroups())
         .build();
   }
 
@@ -51,8 +52,7 @@ public class TaskInstanceMapper {
         ? taskInstance.getFormKey().getValue() : null);
     taskInstanceEntity.setName(taskInstance.getName().getValue());
     taskInstanceEntity.setExternalId(taskInstance.getExternalId().getValue());
-    taskInstanceEntity.setCandidateGroups(taskInstance.getCandidateGroups()!=null
-        ? taskInstance.getCandidateGroups().getValue() : null);
+    taskInstanceEntity.setCandidateGroups(!taskInstance.getCandidateGroups().isEmpty() ? String.join(",", taskInstance.getCandidateGroups()) : null);
     taskInstanceEntity.setSearchTerms(taskInstance.getSearchTerms());
     taskInstanceEntity.setPriority(taskInstance.getPriority());
     taskInstanceEntity.setStatus(taskInstance.getStatus());
@@ -147,21 +147,21 @@ public class TaskInstanceMapper {
     dto.setTaskKey(model.getTaskKey().getValue());
     dto.setFormKey(model.getFormKey()!=null ? model.getFormKey().getValue() : null);
     dto.setName(model.getName().getValue());
-    dto.setCandidateGroups(model.getCandidateGroups() != null ? model.getCandidateGroups().getValue() : null);
+    dto.setCandidateGroups(String.join(",", model.getCandidateGroups()));
     dto.setProcessNumber(model.getProcessNumber().getValue());
     dto.setProcessInstanceId(model.getProcessInstanceId().getValue().toString());
     dto.setBusinessKey(model.getBusinessKey() != null ? model.getBusinessKey().getValue() : null);
     dto.setProcessName(model.getProcessName() != null ? model.getProcessName().getValue() : null);
     dto.setProcessKey(model.getProcessKey() != null ? model.getProcessKey().getValue() : null);
-    dto.setPriority(model.getPriority());
     dto.setStartedAt(model.getStartedAt());
-    dto.setStartedBy(model.getStartedBy().getValue());
+    dto.setPriority(model.getPriority());
     dto.setAssignedBy(model.getAssignedBy()!=null ? model.getAssignedBy().getValue(): null);
     dto.setAssignedAt(model.getAssignedAt());
     dto.setEndedBy(model.getEndedBy()!=null ? model.getEndedBy().getValue(): null);
     dto.setEndedAt(model.getEndedAt());
     dto.setStatus(model.getStatus());
     dto.setStatusDesc(model.getStatus().getDescription());
+    dto.setStartedBy(model.getStartedBy().getValue());
     return dto;
   }
 
@@ -173,7 +173,7 @@ public class TaskInstanceMapper {
     dto.setFormKey(taskInstance.getFormKey()!=null ? taskInstance.getFormKey().getValue() : null);
     dto.setName(taskInstance.getName().getValue());
     dto.setExternalId(taskInstance.getExternalId().getValue());
-    dto.setCandidateGroups(taskInstance.getCandidateGroups() != null ? taskInstance.getCandidateGroups().getValue() : null);
+    dto.setCandidateGroups(!taskInstance.getCandidateGroups().isEmpty() ? String.join(",", taskInstance.getCandidateGroups()) : null);
     dto.setProcessInstanceId(taskInstance.getProcessInstanceId().getValue());
     dto.setProcessNumber(taskInstance.getProcessNumber().getValue());
     dto.setProcessKey(taskInstance.getProcessKey() != null ? taskInstance.getProcessKey().getValue() : null);
@@ -247,6 +247,5 @@ public class TaskInstanceMapper {
         taskStatistics.getTotalCanceledTasks()
     );
   }
-
 
 }
