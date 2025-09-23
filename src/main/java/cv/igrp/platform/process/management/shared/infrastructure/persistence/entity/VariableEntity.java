@@ -49,16 +49,16 @@ public class VariableEntity extends AuditEntity {
   @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "task_instance_id", referencedColumnName = "id")
     private TaskInstanceEntity taskInstanceId;
-    @Column(name="double_")
-    private Double double;
+    @Column(name="double_value")
+    private Double doubleValue;
 
   
-    @Column(name="long_")
-    private Long long;
+    @Column(name="long_value")
+    private Long longValue;
 
   
-    @Column(name="text_")
-    private String text;
+    @Column(name="text_value")
+    private String textValue;
 
   
 }
