@@ -17,7 +17,6 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static cv.igrp.platform.process.management.shared.util.DateUtil.utilDateToLocalDateTime;
 
@@ -115,13 +114,18 @@ public class TaskInstanceMapper {
         .endedAt(taskInstanceEntity.getEndedAt())
         .endedBy(taskInstanceEntity.getEndedBy()!=null
             ? Code.create(taskInstanceEntity.getEndedBy()) : null)
+        .candidateGroups( taskInstanceEntity.getCandidateGroups()!=null
+            ? List.of(taskInstanceEntity.getCandidateGroups().split(","))
+            : null
+        )
         .taskInstanceEvents( withEvents
             ? new ArrayList<>(taskInstanceEntity
                 .getTaskinstanceevents().stream()
                 .map(eventMapper::toEventModel)
                 .toList())
             : new ArrayList<>()
-        ).build();
+        )
+        .build();
   }
 
 

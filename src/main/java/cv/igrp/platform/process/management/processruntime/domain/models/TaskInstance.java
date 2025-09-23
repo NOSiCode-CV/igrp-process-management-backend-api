@@ -40,7 +40,7 @@ public class TaskInstance {
   private LocalDateTime endedAt;
   private Code endedBy;
   private final List<TaskInstanceEvent> taskInstanceEvents;
-  private List<String> candidateGroups;
+  private final List<String> candidateGroups;
 
   @Builder
   public TaskInstance(
@@ -73,7 +73,6 @@ public class TaskInstance {
     this.name = Objects.requireNonNull(name, "The Name of the task cannot be null!");
     this.externalId = Objects.requireNonNull(externalId, "External Id cannot be null!");
     this.processInstanceId = processInstanceId;
-    this.candidateGroups = candidateGroups;
     this.processNumber = processNumber;
     this.processName = processName;
     this.businessKey = businessKey;
