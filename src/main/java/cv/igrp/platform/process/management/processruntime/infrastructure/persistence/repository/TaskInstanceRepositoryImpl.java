@@ -110,13 +110,18 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
 
     if (filter.getProcessNumber() != null) {
       spec = spec.and((root, query, cb) ->
-        cb.or(cb.equal(root.get("processNumber"), filter.getProcessNumber().getValue()),
-              cb.equal(root.get("businessKey"),filter.getProcessNumber().getValue())));
+        cb.or(cb.equal(root.get("processInstanceId").get("number"), filter.getProcessNumber().getValue()),
+              cb.equal(root.get("processInstanceId").get("businessKey"),filter.getProcessNumber().getValue())));
     }
 
     if (filter.getProcessName() != null) {
       spec = spec.and((root, query, cb) ->
-          cb.like(root.get("processName"), "%"+ filter.getProcessName() +"%"));
+          cb.like(root.get("processInstanceId").get("name"), "%"+ filter.getProcessName().getValue() +"%"));
+    }
+
+    if (filter.getCandidateGroups() != null) {
+      spec = spec.and((root, query, cb) ->
+          cb.like(root.get("processInstanceId").get("name"), "%"+ filter.getCandidateGroups().getValue() +"%"));
     }
 
     if (filter.getStatus() != null) {
@@ -125,8 +130,10 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
     }
 
     if (filter.getUser() != null) {
-      spec = spec.and((root, query, cb) ->
-          cb.equal(root.get("startedBy"), filter.getUser().getValue()));
+      spec = spec.and((root, query, cb) -> cb.or(
+          cb.equal(root.get("assignedBy"), filter.getUser().getValue()),
+          cb.equal(root.get("startedBy"), filter.getUser().getValue())
+      ));
     }
 
     if (filter.getSearchTerms() != null) {

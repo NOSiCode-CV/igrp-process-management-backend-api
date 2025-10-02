@@ -38,6 +38,7 @@ public class TaskInstanceMapper {
         .formKey(taskInfo.formKey()!=null ? Code.create(taskInfo.formKey()) : null)
         .name(Name.create(taskInfo.name() != null ? taskInfo.name() : "NOT SET"))
         .startedAt(utilDateToLocalDateTime.apply(taskInfo.createdTime()))
+        .candidateGroups(taskInfo.candidateGroups())
         .build();
   }
 
@@ -46,15 +47,11 @@ public class TaskInstanceMapper {
     var taskInstanceEntity = new TaskInstanceEntity();
     taskInstanceEntity.setId(taskInstance.getId().getValue());
     taskInstanceEntity.setTaskKey(taskInstance.getTaskKey().getValue());
-    taskInstanceEntity.setFormKey(taskInstance.getFormKey()!=null ? taskInstance.getFormKey().getValue() : null);
+    taskInstanceEntity.setFormKey(taskInstance.getFormKey()!=null
+        ? taskInstance.getFormKey().getValue() : null);
     taskInstanceEntity.setName(taskInstance.getName().getValue());
     taskInstanceEntity.setExternalId(taskInstance.getExternalId().getValue());
-    taskInstanceEntity.setProcessNumber(taskInstance.getProcessNumber().getValue());
-    taskInstanceEntity.setProcessName(taskInstance.getProcessName()!=null
-        ? taskInstance.getProcessName().getValue() : null);
-    taskInstanceEntity.setBusinessKey(taskInstance.getBusinessKey()!=null
-        ? taskInstance.getBusinessKey().getValue() : null);
-    taskInstanceEntity.setApplicationBase(taskInstance.getApplicationBase().getValue());
+    taskInstanceEntity.setCandidateGroups(!taskInstance.getCandidateGroups().isEmpty() ? String.join(",", taskInstance.getCandidateGroups()) : null);
     taskInstanceEntity.setSearchTerms(taskInstance.getSearchTerms());
     taskInstanceEntity.setPriority(taskInstance.getPriority());
     taskInstanceEntity.setStatus(taskInstance.getStatus());
@@ -91,31 +88,44 @@ public class TaskInstanceMapper {
 
 
   public TaskInstance toModel(TaskInstanceEntity taskInstanceEntity, boolean withEvents) {
+    var processInstance = taskInstanceEntity.getProcessInstanceId();
     return TaskInstance.builder()
         .id(Identifier.create(taskInstanceEntity.getId()))
         .taskKey(Code.create(taskInstanceEntity.getTaskKey()))
-        .formKey(taskInstanceEntity.getFormKey() != null ? Code.create(taskInstanceEntity.getFormKey()) : null)
+        .formKey(taskInstanceEntity.getFormKey() != null
+            ? Code.create(taskInstanceEntity.getFormKey()) : null)
         .name(Name.create(taskInstanceEntity.getName()))
         .externalId(Code.create(taskInstanceEntity.getExternalId()))
-        .processInstanceId(Identifier.create(taskInstanceEntity.getProcessInstanceId().getId()))
-        .processNumber(ProcessNumber.create(taskInstanceEntity.getProcessNumber()))
-        .businessKey(taskInstanceEntity.getBusinessKey() != null ? Code.create(taskInstanceEntity.getBusinessKey()) : null)
-        .processName(taskInstanceEntity.getProcessName() != null ? Code.create(taskInstanceEntity.getProcessName()) : null)
-        .processKey(taskInstanceEntity.getProcessInstanceId().getProcReleaseKey() != null ? Code.create(taskInstanceEntity.getProcessInstanceId().getProcReleaseKey()) : null)
-        .applicationBase(Code.create(taskInstanceEntity.getApplicationBase()))
+        .processInstanceId(Identifier.create(processInstance.getId()))
+        .processNumber(ProcessNumber.create(processInstance.getNumber()))
+        .businessKey(processInstance.getBusinessKey()!=null
+            ? Code.create(processInstance.getBusinessKey()): null)
+        .processName(Code.create(processInstance.getName()))
+        .processKey(Code.create(processInstance.getProcReleaseKey()))
+        .applicationBase(Code.create(processInstance.getApplicationBase()))
         .status(taskInstanceEntity.getStatus())
         .searchTerms(taskInstanceEntity.getSearchTerms())
         .priority(taskInstanceEntity.getPriority())
         .startedAt(taskInstanceEntity.getStartedAt())
         .startedBy(Code.create(taskInstanceEntity.getStartedBy()))
         .assignedAt(taskInstanceEntity.getAssignedAt())
-        .assignedBy(taskInstanceEntity.getAssignedBy()==null?null:Code.create(taskInstanceEntity.getAssignedBy()))
+        .assignedBy(taskInstanceEntity.getAssignedBy()!=null
+            ? Code.create(taskInstanceEntity.getAssignedBy()) : null)
         .endedAt(taskInstanceEntity.getEndedAt())
-        .endedBy(taskInstanceEntity.getEndedBy()==null?null:Code.create(taskInstanceEntity.getEndedBy()))
+        .endedBy(taskInstanceEntity.getEndedBy()!=null
+            ? Code.create(taskInstanceEntity.getEndedBy()) : null)
+        .candidateGroups( taskInstanceEntity.getCandidateGroups()!=null
+            ? List.of(taskInstanceEntity.getCandidateGroups().split(","))
+            : null
+        )
         .taskInstanceEvents( withEvents
-            ? new ArrayList<>(taskInstanceEntity.getTaskinstanceevents().stream().map(eventMapper::toEventModel).toList())
+            ? new ArrayList<>(taskInstanceEntity
+                .getTaskinstanceevents().stream()
+                .map(eventMapper::toEventModel)
+                .toList())
             : new ArrayList<>()
-        ).build();
+        )
+        .build();
   }
 
 
@@ -141,20 +151,21 @@ public class TaskInstanceMapper {
     dto.setTaskKey(model.getTaskKey().getValue());
     dto.setFormKey(model.getFormKey()!=null ? model.getFormKey().getValue() : null);
     dto.setName(model.getName().getValue());
+    dto.setCandidateGroups(String.join(",", model.getCandidateGroups()));
     dto.setProcessNumber(model.getProcessNumber().getValue());
     dto.setProcessInstanceId(model.getProcessInstanceId().getValue().toString());
     dto.setBusinessKey(model.getBusinessKey() != null ? model.getBusinessKey().getValue() : null);
     dto.setProcessName(model.getProcessName() != null ? model.getProcessName().getValue() : null);
     dto.setProcessKey(model.getProcessKey() != null ? model.getProcessKey().getValue() : null);
-    dto.setPriority(model.getPriority());
     dto.setStartedAt(model.getStartedAt());
-    dto.setStartedBy(model.getStartedBy().getValue());
+    dto.setPriority(model.getPriority());
     dto.setAssignedBy(model.getAssignedBy()!=null ? model.getAssignedBy().getValue(): null);
     dto.setAssignedAt(model.getAssignedAt());
     dto.setEndedBy(model.getEndedBy()!=null ? model.getEndedBy().getValue(): null);
     dto.setEndedAt(model.getEndedAt());
     dto.setStatus(model.getStatus());
     dto.setStatusDesc(model.getStatus().getDescription());
+    dto.setStartedBy(model.getStartedBy().getValue());
     return dto;
   }
 
@@ -166,6 +177,7 @@ public class TaskInstanceMapper {
     dto.setFormKey(taskInstance.getFormKey()!=null ? taskInstance.getFormKey().getValue() : null);
     dto.setName(taskInstance.getName().getValue());
     dto.setExternalId(taskInstance.getExternalId().getValue());
+    dto.setCandidateGroups(!taskInstance.getCandidateGroups().isEmpty() ? String.join(",", taskInstance.getCandidateGroups()) : null);
     dto.setProcessInstanceId(taskInstance.getProcessInstanceId().getValue());
     dto.setProcessNumber(taskInstance.getProcessNumber().getValue());
     dto.setProcessKey(taskInstance.getProcessKey() != null ? taskInstance.getProcessKey().getValue() : null);
@@ -193,7 +205,9 @@ public class TaskInstanceMapper {
     return TaskInstanceFilter.builder()
         .processInstanceId(query.getProcessInstanceId() != null ? Identifier.create(query.getProcessInstanceId()) : null)
         .processNumber(query.getProcessNumber() != null ? Code.create(query.getProcessNumber()) : null)
-        .processName(query.getProcessName() != null ? query.getProcessName().trim() : null)
+        .processName((query.getProcessName() != null && !query.getProcessName().isBlank())
+            ? Name.create(query.getProcessName().trim()) : null)
+        .candidateGroups(query.getCandidateGroups() != null ? Code.create(query.getCandidateGroups()) : null)
         .user(query.getUser() != null ? Code.create(query.getUser()) : null)
         .status(query.getStatus() != null ? TaskInstanceStatus.valueOf(query.getStatus()) : null)
         .dateFrom(DateUtil.stringToLocalDate.apply(query.getDateFrom()))
@@ -208,7 +222,9 @@ public class TaskInstanceMapper {
     return TaskInstanceFilter.builder()
         .processInstanceId(query.getProcessInstanceId() != null ? Identifier.create(query.getProcessInstanceId()) : null)
         .processNumber(query.getProcessNumber() != null ? Code.create(query.getProcessNumber()) : null)
-        .processName(query.getProcessName() != null ? query.getProcessName().trim() : null)
+        .processName((query.getProcessName() != null && !query.getProcessName().isBlank())
+            ? Name.create(query.getProcessName().trim()) : null)
+        .candidateGroups(query.getCandidateGroups() != null ? Code.create(query.getCandidateGroups()) : null)
         .status(query.getStatus() != null ? TaskInstanceStatus.valueOf(query.getStatus()) : null)
         .dateFrom(DateUtil.stringToLocalDate.apply(query.getDateFrom()))
         .dateTo(DateUtil.stringToLocalDate.apply(query.getDateTo()))
@@ -235,6 +251,5 @@ public class TaskInstanceMapper {
         taskStatistics.getTotalCanceledTasks()
     );
   }
-
 
 }

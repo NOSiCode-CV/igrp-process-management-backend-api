@@ -5,27 +5,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.TokenExchangeOAuth2AuthorizedClientProvider;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
+
+import java.util.HashSet;
 
 /**
  * Security configuration class for setting up OAuth2 and JWT authentication with Keycloak.
@@ -38,34 +34,8 @@ public class SecurityConfig {
   @Value("${spring.profiles.active}")
   private String activeProfile;
 
-  @Value("${auth.jwt.issuer}")
+  @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
   private String jwtIssuer;
-
-  @Bean
-  public UserDetailsService userDetailsService() {
-    InMemoryUserDetailsManager userDetailsManager = new InMemoryUserDetailsManager();
-
-    UserDetails userDemo = User.withUsername("demo@nosi.cv")
-        .password("dummy")
-        .authorities(
-            "GROUP_group1",
-            "GROUP_group2",
-            "ROLE_ACTIVITI_USER" // ACTIVITI_ADMIN, ACTIVITI_USER
-        ) .build();
-
-    UserDetails userIgrp = User.withUsername("igrp@nosi.cv")
-        .password("dummy")
-        .authorities(
-            "ROLE_ACTIVITI_USER"
-        )
-        .build();
-
-    userDetailsManager.createUser(userDemo);
-    userDetailsManager.createUser(userIgrp);
-
-    return userDetailsManager;
-  }
-
 
   /**
    * Configures the security filter chain, enabling OAuth2 resource server with JWT and specifying
@@ -99,16 +69,6 @@ public class SecurityConfig {
       return configuration;
     }));
 
-    if ("development".equals(activeProfile) || "staging".equals(activeProfile)) {
-      // Disable security in development mode
-      http.csrf(AbstractHttpConfigurer::disable); // Disable CSRF protection
-      http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
-
-      http.addFilterAt(customAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
-      return http.build();
-    }
-
     // Configure OAuth2 Resource Server to use JWT tokens for authentication
     http.oauth2ResourceServer((oauth2ResourceServer) -> oauth2ResourceServer
         .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
@@ -117,7 +77,11 @@ public class SecurityConfig {
     // Configure authorization rules and policy enforcement
     http
         .authorizeHttpRequests((authorize) -> authorize
-            .requestMatchers(HttpMethod.GET).permitAll()  // Allow GET requests to specified URLs without authentication
+            .requestMatchers(
+                "/swagger-ui/**",
+                "/v3/api-docs/**",
+                "/v3/api-docs.yaml"
+            ).permitAll()
             .anyRequest().authenticated()  // Require authentication for all other requests
         )
         .exceptionHandling(ex -> ex.authenticationEntryPoint((request, response, authException) -> {
@@ -138,22 +102,21 @@ public class SecurityConfig {
    */
   @Bean
   public JwtAuthenticationConverter jwtAuthenticationConverter() {
-    var converter = new JwtAuthenticationConverter();
     var grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-    converter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
+
+    var converter = new JwtAuthenticationConverter();
+    converter.setJwtGrantedAuthoritiesConverter(jwt -> {
+
+      var authorities = new HashSet<>(grantedAuthoritiesConverter.convert(jwt));
+
+      authorities.add(new SimpleGrantedAuthority("ROLE_ACTIVITI_USER"));
+
+      return authorities;
+    });
+
     return converter;
   }
 
-  /**
-   * Configures a JWT decoder to verify and decode JWT tokens.
-   *
-   * @return the {@link JwtDecoder} for JWT token validation
-   */
-  @Bean
-  @Profile("!development & !staging")
-  public JwtDecoder jwtDecoder() {
-    return NimbusJwtDecoder.withIssuerLocation(jwtIssuer).build();
-  }
 
   /**
    * Creates a bean for an OAuth2AuthorizedClientProvider that supports token exchange.
@@ -170,9 +133,10 @@ public class SecurityConfig {
   }
 
   @Bean
-  @Profile({"development", "staging"})
-  public CustomAuthenticationFilter customAuthenticationFilter(UserDetailsService userDetailsService) {
-    return new CustomAuthenticationFilter(userDetailsService);
+  public UserDetailsService userDetailsService() {
+    return username -> {
+      throw new UsernameNotFoundException("Hi, i am a dummy. UserDetailsService not used with JWT/Keycloak");
+    };
   }
 
 }

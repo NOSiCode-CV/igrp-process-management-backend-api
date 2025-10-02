@@ -34,13 +34,11 @@ class ProcessSequenceRepositoryImplTest {
   private ProcessInstanceSequenceEntity entity;
   private ProcessSequence model;
   private String processKey;
-  private String applicationCode;
 
   @BeforeEach
   void setUp() {
 
     processKey = "process-123";
-    applicationCode = "app-ABC";
 
     entity = new ProcessInstanceSequenceEntity();
     model = ProcessSequence.builder()
@@ -52,33 +50,32 @@ class ProcessSequenceRepositoryImplTest {
         .dateFormat("yyyyMMdd")
         .nextNumber(1L)
         .numberIncrement((short) 1)
-        .processDefinitionKey(Code.create(processKey))
-        .applicationCode(Code.create(applicationCode)).build();
+        .processDefinitionKey(Code.create(processKey)).build();
   }
 
   @Test
   void testFind_found() {
-    when(sequenceEntityRepository.findByProcessDefinitionKeyAndApplicationCode(processKey, applicationCode))
+    when(sequenceEntityRepository.findByProcessDefinitionKey(processKey))
         .thenReturn(Optional.of(entity));
     when(sequenceMapper.toModel(entity)).thenReturn(model);
 
-    Optional<ProcessSequence> result = repository.findByProcessAndApplication(processKey, applicationCode);
+    Optional<ProcessSequence> result = repository.findByProcessAndApplication(processKey);
 
     assertTrue(result.isPresent());
     assertEquals("MySequence", result.get().getName().getValue());
-    verify(sequenceEntityRepository).findByProcessDefinitionKeyAndApplicationCode(processKey, applicationCode);
+    verify(sequenceEntityRepository).findByProcessDefinitionKey(processKey);
     verify(sequenceMapper).toModel(entity);
   }
 
   @Test
   void testFindByProcessDefinitionKey_notFound() {
-    when(sequenceEntityRepository.findByProcessDefinitionKeyAndApplicationCode(processKey, applicationCode))
+    when(sequenceEntityRepository.findByProcessDefinitionKey(processKey))
         .thenReturn(Optional.empty());
 
-    Optional<ProcessSequence> result = repository.findByProcessAndApplication(processKey, applicationCode);
+    Optional<ProcessSequence> result = repository.findByProcessAndApplication(processKey);
 
     assertTrue(result.isEmpty());
-    verify(sequenceEntityRepository).findByProcessDefinitionKeyAndApplicationCode(processKey, applicationCode);
+    verify(sequenceEntityRepository).findByProcessDefinitionKey(processKey);
     verify(sequenceMapper, never()).toModel(any(ProcessInstanceSequenceEntity.class));
   }
 
@@ -99,28 +96,28 @@ class ProcessSequenceRepositoryImplTest {
 
   @Test
   void testFindByProcessDefinitionKeyForUpdate_found() {
-    when(sequenceEntityRepository.findForUpdate(processKey, applicationCode))
+    when(sequenceEntityRepository.findForUpdate(processKey))
         .thenReturn(Optional.of(entity));
     when(sequenceMapper.toModel(entity)).thenReturn(model);
 
-    Optional<ProcessSequence> result = repository.findForUpdate(processKey, applicationCode);
+    Optional<ProcessSequence> result = repository.findForUpdate(processKey);
 
     assertTrue(result.isPresent());
     assertEquals("MySequence", result.get().getName().getValue());
-    verify(sequenceEntityRepository).findForUpdate(processKey, applicationCode);
+    verify(sequenceEntityRepository).findForUpdate(processKey);
     verify(sequenceMapper).toModel(entity);
   }
 
 
   @Test
   void testFindByProcessDefinitionKeyForUpdate_notFound() {
-    when(sequenceEntityRepository.findForUpdate(processKey, applicationCode))
+    when(sequenceEntityRepository.findForUpdate(processKey))
         .thenReturn(Optional.empty());
 
-    Optional<ProcessSequence> result = repository.findForUpdate(processKey, applicationCode);
+    Optional<ProcessSequence> result = repository.findForUpdate(processKey);
 
     assertTrue(result.isEmpty());
-    verify(sequenceEntityRepository).findForUpdate(processKey, applicationCode);
+    verify(sequenceEntityRepository).findForUpdate(processKey);
     verify(sequenceMapper, never()).toModel(any(ProcessInstanceSequenceEntity.class));
   }
 }

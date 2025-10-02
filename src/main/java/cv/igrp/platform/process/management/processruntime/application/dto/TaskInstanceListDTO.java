@@ -34,6 +34,9 @@ public class TaskInstanceListDTO  {
   private String name ;
 
 
+  private String candidateGroups ;
+
+
   private String processInstanceId ;
 
 
