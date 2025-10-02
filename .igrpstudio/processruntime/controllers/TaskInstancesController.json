@@ -46,6 +46,11 @@
         },
         {
           "type": "string",
+          "name": "candidateGroups",
+          "isRequired": false
+        },
+        {
+          "type": "string",
           "name": "user",
           "description": "User UID",
           "isRequired": false
@@ -287,6 +292,12 @@
           "name": "processName",
           "isRequired": false,
           "description": "Process Name"
+        },
+        {
+          "type": "string",
+          "name": "candidateGroups",
+          "description": "Role",
+          "isRequired": false
         },
         {
           "type": "string",

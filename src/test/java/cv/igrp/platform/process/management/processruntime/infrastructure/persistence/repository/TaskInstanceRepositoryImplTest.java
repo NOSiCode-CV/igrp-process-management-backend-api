@@ -8,6 +8,7 @@ import cv.igrp.platform.process.management.shared.application.constants.TaskInst
 import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
+import cv.igrp.platform.process.management.shared.domain.models.Name;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.TaskInstanceEntity;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.repository.TaskInstanceEntityRepository;
@@ -135,11 +136,13 @@ class TaskInstanceRepositoryImplTest {
   @Test
   void testFindByFilter() {
 
+    var processName = Name.create("TestProcess");
+
     var filter = TaskInstanceFilter
         .builder()
         .page(0)
         .size(10)
-        .processName("TestProcess")
+        .processName(processName)
         .status(TaskInstanceStatus.CREATED)
         .build();
 

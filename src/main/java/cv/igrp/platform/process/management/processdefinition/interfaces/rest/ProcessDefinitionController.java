@@ -273,7 +273,7 @@ public class ProcessDefinitionController {
   }
 
   @GetMapping(
-    value = "{processKey}/applications/{applicationCode}/sequence"
+    value = "{processDefinitionKey}/sequence"
   )
   @Operation(
     summary = "GET method to handle operations for getProcessSequence",
@@ -293,12 +293,12 @@ public class ProcessDefinitionController {
   )
 
   public ResponseEntity<ProcessSequenceDTO> getProcessSequence(
-    @PathVariable(value = "processKey") String processKey,@PathVariable(value = "applicationCode") String applicationCode)
+    @PathVariable(value = "processDefinitionKey") String processDefinitionKey)
   {
 
       LOGGER.debug("Operation started");
 
-      final var query = new GetProcessSequenceQuery(processKey, applicationCode);
+      final var query = new GetProcessSequenceQuery(processDefinitionKey);
 
       ResponseEntity<ProcessSequenceDTO> response = queryBus.handle(query);
 
@@ -310,7 +310,7 @@ public class ProcessDefinitionController {
   }
 
   @PostMapping(
-    value = "{processKey}/applications/{applicationCode}/sequence"
+    value = "{processDefinitionKey}/sequence"
   )
   @Operation(
     summary = "POST method to handle operations for createProcessSequence",
@@ -330,12 +330,12 @@ public class ProcessDefinitionController {
   )
 
   public ResponseEntity<ProcessSequenceDTO> createProcessSequence(@Valid @RequestBody SequenceRequestDTO createProcessSequenceRequest
-    , @PathVariable(value = "processKey") String processKey,@PathVariable(value = "applicationCode") String applicationCode)
+    , @PathVariable(value = "processDefinitionKey") String processDefinitionKey)
   {
 
       LOGGER.debug("Operation started");
 
-      final var command = new CreateProcessSequenceCommand(createProcessSequenceRequest, processKey, applicationCode);
+      final var command = new CreateProcessSequenceCommand(createProcessSequenceRequest, processDefinitionKey);
 
        ResponseEntity<ProcessSequenceDTO> response = commandBus.send(command);
 

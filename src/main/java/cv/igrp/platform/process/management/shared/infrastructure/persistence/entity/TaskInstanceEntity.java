@@ -7,7 +7,6 @@ import cv.igrp.framework.stereotype.IgrpEntity;
 import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
 import cv.igrp.platform.process.management.shared.config.AuditEntity;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -46,12 +45,12 @@ public class TaskInstanceEntity extends AuditEntity {
     private String formKey;
 
 
-    @Column(name="business_key")
-    private String businessKey;
-
-
     @Column(name="name", length=100)
     private String name;
+
+
+    @Column(name="candidate_groups")
+    private String candidateGroups;
 
 
 
@@ -59,20 +58,6 @@ public class TaskInstanceEntity extends AuditEntity {
   @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "process_instance_id", referencedColumnName = "id")
     private ProcessInstanceEntity processInstanceId;
-    @NotBlank(message = "processNumber is mandatory")
-    @Column(name="process_number", nullable = false, length=200)
-    private String processNumber;
-
-
-    @Column(name="process_name", length=100)
-    private String processName;
-
-
-    @NotBlank(message = "applicationBase is mandatory")
-    @Column(name="application_base", nullable = false)
-    private String applicationBase;
-
-
     @Column(name="started_at")
     private LocalDateTime startedAt;
 

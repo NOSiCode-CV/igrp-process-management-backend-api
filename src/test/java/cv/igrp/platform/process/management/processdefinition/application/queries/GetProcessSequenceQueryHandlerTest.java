@@ -37,30 +37,24 @@ class GetProcessSequenceQueryHandlerTest {
   private ProcessSequence processSequenceMock;
   private ProcessSequenceDTO processSequenceDTOMock;
   private String processDefinitionKey;
-  private String applicationCode;
 
   @BeforeEach
   void setUp() {
 
     processDefinitionKey = "process-123";
-    applicationCode = "app-ABC";
 
-    query = new GetProcessSequenceQuery(processDefinitionKey,applicationCode);
+    query = new GetProcessSequenceQuery(processDefinitionKey);
 
     processSequenceMock = mock(ProcessSequence.class);
     processSequenceDTOMock = mock(ProcessSequenceDTO.class);
 
     when(userContext.getCurrentUser()).thenReturn(Code.create("demo@nosi.cv"));
 
-    when(processSequenceService.getSequenceByProcessAndApplication(
-        Code.create(processDefinitionKey),Code.create(applicationCode)))
+    when(processSequenceService.getSequenceByProcessAndApplication(Code.create(processDefinitionKey)))
         .thenReturn(processSequenceMock);
 
     when(processSequenceMock.getProcessDefinitionKey())
         .thenReturn(Code.create(processDefinitionKey));
-
-    when(processSequenceMock.getApplicationCode())
-        .thenReturn(Code.create(applicationCode));
 
     when(processSequenceMapper.toDTO(processSequenceMock))
         .thenReturn(processSequenceDTOMock);
@@ -75,8 +69,7 @@ class GetProcessSequenceQueryHandlerTest {
     assertEquals(processSequenceDTOMock, response.getBody());
 
     verify(userContext).getCurrentUser();
-    verify(processSequenceService).getSequenceByProcessAndApplication(
-        Code.create(processDefinitionKey),Code.create(applicationCode));
+    verify(processSequenceService).getSequenceByProcessAndApplication(Code.create(processDefinitionKey));
     verify(processSequenceMapper).toDTO(processSequenceMock);
 
   }

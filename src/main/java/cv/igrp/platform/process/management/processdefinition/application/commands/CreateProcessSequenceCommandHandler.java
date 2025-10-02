@@ -31,11 +31,11 @@ public class CreateProcessSequenceCommandHandler implements CommandHandler<Creat
    public ResponseEntity<ProcessSequenceDTO> handle(CreateProcessSequenceCommand command) {
      final var currentUser = userContext.getCurrentUser();
 
-     LOGGER.info("User [{}] started creating sequence for process definition key [{}]", currentUser.getValue(), command.getProcessKey());
+     LOGGER.info("User [{}] started creating sequence for processDefinitionKey [{}]", currentUser.getValue(), command.getProcessDefinitionKey());
 
      var sequenceResp = processSequenceService.save(processSequenceMapper.toModel(command));
 
-     LOGGER.info("User [{}] finished creating sequence for process definition key [{}]", currentUser.getValue(), command.getProcessKey());
+     LOGGER.info("User [{}] finished creating sequence for processDefinitionKey [{}]", currentUser.getValue(), command.getProcessDefinitionKey());
 
      return ResponseEntity.ok(processSequenceMapper.toDTO(sequenceResp));
    }

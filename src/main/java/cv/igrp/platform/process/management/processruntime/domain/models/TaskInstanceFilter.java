@@ -3,6 +3,7 @@ package cv.igrp.platform.process.management.processruntime.domain.models;
 import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
+import cv.igrp.platform.process.management.shared.domain.models.Name;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,7 +14,8 @@ import java.time.LocalDate;
 public class TaskInstanceFilter {
   private final Identifier processInstanceId;
   private final Code processNumber;
-  private final String processName;
+  private final Name processName;
+  private final Code candidateGroups;
   private final TaskInstanceStatus status;
   private final String searchTerms;
   private final LocalDate dateFrom;
@@ -27,7 +29,8 @@ public class TaskInstanceFilter {
   private TaskInstanceFilter(
                              Identifier processInstanceId,
                              Code processNumber,
-                             String processName,
+                             Name processName,
+                             Code candidateGroups,
                              Code user,
                              TaskInstanceStatus status,
                              String searchTerms,
@@ -38,6 +41,7 @@ public class TaskInstanceFilter {
     this.processInstanceId = processInstanceId;
     this.processNumber = processNumber;
     this.processName = processName;
+    this.candidateGroups = candidateGroups;
     this.user = user;
     this.status = status;
     this.dateFrom = dateFrom;

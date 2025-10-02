@@ -18,6 +18,7 @@ import java.util.Objects;
 
 @Getter
 public class TaskInstance {
+
   private final Identifier id;
   private final Code taskKey;
   private final Code formKey;
@@ -39,6 +40,7 @@ public class TaskInstance {
   private LocalDateTime endedAt;
   private Code endedBy;
   private final List<TaskInstanceEvent> taskInstanceEvents;
+  private final List<String> candidateGroups;
 
   @Builder
   public TaskInstance(
@@ -62,7 +64,8 @@ public class TaskInstance {
       Code assignedBy,
       LocalDateTime endedAt,
       Code endedBy,
-      List<TaskInstanceEvent> taskInstanceEvents
+      List<TaskInstanceEvent> taskInstanceEvents,
+      List<String> candidateGroups
   ) {
     this.id = id == null ? Identifier.generate() : id;
     this.taskKey = Objects.requireNonNull(taskKey, "Task Key cannot be null!");
@@ -85,21 +88,13 @@ public class TaskInstance {
     this.endedBy = endedBy;
     this.taskInstanceEvents = taskInstanceEvents != null ? taskInstanceEvents : new ArrayList<>();
     this.processKey = processKey;
+    this.candidateGroups = candidateGroups == null ? new ArrayList<>() : candidateGroups;
   }
 
 
   public void create() {
-    if(applicationBase==null) {
-      throw new IllegalStateException("ApplicationBase cannot be null!");
-    }
-    if(processName ==null) {
-      throw new IllegalStateException("Process Name cannot be null!");
-    }
     if(processInstanceId==null) {
       throw new IllegalStateException("Process Instance Id cannot be null!");
-    }
-    if(processNumber==null) {
-      throw new IllegalStateException("ProcessNumber cannot be null!");
     }
     if(startedBy==null) {
       throw new IllegalStateException("User cannot be null!");
@@ -177,11 +172,9 @@ public class TaskInstance {
         .externalId(this.externalId)
         .name(this.name)
         .startedAt(this.startedAt)
+        .candidateGroups(this.candidateGroups)
         .formKey(formKey!=null ? formKey : this.formKey) // if present overrides activity formKey
         .priority(processInstance.getPriority())
-        .applicationBase(processInstance.getApplicationBase())
-        .processNumber(processInstance.getNumber())
-        .processName(Code.create(processInstance.getName()))
         .businessKey(processInstance.getBusinessKey())
         .processInstanceId(processInstance.getId())
         .startedBy(user)
