@@ -95,6 +95,9 @@ jobs:
         uses: webfactory/ssh-agent@v0.5.3
         with:
           ssh-private-key: ${{ secrets.BASTION_SSH }}
+            
+      - name: Copy Kubernetes YAML files to server
+        run: scp -o StrictHostKeyChecking=no k8s/configmap.yaml k8s/deployment.yaml k8s/service.yaml k8s/ingress.yaml root@${{ env.SERVER_IP }}:/tmp
       
       - name: Apply Kubernetes Manifests on Remote Server
         run: |
