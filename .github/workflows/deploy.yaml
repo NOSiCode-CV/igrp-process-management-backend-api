@@ -5,7 +5,6 @@ on:
     branches:
       - cloud-dev
     paths-ignore:
-      - '.github/workflows/**'
       - 'k8s/**'
       - '.gitattributes'
 
@@ -85,7 +84,7 @@ jobs:
 
   deploy:
     name: Deploy to Kubernetes
-    needs: build_and_push
+    #needs: build_and_push
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -96,6 +95,10 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.BASTION_SSH }}
       
+      - name: Test SSH Connection
+        run: |
+          ssh -o StrictHostKeyChecking=no root@${{ env.SERVER_IP }} "echo SSH connection OK"
+
       - name: Apply Kubernetes Manifests on Remote Server
         run: |
           ssh -o StrictHostKeyChecking=no root@${{ env.SERVER_IP }} << EOF
