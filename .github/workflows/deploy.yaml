@@ -93,6 +93,7 @@ jobs:
 
       - name: Save SSH key
         run: |
+          mkdir -p ~/.ssh
           echo "${{ secrets.BASTION_SSH }}" > ~/.ssh/bastion_key
           chmod 600 ~/.ssh/bastion_key
 
