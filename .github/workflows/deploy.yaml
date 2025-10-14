@@ -90,14 +90,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3   
 
-      - name: Set up SSH
-        uses: webfactory/ssh-agent@v0.5.3
-        with:
-          ssh-private-key: ${{ secrets.BASTION_SSH }}
-      
-      - name: Test SSH Connection
+
+      - name: Save SSH key
         run: |
-          ssh -o StrictHostKeyChecking=no root@${{ env.SERVER_IP }} "echo SSH connection OK"
+          echo "${{ secrets.BASTION_SSH }}" > ~/.ssh/bastion_key
+          chmod 600 ~/.ssh/bastion_key
+
+      - name: SSH to server
+        run: |
+          ssh -i ~/.ssh/bastion_key -o StrictHostKeyChecking=no root@${{ env.SERVER_IP }} "kubectl rollout restart deployment $K8S_DEPLOYMENT_NAME -n $K8S_NAMESPACE"
 
       - name: Apply Kubernetes Manifests on Remote Server
         run: |
