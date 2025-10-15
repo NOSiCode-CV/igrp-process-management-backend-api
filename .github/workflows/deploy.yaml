@@ -5,6 +5,7 @@ on:
     branches:
       - cloud-dev
     paths-ignore:
+      - '.github/**'
       - 'k8s/**'
       - '.gitattributes'
 
@@ -84,7 +85,7 @@ jobs:
 
   deploy:
     name: Deploy to Kubernetes
-    #needs: build_and_push
+    needs: build_and_push
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
