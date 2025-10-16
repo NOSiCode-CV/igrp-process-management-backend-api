@@ -188,4 +188,27 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
     }
   }
 
+  @Override
+  public void correlateMessage(String messageName, String businessKey, Map<String, Object> variables) throws RuntimeProcessEngineException {
+    try {
+      processManagerAdapter.correlateMessage(messageName, businessKey, variables);
+    } catch (Exception e) {
+      LOGGER.error("Failed to correlate message '{}' for businessKey '{}': {}", messageName, businessKey, e.getMessage(), e);
+      throw new RuntimeProcessEngineException("Failed to correlate message '" + messageName + "' for businessKey '" + businessKey + "'", e);
+    }
+  }
+
+  @Override
+  public void signal(String processInstanceId, Map<String, Object> variables) throws RuntimeProcessEngineException {
+    try {
+      processManagerAdapter.signal(processInstanceId, variables);
+    } catch (Exception e) {
+      LOGGER.error("Failed to signal process instance '{}' with variables: {}", processInstanceId, variables, e);
+      throw new RuntimeProcessEngineException(
+          "Failed to signal process instance with ID '" + processInstanceId + "'.", e
+      );
+    }
+  }
+
+
 }

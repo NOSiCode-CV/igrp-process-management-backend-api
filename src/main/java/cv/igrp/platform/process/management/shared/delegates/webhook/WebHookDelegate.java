@@ -1,4 +1,4 @@
-package cv.igrp.platform.process.management.shared.delegates;
+package cv.igrp.platform.process.management.shared.delegates.webhook;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.JavaDelegate;

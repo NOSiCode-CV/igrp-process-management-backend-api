@@ -19,4 +19,6 @@ public interface ProcessInstanceRepository {
 
   ProcessStatistics getProcessInstanceStatistics();
 
+  Optional<ProcessInstance> findByBusinessKey(String businessKey);
+
 }

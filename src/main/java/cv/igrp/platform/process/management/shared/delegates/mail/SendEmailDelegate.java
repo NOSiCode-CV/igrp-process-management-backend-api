@@ -1,4 +1,4 @@
-package cv.igrp.platform.process.management.shared.delegates;
+package cv.igrp.platform.process.management.shared.delegates.mail;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.JavaDelegate;
