@@ -10,6 +10,7 @@ import cv.igrp.platform.process.management.processruntime.domain.service.TaskIns
 import cv.igrp.platform.process.management.shared.delegates.message.dto.ProcessMessageDTO;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 import org.activiti.engine.delegate.DelegateExecution;
+import org.activiti.engine.delegate.Expression;
 import org.activiti.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +19,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
-@Component("messageBrokerSenderDelegate")
+@Component("igrpMessageBrokerSenderDelegate")
 @ConditionalOnBean(MessageBrokerSender.class)
 public class MessageBrokerSenderDelegate implements JavaDelegate {
 
@@ -28,6 +29,8 @@ public class MessageBrokerSenderDelegate implements JavaDelegate {
   private final ObjectMapper objectMapper;
   private final ProcessInstanceService processInstanceService;
   private final TaskInstanceService taskInstanceService;
+
+  public Expression topic;
 
   public MessageBrokerSenderDelegate(MessageBrokerSender messageSender,
                                      ObjectMapper objectMapper,
@@ -43,17 +46,21 @@ public class MessageBrokerSenderDelegate implements JavaDelegate {
   public void execute(DelegateExecution execution) {
     LOGGER.info("Entered MessageSenderDelegate");
 
-    String topic = execution.getVariable("topic", String.class);
-    String businessKey = execution.getVariable("businessKey", String.class);
+    String businessKey = execution.getProcessInstanceBusinessKey();
 
-    if (topic == null || topic.isBlank()) {
+    if (topic == null) {
       throw new IllegalArgumentException("'topic' which represent topic or queue is required.");
     }
     if (businessKey == null || businessKey.isBlank()) {
       throw new IllegalArgumentException("'businessKey' is required.");
     }
-    messageSender.send(topic, createMessage(businessKey));
-    LOGGER.info("Message successfully sent to: {}", topic);
+
+    String topicValue = topic.getValue(execution).toString();
+
+    messageSender.send(topicValue, createMessage(businessKey));
+
+    LOGGER.info("Message successfully sent to: {}", topicValue);
+
   }
 
   private String createMessage(String businessKey) {
