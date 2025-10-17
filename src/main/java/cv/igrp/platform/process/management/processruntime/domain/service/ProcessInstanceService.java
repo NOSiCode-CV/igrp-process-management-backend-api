@@ -14,6 +14,7 @@ import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -36,7 +37,7 @@ public class ProcessInstanceService {
 
   public PageableLista<ProcessInstance> getAllProcessInstances(ProcessInstanceFilter filter) {
     PageableLista<ProcessInstance> pageableLista = processInstanceRepository.findAll(filter);
-    pageableLista.getContent().forEach( processInstance ->{
+    pageableLista.getContent().forEach(processInstance -> {
       setProcessInstanceProgress(processInstance);
       addProcessVariables(processInstance);
     });
@@ -51,7 +52,15 @@ public class ProcessInstanceService {
     return processInstance;
   }
 
-  void setProcessInstanceProgress(ProcessInstance processInstance){
+  public ProcessInstance getProcessInstanceByBusinessKey(String businessKey) {
+    ProcessInstance processInstance = processInstanceRepository.findByBusinessKey(businessKey)
+        .orElseThrow(() -> IgrpResponseStatusException.notFound("No process instance found with businessKey: " + businessKey));
+    setProcessInstanceProgress(processInstance);
+    addProcessVariables(processInstance);
+    return processInstance;
+  }
+
+  void setProcessInstanceProgress(ProcessInstance processInstance) {
     List<ProcessInstanceTaskStatus> taskStatus = runtimeProcessEngineRepository.getProcessInstanceTaskStatus(processInstance.getEngineProcessNumber().getValue());
     int totalTasks = taskStatus.size();
     long completedTasks = taskStatus.stream()
@@ -81,13 +90,7 @@ public class ProcessInstanceService {
 
     taskInstanceService.createTaskInstancesByProcess(runningProcessInstance);
 
-    if(process.getStatus() == ProcessInstanceStatus.COMPLETED){
-      runningProcessInstance.complete(
-          process.getEndedAt(),
-          process.getEndedBy() != null ? process.getEndedBy() : user
-      );
-      return processInstanceRepository.save(runningProcessInstance);
-    }
+    updateProcessInstanceStatus(process, processInstance);
 
     return runningProcessInstance;
   }
@@ -100,4 +103,59 @@ public class ProcessInstanceService {
   public ProcessStatistics getProcessInstanceStatistics() {
     return processInstanceRepository.getProcessInstanceStatistics();
   }
+
+  public void correlateMessage(String businessKey, String messageName, Map<String, Object> variables) {
+
+    ProcessInstance processInstance = processInstanceRepository.findByBusinessKey(businessKey)
+        .orElseThrow(() -> IgrpResponseStatusException.notFound("No process instance found with businessKey: " + businessKey));
+
+    runtimeProcessEngineRepository.correlateMessage(
+        businessKey,
+        messageName,
+        variables
+    );
+
+    taskInstanceService.createTaskInstancesByProcess(processInstance);
+
+    ProcessInstance process = runtimeProcessEngineRepository.getProcessInstanceById(
+        processInstance.getEngineProcessNumber().getValue());
+
+    updateProcessInstanceStatus(process, processInstance);
+
+  }
+
+  public void signal(String businessKey, Map<String, Object> variables) {
+
+    ProcessInstance processInstance = processInstanceRepository.findByBusinessKey(businessKey)
+        .orElseThrow(() -> IgrpResponseStatusException.notFound("No process instance found with businessKey: " + businessKey));
+
+    runtimeProcessEngineRepository.signal(
+        processInstance.getEngineProcessNumber().getValue(),
+        variables
+    );
+
+    taskInstanceService.createTaskInstancesByProcess(processInstance);
+
+    ProcessInstance process = runtimeProcessEngineRepository.getProcessInstanceById(
+        processInstance.getEngineProcessNumber().getValue());
+
+    updateProcessInstanceStatus(process, processInstance);
+
+  }
+
+  private void updateProcessInstanceStatus(ProcessInstance engineProcess, ProcessInstance processInstance) {
+   System.out.println("Updating process instance status(Teste): " + engineProcess.getStatus());
+    if (engineProcess.getStatus() == ProcessInstanceStatus.COMPLETED) {
+      processInstance.complete(
+          engineProcess.getEndedAt(),
+          engineProcess.getEndedBy() != null ? engineProcess.getEndedBy() : "demo@nosi.cv"
+      );
+    } else if (engineProcess.getStatus() == ProcessInstanceStatus.SUSPENDED) {
+      processInstance.suspend();
+    } else {
+      return;
+    }
+    processInstanceRepository.save(processInstance);
+  }
+
 }
