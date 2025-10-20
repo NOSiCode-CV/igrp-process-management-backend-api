@@ -139,4 +139,21 @@ public interface RuntimeProcessEngineRepository {
    */
   void setTaskPriority(String taskInstanceId, int priority) throws RuntimeProcessEngineException;
 
+  /**
+   * Correlates a message to a process instance.
+   * @param messageName
+   * @param businessKey
+   * @param variables
+   * @throws RuntimeProcessEngineException
+   */
+  void correlateMessage(String messageName, String businessKey, Map<String, Object> variables) throws RuntimeProcessEngineException;
+
+  /**
+   * Signals a process instance.
+   * @param processInstanceId
+   * @param variables
+   * @throws RuntimeProcessEngineException
+   */
+  void signal(String processInstanceId, Map<String, Object> variables) throws RuntimeProcessEngineException;
+
 }

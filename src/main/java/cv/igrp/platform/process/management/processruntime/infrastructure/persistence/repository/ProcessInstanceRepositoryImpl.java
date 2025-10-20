@@ -134,4 +134,9 @@ public class ProcessInstanceRepositoryImpl implements ProcessInstanceRepository 
     return processInstanceEntityRepository.count((root, query, cb) -> cb.equal(root.get("status"), status));
   }
 
+  @Override
+  public Optional<ProcessInstance> findByBusinessKey(String businessKey) {
+    return processInstanceEntityRepository.findByBusinessKey(businessKey).map(mapper::toModel);
+  }
+
 }

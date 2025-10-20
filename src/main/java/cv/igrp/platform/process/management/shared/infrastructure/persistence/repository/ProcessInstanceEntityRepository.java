@@ -14,5 +14,5 @@ public interface ProcessInstanceEntityRepository extends
     JpaSpecificationExecutor<ProcessInstanceEntity>,
     RevisionRepository<ProcessInstanceEntity, UUID, Integer>
 {
-
+  Optional<ProcessInstanceEntity> findByBusinessKey(String businessKey);
 }

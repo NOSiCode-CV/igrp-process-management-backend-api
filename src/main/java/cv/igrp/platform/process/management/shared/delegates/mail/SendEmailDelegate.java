@@ -1,4 +1,4 @@
-package cv.igrp.platform.process.management.shared.delegates;
+package cv.igrp.platform.process.management.shared.delegates.mail;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.JavaDelegate;
@@ -9,7 +9,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
 
-@Component("sendEmailDelegate")
+@Component("igrpSendEmailDelegate")
 public class SendEmailDelegate implements JavaDelegate {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SendEmailDelegate.class);

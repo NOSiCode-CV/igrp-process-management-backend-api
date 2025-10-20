@@ -116,6 +116,10 @@ public class ProcessInstance {
     this.endedAt = endedAt == null ? LocalDateTime.now() : endedAt;
   }
 
+  public void suspend(){
+    this.status = ProcessInstanceStatus.SUSPENDED;
+  }
+
   public static String generateBusinessKey(){
     return UUID.randomUUID().toString();
   }
