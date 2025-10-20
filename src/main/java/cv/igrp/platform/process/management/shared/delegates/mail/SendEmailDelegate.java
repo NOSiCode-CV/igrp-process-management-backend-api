@@ -9,7 +9,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
 
-@Component("sendEmailDelegate")
+@Component("igrpSendEmailDelegate")
 public class SendEmailDelegate implements JavaDelegate {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SendEmailDelegate.class);
