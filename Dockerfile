@@ -24,16 +24,6 @@ RUN apt-get update && apt-get install -y ca-certificates && \
     done && \
     rm -rf /var/lib/apt/lists/*
 
-# Copy only Kafka SSL keystore and truststore
-#COPY certs/kafka/client.keystore.jks /etc/kafka/certs/client.keystore.jks
-#COPY certs/kafka/client.truststore.jks /etc/kafka/certs/client.truststore.jks
-#
-#ENV KAFKA_SSL_KEYSTORE_LOCATION=/etc/kafka/certs/client.keystore.jks \
-#    KAFKA_SSL_KEYSTORE_PASSWORD=changeit \
-#    KAFKA_SSL_KEY_PASSWORD=changeit \
-#    KAFKA_SSL_TRUSTSTORE_LOCATION=/etc/kafka/certs/client.truststore.jks \
-#    KAFKA_SSL_TRUSTSTORE_PASSWORD=changeit
-
 EXPOSE 8080
 ENTRYPOINT ["java","-jar","/app/app.jar"]
 
