@@ -30,6 +30,15 @@ public class KafkaConsumerConfig {
     props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
     props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
     props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+    //props.put("security.protocol", "SSL");
+    //props.put("ssl.truststore.location", "/etc/kafka/certs/client.truststore.jks");
+    //props.put("ssl.truststore.password", "changeit");
+    //props.put("ssl.truststore.type", "JKS");
+    //props.put("ssl.keystore.location", "/etc/kafka/certs/client.keystore.jks");
+    //props.put("ssl.keystore.password", "changeit");
+    //props.put("ssl.keystore.type", "JKS");
+    //props.put("ssl.key.password", "changeit");
+    //props.put("ssl.endpoint.identification.algorithm", "");
     return new DefaultKafkaConsumerFactory<>(props);
   }
 
