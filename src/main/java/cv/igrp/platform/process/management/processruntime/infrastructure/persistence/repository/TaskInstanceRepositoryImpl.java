@@ -3,6 +3,7 @@ package cv.igrp.platform.process.management.processruntime.infrastructure.persis
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceFilter;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskStatistics;
+import cv.igrp.platform.process.management.processruntime.domain.repository.RuntimeProcessEngineRepository;
 import cv.igrp.platform.process.management.processruntime.domain.repository.TaskInstanceRepository;
 import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
 import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
@@ -20,9 +21,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 
 @Repository
@@ -32,12 +31,15 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
 
   private final TaskInstanceEntityRepository taskInstanceEntityRepository;
   private final TaskInstanceMapper taskMapper;
+  private final RuntimeProcessEngineRepository runtimeProcessEngineRepository;
 
   public TaskInstanceRepositoryImpl(TaskInstanceEntityRepository taskInstanceEntityRepository,
-                                    TaskInstanceMapper taskMapper) {
+                                    TaskInstanceMapper taskMapper,
+                                    RuntimeProcessEngineRepository runtimeProcessEngineRepository) {
 
       this.taskInstanceEntityRepository = taskInstanceEntityRepository;
       this.taskMapper = taskMapper;
+      this.runtimeProcessEngineRepository = runtimeProcessEngineRepository;
   }
 
 
@@ -49,7 +51,7 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
 
   @Override
   public Optional<TaskInstance> findByIdWihEvents(UUID id) {
-      return taskInstanceEntityRepository.findById(id).map(taskMapper::toModelWithEvents);
+      return taskInstanceEntityRepository.findById(id).map(t-> taskMapper.toModel(t,true));
   }
 
 
@@ -79,19 +81,26 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
       PageRequest pageRequest = PageRequest.of(filter.getPage(), filter.getSize(),
           Sort.by(Sort.Direction.DESC, "startedAt"));
 
-      var pageableProcess = taskInstanceEntityRepository.findAll(spec, pageRequest);
+      final var pageableTask = taskInstanceEntityRepository.findAll(spec, pageRequest);
 
-      List<TaskInstance> content = pageableProcess.stream()
-          .map(taskMapper::toModel)
+      final Map<String,Map<String,Object>> variables = new HashMap<>();
+
+      pageableTask.forEach( t -> variables.put(
+          t.getExternalId(),
+          runtimeProcessEngineRepository.getTaskVariables(t.getExternalId()))
+      );
+
+      List<TaskInstance> content = pageableTask.stream().map(
+          t-> taskMapper.toModel(t,variables.get(t.getExternalId())))
           .toList();
 
       return new PageableLista<>(
-          pageableProcess.getNumber(),
-          pageableProcess.getSize(),
-          pageableProcess.getTotalElements(),
-          pageableProcess.getTotalPages(),
-          pageableProcess.isLast(),
-          pageableProcess.isFirst(),
+          pageableTask.getNumber(),
+          pageableTask.getSize(),
+          pageableTask.getTotalElements(),
+          pageableTask.getTotalPages(),
+          pageableTask.isLast(),
+          pageableTask.isFirst(),
           content
       );
   }

@@ -78,16 +78,24 @@ public class TaskInstanceMapper {
 
 
   public TaskInstance toModel(TaskInstanceEntity taskInstanceEntity) {
-    return toModel(taskInstanceEntity, false);
-  }
-
-
-  public TaskInstance toModelWithEvents(TaskInstanceEntity taskInstanceEntity) {
-    return toModel(taskInstanceEntity, true);
+    return toModel(taskInstanceEntity, false, null);
   }
 
 
   public TaskInstance toModel(TaskInstanceEntity taskInstanceEntity, boolean withEvents) {
+    return toModel(taskInstanceEntity, withEvents, null);
+  }
+
+
+  public TaskInstance toModel(TaskInstanceEntity taskInstanceEntity, Map<String,Object> taskVariables){
+    return toModel( taskInstanceEntity, false, taskVariables);
+  }
+
+
+  public TaskInstance toModel(TaskInstanceEntity taskInstanceEntity,
+                              boolean withEvents,
+                              Map<String,Object> taskVariables)
+  {
     var processInstance = taskInstanceEntity.getProcessInstanceId();
     return TaskInstance.builder()
         .id(Identifier.create(taskInstanceEntity.getId()))
@@ -123,8 +131,9 @@ public class TaskInstanceMapper {
                 .getTaskinstanceevents().stream()
                 .map(eventMapper::toEventModel)
                 .toList())
-            : new ArrayList<>()
+            : null
         )
+        .taskVariables(taskVariables)
         .build();
   }
 
