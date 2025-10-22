@@ -71,7 +71,8 @@ public class ProcessInstance {
     this.number = number;
     this.engineProcessNumber = engineProcessNumber;
     this.businessKey = businessKey == null ? Code.create(generateBusinessKey()) : businessKey;
-    this.applicationBase = Objects.requireNonNull(applicationBase, "Application base cannot be null");;
+    //this.applicationBase = Objects.requireNonNull(applicationBase, "Application base cannot be null");
+    this.applicationBase = applicationBase;
     this.version = version;
     this.searchTerms = searchTerms;
     this.startedAt = startedAt;
