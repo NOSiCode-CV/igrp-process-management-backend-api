@@ -111,4 +111,9 @@ public class ProcessDeploymentRepositoryImpl implements ProcessDeploymentReposit
         .build()).toList();
   }
 
+  @Override
+  public String findLatesProcessDefinitionIdByKey(String processDefinitionKey) {
+    return processDefinitionAdapter.getLatesProcessDefinitionIdByKey(processDefinitionKey);
+  }
+
 }

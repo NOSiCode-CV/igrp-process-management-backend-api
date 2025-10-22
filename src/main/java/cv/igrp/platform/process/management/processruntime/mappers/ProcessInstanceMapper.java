@@ -28,7 +28,7 @@ public class ProcessInstanceMapper {
     processInstanceEntity.setId(processInstance.getId().getValue());
     processInstanceEntity.setProcReleaseId(processInstance.getProcReleaseId().getValue());
     processInstanceEntity.setProcReleaseKey(processInstance.getProcReleaseKey().getValue());
-    processInstanceEntity.setApplicationBase(processInstance.getApplicationBase().getValue());
+    processInstanceEntity.setApplicationBase(processInstance.getApplicationBase()!=null ? processInstance.getApplicationBase().getValue() : null);
     processInstanceEntity.setVersion(processInstance.getVersion());
     processInstanceEntity.setStatus(processInstance.getStatus());
     processInstanceEntity.setBusinessKey(processInstance.getBusinessKey() != null ? processInstance.getBusinessKey().getValue() : null);
@@ -64,7 +64,7 @@ public class ProcessInstanceMapper {
         .endedBy(processInstanceEntity.getEndedBy())
         .canceledBy(processInstanceEntity.getCanceledBy())
         .obsCancel(processInstanceEntity.getObsCancel())
-        .applicationBase(Code.create(processInstanceEntity.getApplicationBase()))
+        .applicationBase(processInstanceEntity.getApplicationBase()!=null ? Code.create(processInstanceEntity.getApplicationBase()) : null)
         .priority(processInstanceEntity.getPriority())
         .build();
   }
@@ -78,7 +78,7 @@ public class ProcessInstanceMapper {
         .procReleaseId(Code.create(startProcessRequestDTO.getProcessDefinitionId()))
         .procReleaseKey(Code.create(startProcessRequestDTO.getProcessKey()))
         .businessKey(startProcessRequestDTO.getBusinessKey() != null ? Code.create(startProcessRequestDTO.getBusinessKey()) : null)
-        .applicationBase(Code.create(startProcessRequestDTO.getApplicationBase()))
+        .applicationBase(startProcessRequestDTO.getApplicationBase()!= null ? Code.create(startProcessRequestDTO.getApplicationBase()) : null)
         .variables(vars)
         .priority(startProcessRequestDTO.getPriority())
         .build();
@@ -100,7 +100,7 @@ public class ProcessInstanceMapper {
     processInstanceDTO.setEndedAt(processInstance.getEndedAt());
     processInstanceDTO.setEndedBy(processInstance.getEndedBy());
     processInstanceDTO.setObsCancel(processInstance.getObsCancel());
-    processInstanceDTO.setApplicationBase(processInstance.getApplicationBase().getValue());
+    processInstanceDTO.setApplicationBase(processInstance.getApplicationBase()!= null ? processInstance.getApplicationBase().getValue(): null);
     processInstanceDTO.setBusinessKey(processInstance.getBusinessKey() != null ? processInstance.getBusinessKey().getValue() : null);
     processInstanceDTO.setName(processInstance.getName());
     processInstanceDTO.setProgress(processInstance.getProgress());
