@@ -45,13 +45,25 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
 
   @Override
   public Optional<TaskInstance> findById(UUID id) {
-    return taskInstanceEntityRepository.findById(id).map(taskMapper::toModel);
+    final var taskInstanceOp = taskInstanceEntityRepository.findById(id);
+    if(taskInstanceOp.isEmpty())
+      return Optional.empty();
+    var taskInstanceEntity = taskInstanceOp.get();
+    return Optional.of(taskMapper.toModel(taskInstanceEntity,
+        runtimeProcessEngineRepository.getProcessVariables(
+            taskInstanceEntity.getProcessInstanceId().getEngineProcessNumber())));
   }
 
 
   @Override
   public Optional<TaskInstance> findByIdWihEvents(UUID id) {
-      return taskInstanceEntityRepository.findById(id).map(t-> taskMapper.toModel(t,true));
+    final var taskInstanceOp = taskInstanceEntityRepository.findById(id);
+    if(taskInstanceOp.isEmpty())
+      return Optional.empty();
+    var taskInstanceEntity = taskInstanceOp.get();
+    return Optional.of(taskMapper.toModel(taskInstanceEntity,true,
+        runtimeProcessEngineRepository.getProcessVariables(
+            taskInstanceEntity.getProcessInstanceId().getEngineProcessNumber())));
   }
 
 
@@ -83,16 +95,22 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
 
       final var pageableTask = taskInstanceEntityRepository.findAll(spec, pageRequest);
 
+      final var engineProcessNumberList = pageableTask.stream()
+          .map(t->t.getProcessInstanceId().getEngineProcessNumber())
+          .distinct()
+          .toList();
+
       final Map<String,Map<String,Object>> variables = new HashMap<>();
 
-      pageableTask.forEach( t -> variables.put(
-          t.getExternalId(),
-          runtimeProcessEngineRepository.getTaskVariables(t.getExternalId()))
+      engineProcessNumberList.forEach( e ->
+          variables.put(e, runtimeProcessEngineRepository.getProcessVariables(e))
       );
 
-      List<TaskInstance> content = pageableTask.stream().map(
-          t-> taskMapper.toModel(t,variables.get(t.getExternalId())))
-          .toList();
+      List<TaskInstance> content = pageableTask.stream().map(taskInstance ->
+              taskMapper.toModel(
+                  taskInstance,
+                  variables.get(taskInstance.getProcessInstanceId().getEngineProcessNumber()))
+          ).toList();
 
       return new PageableLista<>(
           pageableTask.getNumber(),

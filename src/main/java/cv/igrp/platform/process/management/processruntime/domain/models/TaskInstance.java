@@ -39,7 +39,7 @@ public class TaskInstance {
   private Code endedBy;
   private final List<TaskInstanceEvent> taskInstanceEvents;
   private final List<String> candidateGroups;
-  private final Map<String,Object> taskVariables;
+  private Map<String,Object> variables;
 
 
   @Builder
@@ -66,7 +66,7 @@ public class TaskInstance {
       Code endedBy,
       List<TaskInstanceEvent> taskInstanceEvents,
       List<String> candidateGroups,
-      Map<String,Object> taskVariables
+      Map<String,Object> variables
   ) {
     this.id = id == null ? Identifier.generate() : id;
     this.taskKey = Objects.requireNonNull(taskKey, "Task Key cannot be null!");
@@ -90,7 +90,7 @@ public class TaskInstance {
     this.processKey = processKey;
     this.taskInstanceEvents = taskInstanceEvents != null ? taskInstanceEvents : new ArrayList<>();
     this.candidateGroups = candidateGroups != null ? candidateGroups : new ArrayList<>();
-    this.taskVariables = taskVariables != null ? taskVariables : new HashMap<>();
+    this.variables = variables != null ? variables : new HashMap<>();
   }
 
 
@@ -181,5 +181,9 @@ public class TaskInstance {
         .processInstanceId(processInstance.getId())
         .startedBy(user)
         .build();
+  }
+
+  public void addVariables(Map<String,Object> variables){
+    variables = variables;
   }
 }
