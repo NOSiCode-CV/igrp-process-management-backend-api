@@ -3,7 +3,9 @@ package cv.igrp.platform.process.management.shared.delegates.message.consumer.ra
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cv.igrp.platform.process.management.processruntime.domain.service.ProcessInstanceService;
 import cv.igrp.platform.process.management.shared.delegates.message.consumer.AbstractProcessEventConsumer;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,13 +15,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class RabbitProcessEventConsumer extends AbstractProcessEventConsumer {
 
   public RabbitProcessEventConsumer(ProcessInstanceService processInstanceService,
-                                    ObjectMapper objectMapper) {
-    super(processInstanceService, objectMapper);
+                                    ObjectMapper objectMapper, JwtDecoder jwtDecoder) {
+    super(processInstanceService, objectMapper, jwtDecoder);
   }
 
   //@RabbitListener(queues = "igrp-process-events")
-  public void onMessage(String message) {
-    handleMessage(message);
+  public void onMessage(ConsumerRecord<String, String> record) {
+    handleMessage(record);
   }
 
 }
