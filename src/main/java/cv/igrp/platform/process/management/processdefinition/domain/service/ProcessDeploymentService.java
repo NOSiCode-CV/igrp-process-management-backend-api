@@ -32,4 +32,8 @@ public class ProcessDeploymentService {
     return processDeploymentRepository.findAllArtifacts(processDefinitionId.getValue());
   }
 
+  public String findLatesProcessDefinitionIdByKey(String processDefinitionKey) {
+    return processDeploymentRepository.findLatesProcessDefinitionIdByKey(processDefinitionKey);
+  }
+
 }

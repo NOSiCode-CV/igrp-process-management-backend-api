@@ -3,6 +3,7 @@ package cv.igrp.platform.process.management.processruntime.infrastructure.persis
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceFilter;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskStatistics;
+import cv.igrp.platform.process.management.processruntime.domain.repository.RuntimeProcessEngineRepository;
 import cv.igrp.platform.process.management.processruntime.domain.repository.TaskInstanceRepository;
 import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
 import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
@@ -20,9 +21,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 
 @Repository
@@ -32,24 +31,39 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
 
   private final TaskInstanceEntityRepository taskInstanceEntityRepository;
   private final TaskInstanceMapper taskMapper;
+  private final RuntimeProcessEngineRepository runtimeProcessEngineRepository;
 
   public TaskInstanceRepositoryImpl(TaskInstanceEntityRepository taskInstanceEntityRepository,
-                                    TaskInstanceMapper taskMapper) {
+                                    TaskInstanceMapper taskMapper,
+                                    RuntimeProcessEngineRepository runtimeProcessEngineRepository) {
 
       this.taskInstanceEntityRepository = taskInstanceEntityRepository;
       this.taskMapper = taskMapper;
+      this.runtimeProcessEngineRepository = runtimeProcessEngineRepository;
   }
 
 
   @Override
   public Optional<TaskInstance> findById(UUID id) {
-    return taskInstanceEntityRepository.findById(id).map(taskMapper::toModel);
+    final var taskInstanceOp = taskInstanceEntityRepository.findById(id);
+    if(taskInstanceOp.isEmpty())
+      return Optional.empty();
+    var taskInstanceEntity = taskInstanceOp.get();
+    return Optional.of(taskMapper.toModel(taskInstanceEntity,
+        runtimeProcessEngineRepository.getProcessVariables(
+            taskInstanceEntity.getProcessInstanceId().getEngineProcessNumber())));
   }
 
 
   @Override
   public Optional<TaskInstance> findByIdWihEvents(UUID id) {
-      return taskInstanceEntityRepository.findById(id).map(taskMapper::toModelWithEvents);
+    final var taskInstanceOp = taskInstanceEntityRepository.findById(id);
+    if(taskInstanceOp.isEmpty())
+      return Optional.empty();
+    var taskInstanceEntity = taskInstanceOp.get();
+    return Optional.of(taskMapper.toModel(taskInstanceEntity,true,
+        runtimeProcessEngineRepository.getProcessVariables(
+            taskInstanceEntity.getProcessInstanceId().getEngineProcessNumber())));
   }
 
 
@@ -79,19 +93,32 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
       PageRequest pageRequest = PageRequest.of(filter.getPage(), filter.getSize(),
           Sort.by(Sort.Direction.DESC, "startedAt"));
 
-      var pageableProcess = taskInstanceEntityRepository.findAll(spec, pageRequest);
+      final var pageableTask = taskInstanceEntityRepository.findAll(spec, pageRequest);
 
-      List<TaskInstance> content = pageableProcess.stream()
-          .map(taskMapper::toModel)
+      final var engineProcessNumberList = pageableTask.stream()
+          .map(t->t.getProcessInstanceId().getEngineProcessNumber())
+          .distinct()
           .toList();
 
+      final Map<String,Map<String,Object>> variables = new HashMap<>();
+
+      engineProcessNumberList.forEach( e ->
+          variables.put(e, runtimeProcessEngineRepository.getProcessVariables(e))
+      );
+
+      List<TaskInstance> content = pageableTask.stream().map(taskInstance ->
+              taskMapper.toModel(
+                  taskInstance,
+                  variables.get(taskInstance.getProcessInstanceId().getEngineProcessNumber()))
+          ).toList();
+
       return new PageableLista<>(
-          pageableProcess.getNumber(),
-          pageableProcess.getSize(),
-          pageableProcess.getTotalElements(),
-          pageableProcess.getTotalPages(),
-          pageableProcess.isLast(),
-          pageableProcess.isFirst(),
+          pageableTask.getNumber(),
+          pageableTask.getSize(),
+          pageableTask.getTotalElements(),
+          pageableTask.getTotalPages(),
+          pageableTask.isLast(),
+          pageableTask.isFirst(),
           content
       );
   }

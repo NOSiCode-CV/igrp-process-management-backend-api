@@ -1,5 +1,6 @@
 package cv.igrp.platform.process.management.processruntime.application.commands;
 
+import cv.igrp.platform.process.management.processruntime.application.dto.ProcessVariableDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskDataDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskVariableDTO;
@@ -60,7 +61,7 @@ class CompleteTaskCommandHandlerTest {
     // Command
     TaskDataDTO taskDataDTO = new TaskDataDTO();
     taskDataDTO.setForms(List.of(new TaskVariableDTO("form1", "value1")));
-    taskDataDTO.setVariables(List.of(new TaskVariableDTO("var1", "value2")));
+    taskDataDTO.setVariables(List.of(new ProcessVariableDTO("var1", "value2")));
 
     command = new CompleteTaskCommand();
     command.setId(UUID.randomUUID().toString());

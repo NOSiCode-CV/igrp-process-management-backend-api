@@ -47,4 +47,6 @@ public class ProcessArtifactServiceImpl implements ProcessDefinitionRepository {
     processArtifactEntityRepository.deleteById(processArtifact.getId().getValue());
   }
 
+
+
 }

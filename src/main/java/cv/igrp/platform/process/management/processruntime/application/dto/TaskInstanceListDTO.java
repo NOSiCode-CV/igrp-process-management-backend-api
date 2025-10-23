@@ -4,12 +4,16 @@
 package cv.igrp.platform.process.management.processruntime.application.dto;
 
 import cv.igrp.framework.stereotype.IgrpDTO;
-import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
-import lombok.AllArgsConstructor;
+import jakarta.validation.*;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
+import lombok.AllArgsConstructor;
+import cv.igrp.platform.process.management.processruntime.application.dto.ProcessVariableDTO;
+import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -20,62 +24,65 @@ import java.util.UUID;
 @IgrpDTO
 public class TaskInstanceListDTO  {
 
-
-
+  
+  
   private UUID id ;
-
-
+  
+  
   private String taskKey ;
-
-
+  
+  
   private String formKey ;
-
-
+  
+  
   private String name ;
-
-
+  
+  
   private String candidateGroups ;
-
-
+  
+  
   private String processInstanceId ;
-
-
+  
+  
   private String processNumber ;
-
-
+  
+  
   private String processName ;
-
-
+  
+  
   private String processKey ;
-
-
+  
+  
   private String businessKey ;
-
-
+  
+  
   private Integer priority ;
-
-
+  
+  
   private String assignedBy ;
-
-
+  
+  
   private LocalDateTime assignedAt ;
-
-
+  
+  
   private String startedBy ;
-
-
+  
+  
   private LocalDateTime startedAt ;
-
-
+  
+  
   private String endedBy ;
-
-
+  
+  
   private LocalDateTime endedAt ;
-
-
+  
+  
   private TaskInstanceStatus status ;
-
-
+  
+  
   private String statusDesc ;
+  
+  @Valid
+  private List<ProcessVariableDTO> variables = new ArrayList<>();
 
 }

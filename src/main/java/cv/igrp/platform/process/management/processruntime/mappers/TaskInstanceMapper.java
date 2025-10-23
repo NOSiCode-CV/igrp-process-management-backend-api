@@ -14,7 +14,6 @@ import cv.igrp.platform.process.management.shared.infrastructure.persistence.ent
 import cv.igrp.platform.process.management.shared.util.DateUtil;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -78,16 +77,24 @@ public class TaskInstanceMapper {
 
 
   public TaskInstance toModel(TaskInstanceEntity taskInstanceEntity) {
-    return toModel(taskInstanceEntity, false);
-  }
-
-
-  public TaskInstance toModelWithEvents(TaskInstanceEntity taskInstanceEntity) {
-    return toModel(taskInstanceEntity, true);
+    return toModel(taskInstanceEntity, false, null);
   }
 
 
   public TaskInstance toModel(TaskInstanceEntity taskInstanceEntity, boolean withEvents) {
+    return toModel(taskInstanceEntity, withEvents, null);
+  }
+
+
+  public TaskInstance toModel(TaskInstanceEntity taskInstanceEntity, Map<String,Object> variables){
+    return toModel( taskInstanceEntity, false, variables);
+  }
+
+
+  public TaskInstance toModel(TaskInstanceEntity taskInstanceEntity,
+                              boolean withEvents,
+                              Map<String,Object> variables)
+  {
     var processInstance = taskInstanceEntity.getProcessInstanceId();
     return TaskInstance.builder()
         .id(Identifier.create(taskInstanceEntity.getId()))
@@ -119,12 +126,10 @@ public class TaskInstanceMapper {
             : null
         )
         .taskInstanceEvents( withEvents
-            ? new ArrayList<>(taskInstanceEntity
-                .getTaskinstanceevents().stream()
-                .map(eventMapper::toEventModel)
-                .toList())
-            : new ArrayList<>()
+            ? eventMapper.toEventModelList(taskInstanceEntity.getTaskinstanceevents())
+            : null
         )
+        .variables(variables)
         .build();
   }
 
@@ -166,6 +171,7 @@ public class TaskInstanceMapper {
     dto.setStatus(model.getStatus());
     dto.setStatusDesc(model.getStatus().getDescription());
     dto.setStartedBy(model.getStartedBy().getValue());
+    dto.setVariables(toProcessVariableDTO(model.getVariables()));
     return dto;
   }
 
@@ -194,9 +200,8 @@ public class TaskInstanceMapper {
     dto.setAssignedAt(taskInstance.getAssignedAt());
     dto.setEndedBy(taskInstance.getEndedBy()!=null?taskInstance.getEndedBy().getValue():null);
     dto.setEndedAt(taskInstance.getEndedAt());
-    dto.setTaskInstanceEvents(new ArrayList<>());
-    taskInstance.getTaskInstanceEvents()
-        .forEach(e->dto.getTaskInstanceEvents().add(eventMapper.toEventListDTO(e)));
+    dto.setTaskInstanceEvents(eventMapper.toEventListDTO(taskInstance.getTaskInstanceEvents()));
+    dto.setVariables(toProcessVariableDTO(taskInstance.getVariables()));
     return dto;
   }
 
@@ -237,6 +242,13 @@ public class TaskInstanceMapper {
   public List<TaskVariableDTO> toTaskVariableListDTO(Map<String,Object> variables) {
     return variables==null ? List.of() : variables.entrySet().stream()
         .map(e-> new TaskVariableDTO(e.getKey(),e.getValue()))
+        .toList();
+  }
+
+
+  public List<ProcessVariableDTO> toProcessVariableDTO(Map<String,Object> variables){
+    return variables==null ? List.of() : variables.entrySet().stream()
+        .map(e-> new ProcessVariableDTO(e.getKey(),e.getValue()))
         .toList();
   }
 

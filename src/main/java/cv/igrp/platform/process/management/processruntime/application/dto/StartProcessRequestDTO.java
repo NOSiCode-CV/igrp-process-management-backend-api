@@ -21,22 +21,21 @@ import java.util.List;
 @IgrpDTO
 public class StartProcessRequestDTO  {
 
-  @NotBlank(message = "The field <processDefinitionId> is required")
-  
+
   private String processDefinitionId ;
+
   @NotBlank(message = "The field <processKey> is required")
-  
   private String processKey ;
-  
-  
+
+
   private String businessKey ;
   @NotBlank(message = "The field <applicationBase> is required")
-  
+
   private String applicationBase ;
-  
-  
+
+
   private Integer priority ;
-  
+
   @Valid
   private List<ProcessVariableDTO> variables = new ArrayList<>();
 
