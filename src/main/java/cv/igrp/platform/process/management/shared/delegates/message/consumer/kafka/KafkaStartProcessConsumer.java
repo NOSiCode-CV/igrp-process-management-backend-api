@@ -10,10 +10,9 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-
 @Component
 @Transactional
-@ConditionalOnProperty(value = "message.broker.provider", havingValue = "kafka")
+@ConditionalOnProperty(value = "igrp.message.broker.provider", havingValue = "kafka")
 public class KafkaStartProcessConsumer extends AbstractStartProcessConsumer {
 
   public KafkaStartProcessConsumer(ProcessInstanceService processInstanceService, ObjectMapper objectMapper, JwtDecoder jwtDecoder) {

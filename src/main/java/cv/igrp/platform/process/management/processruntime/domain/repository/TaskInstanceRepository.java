@@ -13,7 +13,7 @@ public interface TaskInstanceRepository {
 
   Optional<TaskInstance> findById(UUID id);
 
-  Optional<TaskInstance> findByIdWihEvents(UUID id);
+  Optional<TaskInstance> findByIdWithEvents(UUID id);
 
   void create(TaskInstance taskInstance);
 

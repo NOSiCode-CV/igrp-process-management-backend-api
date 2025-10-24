@@ -53,7 +53,7 @@ class GetTaskInstanceByIdQueryHandlerTest {
 
     when(taskInstanceMock.getId()).thenReturn(taskId);
 
-    when(taskInstanceService.getByIdWihEvents(taskId))
+    when(taskInstanceService.getTaskById(taskId))
         .thenReturn(taskInstanceMock);
 
     when(taskInstanceMapper.toTaskInstanceDTO(taskInstanceMock))
@@ -69,7 +69,7 @@ class GetTaskInstanceByIdQueryHandlerTest {
     assertEquals(taskInstanceDTOMock, response.getBody());
 
     verify(userContext).getCurrentUser();
-    verify(taskInstanceService).getByIdWihEvents(taskId);
+    verify(taskInstanceService).getTaskById(taskId);
     verify(taskInstanceMapper).toTaskInstanceDTO(taskInstanceMock);
   }
 

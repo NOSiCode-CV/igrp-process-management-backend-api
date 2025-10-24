@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @Transactional
-@ConditionalOnProperty(value = "message.broker.provider", havingValue = "rabbitmq")
+@ConditionalOnProperty(value = "igrp.message.broker.provider", havingValue = "rabbitmq")
 public class RabbitStartProcessConsumer extends AbstractStartProcessConsumer {
 
   public RabbitStartProcessConsumer(ProcessInstanceService processInstanceService,

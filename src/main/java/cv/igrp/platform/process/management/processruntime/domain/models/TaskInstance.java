@@ -24,6 +24,7 @@ public class TaskInstance {
   private final Code externalId;
   private final Identifier processInstanceId;
   private final ProcessNumber processNumber;
+  private final String engineProcessNumber;// used to get variables
   private final Code processName;
   private final Code processKey;
   private final Code businessKey;
@@ -39,7 +40,7 @@ public class TaskInstance {
   private Code endedBy;
   private final List<TaskInstanceEvent> taskInstanceEvents;
   private final List<String> candidateGroups;
-  private Map<String,Object> variables;
+  private final Map<String,Object> variables;
 
 
   @Builder
@@ -52,6 +53,7 @@ public class TaskInstance {
       Identifier processInstanceId,
       Code processName,
       ProcessNumber processNumber,
+      String engineProcessNumber,
       Code processKey,
       Code businessKey,
       Code applicationBase,
@@ -76,6 +78,7 @@ public class TaskInstance {
     this.processInstanceId = processInstanceId;
     this.processNumber = processNumber;
     this.processName = processName;
+    this.engineProcessNumber = engineProcessNumber;
     this.businessKey = businessKey;
     this.applicationBase = applicationBase;
     this.searchTerms = searchTerms;
@@ -183,7 +186,7 @@ public class TaskInstance {
         .build();
   }
 
-  public void addVariables(Map<String,Object> variables){
-    variables = variables;
+  public void addVariables(Map<String,Object> variables) {
+    this.variables.putAll(variables);
   }
 }

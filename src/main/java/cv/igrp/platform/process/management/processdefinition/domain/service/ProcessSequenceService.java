@@ -7,6 +7,8 @@ import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.ProcessNumber;
 import jakarta.persistence.LockTimeoutException;
 import jakarta.persistence.PessimisticLockException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +21,8 @@ public class ProcessSequenceService {
   private static final long RETRY_DELAY_MS = 100;
 
   private final ProcessSequenceRepository processSequenceRepository;
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(ProcessSequenceService.class);
 
   public ProcessSequenceService(ProcessSequenceRepository processSequenceRepository) {
     this.processSequenceRepository = processSequenceRepository;
@@ -49,11 +53,18 @@ public class ProcessSequenceService {
 
 
   public ProcessNumber getGeneratedProcessNumber(Code processDefinitionKey){
-    var sequence = getProcessSequenceAsLocked(processDefinitionKey)
-        .orElseThrow(() -> IgrpResponseStatusException.notFound(
-            "Process Sequence not found for processDefinitionKey[" + processDefinitionKey.getValue() + "]"));
+
+    ProcessSequence sequence = getProcessSequenceAsLocked(processDefinitionKey)
+        .orElseGet(() -> {
+          var defaultSeq = ProcessSequence.defaultSequence(processDefinitionKey);
+          LOGGER.warn("No ProcessSequence found for [{}], creating default sequence.", processDefinitionKey.getValue());
+          return defaultSeq;
+        });
+
     var processNumber = sequence.generateNextProcessNumberAndIncrement();
+
     processSequenceRepository.save(sequence);
+
     return processNumber;
   }
 

@@ -3,7 +3,6 @@ package cv.igrp.platform.process.management.processruntime.infrastructure.persis
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceFilter;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskStatistics;
-import cv.igrp.platform.process.management.processruntime.domain.repository.RuntimeProcessEngineRepository;
 import cv.igrp.platform.process.management.processruntime.domain.repository.TaskInstanceRepository;
 import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
 import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
@@ -31,39 +30,24 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
 
   private final TaskInstanceEntityRepository taskInstanceEntityRepository;
   private final TaskInstanceMapper taskMapper;
-  private final RuntimeProcessEngineRepository runtimeProcessEngineRepository;
 
   public TaskInstanceRepositoryImpl(TaskInstanceEntityRepository taskInstanceEntityRepository,
-                                    TaskInstanceMapper taskMapper,
-                                    RuntimeProcessEngineRepository runtimeProcessEngineRepository) {
+                                    TaskInstanceMapper taskMapper) {
 
-      this.taskInstanceEntityRepository = taskInstanceEntityRepository;
-      this.taskMapper = taskMapper;
-      this.runtimeProcessEngineRepository = runtimeProcessEngineRepository;
+    this.taskInstanceEntityRepository = taskInstanceEntityRepository;
+    this.taskMapper = taskMapper;
   }
 
 
   @Override
   public Optional<TaskInstance> findById(UUID id) {
-    final var taskInstanceOp = taskInstanceEntityRepository.findById(id);
-    if(taskInstanceOp.isEmpty())
-      return Optional.empty();
-    var taskInstanceEntity = taskInstanceOp.get();
-    return Optional.of(taskMapper.toModel(taskInstanceEntity,
-        runtimeProcessEngineRepository.getProcessVariables(
-            taskInstanceEntity.getProcessInstanceId().getEngineProcessNumber())));
+    return taskInstanceEntityRepository.findById(id).map(taskMapper::toModel);
   }
 
 
   @Override
-  public Optional<TaskInstance> findByIdWihEvents(UUID id) {
-    final var taskInstanceOp = taskInstanceEntityRepository.findById(id);
-    if(taskInstanceOp.isEmpty())
-      return Optional.empty();
-    var taskInstanceEntity = taskInstanceOp.get();
-    return Optional.of(taskMapper.toModel(taskInstanceEntity,true,
-        runtimeProcessEngineRepository.getProcessVariables(
-            taskInstanceEntity.getProcessInstanceId().getEngineProcessNumber())));
+  public Optional<TaskInstance> findByIdWithEvents(UUID id) {
+    return taskInstanceEntityRepository.findById(id).map(t-> taskMapper.toModel(t,true));
   }
 
 
@@ -75,12 +59,12 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
 
   @Override
   public void update(TaskInstance taskInstance) {
-      var taskInstanceEntity = taskInstanceEntityRepository
-          .findById(taskInstance.getId().getValue())
-          .orElseThrow(() -> IgrpResponseStatusException.notFound(
-              "No Task Instance found with id: " + taskInstance.getId().getValue()));
-      taskMapper.toTaskEntity(taskInstance,taskInstanceEntity);
-      taskInstanceEntityRepository.save(taskInstanceEntity);
+    var taskInstanceEntity = taskInstanceEntityRepository
+        .findById(taskInstance.getId().getValue())
+        .orElseThrow(() -> IgrpResponseStatusException.notFound(
+            "No Task Instance found with id: " + taskInstance.getId().getValue()));
+    taskMapper.toTaskEntity(taskInstance,taskInstanceEntity);
+    taskInstanceEntityRepository.save(taskInstanceEntity);
   }
 
 
@@ -88,39 +72,24 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
   @Transactional(readOnly = true)
   public PageableLista<TaskInstance> findAll(TaskInstanceFilter filter) {
 
-      Specification<TaskInstanceEntity> spec = buildSpecification(filter);
+    Specification<TaskInstanceEntity> spec = buildSpecification(filter);
 
-      PageRequest pageRequest = PageRequest.of(filter.getPage(), filter.getSize(),
-          Sort.by(Sort.Direction.DESC, "startedAt"));
+    PageRequest pageRequest = PageRequest.of(filter.getPage(), filter.getSize(),
+        Sort.by(Sort.Direction.DESC, "startedAt"));
 
-      final var pageableTask = taskInstanceEntityRepository.findAll(spec, pageRequest);
+    final var pageableTask = taskInstanceEntityRepository.findAll(spec, pageRequest);
 
-      final var engineProcessNumberList = pageableTask.stream()
-          .map(t->t.getProcessInstanceId().getEngineProcessNumber())
-          .distinct()
-          .toList();
+    List<TaskInstance> content = pageableTask.stream().map(taskMapper::toModel).toList();
 
-      final Map<String,Map<String,Object>> variables = new HashMap<>();
-
-      engineProcessNumberList.forEach( e ->
-          variables.put(e, runtimeProcessEngineRepository.getProcessVariables(e))
-      );
-
-      List<TaskInstance> content = pageableTask.stream().map(taskInstance ->
-              taskMapper.toModel(
-                  taskInstance,
-                  variables.get(taskInstance.getProcessInstanceId().getEngineProcessNumber()))
-          ).toList();
-
-      return new PageableLista<>(
-          pageableTask.getNumber(),
-          pageableTask.getSize(),
-          pageableTask.getTotalElements(),
-          pageableTask.getTotalPages(),
-          pageableTask.isLast(),
-          pageableTask.isFirst(),
-          content
-      );
+    return new PageableLista<>(
+        pageableTask.getNumber(),
+        pageableTask.getSize(),
+        pageableTask.getTotalElements(),
+        pageableTask.getTotalPages(),
+        pageableTask.isLast(),
+        pageableTask.isFirst(),
+        content
+    );
   }
 
 
@@ -214,14 +183,14 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
 
     LOGGER.debug("User: {}",user.getValue());
 
-    // base: tasks ligadas ao user
+    // base: tasks related to user
     Specification<TaskInstanceEntity> userSpec = (root, q, cb) ->
         cb.or(
             cb.equal(root.get("assignedBy"), user.getValue()),
             cb.equal(root.get("endedBy"), user.getValue())
         );
 
-    // total: todas as tasks, independente do user
+    // total: all tasks, general context, not only user
     long total = taskInstanceEntityRepository.count();
 
     long available = countByStatus(userSpec, TaskInstanceStatus.CREATED);

@@ -134,7 +134,7 @@ class TaskInstanceServiceTest {
     UUID id = UUID.randomUUID();
     final var mockTaskInstance = getMockTaskInstance(Identifier.create(id),true);
 
-    when(taskInstanceRepository.findByIdWihEvents(id))
+    when(taskInstanceRepository.findByIdWithEvents(id))
         .thenReturn(Optional.of(mockTaskInstance));
 
     TaskInstance result = taskInstanceService.getByIdWihEvents(Identifier.create(id));
@@ -147,7 +147,7 @@ class TaskInstanceServiceTest {
   void getByIdWihEvents_shouldThrowException_whenNotFound() {
     UUID id = UUID.randomUUID();
 
-    when(taskInstanceRepository.findByIdWihEvents(id))
+    when(taskInstanceRepository.findByIdWithEvents(id))
         .thenReturn(Optional.empty());
 
     IgrpResponseStatusException ex = assertThrows(
@@ -206,7 +206,7 @@ class TaskInstanceServiceTest {
         .currentUser(currentUser)
         .build();
 
-    when(taskInstanceRepository.findByIdWihEvents(taskId))
+    when(taskInstanceRepository.findByIdWithEvents(taskId))
         .thenReturn(Optional.of(mockTask));
 
     taskInstanceService.claimTask(operation);
@@ -240,7 +240,7 @@ class TaskInstanceServiceTest {
         .note(note)
         .build();
 
-    when(taskInstanceRepository.findByIdWihEvents(taskId))
+    when(taskInstanceRepository.findByIdWithEvents(taskId))
         .thenReturn(Optional.of(mockTask));
 
     taskInstanceService.assignTask(operation);
@@ -269,7 +269,7 @@ class TaskInstanceServiceTest {
         .currentUser(currentUser)
         .build();
 
-    when(taskInstanceRepository.findByIdWihEvents(taskId))
+    when(taskInstanceRepository.findByIdWithEvents(taskId))
         .thenReturn(Optional.of(mockTask));
 
     taskInstanceService.unClaimTask(operation);

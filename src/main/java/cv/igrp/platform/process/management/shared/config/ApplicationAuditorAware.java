@@ -22,17 +22,17 @@ public class ApplicationAuditorAware implements AuditorAware<String> {
   }
 
   /**
-  * Retrieves a username for auditing purposes.
-  * Priority:
-  * 1) preferred_username claim from JWT if present
-  * 2) Authentication#getName() if an Authentication exists
-  * 3) Fallback to system account (non-empty in non-dev/staging)
-  */
+   * Retrieves a username for auditing purposes.
+   * Priority:
+   * 1) preferred_username claim from JWT if present
+   * 2) Authentication#getName() if an Authentication exists
+   * 3) Fallback to system account (non-empty in non-dev/staging)
+   */
   public String getPreferredUsername() {
 
     // In dev/staging we allow empty auditor to avoid noisy data during local testing
     if ("development".equalsIgnoreCase(activeProfile) || "staging".equalsIgnoreCase(activeProfile)) {
-      return "";
+      return SYSTEM_FALLBACK;
     }
 
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
