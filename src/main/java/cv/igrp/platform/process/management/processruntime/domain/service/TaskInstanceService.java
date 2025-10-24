@@ -46,15 +46,22 @@ public class TaskInstanceService {
   }
 
 
-  public TaskInstance getById(Identifier id) {
-    return taskInstanceRepository.findById(id.getValue())
-        .orElseThrow(() -> IgrpResponseStatusException.notFound("No Task Instance found with id: " + id));
+  public TaskInstance getTaskById(Identifier id) {
+    var taskInstance = getByIdWihEvents(id);
+    // add Process Variables
+    addVariables(taskInstance);
+    return taskInstance;
   }
 
 
   public TaskInstance getByIdWihEvents(Identifier id) {
-    return taskInstanceRepository.findByIdWihEvents(id.getValue())
+    return taskInstanceRepository.findByIdWithEvents(id.getValue())
         .orElseThrow(() -> IgrpResponseStatusException.notFound("No Task Instance found with id: " + id));
+  }
+
+
+  private void addVariables(TaskInstance taskInstance) {
+    taskInstance.addVariables(runtimeProcessEngineRepository.getProcessVariables(taskInstance.getEngineProcessNumber()));
   }
 
 
@@ -140,13 +147,34 @@ public class TaskInstanceService {
 
 
   public PageableLista<TaskInstance> getAllTaskInstances(TaskInstanceFilter filter) {
-    return taskInstanceRepository.findAll(filter);
+    final var pageableTask = taskInstanceRepository.findAll(filter);
+    // add Process Variables
+    addVariables(pageableTask);
+    return pageableTask;
+  }
+
+
+  private void addVariables(PageableLista<TaskInstance> pageableTask) {
+
+    final var variables = pageableTask.getContent().stream()
+        .map(TaskInstance::getEngineProcessNumber)
+        .distinct()
+        .collect(Collectors.toMap(n->n,runtimeProcessEngineRepository::getProcessVariables));
+
+    pageableTask.getContent().forEach(taskInstance ->
+        taskInstance.addVariables(variables.get(taskInstance.getEngineProcessNumber())));
   }
 
 
   public Map<String,Object> getTaskVariables(Identifier id) {
     var taskInstance = getById(id);
     return runtimeProcessEngineRepository.getTaskVariables(taskInstance.getExternalId().getValue());
+  }
+
+
+  public TaskInstance getById(Identifier id) {
+    return taskInstanceRepository.findById(id.getValue())
+        .orElseThrow(() -> IgrpResponseStatusException.notFound("No Task Instance found with id: " + id));
   }
 
 

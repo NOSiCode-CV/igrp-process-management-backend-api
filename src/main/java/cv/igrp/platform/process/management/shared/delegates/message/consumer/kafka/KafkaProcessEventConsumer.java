@@ -1,27 +1,27 @@
 package cv.igrp.platform.process.management.shared.delegates.message.consumer.kafka;
 
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cv.igrp.platform.process.management.processruntime.domain.service.ProcessInstanceService;
 import cv.igrp.platform.process.management.shared.delegates.message.consumer.AbstractProcessEventConsumer;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-
 @Component
 @Transactional
-@ConditionalOnProperty(value = "message.broker.provider", havingValue = "kafka")
+@ConditionalOnProperty(value = "igrp.message.broker.provider", havingValue = "kafka")
 public class KafkaProcessEventConsumer extends AbstractProcessEventConsumer {
 
-  public KafkaProcessEventConsumer(ProcessInstanceService processInstanceService, ObjectMapper objectMapper) {
-    super(processInstanceService, objectMapper);
+  public KafkaProcessEventConsumer(ProcessInstanceService processInstanceService, ObjectMapper objectMapper, JwtDecoder jwtDecoder) {
+    super(processInstanceService, objectMapper, jwtDecoder);
   }
 
   @KafkaListener(topics = "igrp-process-events", groupId = "igrp-process-event")
-  public void listen(String message) {
-    handleMessage(message);
+  public void listen(ConsumerRecord<String, String> record) {
+    handleMessage(record);
   }
 
 }
