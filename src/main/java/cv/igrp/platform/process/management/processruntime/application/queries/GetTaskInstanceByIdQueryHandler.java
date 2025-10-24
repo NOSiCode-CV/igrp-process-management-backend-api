@@ -39,7 +39,7 @@ public class GetTaskInstanceByIdQueryHandler implements QueryHandler<GetTaskInst
 
     LOGGER.debug("User [{}] requested task instance by id [{}]", currentUser.getValue(), query.getId());
 
-    final var taskInstance = taskInstanceService.getByIdWihEvents(Identifier.create(query.getId()));
+    final var taskInstance = taskInstanceService.getTaskById(Identifier.create(query.getId()));
 
     LOGGER.debug("Retrieved task instance [{}] for user [{}]", taskInstance.getId().getValue(), currentUser.getValue());
 

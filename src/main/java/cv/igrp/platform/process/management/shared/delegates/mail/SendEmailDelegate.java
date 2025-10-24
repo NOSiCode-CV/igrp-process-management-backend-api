@@ -1,6 +1,7 @@
 package cv.igrp.platform.process.management.shared.delegates.mail;
 
 import org.activiti.engine.delegate.DelegateExecution;
+import org.activiti.engine.delegate.Expression;
 import org.activiti.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +10,8 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
+
 @Component("igrpSendEmailDelegate")
 public class SendEmailDelegate implements JavaDelegate {
 
@@ -16,6 +19,11 @@ public class SendEmailDelegate implements JavaDelegate {
 
   private final JavaMailSender mailSender;
   private final String defaultFrom;
+
+  public Expression emailTo;
+  public Expression emailSubject;
+  public Expression emailBody;
+  public Expression emailFrom;
 
   public SendEmailDelegate(JavaMailSender mailSender,
                            @Value("${igrp.mail.default.from}") String defaultFrom) {
@@ -27,10 +35,14 @@ public class SendEmailDelegate implements JavaDelegate {
   public void execute(DelegateExecution execution) {
     LOGGER.info("Entered SendEmailDelegate");
 
-    String to = execution.getVariable("emailTo", String.class);
-    String subject = execution.getVariable("emailSubject", String.class);
-    String body = execution.getVariable("emailBody", String.class);
-    String from = execution.getVariable("emailFrom", String.class);
+    String toVariable = execution.getVariable("emailTo", String.class);
+    String to = Objects.nonNull(toVariable) ? toVariable : Objects.nonNull(emailTo)? (String) emailTo.getValue(execution): null;
+    String subjectVariable = execution.getVariable("emailSubject", String.class);
+    String subject = Objects.nonNull(subjectVariable) ? subjectVariable : Objects.nonNull(emailSubject)? (String) emailSubject.getValue(execution): null;
+    String bodyVariable = execution.getVariable("emailBody", String.class);
+    String body = Objects.nonNull(bodyVariable) ? bodyVariable : Objects.nonNull(emailBody)? (String) emailBody.getValue(execution): null;
+    String fromVariable = execution.getVariable("emailFrom", String.class);
+    String from = Objects.nonNull(fromVariable) ? fromVariable : Objects.nonNull(emailFrom)? (String) emailFrom.getValue(execution): null;
 
     validate(to, subject, body);
 
