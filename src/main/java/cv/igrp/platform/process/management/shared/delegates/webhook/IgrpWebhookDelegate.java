@@ -1,5 +1,6 @@
 package cv.igrp.platform.process.management.shared.delegates.webhook;
 
+import cv.igrp.platform.process.management.shared.mapper.ResponseVariableMapper;
 import cv.igrp.platform.process.management.shared.util.ObjectUtil;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.Expression;
@@ -33,16 +34,17 @@ public class IgrpWebhookDelegate implements JavaDelegate {
   public Expression webhookUrlPath;
   public Expression webhookQueryParams;
   public Expression webhookPayload;
-  public Expression webhookHeaders;
+  public Expression webhookPayloadHeader;
 
   @Override
   public void execute(DelegateExecution execution) {
 
-    String baseUrl = webhookUrl.getValue(execution).toString();
+    String baseUrlVariable = (String) execution.getVariable("webhookUrl");
+    String baseUrl = Objects.nonNull(baseUrlVariable)? baseUrlVariable: Objects.nonNull(webhookUrl)? webhookUrl.getValue(execution).toString() : null;
     String pathVariable = (String)  execution.getVariable("webhookUrlPath");
-    String path = Objects.nonNull(pathVariable) ?  pathVariable : (String) webhookUrlPath.getValue(execution);
+    String path = Objects.nonNull(pathVariable) ?  pathVariable : Objects.nonNull(webhookUrlPath) ? (String) webhookUrlPath.getValue(execution): null;
     String queryParams = (String) execution.getVariable("webhookUrlQueryParams");
-    String query = Objects.nonNull(queryParams)? queryParams : (String) webhookQueryParams.getValue(execution);
+    String query = Objects.nonNull(queryParams)? queryParams : Objects.nonNull(webhookQueryParams) ? (String) webhookQueryParams.getValue(execution) : null;
 
     String url = UriComponentsBuilder.fromUriString(baseUrl)
         .path(path != null ? path : "")
@@ -50,16 +52,17 @@ public class IgrpWebhookDelegate implements JavaDelegate {
         .build()
         .toUriString();
 
-    String method = ofNullable(webhookMethod.getValue(execution))
+    String methodVariable = (String) execution.getVariable("webhookMethod");
+    String method = ofNullable(Objects.nonNull(methodVariable)? methodVariable : Objects.nonNull(webhookMethod) ? webhookMethod.getValue(execution) : null)
         .orElseThrow(() -> new IllegalArgumentException("webhookMethod argument is required and was not provided"))
         .toString().toUpperCase();
 
     Object payloadVariable = execution.getVariable("webhookPayload");
-    Object payload = Objects.nonNull(payloadVariable) ? payloadVariable : Objects.nonNull(webhookPayload) ? webhookPayload.getValue(execution) : null;
+    Object payload = Objects.nonNull(payloadVariable) ? payloadVariable : Objects.nonNull(webhookPayload) ? webhookPayload.getValue(execution) : "";
 
     Object payloadHeader = execution.getVariable("webhookPayloadHeader");
     Map<String, String> headersMap = ObjectUtil.parseJsonObjectString(
-        ofNullable(Objects.nonNull(payloadHeader)? payloadHeader : Objects.nonNull(webhookHeaders) ? webhookHeaders.getValue(execution) : null)
+        ofNullable(Objects.nonNull(payloadHeader)? payloadHeader : Objects.nonNull(webhookPayloadHeader) ? webhookPayloadHeader.getValue(execution) : null)
             .orElse("").toString()
     );
 
@@ -69,7 +72,7 @@ public class IgrpWebhookDelegate implements JavaDelegate {
       if (!headersMap.isEmpty()) {
         headersMap.forEach(headers::set);
       } else {
-        headersMap.put("Authorization", "Bearer" + globalAuthToken);
+        headers.set("Authorization", "Bearer" + globalAuthToken);
       }
 
       log.info("[IgrpWebhookDelegate] Sending {} request to {}", method, url);
@@ -125,6 +128,8 @@ public class IgrpWebhookDelegate implements JavaDelegate {
       execution.setVariable("webhookResponseBody", responseBody);
 
       execution.setVariable("webhookResponseStatusCode", statusCode);
+
+      ResponseVariableMapper.mapAllPrimitivesToExecution(execution, responseBody);
 
     } catch (Exception e) {
       log.error("[IgrpWebhookDelegate] Error calling webhook {}", url, e);

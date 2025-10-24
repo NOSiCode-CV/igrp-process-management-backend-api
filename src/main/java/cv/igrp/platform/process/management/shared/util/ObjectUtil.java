@@ -1,16 +1,67 @@
 package cv.igrp.platform.process.management.shared.util;
 
 import java.lang.reflect.Type;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonSyntaxException;
+import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 
 public class ObjectUtil {
+
+  private static final Gson GSON = new GsonBuilder()
+      .serializeNulls()
+      .disableHtmlEscaping()
+      .create();
+
+  /**
+   * Parses a JSON string into a JsonElement (handles objects, arrays, primitives, etc.).
+   *
+   * @param json the JSON string to parse
+   * @return the parsed JsonElement, or JsonNull.INSTANCE if invalid or null/empty
+   */
+  public static JsonElement parseJsonStringObject(String json) {
+    if (json == null || json.trim().isEmpty()) {
+      return JsonNull.INSTANCE;
+    }
+    try {
+      JsonElement element = JsonParser.parseString(json);
+      return element != null ? element : JsonNull.INSTANCE;
+    } catch (JsonSyntaxException e) {
+      return JsonNull.INSTANCE;
+    }
+  }
+
+  /**
+   * Converts any Java object into a JsonElement.
+   * - If the object is already a JsonElement, it returns it directly.
+   * - If the object is a valid JSON string, it parses it.
+   * - Otherwise, it serializes the object normally using Gson.
+   *
+   * @param obj the object to convert
+   * @return the corresponding JsonElement, or JsonNull.INSTANCE if null or unconvertible
+   */
+  public static JsonElement parseJsonObject(Object obj) {
+    switch (obj) {
+      case null -> {
+        return JsonNull.INSTANCE;
+      }
+      case JsonElement jsonElement -> {
+        return jsonElement;
+      }
+      case String s -> {
+        return parseJsonStringObject(s);
+      }
+      default -> {
+      }
+    }
+
+    try {
+      return GSON.toJsonTree(obj);
+    } catch (Exception e) {
+      return JsonNull.INSTANCE;
+    }
+  }
 
   public static Map<String, String> parseJsonObjectString(String json) {
     if (json == null || json.trim().isEmpty()) {
