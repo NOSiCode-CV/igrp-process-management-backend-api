@@ -12,6 +12,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Map;
@@ -66,6 +67,9 @@ public class IgrpWebhookDelegate implements JavaDelegate {
             .orElse("").toString()
     );
 
+    String responseBody;
+    int statusCode;
+
     try {
       HttpHeaders headers = new HttpHeaders();
       headers.setContentType(MediaType.APPLICATION_JSON);
@@ -77,9 +81,6 @@ public class IgrpWebhookDelegate implements JavaDelegate {
 
       log.info("[IgrpWebhookDelegate] Sending {} request to {}", method, url);
       log.debug("[IgrpWebhookDelegate] Payload: {}", payload);
-
-      String responseBody;
-      int statusCode;
 
       switch (method.toUpperCase()) {
         case "GET" -> {
@@ -125,17 +126,22 @@ public class IgrpWebhookDelegate implements JavaDelegate {
 
       log.info("[IgrpWebhookDelegate] Response {}: {}", statusCode, responseBody);
 
-      execution.setVariable("webhookResponseBody", responseBody);
-
-      execution.setVariable("webhookResponseStatusCode", statusCode);
-
-      ResponseVariableMapper.mapAllPrimitivesToExecution(execution, responseBody);
-
+    } catch (RestClientResponseException e) {
+      statusCode = e.getStatusCode().value();
+      responseBody = e.getResponseBodyAsString();
+      log.warn("[IgrpWebhookDelegate] Webhook returned error {}: {}", statusCode, responseBody);
     } catch (Exception e) {
       log.error("[IgrpWebhookDelegate] Error calling webhook {}", url, e);
       execution.setVariable("webhookError", e.getMessage());
-      throw new RuntimeException("IgrpWebhookDelegate execution failed", e);
+      return;
     }
+
+    execution.setVariable("webhookResponseBody", responseBody);
+
+    execution.setVariable("webhookResponseStatusCode", statusCode);
+
+    ResponseVariableMapper.mapAllPrimitivesToExecution(execution, responseBody);
+
   }
 
 }

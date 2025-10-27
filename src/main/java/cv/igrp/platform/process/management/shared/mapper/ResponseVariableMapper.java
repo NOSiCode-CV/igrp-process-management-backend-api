@@ -22,8 +22,8 @@ public class ResponseVariableMapper {
    * becomes:
    *  user.name = "John"
    *  user.age = 30
-   *  roles[0] = "ADMIN"
-   *  roles[1] = "USER"
+   *  roles_0 = "ADMIN"
+   *  roles_1 = "USER"
    *  active = true
    */
   public static void mapAllPrimitivesToExecution(DelegateExecution execution, String responseBody) {
@@ -53,7 +53,7 @@ public class ResponseVariableMapper {
   private static void flattenArray(DelegateExecution execution, JsonArray array, String parentPath) {
     for (int i = 0; i < array.size(); i++) {
       JsonElement item = array.get(i);
-      String path = parentPath + "[" + i + "]";
+      String path = parentPath + "_" + i;
 
       if (item.isJsonObject()) {
         flattenAndSetVariables(execution, item.getAsJsonObject(), path);
