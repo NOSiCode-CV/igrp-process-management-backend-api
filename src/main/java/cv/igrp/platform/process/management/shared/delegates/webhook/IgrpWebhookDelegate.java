@@ -1,6 +1,6 @@
 package cv.igrp.platform.process.management.shared.delegates.webhook;
 
-import cv.igrp.platform.process.management.shared.mapper.ResponseVariableMapper;
+import com.google.gson.JsonElement;
 import cv.igrp.platform.process.management.shared.util.ObjectUtil;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.Expression;
@@ -12,6 +12,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Map;
@@ -39,6 +40,9 @@ public class IgrpWebhookDelegate implements JavaDelegate {
   @Override
   public void execute(DelegateExecution execution) {
 
+    String taskId = execution.getCurrentActivityId();
+    String processInstanceId = execution.getProcessInstanceId();
+    log.info("[IgrpWebhookDelegate] Executing webhook task: {} from process instance: {}", taskId, processInstanceId);
     String baseUrlVariable = (String) execution.getVariable("webhookUrl");
     String baseUrl = Objects.nonNull(baseUrlVariable)? baseUrlVariable: Objects.nonNull(webhookUrl)? webhookUrl.getValue(execution).toString() : null;
     String pathVariable = (String)  execution.getVariable("webhookUrlPath");
@@ -66,6 +70,9 @@ public class IgrpWebhookDelegate implements JavaDelegate {
             .orElse("").toString()
     );
 
+    Object responseBody;
+    int statusCode;
+
     try {
       HttpHeaders headers = new HttpHeaders();
       headers.setContentType(MediaType.APPLICATION_JSON);
@@ -77,9 +84,6 @@ public class IgrpWebhookDelegate implements JavaDelegate {
 
       log.info("[IgrpWebhookDelegate] Sending {} request to {}", method, url);
       log.debug("[IgrpWebhookDelegate] Payload: {}", payload);
-
-      String responseBody;
-      int statusCode;
 
       switch (method.toUpperCase()) {
         case "GET" -> {
@@ -125,17 +129,26 @@ public class IgrpWebhookDelegate implements JavaDelegate {
 
       log.info("[IgrpWebhookDelegate] Response {}: {}", statusCode, responseBody);
 
-      execution.setVariable("webhookResponseBody", responseBody);
-
-      execution.setVariable("webhookResponseStatusCode", statusCode);
-
-      ResponseVariableMapper.mapAllPrimitivesToExecution(execution, responseBody);
-
+    } catch (RestClientResponseException e) {
+      statusCode = e.getStatusCode().value();
+      responseBody = e.getResponseBodyAs(String.class);
+      log.warn("[IgrpWebhookDelegate] Webhook returned error {}: {}", statusCode, responseBody);
     } catch (Exception e) {
       log.error("[IgrpWebhookDelegate] Error calling webhook {}", url, e);
-      execution.setVariable("webhookError", e.getMessage());
-      throw new RuntimeException("IgrpWebhookDelegate execution failed", e);
+      execution.setTransientVariable(taskId + "Error", e.getMessage());
+      return;
     }
+
+    JsonElement responseBodyElement = ObjectUtil.parseJsonObject(responseBody);
+    Object responseBodyParsed = ObjectUtil.toJavaObject(responseBodyElement);
+
+    execution.getEngineServices().getRuntimeService().setVariable(
+        processInstanceId,
+        taskId + "Data", responseBodyParsed);
+
+    execution.getEngineServices().getRuntimeService().setVariable(
+        processInstanceId,taskId + "StatusCode", statusCode);
+
   }
 
 }
