@@ -1,6 +1,6 @@
 package cv.igrp.platform.process.management.shared.delegates.parse;
 
-import cv.igrp.platform.process.management.shared.mapper.ResponseVariableMapper;
+import com.google.gson.JsonElement;
 import cv.igrp.platform.process.management.shared.util.ObjectUtil;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.Expression;
@@ -22,6 +22,9 @@ public class IgrpJsonParseDelegate implements JavaDelegate {
   @Override
   public void execute(DelegateExecution execution) {
 
+    String taskId = execution.getCurrentActivityId();
+    String processInstanceId = execution.getProcessInstanceId();
+    log.info("[igrpJsonParseDelegate] Executing webhook task: {} from process instance: {}", taskId, processInstanceId);
     String jsonVariable = (String) execution.getVariable("json");
     String payload = Objects.nonNull(jsonVariable)? jsonVariable: Objects.nonNull(json)? json.getValue(execution).toString() : null;
     String isBase64Variable = (String) execution.getVariable("isBase64Encoded");
@@ -33,13 +36,17 @@ public class IgrpJsonParseDelegate implements JavaDelegate {
 
     try {
 
-      ResponseVariableMapper.mapAllPrimitivesToExecution(execution, payload);
+      JsonElement payloadElement = ObjectUtil.parseJsonObject(payload);
+      Object payloadParsed = ObjectUtil.toJavaObject(payloadElement);
+
+      execution.getEngineServices().getRuntimeService().setVariable(
+          processInstanceId,taskId + "Data", payloadParsed);
 
       log.info("[IgrpJsonParseDelegate] Data parsed successfully");
 
     } catch (Exception e) {
       log.error("[IgrpJsonParseDelegate] Error parsing JSON: ", e);
-      execution.setTransientVariable("jsonParseError", e.getMessage());
+      execution.setTransientVariable(taskId + "Error", e.getMessage());
     }
 
   }

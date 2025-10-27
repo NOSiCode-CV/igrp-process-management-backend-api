@@ -1,6 +1,6 @@
 package cv.igrp.platform.process.management.shared.delegates.webhook;
 
-import cv.igrp.platform.process.management.shared.mapper.ResponseVariableMapper;
+import com.google.gson.JsonElement;
 import cv.igrp.platform.process.management.shared.util.ObjectUtil;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.Expression;
@@ -40,6 +40,9 @@ public class IgrpWebhookDelegate implements JavaDelegate {
   @Override
   public void execute(DelegateExecution execution) {
 
+    String taskId = execution.getCurrentActivityId();
+    String processInstanceId = execution.getProcessInstanceId();
+    log.info("[IgrpWebhookDelegate] Executing webhook task: {} from process instance: {}", taskId, processInstanceId);
     String baseUrlVariable = (String) execution.getVariable("webhookUrl");
     String baseUrl = Objects.nonNull(baseUrlVariable)? baseUrlVariable: Objects.nonNull(webhookUrl)? webhookUrl.getValue(execution).toString() : null;
     String pathVariable = (String)  execution.getVariable("webhookUrlPath");
@@ -67,7 +70,7 @@ public class IgrpWebhookDelegate implements JavaDelegate {
             .orElse("").toString()
     );
 
-    String responseBody;
+    Object responseBody;
     int statusCode;
 
     try {
@@ -128,19 +131,23 @@ public class IgrpWebhookDelegate implements JavaDelegate {
 
     } catch (RestClientResponseException e) {
       statusCode = e.getStatusCode().value();
-      responseBody = e.getResponseBodyAsString();
+      responseBody = e.getResponseBodyAs(String.class);
       log.warn("[IgrpWebhookDelegate] Webhook returned error {}: {}", statusCode, responseBody);
     } catch (Exception e) {
       log.error("[IgrpWebhookDelegate] Error calling webhook {}", url, e);
-      execution.setTransientVariable("webhookError", e.getMessage());
+      execution.setTransientVariable(taskId + "Error", e.getMessage());
       return;
     }
 
-    execution.setTransientVariable("webhookResponseBody", responseBody);
+    JsonElement responseBodyElement = ObjectUtil.parseJsonObject(responseBody);
+    Object responseBodyParsed = ObjectUtil.toJavaObject(responseBodyElement);
 
-    execution.setTransientVariable("webhookResponseStatusCode", statusCode);
+    execution.getEngineServices().getRuntimeService().setVariable(
+        processInstanceId,
+        taskId + "Data", responseBodyParsed);
 
-    ResponseVariableMapper.mapAllPrimitivesToExecution(execution, responseBody);
+    execution.getEngineServices().getRuntimeService().setVariable(
+        processInstanceId,taskId + "StatusCode", statusCode);
 
   }
 
