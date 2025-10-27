@@ -1,6 +1,7 @@
 package cv.igrp.platform.process.management.shared.util;
 
 import java.lang.reflect.Type;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -74,6 +75,18 @@ public class ObjectUtil {
       return map != null ? map : new HashMap<>();
     } catch (JsonSyntaxException e) {
       return new HashMap<>();
+    }
+  }
+
+  public static String decodeBase64ToString(String base64) {
+    if (base64 == null || base64.trim().isEmpty()) {
+      return "";
+    }
+    try {
+      byte[] decodedBytes =  Base64.getDecoder().decode(base64);
+      return new String(decodedBytes, java.nio.charset.StandardCharsets.UTF_8);
+    } catch (IllegalArgumentException e) {
+      return "";
     }
   }
 

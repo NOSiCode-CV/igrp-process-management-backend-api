@@ -11,7 +11,7 @@ public class ResponseVariableMapper {
 
   /**
    * Parses the JSON response and sets all primitive values (including nested ones)
-   * as process variables in the execution context, using dot-notation for nested paths.
+   * as process variables in the execution context, using flattened underscore notation for nested paths.
    * <p>
    * Example:
    * {
@@ -20,8 +20,8 @@ public class ResponseVariableMapper {
    *   "active": true
    * }
    * becomes:
-   *  user.name = "John"
-   *  user.age = 30
+   *  user_name = "John"
+   *  user_age = 30
    *  roles_0 = "ADMIN"
    *  roles_1 = "USER"
    *  active = true
@@ -38,7 +38,7 @@ public class ResponseVariableMapper {
   private static void flattenAndSetVariables(DelegateExecution execution, JsonObject jsonObject, String parentPath) {
     for (String key : jsonObject.keySet()) {
       JsonElement value = jsonObject.get(key);
-      String path = parentPath.isEmpty() ? key : parentPath + "." + key;
+      String path = parentPath.isEmpty() ? key : parentPath + "_" + key;
 
       if (value.isJsonObject()) {
         flattenAndSetVariables(execution, value.getAsJsonObject(), path);
@@ -85,6 +85,6 @@ public class ResponseVariableMapper {
       value = primitive.getAsString();
     }
 
-    execution.setVariable(path, value);
+    execution.setTransientVariable(path, value);
   }
 }

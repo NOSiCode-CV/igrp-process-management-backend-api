@@ -132,13 +132,13 @@ public class IgrpWebhookDelegate implements JavaDelegate {
       log.warn("[IgrpWebhookDelegate] Webhook returned error {}: {}", statusCode, responseBody);
     } catch (Exception e) {
       log.error("[IgrpWebhookDelegate] Error calling webhook {}", url, e);
-      execution.setVariable("webhookError", e.getMessage());
+      execution.setTransientVariable("webhookError", e.getMessage());
       return;
     }
 
-    execution.setVariable("webhookResponseBody", responseBody);
+    execution.setTransientVariable("webhookResponseBody", responseBody);
 
-    execution.setVariable("webhookResponseStatusCode", statusCode);
+    execution.setTransientVariable("webhookResponseStatusCode", statusCode);
 
     ResponseVariableMapper.mapAllPrimitivesToExecution(execution, responseBody);
 
