@@ -1,5 +1,7 @@
 package cv.igrp.platform.process.management.processruntime.infrastructure.persistence.repository;
 
+import cv.igrp.framework.runtime.core.engine.process.ProcessDefinitionAdapter;
+import cv.igrp.framework.runtime.core.engine.process.ProcessDefinitionRepresentation;
 import cv.igrp.framework.runtime.core.engine.process.ProcessManagerAdapter;
 import cv.igrp.framework.runtime.core.engine.process.model.ProcessVariableInstance;
 import cv.igrp.framework.runtime.core.engine.task.TaskActionService;
@@ -34,6 +36,7 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
 
   private static final Logger LOGGER = LoggerFactory.getLogger(RuntimeProcessEngineRepositoryImpl.class);
 
+  private final ProcessDefinitionAdapter processDefinitionAdapter;
   private final ProcessManagerAdapter processManagerAdapter;
   private final ProcessInstanceMapper processInstanceMapper;
   private final TaskInstanceMapper taskInstanceMapper;
@@ -42,12 +45,14 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
   private final TaskQueryService taskQueryService;
 
   public RuntimeProcessEngineRepositoryImpl(
+      ProcessDefinitionAdapter processDefinitionAdapter,
       ProcessManagerAdapter processManagerAdapter,
       ProcessInstanceMapper processInstanceMapper,
       TaskInstanceMapper taskInstanceMapper,
       TaskActionService taskActionService,
       ProcessInstanceTaskStatusMapper processInstanceTaskStatusMapper,
       TaskQueryService taskQueryService) {
+    this.processDefinitionAdapter = processDefinitionAdapter;
     this.processManagerAdapter = processManagerAdapter;
     this.processInstanceMapper = processInstanceMapper;
     this.taskInstanceMapper = taskInstanceMapper;
@@ -70,6 +75,20 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
   }
 
   @Override
+  public ProcessInstance createProcessInstanceById(String processDefinitionId, String businessKey) throws RuntimeProcessEngineException {
+    LOGGER.info("Authenticated user: {}", SecurityContextHolder.getContext().getAuthentication().getName());
+    try {
+      var processInstance = processManagerAdapter.createProcess(processDefinitionId, businessKey);
+      LOGGER.info("Process created by user: {}", processInstance.initiator());
+      LOGGER.info("Process created with ID: {}", processInstance.id());
+      return processInstanceMapper.toModel(processInstance);
+    } catch (Exception e) {
+      LOGGER.error("Failed to create process with definition ID: {}", processDefinitionId, e);
+      throw new RuntimeProcessEngineException("Failed to create process", e);
+    }
+  }
+
+  @Override
   public ProcessInstance getProcessInstanceById(String processInstanceId) {
     try {
       return processManagerAdapter
@@ -83,6 +102,23 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
     } catch (Exception e) {
       LOGGER.error("Error retrieving process instance: {}", processInstanceId, e);
       throw new RuntimeProcessEngineException("Error retrieving process instance: " + processInstanceId, e);
+    }
+  }
+
+  @Override
+  public ProcessInstance getProcessInstanceByBusinessKey(String businessKey) {
+    try {
+      return processManagerAdapter
+          .getProcessInstanceByBusinessKey(businessKey)
+          .map(processInstanceMapper::toModel)
+          .orElseThrow(() ->
+              new RuntimeProcessEngineException("Process instance not found for business key: " + businessKey)
+          );
+    } catch (RuntimeProcessEngineException e) {
+      throw e; // rethrow custom exception
+    } catch (Exception e) {
+      LOGGER.error("Error retrieving process instance by business key: {}", businessKey, e);
+      throw new RuntimeProcessEngineException("Error retrieving process instance by business key: " + businessKey, e);
     }
   }
 
@@ -210,5 +246,14 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
     }
   }
 
-
+  @Override
+  public ProcessDefinitionRepresentation getProcessDefinition(String processDefinitionId) {
+    try {
+      return processDefinitionAdapter
+          .getProcessDefinition(processDefinitionId);
+    } catch (Exception e) {
+      LOGGER.error("Error retrieving process definition by Id: {}", processDefinitionId, e);
+      throw new RuntimeProcessEngineException("Error retrieving process definition by ID: " + processDefinitionId, e);
+    }
+  }
 }
