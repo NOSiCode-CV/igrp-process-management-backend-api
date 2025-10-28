@@ -1,8 +1,7 @@
 package cv.igrp.platform.process.management.shared.util;
 
 import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
@@ -75,6 +74,55 @@ public class ObjectUtil {
     } catch (JsonSyntaxException e) {
       return new HashMap<>();
     }
+  }
+
+  public static String decodeBase64ToString(String base64) {
+    if (base64 == null || base64.trim().isEmpty()) {
+      return "";
+    }
+    try {
+      byte[] decodedBytes =  Base64.getDecoder().decode(base64);
+      return new String(decodedBytes, java.nio.charset.StandardCharsets.UTF_8);
+    } catch (IllegalArgumentException e) {
+      return "";
+    }
+  }
+
+  /**
+   * Recursively converts a JsonElement into a corresponding Java object.
+   * - JsonObject → Map<String, Object>
+   * - JsonArray → List<Object>
+   * - JsonPrimitive → Boolean, Number, or String
+   * - JsonNull → null
+   *
+   * @param element the JsonElement to convert
+   * @return the corresponding Java object representation
+   */
+  public static Object toJavaObject(JsonElement element) {
+    if (element == null || element.isJsonNull()) {
+      return null;
+    }
+    if (element.isJsonObject()) {
+      Map<String, Object> map = new LinkedHashMap<>();
+      for (Map.Entry<String, JsonElement> entry : element.getAsJsonObject().entrySet()) {
+        map.put(entry.getKey(), toJavaObject(entry.getValue()));
+      }
+      return map;
+    }
+    if (element.isJsonArray()) {
+      List<Object> list = new ArrayList<>();
+      for (JsonElement item : element.getAsJsonArray()) {
+        list.add(toJavaObject(item));
+      }
+      return list;
+    }
+    if (element.isJsonPrimitive()) {
+      JsonPrimitive primitive = element.getAsJsonPrimitive();
+      if (primitive.isBoolean()) return primitive.getAsBoolean();
+      if (primitive.isNumber()) return primitive.getAsNumber();
+      return primitive.getAsString();
+    }
+    return null;
   }
 
 }

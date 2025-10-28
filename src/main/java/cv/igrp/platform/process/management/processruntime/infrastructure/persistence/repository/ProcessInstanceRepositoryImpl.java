@@ -31,8 +31,17 @@ public class ProcessInstanceRepositoryImpl implements ProcessInstanceRepository 
   }
 
   @Override
-  public ProcessInstance save(ProcessInstance area) {
-    ProcessInstanceEntity processInstanceEntity = mapper.toEntity(area);
+  public ProcessInstance save(ProcessInstance processInstance) {
+    ProcessInstanceEntity processInstanceEntity = mapper.toEntity(processInstance);
+    return mapper.toModel(processInstanceEntityRepository.save(processInstanceEntity));
+  }
+
+  @Override
+  public ProcessInstance update(ProcessInstance processInstance) {
+    ProcessInstanceEntity processInstanceEntity = processInstanceEntityRepository.findById(processInstance.getId().getValue()).orElseThrow(
+        () -> new IllegalArgumentException("Process Instance not found with id: " + processInstance.getId())
+    );
+    mapper.updateEntityFromModel(processInstance, processInstanceEntity);
     return mapper.toModel(processInstanceEntityRepository.save(processInstanceEntity));
   }
 

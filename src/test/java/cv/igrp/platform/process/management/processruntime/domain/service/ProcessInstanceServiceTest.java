@@ -167,7 +167,7 @@ class ProcessInstanceServiceTest {
     verify(runtimeProcessEngineRepository).startProcessInstanceById(
         eq(procReleaseId.getValue()), eq(businessKey.getValue()), eq(Map.of()));
     verify(processSequenceService).getGeneratedProcessNumber(eq(proReleaseKey));
-    verify(processInstance).start(eq(processNumber),eq(engineProcessNumber),
+    verify(processInstance).init(eq(processNumber),eq(engineProcessNumber),
         eq(processVersion),eq(processName),eq(currentUser));
     verify(processInstanceRepository).save(processInstance);
     verify(taskInstanceService).createTaskInstancesByProcess(runningProcessInstance);
@@ -224,7 +224,7 @@ class ProcessInstanceServiceTest {
         eq(procReleaseId.getValue()), eq(businessKey.getValue()), eq(Map.of())
     );
     verify(processSequenceService).getGeneratedProcessNumber(eq(proReleaseKey));
-    verify(processInstance).start(eq(processNumber), eq(engineProcessNumber),
+    verify(processInstance).init(eq(processNumber), eq(engineProcessNumber),
         eq(processVersion), eq(processName), eq(currentUser));
     verify(processInstanceRepository).save(processInstance);
     verify(taskInstanceService).createTaskInstancesByProcess(runningProcessInstance);

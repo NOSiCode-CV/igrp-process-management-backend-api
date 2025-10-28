@@ -109,6 +109,7 @@ public class SecurityConfig {
       var authorities = new HashSet<>(grantedAuthoritiesConverter.convert(jwt));
 
       authorities.add(new SimpleGrantedAuthority("ROLE_ACTIVITI_USER"));
+      authorities.add(new SimpleGrantedAuthority("ROLE_ACTIVITI_ADMIN"));
 
       return authorities;
     });
