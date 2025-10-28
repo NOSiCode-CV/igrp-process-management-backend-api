@@ -2,9 +2,11 @@ package cv.igrp.platform.process.management.shared.delegates.message.producer;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import cv.igrp.platform.process.management.processruntime.domain.exception.RuntimeProcessEngineException;
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstance;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceFilter;
+import cv.igrp.platform.process.management.processruntime.domain.repository.RuntimeProcessEngineRepository;
 import cv.igrp.platform.process.management.processruntime.domain.service.ProcessInstanceService;
 import cv.igrp.platform.process.management.processruntime.domain.service.TaskInstanceService;
 import cv.igrp.platform.process.management.shared.delegates.message.dto.ProcessMessageDTO;
@@ -27,6 +29,7 @@ public class MessageBrokerSenderDelegate implements JavaDelegate {
 
   private final MessageBrokerSender messageSender;
   private final ObjectMapper objectMapper;
+  private final RuntimeProcessEngineRepository runtimeProcessEngineRepository;
   private final ProcessInstanceService processInstanceService;
   private final TaskInstanceService taskInstanceService;
 
@@ -34,10 +37,12 @@ public class MessageBrokerSenderDelegate implements JavaDelegate {
 
   public MessageBrokerSenderDelegate(MessageBrokerSender messageSender,
                                      ObjectMapper objectMapper,
+                                     RuntimeProcessEngineRepository runtimeProcessEngineRepository,
                                      ProcessInstanceService processInstanceService,
                                      TaskInstanceService taskInstanceService) {
     this.messageSender = messageSender;
     this.objectMapper = objectMapper;
+    this.runtimeProcessEngineRepository = runtimeProcessEngineRepository;
     this.processInstanceService = processInstanceService;
     this.taskInstanceService = taskInstanceService;
   }
@@ -46,48 +51,72 @@ public class MessageBrokerSenderDelegate implements JavaDelegate {
   public void execute(DelegateExecution execution) {
     LOGGER.info("Entered MessageSenderDelegate");
 
-    String businessKey = execution.getProcessInstanceBusinessKey();
-
     if (topic == null) {
       throw new IllegalArgumentException("'topic' which represent topic or queue is required.");
-    }
-    if (businessKey == null || businessKey.isBlank()) {
-      throw new IllegalArgumentException("'businessKey' is required.");
     }
 
     String topicValue = topic.getValue(execution).toString();
 
-    messageSender.send(topicValue, createMessage(businessKey));
+    var message = createMessage(execution);
+
+    LOGGER.info("Sending message...: \n{}\n", message);
+
+    messageSender.send(topicValue, message);
 
     LOGGER.info("Message successfully sent to: {}", topicValue);
 
   }
 
-  private String createMessage(String businessKey) {
+  private String createMessage(DelegateExecution execution) {
 
-    ProcessInstance processInstance = processInstanceService.getProcessInstanceByBusinessKey(businessKey);
+    String businessKey = execution.getProcessInstanceBusinessKey();
+
+    if (businessKey == null || businessKey.isBlank()) {
+      throw new IllegalArgumentException("'businessKey' is required.");
+    }
 
     ProcessMessageDTO processMessageDTO = new ProcessMessageDTO();
-    processMessageDTO.setBusinessKey(businessKey);
-    processMessageDTO.setProcessKey(processInstance.getProcReleaseKey().getValue());
-    processMessageDTO.setProcessName(processInstance.getName());
-    processMessageDTO.setVariables(processInstance.getVariables());
-    processMessageDTO.setTimestamp(System.currentTimeMillis());
 
-    PageableLista<TaskInstance> taskInstancePageableLista = taskInstanceService.getAllTaskInstances(
-        TaskInstanceFilter.builder()
-            .processInstanceId(processInstance.getId())
-            .build()
-    );
+    try {
 
-    taskInstancePageableLista.getContent().forEach(taskInstance -> {
-      Map<String,Object> taskVariables = taskInstanceService.getTaskVariables(taskInstance.getId());
-      ProcessMessageDTO.TaskMessageDTO taskMessageDTO = new ProcessMessageDTO.TaskMessageDTO();
-      taskMessageDTO.setVariables(taskVariables);
-      taskMessageDTO.setTaskKey(taskInstance.getTaskKey().getValue());
-      taskMessageDTO.setTaskName(taskInstance.getName().getValue());
-      processMessageDTO.getTasks().add(taskMessageDTO);
-    });
+      ProcessInstance processInstance = processInstanceService.getProcessInstanceByBusinessKey(businessKey);
+
+      processMessageDTO.setBusinessKey(businessKey);
+      processMessageDTO.setProcessKey(processInstance.getProcReleaseKey().getValue());
+      processMessageDTO.setProcessName(processInstance.getName());
+      processMessageDTO.setVariables(processInstance.getVariables());
+      processMessageDTO.setTimestamp(System.currentTimeMillis());
+
+      PageableLista<TaskInstance> taskInstancePageableLista = taskInstanceService.getAllTaskInstances(
+          TaskInstanceFilter.builder()
+              .processInstanceId(processInstance.getId())
+              .build()
+      );
+
+      taskInstancePageableLista.getContent().forEach(taskInstance -> {
+        Map<String, Object> taskVariables = taskInstanceService.getTaskVariables(taskInstance.getId());
+        ProcessMessageDTO.TaskMessageDTO taskMessageDTO = new ProcessMessageDTO.TaskMessageDTO();
+        taskMessageDTO.setVariables(taskVariables);
+        taskMessageDTO.setTaskKey(taskInstance.getTaskKey().getValue());
+        taskMessageDTO.setTaskName(taskInstance.getName().getValue());
+        processMessageDTO.getTasks().add(taskMessageDTO);
+      });
+
+    } catch (RuntimeProcessEngineException e) {
+
+      String executionId = execution.getId();
+      var runtime = execution.getEngineServices().getRuntimeService();
+      var processDefinitionId = execution.getProcessDefinitionId();
+      var processDefinition = runtimeProcessEngineRepository.getProcessDefinition(processDefinitionId);
+      var processVariables = runtime.getVariables(executionId);
+
+      processMessageDTO.setBusinessKey(businessKey);
+      processMessageDTO.setProcessKey(processDefinition.key());
+      processMessageDTO.setProcessName(processDefinition.name());
+      processMessageDTO.setVariables(processVariables);
+      processMessageDTO.setTimestamp(System.currentTimeMillis());
+
+    }
 
     try {
       return objectMapper.writeValueAsString(processMessageDTO);

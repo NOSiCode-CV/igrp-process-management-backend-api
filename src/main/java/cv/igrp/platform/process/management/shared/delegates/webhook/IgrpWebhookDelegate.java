@@ -79,7 +79,7 @@ public class IgrpWebhookDelegate implements JavaDelegate {
       if (!headersMap.isEmpty()) {
         headersMap.forEach(headers::set);
       } else {
-        headers.set("Authorization", "Bearer" + globalAuthToken);
+        headers.set("Authorization", "Bearer " + globalAuthToken);
       }
 
       log.info("[IgrpWebhookDelegate] Sending {} request to {}", method, url);

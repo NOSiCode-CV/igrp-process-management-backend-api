@@ -45,6 +45,27 @@ public class ProcessInstanceMapper {
     return processInstanceEntity;
   }
 
+  public void updateEntityFromModel(ProcessInstance processInstance, ProcessInstanceEntity processInstanceEntity) {
+    processInstanceEntity.setNumber(processInstance.getNumber() != null ? processInstance.getNumber().getValue() : null);
+    processInstanceEntity.setEngineProcessNumber(processInstance.getEngineProcessNumber() != null ? processInstance.getEngineProcessNumber().getValue() : null);
+    processInstanceEntity.setProcReleaseId(processInstance.getProcReleaseId().getValue());
+    processInstanceEntity.setProcReleaseKey(processInstance.getProcReleaseKey().getValue());
+    processInstanceEntity.setApplicationBase(processInstance.getApplicationBase()!=null ? processInstance.getApplicationBase().getValue() : null);
+    processInstanceEntity.setVersion(processInstance.getVersion());
+    processInstanceEntity.setStatus(processInstance.getStatus());
+    processInstanceEntity.setBusinessKey(processInstance.getBusinessKey() != null ? processInstance.getBusinessKey().getValue() : null);
+    processInstanceEntity.setCanceledAt(processInstance.getCanceledAt());
+    processInstanceEntity.setCanceledBy(processInstance.getCanceledBy());
+    processInstanceEntity.setEndedAt(processInstance.getEndedAt());
+    processInstanceEntity.setEndedBy(processInstance.getEndedBy());
+    processInstanceEntity.setStartedAt(processInstance.getStartedAt());
+    processInstanceEntity.setStartedBy(processInstance.getStartedBy());
+    processInstanceEntity.setObsCancel(processInstance.getObsCancel());
+    processInstanceEntity.setSearchTerms(processInstance.getSearchTerms());
+    processInstanceEntity.setName(processInstance.getName());
+    processInstanceEntity.setPriority(processInstance.getPriority());
+  }
+
   public ProcessInstance toModel(ProcessInstanceEntity processInstanceEntity) {
     return ProcessInstance.builder()
         .id(Identifier.create(processInstanceEntity.getId()))
