@@ -2,7 +2,6 @@ package cv.igrp.platform.process.management.shared.delegates.message.producer;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import cv.igrp.platform.process.management.processruntime.domain.exception.RuntimeProcessEngineException;
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstance;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceFilter;
@@ -10,6 +9,7 @@ import cv.igrp.platform.process.management.processruntime.domain.repository.Runt
 import cv.igrp.platform.process.management.processruntime.domain.service.ProcessInstanceService;
 import cv.igrp.platform.process.management.processruntime.domain.service.TaskInstanceService;
 import cv.igrp.platform.process.management.shared.delegates.message.dto.ProcessMessageDTO;
+import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.Expression;
@@ -102,7 +102,7 @@ public class MessageBrokerSenderDelegate implements JavaDelegate {
         processMessageDTO.getTasks().add(taskMessageDTO);
       });
 
-    } catch (RuntimeProcessEngineException e) {
+    } catch (IgrpResponseStatusException e) {
 
       String executionId = execution.getId();
       var runtime = execution.getEngineServices().getRuntimeService();
