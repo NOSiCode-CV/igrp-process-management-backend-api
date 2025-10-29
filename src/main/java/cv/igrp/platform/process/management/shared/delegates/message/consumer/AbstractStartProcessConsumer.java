@@ -115,14 +115,14 @@ public abstract class AbstractStartProcessConsumer {
           .map(role -> new SimpleGrantedAuthority("ROLE_" + role.toString().toUpperCase()))
           .collect(Collectors.toList());
     }
-    return Collections.singletonList(new SimpleGrantedAuthority("ROLE_ACTIVITI_USER"));
+    return List.of(new SimpleGrantedAuthority("ROLE_ACTIVITI_USER"), new SimpleGrantedAuthority("ROLE_ACTIVITI_ADMIN"));
   }
 
   protected Authentication systemAuthentication() {
     return new UsernamePasswordAuthenticationToken(
         "system-bot",
         null,
-        Collections.singletonList(new SimpleGrantedAuthority("ROLE_ACTIVITI_USER"))
+        List.of(new SimpleGrantedAuthority("ROLE_ACTIVITI_USER"), new SimpleGrantedAuthority("ROLE_ACTIVITI_ADMIN"))
     );
   }
 

@@ -1,5 +1,6 @@
 package cv.igrp.platform.process.management.processruntime.domain.repository;
 
+import cv.igrp.framework.runtime.core.engine.process.ProcessDefinitionRepresentation;
 import cv.igrp.platform.process.management.processruntime.domain.exception.RuntimeProcessEngineException;
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstance;
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstanceTaskStatus;
@@ -37,6 +38,19 @@ public interface RuntimeProcessEngineRepository {
   ) throws RuntimeProcessEngineException;
 
   /**
+   * Creates a new process instance using the given process definition ID.
+   *
+   * @param processDefinitionId the unique identifier of the process definition
+   * @param businessKey         a business-specific correlation key (may be {@code null})
+   * @return the created {@link ProcessInstance}
+   * @throws RuntimeProcessEngineException if the process cannot be created
+   */
+  ProcessInstance createProcessInstanceById(
+      String processDefinitionId,
+      String businessKey
+  ) throws RuntimeProcessEngineException;
+
+  /**
    * Retrieves a process instance by its unique identifier.
    *
    * @param processInstanceId the unique identifier of the process instance
@@ -44,6 +58,16 @@ public interface RuntimeProcessEngineRepository {
    * @throws RuntimeProcessEngineException if the process instance does not exist or cannot be retrieved
    */
   ProcessInstance getProcessInstanceById(String processInstanceId)
+      throws RuntimeProcessEngineException;
+
+  /**
+   * Retrieves a process instance by business key.
+   *
+   * @param businessKey the business key
+   * @return the {@link ProcessInstance} if found
+   * @throws RuntimeProcessEngineException if the process instance does not exist or cannot be retrieved
+   */
+  ProcessInstance getProcessInstanceByBusinessKey(String businessKey)
       throws RuntimeProcessEngineException;
 
   /**
@@ -155,5 +179,13 @@ public interface RuntimeProcessEngineRepository {
    * @throws RuntimeProcessEngineException
    */
   void signal(String processInstanceId, Map<String, Object> variables) throws RuntimeProcessEngineException;
+
+  /**
+   * Retrieves the process definition representation by its ID.
+   *
+   * @param processDefinitionId the unique identifier of the process definition
+   * @return the {@link ProcessDefinitionRepresentation}
+   */
+  ProcessDefinitionRepresentation getProcessDefinition(String processDefinitionId);
 
 }
