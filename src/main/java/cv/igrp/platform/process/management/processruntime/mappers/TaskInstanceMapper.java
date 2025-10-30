@@ -135,6 +135,7 @@ public class TaskInstanceMapper {
     dto.setBusinessKey(model.getBusinessKey()!=null ? model.getBusinessKey().getValue() : null);
     dto.setProcessName(model.getProcessName()!=null ? model.getProcessName().getValue() : null);
     dto.setProcessKey(model.getProcessKey()!=null ? model.getProcessKey().getValue() : null);
+    dto.setApplicationBase(model.getApplicationBase().getValue());
     dto.setStartedAt(model.getStartedAt());
     dto.setPriority(model.getPriority());
     dto.setAssignedBy(model.getAssignedBy()!=null ? model.getAssignedBy().getValue() : null);
