@@ -46,8 +46,15 @@
         },
         {
           "type": "string",
-          "name": "candidateGroups",
+          "name": "applicationBase",
+          "description": "Application Base",
           "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "candidateGroups",
+          "isRequired": false,
+          "description": "Candidate Groups"
         },
         {
           "type": "string",
@@ -289,6 +296,12 @@
         },
         {
           "type": "string",
+          "name": "applicationBase",
+          "description": "Application Base",
+          "isRequired": true
+        },
+        {
+          "type": "string",
           "name": "processName",
           "isRequired": false,
           "description": "Process Name"
@@ -440,5 +453,5 @@
       }
     }
   ],
-  "id": "s7o1wob8tj-CONTROLLER"
+  "id": "s7o1wob8tj-CONTROLLER-listTaskInstances-getAllMyTasks"
 }

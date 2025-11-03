@@ -110,6 +110,11 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
               cb.equal(root.get("processInstanceId").get("businessKey"),filter.getProcessNumber().getValue())));
     }
 
+    if (filter.getApplicationBase() != null) {
+      spec = spec.and((root, query, cb) ->
+          cb.equal(root.get("processInstanceId").get("applicationBase"), filter.getApplicationBase().getValue()));
+    }
+
     if (filter.getProcessName() != null) {
       spec = spec.and((root, query, cb) ->
           cb.like(root.get("processInstanceId").get("name"), "%"+ filter.getProcessName().getValue() +"%"));
@@ -117,7 +122,7 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
 
     if (filter.getCandidateGroups() != null) {
       spec = spec.and((root, query, cb) ->
-          cb.like(root.get("processInstanceId").get("name"), "%"+ filter.getCandidateGroups().getValue() +"%"));
+          cb.like(root.get("processInstanceId").get("candidateGroups"), "%"+ filter.getCandidateGroups().getValue() +"%"));
     }
 
     if (filter.getStatus() != null) {

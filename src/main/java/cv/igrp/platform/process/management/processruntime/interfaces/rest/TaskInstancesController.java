@@ -3,28 +3,33 @@
 
 package cv.igrp.platform.process.management.processruntime.interfaces.rest;
 
-import cv.igrp.framework.core.domain.CommandBus;
-import cv.igrp.framework.core.domain.QueryBus;
 import cv.igrp.framework.stereotype.IgrpController;
-import cv.igrp.platform.process.management.processruntime.application.commands.AssignTaskCommand;
-import cv.igrp.platform.process.management.processruntime.application.commands.ClaimTaskCommand;
-import cv.igrp.platform.process.management.processruntime.application.commands.CompleteTaskCommand;
-import cv.igrp.platform.process.management.processruntime.application.commands.UnClaimTaskCommand;
-import cv.igrp.platform.process.management.processruntime.application.dto.*;
-import cv.igrp.platform.process.management.processruntime.application.queries.*;
-import cv.igrp.platform.process.management.shared.application.dto.ConfigParameterDTO;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+import cv.igrp.framework.core.domain.CommandBus;
+import cv.igrp.framework.core.domain.QueryBus;
+import cv.igrp.platform.process.management.processruntime.application.commands.*;
+import cv.igrp.platform.process.management.processruntime.application.queries.*;
 
+import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceListPageDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.AssignTaskDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.TaskDataDTO;
 import java.util.List;
+import cv.igrp.platform.process.management.shared.application.dto.ConfigParameterDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.TaskVariableDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceStatsDTO;
 
 @IgrpController
 @RestController
@@ -34,11 +39,11 @@ public class TaskInstancesController {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TaskInstancesController.class);
 
-
+  
   private final CommandBus commandBus;
   private final QueryBus queryBus;
 
-
+  
   public TaskInstancesController(
     CommandBus commandBus, QueryBus queryBus
   ) {
@@ -64,11 +69,12 @@ public class TaskInstancesController {
       )
     }
   )
-
+  
   public ResponseEntity<TaskInstanceListPageDTO> listTaskInstances(
     @RequestParam(value = "processInstanceId", required = false) String processInstanceId,
     @RequestParam(value = "processNumber", required = false) String processNumber,
     @RequestParam(value = "processName", required = false) String processName,
+    @RequestParam(value = "applicationBase", required = false) String applicationBase,
     @RequestParam(value = "candidateGroups", required = false) String candidateGroups,
     @RequestParam(value = "user", required = false) String user,
     @RequestParam(value = "status", required = false) String status,
@@ -80,7 +86,7 @@ public class TaskInstancesController {
 
       LOGGER.debug("Operation started");
 
-      final var query = new ListTaskInstancesQuery(processInstanceId, processNumber, processName, candidateGroups, user, status, dateFrom, dateTo, page, size);
+      final var query = new ListTaskInstancesQuery(processInstanceId, processNumber, processName, applicationBase, candidateGroups, user, status, dateFrom, dateTo, page, size);
 
       ResponseEntity<TaskInstanceListPageDTO> response = queryBus.handle(query);
 
@@ -110,7 +116,7 @@ public class TaskInstancesController {
       )
     }
   )
-
+  
   public ResponseEntity<TaskInstanceDTO> getTaskInstanceById(
     @PathVariable(value = "id") String id)
   {
@@ -147,7 +153,7 @@ public class TaskInstancesController {
       )
     }
   )
-
+  
   public ResponseEntity<?> claimTask(
     @PathVariable(value = "id") String id)
   {
@@ -184,7 +190,7 @@ public class TaskInstancesController {
       )
     }
   )
-
+  
   public ResponseEntity<?> unClaimTask(
     @PathVariable(value = "id") String id)
   {
@@ -221,7 +227,7 @@ public class TaskInstancesController {
       )
     }
   )
-
+  
   public ResponseEntity<?> assignTask(@Valid @RequestBody AssignTaskDTO assignTaskRequest
     , @PathVariable(value = "id") String id)
   {
@@ -258,7 +264,7 @@ public class TaskInstancesController {
       )
     }
   )
-
+  
   public ResponseEntity<TaskInstanceDTO> completeTask(@Valid @RequestBody TaskDataDTO completeTaskRequest
     , @PathVariable(value = "id") String id)
   {
@@ -295,10 +301,11 @@ public class TaskInstancesController {
       )
     }
   )
-
+  
   public ResponseEntity<TaskInstanceListPageDTO> getAllMyTasks(
     @RequestParam(value = "processInstanceId", required = false) String processInstanceId,
     @RequestParam(value = "processNumber", required = false) String processNumber,
+    @RequestParam(value = "applicationBase") String applicationBase,
     @RequestParam(value = "processName", required = false) String processName,
     @RequestParam(value = "candidateGroups", required = false) String candidateGroups,
     @RequestParam(value = "status", required = false) String status,
@@ -310,7 +317,7 @@ public class TaskInstancesController {
 
       LOGGER.debug("Operation started");
 
-      final var query = new GetAllMyTasksQuery(processInstanceId, processNumber, processName, candidateGroups, status, dateFrom, dateTo, page, size);
+      final var query = new GetAllMyTasksQuery(processInstanceId, processNumber, applicationBase, processName, candidateGroups, status, dateFrom, dateTo, page, size);
 
       ResponseEntity<TaskInstanceListPageDTO> response = queryBus.handle(query);
 
@@ -340,7 +347,7 @@ public class TaskInstancesController {
       )
     }
   )
-
+  
   public ResponseEntity<List<ConfigParameterDTO>> listTaskInstanceStatus(
     )
   {
@@ -377,7 +384,7 @@ public class TaskInstancesController {
       )
     }
   )
-
+  
   public ResponseEntity<List<ConfigParameterDTO>> listTaskInstanceEventType(
     )
   {
@@ -414,7 +421,7 @@ public class TaskInstancesController {
       )
     }
   )
-
+  
   public ResponseEntity<List<TaskVariableDTO>> getTaskVariablesById(
     @PathVariable(value = "id") String id)
   {
@@ -451,7 +458,7 @@ public class TaskInstancesController {
       )
     }
   )
-
+  
   public ResponseEntity<TaskInstanceStatsDTO> getTaskInstanceStatistics(
     )
   {
@@ -488,7 +495,7 @@ public class TaskInstancesController {
       )
     }
   )
-
+  
   public ResponseEntity<TaskInstanceStatsDTO> getMyTaskInstanceStatistics(
     )
   {
