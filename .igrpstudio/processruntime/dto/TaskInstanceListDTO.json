@@ -247,6 +247,18 @@
       "primaryKey": false,
       "collectionType": "list",
       "module": "processruntime"
+    },
+    {
+      "name": "applicationBase",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
     }
   ],
   "id": "mmtzoh9vg4"
