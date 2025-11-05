@@ -451,6 +451,47 @@
           }
         }
       }
+    },
+    {
+      "actionName": "saveTask",
+      "path": "{id}/save",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "TaskDataDTO",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "processruntime"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TaskInstanceDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "processruntime"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
     }
   ],
   "id": "s7o1wob8tj-CONTROLLER-listTaskInstances-getAllMyTasks"

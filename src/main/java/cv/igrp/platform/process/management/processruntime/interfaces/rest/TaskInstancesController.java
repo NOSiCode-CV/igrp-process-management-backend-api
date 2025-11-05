@@ -14,14 +14,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
-import cv.igrp.framework.core.domain.CommandBus;
-import cv.igrp.framework.core.domain.QueryBus;
-import cv.igrp.platform.process.management.processruntime.application.commands.*;
-import cv.igrp.platform.process.management.processruntime.application.queries.*;
 
+import cv.igrp.framework.core.domain.QueryBus;
+import cv.igrp.platform.process.management.processruntime.application.queries.*;
+import cv.igrp.framework.core.domain.CommandBus;
+import cv.igrp.platform.process.management.processruntime.application.commands.*;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceListPageDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.AssignTaskDTO;
@@ -37,21 +35,15 @@ import cv.igrp.platform.process.management.processruntime.application.dto.TaskIn
 @Tag(name = "TaskInstances", description = "Task Instances Management")
 public class TaskInstancesController {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(TaskInstancesController.class);
-
   
-  private final CommandBus commandBus;
   private final QueryBus queryBus;
+  private final CommandBus commandBus;
 
-  
-  public TaskInstancesController(
-    CommandBus commandBus, QueryBus queryBus
-  ) {
-    this.commandBus = commandBus;
-    this.queryBus = queryBus;
+  public TaskInstancesController(QueryBus queryBus, CommandBus commandBus) {
+          this.queryBus = queryBus;
+          this.commandBus = commandBus;
   }
-
-  @GetMapping(
+   @GetMapping(
   )
   @Operation(
     summary = "GET method to handle operations for listTaskInstances",
@@ -84,21 +76,15 @@ public class TaskInstancesController {
     @RequestParam(value = "size", required = false) Integer size)
   {
 
-      LOGGER.debug("Operation started");
-
       final var query = new ListTaskInstancesQuery(processInstanceId, processNumber, processName, applicationBase, candidateGroups, user, status, dateFrom, dateTo, page, size);
 
       ResponseEntity<TaskInstanceListPageDTO> response = queryBus.handle(query);
 
-      LOGGER.debug("Operation finished");
-
-      return ResponseEntity.status(response.getStatusCode())
-              .headers(response.getHeaders())
-              .body(response.getBody());
+      return response;
   }
 
-  @GetMapping(
-    value = "{id}"
+   @GetMapping(
+   value = "{id}"
   )
   @Operation(
     summary = "GET method to handle operations for getTaskInstanceById",
@@ -121,21 +107,15 @@ public class TaskInstancesController {
     @PathVariable(value = "id") String id)
   {
 
-      LOGGER.debug("Operation started");
-
       final var query = new GetTaskInstanceByIdQuery(id);
 
       ResponseEntity<TaskInstanceDTO> response = queryBus.handle(query);
 
-      LOGGER.debug("Operation finished");
-
-      return ResponseEntity.status(response.getStatusCode())
-              .headers(response.getHeaders())
-              .body(response.getBody());
+      return response;
   }
 
-  @PostMapping(
-    value = "{id}/claim"
+   @PostMapping(
+   value = "{id}/claim"
   )
   @Operation(
     summary = "POST method to handle operations for claimTask",
@@ -158,21 +138,15 @@ public class TaskInstancesController {
     @PathVariable(value = "id") String id)
   {
 
-      LOGGER.debug("Operation started");
-
       final var command = new ClaimTaskCommand(id);
 
        ResponseEntity<?> response = commandBus.send(command);
 
-       LOGGER.debug("Operation finished");
-
-        return ResponseEntity.status(response.getStatusCode())
-              .headers(response.getHeaders())
-              .body(response.getBody());
+       return response;
   }
 
-  @PostMapping(
-    value = "{id}/unclaim"
+   @PostMapping(
+   value = "{id}/unclaim"
   )
   @Operation(
     summary = "POST method to handle operations for unClaimTask",
@@ -195,21 +169,15 @@ public class TaskInstancesController {
     @PathVariable(value = "id") String id)
   {
 
-      LOGGER.debug("Operation started");
-
       final var command = new UnClaimTaskCommand(id);
 
        ResponseEntity<?> response = commandBus.send(command);
 
-       LOGGER.debug("Operation finished");
-
-        return ResponseEntity.status(response.getStatusCode())
-              .headers(response.getHeaders())
-              .body(response.getBody());
+       return response;
   }
 
-  @PostMapping(
-    value = "{id}/assign"
+   @PostMapping(
+   value = "{id}/assign"
   )
   @Operation(
     summary = "POST method to handle operations for assignTask",
@@ -232,21 +200,15 @@ public class TaskInstancesController {
     , @PathVariable(value = "id") String id)
   {
 
-      LOGGER.debug("Operation started");
-
       final var command = new AssignTaskCommand(assignTaskRequest, id);
 
        ResponseEntity<?> response = commandBus.send(command);
 
-       LOGGER.debug("Operation finished");
-
-        return ResponseEntity.status(response.getStatusCode())
-              .headers(response.getHeaders())
-              .body(response.getBody());
+       return response;
   }
 
-  @PostMapping(
-    value = "{id}/complete"
+   @PostMapping(
+   value = "{id}/complete"
   )
   @Operation(
     summary = "POST method to handle operations for completeTask",
@@ -269,21 +231,15 @@ public class TaskInstancesController {
     , @PathVariable(value = "id") String id)
   {
 
-      LOGGER.debug("Operation started");
-
       final var command = new CompleteTaskCommand(completeTaskRequest, id);
 
        ResponseEntity<TaskInstanceDTO> response = commandBus.send(command);
 
-       LOGGER.debug("Operation finished");
-
-        return ResponseEntity.status(response.getStatusCode())
-              .headers(response.getHeaders())
-              .body(response.getBody());
+       return response;
   }
 
-  @GetMapping(
-    value = "me"
+   @GetMapping(
+   value = "me"
   )
   @Operation(
     summary = "GET method to handle operations for getAllMyTasks",
@@ -315,21 +271,15 @@ public class TaskInstancesController {
     @RequestParam(value = "size", required = false) Integer size)
   {
 
-      LOGGER.debug("Operation started");
-
       final var query = new GetAllMyTasksQuery(processInstanceId, processNumber, applicationBase, processName, candidateGroups, status, dateFrom, dateTo, page, size);
 
       ResponseEntity<TaskInstanceListPageDTO> response = queryBus.handle(query);
 
-      LOGGER.debug("Operation finished");
-
-      return ResponseEntity.status(response.getStatusCode())
-              .headers(response.getHeaders())
-              .body(response.getBody());
+      return response;
   }
 
-  @GetMapping(
-    value = "status"
+   @GetMapping(
+   value = "status"
   )
   @Operation(
     summary = "GET method to handle operations for listTaskInstanceStatus",
@@ -352,21 +302,15 @@ public class TaskInstancesController {
     )
   {
 
-      LOGGER.debug("Operation started");
-
       final var query = new ListTaskInstanceStatusQuery();
 
       ResponseEntity<List<ConfigParameterDTO>> response = queryBus.handle(query);
 
-      LOGGER.debug("Operation finished");
-
-      return ResponseEntity.status(response.getStatusCode())
-              .headers(response.getHeaders())
-              .body(response.getBody());
+      return response;
   }
 
-  @GetMapping(
-    value = "event_type"
+   @GetMapping(
+   value = "event_type"
   )
   @Operation(
     summary = "GET method to handle operations for listTaskInstanceEventType",
@@ -389,21 +333,15 @@ public class TaskInstancesController {
     )
   {
 
-      LOGGER.debug("Operation started");
-
       final var query = new ListTaskInstanceEventTypeQuery();
 
       ResponseEntity<List<ConfigParameterDTO>> response = queryBus.handle(query);
 
-      LOGGER.debug("Operation finished");
-
-      return ResponseEntity.status(response.getStatusCode())
-              .headers(response.getHeaders())
-              .body(response.getBody());
+      return response;
   }
 
-  @GetMapping(
-    value = "{id}/variables"
+   @GetMapping(
+   value = "{id}/variables"
   )
   @Operation(
     summary = "GET method to handle operations for getTaskVariablesById",
@@ -426,21 +364,15 @@ public class TaskInstancesController {
     @PathVariable(value = "id") String id)
   {
 
-      LOGGER.debug("Operation started");
-
       final var query = new GetTaskVariablesByIdQuery(id);
 
       ResponseEntity<List<TaskVariableDTO>> response = queryBus.handle(query);
 
-      LOGGER.debug("Operation finished");
-
-      return ResponseEntity.status(response.getStatusCode())
-              .headers(response.getHeaders())
-              .body(response.getBody());
+      return response;
   }
 
-  @GetMapping(
-    value = "stats"
+   @GetMapping(
+   value = "stats"
   )
   @Operation(
     summary = "GET method to handle operations for getTaskInstanceStatistics",
@@ -463,21 +395,15 @@ public class TaskInstancesController {
     )
   {
 
-      LOGGER.debug("Operation started");
-
       final var query = new GetTaskInstanceStatisticsQuery();
 
       ResponseEntity<TaskInstanceStatsDTO> response = queryBus.handle(query);
 
-      LOGGER.debug("Operation finished");
-
-      return ResponseEntity.status(response.getStatusCode())
-              .headers(response.getHeaders())
-              .body(response.getBody());
+      return response;
   }
 
-  @GetMapping(
-    value = "stats/me"
+   @GetMapping(
+   value = "stats/me"
   )
   @Operation(
     summary = "GET method to handle operations for getMyTaskInstanceStatistics",
@@ -500,17 +426,42 @@ public class TaskInstancesController {
     )
   {
 
-      LOGGER.debug("Operation started");
-
       final var query = new GetMyTaskInstanceStatisticsQuery();
 
       ResponseEntity<TaskInstanceStatsDTO> response = queryBus.handle(query);
 
-      LOGGER.debug("Operation finished");
+      return response;
+  }
 
-      return ResponseEntity.status(response.getStatusCode())
-              .headers(response.getHeaders())
-              .body(response.getBody());
+   @PostMapping(
+   value = "{id}/save"
+  )
+  @Operation(
+    summary = "POST method to handle operations for saveTask",
+    description = "POST method to handle operations for saveTask",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          description = "",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = TaskInstanceDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<TaskInstanceDTO> saveTask(@Valid @RequestBody TaskDataDTO saveTaskRequest
+    , @PathVariable(value = "id") String id)
+  {
+
+      final var command = new SaveTaskCommand(saveTaskRequest, id);
+
+       ResponseEntity<TaskInstanceDTO> response = commandBus.send(command);
+
+       return response;
   }
 
 }
