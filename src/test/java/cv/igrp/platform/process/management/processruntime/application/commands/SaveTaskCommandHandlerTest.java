@@ -1,5 +1,8 @@
 package cv.igrp.platform.process.management.processruntime.application.commands;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 import cv.igrp.platform.process.management.processruntime.application.dto.ProcessVariableDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskDataDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceDTO;
@@ -22,11 +25,8 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 @ExtendWith(MockitoExtension.class)
-class CompleteTaskCommandHandlerTest {
+public class SaveTaskCommandHandlerTest {
 
   @Mock
   private TaskInstanceService taskInstanceService;
@@ -38,9 +38,9 @@ class CompleteTaskCommandHandlerTest {
   private UserContext userContext;
 
   @InjectMocks
-  private CompleteTaskCommandHandler handler;
+  private SaveTaskCommandHandler handler;
 
-  private CompleteTaskCommand command;
+  private SaveTaskCommand command;
 
   private TaskInstance mockTaskInstance;
   private Code mockCodeInstance;
@@ -53,14 +53,14 @@ class CompleteTaskCommandHandlerTest {
 
     when(userContext.getCurrentUser()).thenReturn(Code.create("demo@nosi.cv"));
 
-    // Mock TaskInstance and TaskInstanceDTO
+    // Mock TaskInstance, Code and TaskInstanceDTO
     mockTaskInstance = mock(TaskInstance.class);
     mockCodeInstance = mock(Code.class);
     mockTaskInstanceDTO = mock(TaskInstanceDTO.class);
 
     when(taskInstanceService.getTaskById(Identifier.create(id))).thenReturn(mockTaskInstance);
     when(taskInstanceService.getTaskById(Identifier.create(id)).getTaskKey()).thenReturn(mockCodeInstance);
-    when(taskInstanceService.completeTask(any(TaskOperationData.class)))
+    when(taskInstanceService.saveTask(any(TaskOperationData.class)))
         .thenReturn(mockTaskInstance);
     when(taskInstanceMapper.toTaskInstanceDTO(mockTaskInstance))
         .thenReturn(mockTaskInstanceDTO);
@@ -70,7 +70,7 @@ class CompleteTaskCommandHandlerTest {
     taskDataDTO.setForms(List.of(new TaskVariableDTO("form1", "value1")));
     taskDataDTO.setVariables(List.of(new ProcessVariableDTO("var1", "value2")));
 
-    command = new CompleteTaskCommand();
+    command = new SaveTaskCommand();
     command.setId(id);
     command.setTaskdatadto(taskDataDTO);
   }
@@ -82,12 +82,12 @@ class CompleteTaskCommandHandlerTest {
 
     // Then
     assertNotNull(response);
-    assertEquals(200, response.getStatusCodeValue());
+    assertEquals(200, response.getStatusCode().value());
     assertSame(mockTaskInstanceDTO, response.getBody());
 
     // Verify
     verify(taskInstanceService, times(1))
-        .completeTask(any(TaskOperationData.class));
+        .saveTask(any(TaskOperationData.class));
     verify(taskInstanceMapper, times(1))
         .toTaskInstanceDTO(mockTaskInstance);
     verifyNoMoreInteractions(taskInstanceService, taskInstanceMapper, userContext);

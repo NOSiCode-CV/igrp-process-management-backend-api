@@ -100,9 +100,19 @@ public class TaskInstanceService {
     );
   }
 
+  public TaskInstance saveTask(TaskOperationData data) {
+    var taskInstance = getByIdWihEvents(data.getId());
+    data.validateSubmitedVariablesAndForms();
+    var savedTask = save(taskInstance);
+    runtimeProcessEngineRepository.saveTask(
+        taskInstance.getExternalId().getValue(),
+        data.getForms(),
+        data.getVariables()
+    );
+    return savedTask;
+  }
 
   public TaskInstance completeTask(TaskOperationData data) {
-
     var taskInstance = getByIdWihEvents(data.getId());
     taskInstance.complete(data);
     data.validateSubmitedVariablesAndForms();
@@ -211,7 +221,6 @@ public class TaskInstanceService {
     this.saveCurrentEvent(taskInstance.getTaskInstanceEvents().getLast());
     return taskInstance;
   }
-
 
   private void saveCurrentEvent(TaskInstanceEvent taskInstanceEvent){
     taskInstanceEvent.create();
