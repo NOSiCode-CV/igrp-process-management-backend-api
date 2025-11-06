@@ -35,7 +35,7 @@ import cv.igrp.platform.process.management.processruntime.application.dto.TaskIn
 @Tag(name = "TaskInstances", description = "Task Instances Management")
 public class TaskInstancesController {
 
-  
+
   private final QueryBus queryBus;
   private final CommandBus commandBus;
 
@@ -61,7 +61,7 @@ public class TaskInstancesController {
       )
     }
   )
-  
+
   public ResponseEntity<TaskInstanceListPageDTO> listTaskInstances(
     @RequestParam(value = "processInstanceId", required = false) String processInstanceId,
     @RequestParam(value = "processNumber", required = false) String processNumber,
@@ -102,7 +102,7 @@ public class TaskInstancesController {
       )
     }
   )
-  
+
   public ResponseEntity<TaskInstanceDTO> getTaskInstanceById(
     @PathVariable(value = "id") String id)
   {
@@ -133,7 +133,7 @@ public class TaskInstancesController {
       )
     }
   )
-  
+
   public ResponseEntity<?> claimTask(
     @PathVariable(value = "id") String id)
   {
@@ -164,7 +164,7 @@ public class TaskInstancesController {
       )
     }
   )
-  
+
   public ResponseEntity<?> unClaimTask(
     @PathVariable(value = "id") String id)
   {
@@ -195,7 +195,7 @@ public class TaskInstancesController {
       )
     }
   )
-  
+
   public ResponseEntity<?> assignTask(@Valid @RequestBody AssignTaskDTO assignTaskRequest
     , @PathVariable(value = "id") String id)
   {
@@ -226,7 +226,7 @@ public class TaskInstancesController {
       )
     }
   )
-  
+
   public ResponseEntity<TaskInstanceDTO> completeTask(@Valid @RequestBody TaskDataDTO completeTaskRequest
     , @PathVariable(value = "id") String id)
   {
@@ -257,11 +257,11 @@ public class TaskInstancesController {
       )
     }
   )
-  
+
   public ResponseEntity<TaskInstanceListPageDTO> getAllMyTasks(
     @RequestParam(value = "processInstanceId", required = false) String processInstanceId,
     @RequestParam(value = "processNumber", required = false) String processNumber,
-    @RequestParam(value = "applicationBase") String applicationBase,
+    @RequestParam(value = "applicationBase", required = false) String applicationBase,
     @RequestParam(value = "processName", required = false) String processName,
     @RequestParam(value = "candidateGroups", required = false) String candidateGroups,
     @RequestParam(value = "status", required = false) String status,
@@ -297,7 +297,7 @@ public class TaskInstancesController {
       )
     }
   )
-  
+
   public ResponseEntity<List<ConfigParameterDTO>> listTaskInstanceStatus(
     )
   {
@@ -328,7 +328,7 @@ public class TaskInstancesController {
       )
     }
   )
-  
+
   public ResponseEntity<List<ConfigParameterDTO>> listTaskInstanceEventType(
     )
   {
@@ -359,7 +359,7 @@ public class TaskInstancesController {
       )
     }
   )
-  
+
   public ResponseEntity<List<TaskVariableDTO>> getTaskVariablesById(
     @PathVariable(value = "id") String id)
   {
@@ -390,7 +390,7 @@ public class TaskInstancesController {
       )
     }
   )
-  
+
   public ResponseEntity<TaskInstanceStatsDTO> getTaskInstanceStatistics(
     )
   {
@@ -421,7 +421,7 @@ public class TaskInstancesController {
       )
     }
   )
-  
+
   public ResponseEntity<TaskInstanceStatsDTO> getMyTaskInstanceStatistics(
     )
   {
@@ -452,7 +452,7 @@ public class TaskInstancesController {
       )
     }
   )
-  
+
   public ResponseEntity<TaskInstanceDTO> saveTask(@Valid @RequestBody TaskDataDTO saveTaskRequest
     , @PathVariable(value = "id") String id)
   {
