@@ -119,22 +119,24 @@ public class TaskInstanceService {
     var taskInstance = getByIdWihEvents(data.getId());
     taskInstance.complete(data);
     data.validateSubmitedVariablesAndForms();
+    
+    // 2. Persist the completed task
     var completedTask = save(taskInstance);
-    // Call the process engine to complete a task
-    runtimeProcessEngineRepository.completeTask(
-        taskInstance.getExternalId().getValue(),
-        data.getForms(),
-        data.getVariables()
-    );
 
     var processInstance = processInstanceRepository
         .findById(taskInstance.getProcessInstanceId().getValue()).orElseThrow(
             () -> IgrpResponseStatusException.notFound("No Process Instance found with id: " + taskInstance.getProcessInstanceId().getValue()));
 
+        // 5. Check the latest state of the process //for review
     var activityProcess = runtimeProcessEngineRepository
         .getProcessInstanceById(processInstance.getEngineProcessNumber().getValue());
 
-    this.createNextTaskInstances(processInstance, data.getCurrentUser());
+    // 4. Complete the task in the process engine
+    runtimeProcessEngineRepository.completeTask(
+        taskInstance.getExternalId().getValue(),
+        data.getForms(),
+        data.getVariables()
+    );
 
     if (activityProcess.getStatus() == ProcessInstanceStatus.COMPLETED) {
       processInstance.complete(
@@ -145,7 +147,8 @@ public class TaskInstanceService {
     }
 
     return completedTask;
-  }
+}
+
 
 
   public PageableLista<TaskInstance> getAllTaskInstances(TaskInstanceFilter filter) {
