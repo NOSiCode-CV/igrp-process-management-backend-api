@@ -9,8 +9,9 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import java.util.HashMap;
-import java.util.Map;
+import cv.igrp.platform.process.management.shared.application.dto.ProcessVariableDTO;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -27,7 +28,7 @@ public class ProcessEventDTO  {
   
   private String businessKey ;
   
-  
-  private Map<String, ?> variables = new HashMap<>();
+  @Valid
+  private List<ProcessVariableDTO> variables = new ArrayList<>();
 
 }

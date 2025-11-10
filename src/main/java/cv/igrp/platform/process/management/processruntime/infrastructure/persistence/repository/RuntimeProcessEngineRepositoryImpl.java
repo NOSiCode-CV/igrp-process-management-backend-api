@@ -239,7 +239,7 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
   @Override
   public void correlateMessage(String messageName, String businessKey, Map<String, Object> variables) throws RuntimeProcessEngineException {
     try {
-      processManagerAdapter.correlateMessage(messageName, businessKey, variables);
+      processManagerAdapter.correlateMessage(businessKey, messageName, variables);
     } catch (Exception e) {
       LOGGER.error("Failed to correlate message '{}' for businessKey '{}': {}", messageName, businessKey, e.getMessage(), e);
       throw new RuntimeProcessEngineException("Failed to correlate message '" + messageName + "' for businessKey '" + businessKey + "'", e);

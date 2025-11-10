@@ -31,8 +31,8 @@
     },
     {
       "name": "variables",
-      "objectType": "java",
-      "type": "string",
+      "objectType": "dto",
+      "type": "ProcessVariableDTO",
       "required": false,
       "before": false,
       "after": false,
@@ -40,7 +40,8 @@
       "isEmail": false,
       "isUrl": false,
       "primaryKey": false,
-      "collectionType": "map"
+      "collectionType": "list",
+      "module": "shared"
     }
   ],
   "id": "d6wa7nsgdu"

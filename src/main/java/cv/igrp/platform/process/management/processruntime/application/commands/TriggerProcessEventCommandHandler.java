@@ -4,13 +4,16 @@ import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import cv.igrp.platform.process.management.processruntime.domain.service.ProcessInstanceService;
 import cv.igrp.platform.process.management.shared.application.dto.ProcessEventDTO;
+import cv.igrp.platform.process.management.shared.application.dto.ProcessVariableDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @Component
@@ -33,13 +36,19 @@ public class TriggerProcessEventCommandHandler implements CommandHandler<Trigger
       return ResponseEntity.badRequest().body("Invalid or incomplete event message");
     }
 
-    Map<String, Object> vars = event.getVariables() != null ? (Map<String, Object>) event.getVariables() : Collections.emptyMap();
+    Map<String, Object> vars = event.getVariables().stream()
+        .filter(v -> v.getName() != null)
+        .collect(Collectors.toMap(
+            ProcessVariableDTO::getName,
+            ProcessVariableDTO::getValue,
+            (a, b) -> b
+        ));
 
     try {
 
       if (event.getMessageName() != null && !event.getMessageName().isBlank()) {
         LOGGER.info("Correlating message '{}' for businessKey '{}'", event.getMessageName(), event.getBusinessKey());
-        processInstanceService.correlateMessage(event.getMessageName(), event.getBusinessKey(), vars);
+        processInstanceService.correlateMessage(event.getBusinessKey(), event.getMessageName(), vars);
       } else {
         LOGGER.info("Signaling process instance for businessKey '{}'", event.getBusinessKey());
         processInstanceService.signal(event.getBusinessKey(), vars);

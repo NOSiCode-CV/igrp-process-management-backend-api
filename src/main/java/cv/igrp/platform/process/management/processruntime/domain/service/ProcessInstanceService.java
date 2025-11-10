@@ -110,8 +110,8 @@ public class ProcessInstanceService {
         .orElseThrow(() -> IgrpResponseStatusException.notFound("No process instance found with businessKey: " + businessKey));
 
     runtimeProcessEngineRepository.correlateMessage(
-        businessKey,
         messageName,
+        businessKey,
         variables
     );
 
