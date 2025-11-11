@@ -5,14 +5,14 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-
+import cv.igrp.platform.process.management.shared.application.dto.StartProcessDTO;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UnClaimTaskCommand implements Command {
+public class StartProcessEventCommand implements Command {
 
-  @NotBlank(message = "The field <id> is required")
-  private String id;
+  
+  private StartProcessDTO startprocessdto;
 
 }

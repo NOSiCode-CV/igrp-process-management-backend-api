@@ -93,6 +93,11 @@
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
         </dependency>
         <dependency>
@@ -130,13 +135,13 @@
         <dependency>
             <groupId>cv.igrp.framework</groupId>
             <artifactId>runtime-core</artifactId>
-            <version>0.1.0-beta.3</version>
+            <version>0.1.0-beta.4</version>
         </dependency>
 
         <dependency>
             <groupId>cv.igrp.framework</groupId>
             <artifactId>runtime-activiti</artifactId>
-            <version>0.1.0-beta.3</version>
+            <version>0.1.0-beta.4</version>
         </dependency>
 
         <dependency>
@@ -166,12 +171,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Jakarta Mail implementation (Eclipse Angus) -->
-        <dependency>
-            <groupId>org.eclipse.angus</groupId>
-            <artifactId>angus-mail</artifactId>
-            <version>2.0.3</version>
-        </dependency>
 
         <dependency>
             <groupId>org.flywaydb</groupId>
@@ -195,6 +194,11 @@
             <version>2.13.2</version>
         </dependency>
 
+        <dependency>
+            <groupId>io.opentelemetry.instrumentation</groupId>
+            <artifactId>opentelemetry-spring-boot-starter</artifactId>
+        </dependency>
+
     </dependencies>
 
     <dependencyManagement>
@@ -203,6 +207,13 @@
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
                 <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.opentelemetry.instrumentation</groupId>
+                <artifactId>opentelemetry-instrumentation-bom</artifactId>
+                <version>2.21.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>

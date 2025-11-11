@@ -91,6 +91,17 @@ public interface RuntimeProcessEngineRepository {
       throws RuntimeProcessEngineException;
 
   /**
+   * Saves a given task and updates process variables.
+   *
+   * @param taskInstanceId the unique identifier of the task instance
+   * @param forms      forms to update when saving the task (may be {@code null})
+   * @param variables      variables to update when saving the task (may be {@code null})
+   * @throws RuntimeProcessEngineException if the task cannot be saved
+   */
+  void saveTask(String taskInstanceId, Map<String, Object> forms, Map<String, Object> variables)
+      throws RuntimeProcessEngineException;
+
+  /**
    * Completes a given task and optionally updates process variables.
    *
    * @param taskInstanceId the unique identifier of the task instance
@@ -100,6 +111,8 @@ public interface RuntimeProcessEngineRepository {
    */
   void completeTask(String taskInstanceId, Map<String, Object> forms, Map<String, Object> variables)
       throws RuntimeProcessEngineException;
+
+
 
   /**
    * Claims a task on behalf of a specific user.

@@ -135,6 +135,7 @@ public class TaskInstanceMapper {
     dto.setBusinessKey(model.getBusinessKey()!=null ? model.getBusinessKey().getValue() : null);
     dto.setProcessName(model.getProcessName()!=null ? model.getProcessName().getValue() : null);
     dto.setProcessKey(model.getProcessKey()!=null ? model.getProcessKey().getValue() : null);
+    dto.setApplicationBase(model.getApplicationBase().getValue());
     dto.setStartedAt(model.getStartedAt());
     dto.setPriority(model.getPriority());
     dto.setAssignedBy(model.getAssignedBy()!=null ? model.getAssignedBy().getValue() : null);
@@ -183,6 +184,7 @@ public class TaskInstanceMapper {
     return TaskInstanceFilter.builder()
         .processInstanceId(query.getProcessInstanceId() != null ? Identifier.create(query.getProcessInstanceId()) : null)
         .processNumber(query.getProcessNumber() != null ? Code.create(query.getProcessNumber()) : null)
+        .applicationBase((query.getApplicationBase() != null && !query.getApplicationBase().isBlank()) ? Code.create(query.getApplicationBase().trim()) : null)
         .processName((query.getProcessName() != null && !query.getProcessName().isBlank()) ? Name.create(query.getProcessName().trim()) : null)
         .candidateGroups(query.getCandidateGroups() != null ? Code.create(query.getCandidateGroups()) : null)
         .user(query.getUser() != null ? Code.create(query.getUser()) : null)
@@ -199,6 +201,7 @@ public class TaskInstanceMapper {
     return TaskInstanceFilter.builder()
         .processInstanceId(query.getProcessInstanceId() != null ? Identifier.create(query.getProcessInstanceId()) : null)
         .processNumber(query.getProcessNumber() != null ? Code.create(query.getProcessNumber()) : null)
+        .applicationBase((query.getApplicationBase() != null && !query.getApplicationBase().isBlank()) ? Code.create(query.getApplicationBase().trim()) : null)
         .processName((query.getProcessName() != null && !query.getProcessName().isBlank()) ? Name.create(query.getProcessName().trim()) : null)
         .candidateGroups(query.getCandidateGroups() != null ? Code.create(query.getCandidateGroups()) : null)
         .status(query.getStatus() != null ? TaskInstanceStatus.valueOf(query.getStatus()) : null)

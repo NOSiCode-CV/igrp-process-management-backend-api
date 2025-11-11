@@ -84,5 +84,8 @@ public class TaskInstanceListDTO  {
   
   @Valid
   private List<ProcessVariableDTO> variables = new ArrayList<>();
+  
+  
+  private String applicationBase ;
 
 }

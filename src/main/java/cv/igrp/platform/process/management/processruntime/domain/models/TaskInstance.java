@@ -156,7 +156,6 @@ public class TaskInstance {
     createTaskInstanceEvent(TaskEventType.COMPLETE,data.getCurrentUser(),data.getNote());
   }
 
-
   private void createTaskInstanceEvent(TaskEventType eventType, Code user, String note) {
     this.taskInstanceEvents.add(
         TaskInstanceEvent.builder()
