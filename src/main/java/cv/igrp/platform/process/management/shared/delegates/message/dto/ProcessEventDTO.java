@@ -11,6 +11,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class ProcessEventDTO {
 
+  private String taskId; // optional
   private String messageName; // optional
   private String businessKey;
   private Map<String, Object> variables; // optional

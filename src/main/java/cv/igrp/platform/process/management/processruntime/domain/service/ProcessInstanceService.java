@@ -124,13 +124,14 @@ public class ProcessInstanceService {
 
   }
 
-  public void signal(String businessKey, Map<String, Object> variables) {
+  public void signal(String businessKey, String taskId, Map<String, Object> variables) {
 
     ProcessInstance processInstance = processInstanceRepository.findByBusinessKey(businessKey)
         .orElseThrow(() -> IgrpResponseStatusException.notFound("No process instance found with businessKey: " + businessKey));
 
     runtimeProcessEngineRepository.signal(
         processInstance.getEngineProcessNumber().getValue(),
+        taskId,
         variables
     );
 
