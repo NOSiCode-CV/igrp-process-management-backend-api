@@ -26,6 +26,9 @@ public class ProcessEventDTO  {
   private String messageName ;
   
   
+  private String taskId ;
+  
+  
   private String businessKey ;
   
   @Valid

@@ -247,9 +247,9 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
   }
 
   @Override
-  public void signal(String processInstanceId, Map<String, Object> variables) throws RuntimeProcessEngineException {
+  public void signal(String processInstanceId, String taskId, Map<String, Object> variables) throws RuntimeProcessEngineException {
     try {
-      processManagerAdapter.signal(processInstanceId, variables);
+      processManagerAdapter.signal(processInstanceId, taskId, variables);
     } catch (Exception e) {
       LOGGER.error("Failed to signal process instance '{}' with variables: {}", processInstanceId, variables, e);
       throw new RuntimeProcessEngineException(

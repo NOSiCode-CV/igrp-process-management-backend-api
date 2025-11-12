@@ -188,10 +188,11 @@ public interface RuntimeProcessEngineRepository {
   /**
    * Signals a process instance.
    * @param processInstanceId
+   * @param taskId
    * @param variables
    * @throws RuntimeProcessEngineException
    */
-  void signal(String processInstanceId, Map<String, Object> variables) throws RuntimeProcessEngineException;
+  void signal(String processInstanceId, String taskId, Map<String, Object> variables) throws RuntimeProcessEngineException;
 
   /**
    * Retrieves the process definition representation by its ID.
