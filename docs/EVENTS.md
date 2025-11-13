@@ -34,7 +34,6 @@ There is a service task that will be triggered when the signal is received by th
 
 ```json
 {
-  "messageName": "Message_Teste", // optional: if provided, a correlate message is send. This is used usually for Message Immediate Catch Events
   "taskId": "Receive_Message_2", // optional: if not provided, the current awaiting receive task in the workflow will be triggered
   "businessKey": "45-1",
   "variables": {
@@ -48,7 +47,6 @@ There is a service task that will be triggered when the signal is received by th
 
 ```json
 {
-  "messageName": "Message_Teste", // optional: if provided, a correlate message is send. This is used usually for Message Immediate Catch Events
   "taskId": "Receive_Message_2", // optional: if not provided, the current awaiting receive task in the workflow will be triggered
   "businessKey": "45-1",
   "variables": [
@@ -67,3 +65,44 @@ There is a service task that will be triggered when the signal is received by th
 4. In the case a task ID is provided (`Receive_Message_2`), just the receive task 2 is triggered and then the webhook 2 is executed:
 
 ![Webhook 2 Call Result](../assets/images/events/Imagem6.png)
+
+5. In a ‘Message Intermediate Catch Event’ type, you must define a global message reference for it, because it is very important to correlate the message for the specific execution subscription of the process instance.
+
+![Message Intermediate Catch Event Diagram](../assets/images/events/Imagem7.png)
+
+There is a service task that will be triggered when the correlate message is received. This is just to showcase the behaviour when the message is received.
+
+![Message Intermediate Catch Event Configuration](../assets/images/events/Imagem8.png)
+
+6. There are two ways to correlate the message: through a message broker or through API:
+* Through a message broker, when the process event data is published to the topic `igrp-process-events` the message intermediate catch event is triggered, according to the configuration provided in the message structure. The message must be a JSON object with the following structure:
+
+```json
+{
+  "messageName": "Message_Immediate",
+  "businessKey": "47-0",
+  "variables": {
+    "varReceive": "value1",
+    "varTeste": 123
+  }
+}
+```
+
+The `messageName` must be the same as the global message reference defined in the configuration.
+
+* Through an API, the endpoint `/process-instances/event` is used to correlate the message. The payload must be a JSON object, with the following structure:
+
+```json
+{
+  "messageName": "Message_Immediate",
+  "businessKey": "47-0",
+  "variables": [
+    { "name": "varReceive", "value": "value1" },
+    { "name": "varTeste", "value": 123 }
+  ]
+}
+```
+
+4. In the case a global message reference is provided (`Message_Immediate`) with the business key, just the event is triggered and then the webhook is executed:
+
+![Webhook Intermediate Call Result](../assets/images/events/Imagem9.png)
