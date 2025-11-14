@@ -1,5 +1,8 @@
 package cv.igrp.platform.process.management.processruntime.infrastructure.persistence.repository;
 
+import cv.igrp.framework.runtime.core.engine.activity.ActivityQueryService;
+import cv.igrp.framework.runtime.core.engine.activity.model.IGRPActivityType;
+import cv.igrp.framework.runtime.core.engine.activity.model.ProcessActivityInfo;
 import cv.igrp.framework.runtime.core.engine.process.ProcessDefinitionAdapter;
 import cv.igrp.framework.runtime.core.engine.process.ProcessDefinitionRepresentation;
 import cv.igrp.framework.runtime.core.engine.process.ProcessManagerAdapter;
@@ -9,6 +12,7 @@ import cv.igrp.framework.runtime.core.engine.task.TaskQueryService;
 import cv.igrp.framework.runtime.core.engine.task.model.TaskInfo;
 import cv.igrp.framework.runtime.core.engine.task.model.TaskVariableInstance;
 import cv.igrp.platform.process.management.processruntime.domain.exception.RuntimeProcessEngineException;
+import cv.igrp.platform.process.management.processruntime.domain.models.ActivityData;
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstance;
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstanceTaskStatus;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
@@ -21,9 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Repository;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -43,6 +45,7 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
   private final TaskActionService taskActionService;
   private final ProcessInstanceTaskStatusMapper processInstanceTaskStatusMapper;
   private final TaskQueryService taskQueryService;
+  private final ActivityQueryService activityQueryService;
 
   public RuntimeProcessEngineRepositoryImpl(
       ProcessDefinitionAdapter processDefinitionAdapter,
@@ -51,7 +54,9 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
       TaskInstanceMapper taskInstanceMapper,
       TaskActionService taskActionService,
       ProcessInstanceTaskStatusMapper processInstanceTaskStatusMapper,
-      TaskQueryService taskQueryService) {
+      TaskQueryService taskQueryService,
+      ActivityQueryService activityQueryService
+  ) {
     this.processDefinitionAdapter = processDefinitionAdapter;
     this.processManagerAdapter = processManagerAdapter;
     this.processInstanceMapper = processInstanceMapper;
@@ -59,6 +64,7 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
     this.taskActionService = taskActionService;
     this.processInstanceTaskStatusMapper = processInstanceTaskStatusMapper;
     this.taskQueryService = taskQueryService;
+    this.activityQueryService = activityQueryService;
   }
 
   @Override
@@ -268,4 +274,49 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
       throw new RuntimeProcessEngineException("Error retrieving process definition by ID: " + processDefinitionId, e);
     }
   }
+
+  @Override
+  public ActivityData getActivityById(String activityId) {
+    ActivityData activity = ActivityData.builder().build();
+    return activity.withProperties(activityQueryService.getActivity(activityId).orElseThrow(
+        () -> new RuntimeProcessEngineException("No activity found with id: " + activityId)
+    ));
+  }
+
+  @Override
+  public Map<String, Object> getActivityVariables(String activityId) {
+
+    var variables = activityQueryService.getActivityVariables(activityId);
+
+    var variablesMap = new HashMap<String, Object>();
+
+    if(variables == null || variables.isEmpty()) return variablesMap;
+
+    variables.forEach(variable -> variablesMap.put(variable.name(), variable.value()));
+
+    return variablesMap;
+
+  }
+
+  @Override
+  public List<ActivityData> getActiveActivityInstances(String processInstanceId, IGRPActivityType activityType) {
+    return activityQueryService.getActiveActivityInstances(processInstanceId)
+        .stream()
+        .filter(a -> activityType == null || Objects.equals(a.type(), activityType))
+        .map(
+        a -> {
+          var activity = ActivityData.builder().build();
+          return activity.withProperties(a);
+        }
+    ).toList();
+  }
+
+  @Override
+  public List<ProcessActivityInfo> getActivityProgress(String processInstanceId, IGRPActivityType type) {
+    return activityQueryService.getActivityProgress(processInstanceId)
+        .stream()
+        .filter(a -> type == null || Objects.equals(a.type(), type))
+        .toList();
+  }
+
 }

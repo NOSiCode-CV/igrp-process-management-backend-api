@@ -1,7 +1,10 @@
 package cv.igrp.platform.process.management.processruntime.domain.repository;
 
+import cv.igrp.framework.runtime.core.engine.activity.model.IGRPActivityType;
+import cv.igrp.framework.runtime.core.engine.activity.model.ProcessActivityInfo;
 import cv.igrp.framework.runtime.core.engine.process.ProcessDefinitionRepresentation;
 import cv.igrp.platform.process.management.processruntime.domain.exception.RuntimeProcessEngineException;
+import cv.igrp.platform.process.management.processruntime.domain.models.ActivityData;
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstance;
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstanceTaskStatus;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
@@ -201,5 +204,39 @@ public interface RuntimeProcessEngineRepository {
    * @return the {@link ProcessDefinitionRepresentation}
    */
   ProcessDefinitionRepresentation getProcessDefinition(String processDefinitionId);
+
+  /**
+   * Retrieves the activity representation by its ID
+   *
+   * @param activityId the unique identifier for the activity
+   * @return the {@link ActivityData} if present
+   */
+  ActivityData getActivityById(String activityId);
+
+  /**
+   * Retrieve the activity variables through the activity's ID
+   *
+   * @param activityId the unique identifier for the activity
+   * @return a map of variables
+   */
+  Map<String, Object> getActivityVariables(String activityId);
+
+  /**
+   * Retrieve the active activity instances by process instance's ID
+   *
+   * @param processInstanceId the unique identifier for the process instance
+   * @param type the activity type filter
+   * @return a list of {@link ActivityData}
+   */
+  List<ActivityData> getActiveActivityInstances(String processInstanceId, IGRPActivityType type);
+
+  /**
+   * Retrieve the activity progress by process instance's ID
+   *
+   * @param processInstanceId the unique identifier for the process instance
+   * @param type the activity type filter
+   * @return a list of {@link ProcessActivityInfo}
+   */
+  List<ProcessActivityInfo> getActivityProgress(String processInstanceId, IGRPActivityType type);
 
 }
