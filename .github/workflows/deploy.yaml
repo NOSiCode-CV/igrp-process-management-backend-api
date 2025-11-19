@@ -34,6 +34,6 @@ jobs:
 
       - name: Add external repo and push
         run: |
-          git remote add external https://${{ secrets.EXT_REPO_PAT }}@code.irn.justica.gov.pt/plataforma-de-registos/backoffice-componentes-transversais/igrp-process-runtime-backend.git
+          git remote add external https://oauth2:${{ secrets.EXT_REPO_PAT }}@code.irn.justica.gov.pt/plataforma-de-registos/backoffice-componentes-transversais/igrp-process-runtime-backend.git
 
           git push external HEAD:feature/zing-commits --force
