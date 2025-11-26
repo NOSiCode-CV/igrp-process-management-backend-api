@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -22,6 +23,10 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Security configuration class for setting up OAuth2 and JWT authentication with Keycloak.
@@ -101,21 +106,39 @@ public class SecurityConfig {
    */
   @Bean
   public JwtAuthenticationConverter jwtAuthenticationConverter() {
-    var grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
 
     var converter = new JwtAuthenticationConverter();
+
     converter.setJwtGrantedAuthoritiesConverter(jwt -> {
 
-      var authorities = new HashSet<>(grantedAuthoritiesConverter.convert(jwt));
+      Set<GrantedAuthority> authorities = new HashSet<>();
+
+      Map<String, Object> resourceAccess = jwt.getClaim("resource_access");
+
+      if (resourceAccess != null && resourceAccess.containsKey("access-management")) {
+        Map<String, Object> clientAccess =
+            (Map<String, Object>) resourceAccess.get("access-management");
+
+        List<String> roles = (List<String>) clientAccess.get("roles");
+
+        if (roles != null) {
+          roles.forEach(role -> {
+            System.out.println("ROLE: " + role);
+            authorities.add(new SimpleGrantedAuthority(role));
+            authorities.add(new SimpleGrantedAuthority("GROUP_" + role));
+          });
+        }
+
+      }
 
       authorities.add(new SimpleGrantedAuthority("ROLE_ACTIVITI_USER"));
-      authorities.add(new SimpleGrantedAuthority("ROLE_ACTIVITI_ADMIN"));
 
       return authorities;
     });
 
     return converter;
   }
+
 
 
   /**

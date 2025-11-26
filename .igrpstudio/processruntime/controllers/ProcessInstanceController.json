@@ -78,6 +78,7 @@
     },
     {
       "actionName": "startProcessInstance",
+      "path": "start-deprecated",
       "method": "POST",
       "requestBody": {
         "content": {
@@ -269,15 +270,91 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "string",
+                "type": "ProcessInstanceDTO",
+                "objectType": "dto",
                 "name": "data",
-                "collectionType": "none"
+                "collectionType": "none",
+                "module": "processruntime"
               }
             }
           }
         }
       }
+    },
+    {
+      "actionName": "createProcessInstance",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "CreateProcessRequestDTO",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "processruntime"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProcessInstanceDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "processruntime"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "startProcessInstanceById",
+      "path": "{id}/start",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ProcessVariablesRequestDTO",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "processruntime"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProcessInstanceDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "processruntime"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
     }
   ],
-  "id": "pyn9bsrz1z-CONTROLLER"
+  "id": "pyn9bsrz1z-CONTROLLER-startProcessInstance-startProcessEvent-startProcessEvent"
 }

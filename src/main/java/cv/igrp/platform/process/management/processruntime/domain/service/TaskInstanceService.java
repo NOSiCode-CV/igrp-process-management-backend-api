@@ -216,6 +216,8 @@ public class TaskInstanceService {
     final var activeTaskInstanceList = runtimeProcessEngineRepository
         .getActiveTaskInstances(processInstance.getEngineProcessNumber().getValue());
 
+    System.out.println("activeTaskInstanceList size: " +  activeTaskInstanceList.size());
+
     if (activeTaskInstanceList.isEmpty())
       return;
 

@@ -41,6 +41,23 @@ public interface RuntimeProcessEngineRepository {
   ) throws RuntimeProcessEngineException;
 
   /**
+   * Starts a new process instance using the given process instance ID.
+   *
+   * @param processInstanceId the unique identifier of the process instance
+   * @param processDefinitionId the unique identifier of the process definition
+   * @param businessKey         a business-specific correlation key (may be {@code null})
+   * @param variables           initial process variables (may be empty or {@code null})
+   * @return the created {@link ProcessInstance}
+   * @throws RuntimeProcessEngineException if the process cannot be started
+   */
+  ProcessInstance startProcessInstanceById(
+      String processInstanceId,
+      String processDefinitionId,
+      String businessKey,
+      Map<String, Object> variables
+  ) throws RuntimeProcessEngineException;
+
+  /**
    * Creates a new process instance using the given process definition ID.
    *
    * @param processDefinitionId the unique identifier of the process definition

@@ -72,7 +72,7 @@ public abstract class AbstractStartProcessConsumer {
 
       SecurityContextHolder.getContext().setAuthentication(auth);
 
-      processInstanceService.startProcessInstance(toModel(dto), "system-bot@nosi.cv");
+      processInstanceService.createAndStartProcessInstance(toModel(dto), "system-bot@nosi.cv");
       LOGGER.info("Started process instance for processDefinitionId: {}", dto.getProcessDefinitionId());
       LOGGER.debug("Full DTO content: {}", dto);
     } finally {

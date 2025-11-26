@@ -147,9 +147,6 @@ public class TaskInstance {
 
 
   public void complete(TaskOperationData data) {
-    if(this.status!=TaskInstanceStatus.ASSIGNED) {
-      throw IgrpResponseStatusException.of(HttpStatus.CONFLICT, String.format("Cannot Complete a Task in Status[%s]",this.status));
-    }
     this.endedBy = Objects.requireNonNull(data.getCurrentUser(), "Current User cannot be null!");
     this.endedAt = LocalDateTime.now();
     this.status = TaskInstanceStatus.COMPLETED;

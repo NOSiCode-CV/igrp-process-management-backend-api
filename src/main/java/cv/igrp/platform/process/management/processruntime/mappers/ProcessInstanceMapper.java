@@ -5,6 +5,7 @@ import cv.igrp.platform.process.management.processruntime.application.dto.*;
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstance;
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessStatistics;
 import cv.igrp.platform.process.management.shared.application.constants.ProcessInstanceStatus;
+import cv.igrp.platform.process.management.shared.application.dto.StartProcessDTO;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
@@ -17,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 public class ProcessInstanceMapper {
@@ -70,7 +72,7 @@ public class ProcessInstanceMapper {
     return ProcessInstance.builder()
         .id(Identifier.create(processInstanceEntity.getId()))
         .name(processInstanceEntity.getName())
-        .number(ProcessNumber.create(processInstanceEntity.getNumber()))
+        .number(processInstanceEntity.getNumber() != null ? ProcessNumber.create(processInstanceEntity.getNumber()) : null)
         .engineProcessNumber(processInstanceEntity.getEngineProcessNumber()!=null?Code.create(processInstanceEntity.getEngineProcessNumber()):null)
         .procReleaseKey(Code.create(processInstanceEntity.getProcReleaseKey()))
         .businessKey(processInstanceEntity.getBusinessKey() != null ? Code.create(processInstanceEntity.getBusinessKey()) : null)
@@ -96,7 +98,7 @@ public class ProcessInstanceMapper {
       vars.put(variable.getName(), variable.getValue());
     });
     return ProcessInstance.builder()
-        .procReleaseId(Code.create(startProcessRequestDTO.getProcessDefinitionId()))
+        .procReleaseId(startProcessRequestDTO.getProcessDefinitionId() != null ? Code.create(startProcessRequestDTO.getProcessDefinitionId()) : null)
         .procReleaseKey(Code.create(startProcessRequestDTO.getProcessKey()))
         .businessKey(startProcessRequestDTO.getBusinessKey() != null ? Code.create(startProcessRequestDTO.getBusinessKey()) : null)
         .applicationBase(startProcessRequestDTO.getApplicationBase()!= null ? Code.create(startProcessRequestDTO.getApplicationBase()) : null)
@@ -193,4 +195,33 @@ public class ProcessInstanceMapper {
         statistics.getTotalCanceledProcess()
     );
   }
+
+  public ProcessInstance toModel(CreateProcessRequestDTO createProcessRequestDTO) {
+    return ProcessInstance.builder()
+        .procReleaseId(createProcessRequestDTO.getProcessDefinitionId() != null ? Code.create(createProcessRequestDTO.getProcessDefinitionId()) : null)
+        .procReleaseKey(Code.create(createProcessRequestDTO.getProcessKey()))
+        .businessKey(createProcessRequestDTO.getBusinessKey() != null ? Code.create(createProcessRequestDTO.getBusinessKey()) : null)
+        .applicationBase(createProcessRequestDTO.getApplicationBase()!= null ? Code.create(createProcessRequestDTO.getApplicationBase()) : null)
+        .priority(createProcessRequestDTO.getPriority())
+        .build();
+  }
+
+  public ProcessInstance toModel(StartProcessDTO dto) {
+    Map<String, Object> vars = dto.getVariables().stream()
+        .filter(v -> v.getName() != null)
+        .collect(Collectors.toMap(
+            cv.igrp.platform.process.management.shared.application.dto.ProcessVariableDTO::getName,
+            cv.igrp.platform.process.management.shared.application.dto.ProcessVariableDTO::getValue,
+            (a, b) -> b
+        ));
+    return ProcessInstance.builder()
+        .procReleaseId(dto.getProcessDefinitionId() != null ? Code.create(dto.getProcessDefinitionId()) : null)
+        .procReleaseKey(Code.create(dto.getProcessKey()))
+        .businessKey(dto.getBusinessKey() != null ? Code.create(dto.getBusinessKey()) : null)
+        .applicationBase(Code.create(dto.getApplicationBase()))
+        .variables(vars)
+        .priority(dto.getPriority())
+        .build();
+  }
+
 }

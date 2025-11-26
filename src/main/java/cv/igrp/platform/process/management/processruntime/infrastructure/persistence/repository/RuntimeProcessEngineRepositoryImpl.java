@@ -81,6 +81,30 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
   }
 
   @Override
+  public ProcessInstance startProcessInstanceById(String processInstanceId, String processDefinitionId, String businessKey, Map<String, Object> variables) throws RuntimeProcessEngineException {
+    var auth = SecurityContextHolder.getContext().getAuthentication();
+    LOGGER.info("Starting process. user={}, processInstanceId={}, processDefinitionId={}",
+        auth, processInstanceId, processDefinitionId);
+    try {
+      var processInstance = processManagerAdapter.startCreatedProcess(
+          processInstanceId,
+          processDefinitionId,
+          businessKey,
+          variables
+      );
+      LOGGER.info("Process started successfully. instanceId={}, definitionId={}",
+          processInstance.id(), processDefinitionId);
+      return processInstanceMapper.toModel(processInstance);
+    } catch (Exception e) {
+      LOGGER.error(
+          "Error starting process. processInstanceId={}, processDefinitionId={}, message={}",
+          processInstanceId, processDefinitionId, e.getMessage(), e
+      );
+      throw new RuntimeProcessEngineException("Failed to start process", e);
+    }
+  }
+
+  @Override
   public ProcessInstance createProcessInstanceById(String processDefinitionId, String businessKey) throws RuntimeProcessEngineException {
     LOGGER.info("Authenticated user: {}", SecurityContextHolder.getContext().getAuthentication().getName());
     try {

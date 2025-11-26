@@ -14,19 +14,18 @@ import org.slf4j.LoggerFactory;
 import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceDTO;
 import org.springframework.transaction.annotation.Transactional;
 
-
 @Component
-public class StartProcessEventCommandHandler implements CommandHandler<StartProcessEventCommand, ResponseEntity<ProcessInstanceDTO>> {
+public class CreateProcessInstanceCommandHandler implements CommandHandler<CreateProcessInstanceCommand, ResponseEntity<ProcessInstanceDTO>> {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(StartProcessEventCommandHandler.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CreateProcessInstanceCommandHandler.class);
 
   private final ProcessInstanceService processInstanceService;
   private final ProcessInstanceMapper mapper;
   private final UserContext userContext;
 
-  public StartProcessEventCommandHandler(ProcessInstanceService processInstanceService,
-                                         ProcessInstanceMapper mapper,
-                                         UserContext userContext) {
+  public CreateProcessInstanceCommandHandler(ProcessInstanceService processInstanceService,
+                                             ProcessInstanceMapper mapper,
+                                             UserContext userContext) {
     this.processInstanceService = processInstanceService;
     this.mapper = mapper;
     this.userContext = userContext;
@@ -34,12 +33,12 @@ public class StartProcessEventCommandHandler implements CommandHandler<StartProc
 
   @Transactional
   @IgrpCommandHandler
-  public ResponseEntity<ProcessInstanceDTO> handle(StartProcessEventCommand command) {
-    ProcessInstance processInstance = processInstanceService.createAndStartProcessInstance(
-        mapper.toModel(command.getStartprocessdto()),
+  public ResponseEntity<ProcessInstanceDTO> handle(CreateProcessInstanceCommand command) {
+    ProcessInstance processInstance = processInstanceService.createProcessInstance(
+        mapper.toModel(command.getCreateprocessrequestdto()),
         userContext.getCurrentUser().getValue()
     );
-    return ResponseEntity.ok(mapper.toDTO(processInstance));
+    return ResponseEntity.status(201).body(mapper.toDTO(processInstance));
   }
 
 }

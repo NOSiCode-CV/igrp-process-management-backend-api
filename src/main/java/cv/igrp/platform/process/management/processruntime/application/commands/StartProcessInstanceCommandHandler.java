@@ -21,7 +21,6 @@ public class StartProcessInstanceCommandHandler implements CommandHandler<StartP
   private final ProcessInstanceService processInstanceService;
   private final ProcessInstanceMapper mapper;
   private final UserContext userContext;
-  private final ProcessDeploymentService processDeploymentService;
 
   public StartProcessInstanceCommandHandler(ProcessInstanceService processInstanceService,
                                             ProcessInstanceMapper mapper,
@@ -29,7 +28,6 @@ public class StartProcessInstanceCommandHandler implements CommandHandler<StartP
     this.processInstanceService = processInstanceService;
     this.mapper = mapper;
     this.userContext = userContext;
-    this.processDeploymentService = processDeploymentService;
   }
 
   @IgrpCommandHandler
@@ -41,16 +39,8 @@ public class StartProcessInstanceCommandHandler implements CommandHandler<StartP
     LOGGER.info("User [{}] began starting process instance with definition id [{}]",
         currentUser.getValue(), dto.getProcessDefinitionId());
 
-    if (dto.getProcessDefinitionId() == null || dto.getProcessDefinitionId().isBlank()) {
-      var processKey = dto.getProcessKey();
-      var latestProcessDefinitionId = processDeploymentService.findLatesProcessDefinitionIdByKey(processKey);
-      dto.setProcessDefinitionId(latestProcessDefinitionId);
-      LOGGER.info("ProcessDefinitionId was null, resolved latest ID [{}] for process key [{}]",
-          latestProcessDefinitionId, processKey);
-    }
-
     var processInstance = processInstanceService.
-        startProcessInstance(mapper.toModel(dto),currentUser.getValue());
+        createAndStartProcessInstance(mapper.toModel(dto),currentUser.getValue());
 
     LOGGER.info("User [{}] finished starting process successfully with definition id [{}]. Instance id [{}]",
         currentUser.getValue(), dto.getProcessDefinitionId(), processInstance.getId().getValue());

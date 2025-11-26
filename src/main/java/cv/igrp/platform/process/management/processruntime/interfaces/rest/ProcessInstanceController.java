@@ -29,6 +29,8 @@ import cv.igrp.platform.process.management.processruntime.application.dto.Proces
 import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceStatsDTO;
 import cv.igrp.platform.process.management.shared.application.dto.ProcessEventDTO;
 import cv.igrp.platform.process.management.shared.application.dto.StartProcessDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.CreateProcessRequestDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.ProcessVariablesRequestDTO;
 
 @IgrpController
 @RestController
@@ -47,8 +49,8 @@ public class ProcessInstanceController {
    @GetMapping(
   )
   @Operation(
-    summary = "GET method to handle operations for listProcessInstances",
-    description = "GET method to handle operations for listProcessInstances",
+    summary = "List process instances",
+    description = "List process instances",
     responses = {
       @ApiResponse(
           responseCode = "200",
@@ -82,10 +84,11 @@ public class ProcessInstanceController {
   }
 
    @PostMapping(
+   value = "start-deprecated"
   )
   @Operation(
-    summary = "POST method to handle operations for startProcessInstance",
-    description = "POST method to handle operations for startProcessInstance",
+    summary = "Start process instance",
+    description = "Start process instance",
     responses = {
       @ApiResponse(
           responseCode = "201",
@@ -115,8 +118,8 @@ public class ProcessInstanceController {
    value = "{id}"
   )
   @Operation(
-    summary = "GET method to handle operations for getProcessInstanceById",
-    description = "GET method to handle operations for getProcessInstanceById",
+    summary = "Get process instance by id",
+    description = "Get process instance by id",
     responses = {
       @ApiResponse(
           responseCode = "200",
@@ -146,8 +149,8 @@ public class ProcessInstanceController {
    value = "status"
   )
   @Operation(
-    summary = "GET method to handle operations for listProcessInstanceStatus",
-    description = "GET method to handle operations for listProcessInstanceStatus",
+    summary = "List process instance status",
+    description = "List process instance status",
     responses = {
       @ApiResponse(
           responseCode = "200",
@@ -177,8 +180,8 @@ public class ProcessInstanceController {
    value = "{id}/task-status"
   )
   @Operation(
-    summary = "GET method to handle operations for getTaskStatus",
-    description = "GET method to handle operations for getTaskStatus",
+    summary = "Get task status",
+    description = "Get task status",
     responses = {
       @ApiResponse(
           responseCode = "200",
@@ -208,8 +211,8 @@ public class ProcessInstanceController {
    value = "stats"
   )
   @Operation(
-    summary = "GET method to handle operations for getProcessInstanceStatistics",
-    description = "GET method to handle operations for getProcessInstanceStatistics",
+    summary = "Get process instance statistics",
+    description = "Get process instance statistics",
     responses = {
       @ApiResponse(
           responseCode = "200",
@@ -239,8 +242,8 @@ public class ProcessInstanceController {
    value = "event"
   )
   @Operation(
-    summary = "POST method to handle operations for triggerProcessEvent",
-    description = "POST method to handle operations for triggerProcessEvent",
+    summary = "Trigger process event",
+    description = "Trigger process event",
     responses = {
       @ApiResponse(
           responseCode = "200",
@@ -270,8 +273,8 @@ public class ProcessInstanceController {
    value = "start-event"
   )
   @Operation(
-    summary = "POST method to handle operations for startProcessEvent",
-    description = "POST method to handle operations for startProcessEvent",
+    summary = "Start process event",
+    description = "Start process event",
     responses = {
       @ApiResponse(
           responseCode = "200",
@@ -279,20 +282,81 @@ public class ProcessInstanceController {
           content = @Content(
               mediaType = "application/json",
               schema = @Schema(
-                  implementation = String.class,
-                  type = "String")
+                  implementation = ProcessInstanceDTO.class,
+                  type = "object")
           )
       )
     }
   )
   
-  public ResponseEntity<String> startProcessEvent(@Valid @RequestBody StartProcessDTO startProcessEventRequest
+  public ResponseEntity<ProcessInstanceDTO> startProcessEvent(@Valid @RequestBody StartProcessDTO startProcessEventRequest
     )
   {
 
       final var command = new StartProcessEventCommand(startProcessEventRequest);
 
-       ResponseEntity<String> response = commandBus.send(command);
+       ResponseEntity<ProcessInstanceDTO> response = commandBus.send(command);
+
+       return response;
+  }
+
+   @PostMapping(
+  )
+  @Operation(
+    summary = "Create process instance",
+    description = "Create process instance",
+    responses = {
+      @ApiResponse(
+          responseCode = "201",
+          description = "",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = ProcessInstanceDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<ProcessInstanceDTO> createProcessInstance(@Valid @RequestBody CreateProcessRequestDTO createProcessInstanceRequest
+    )
+  {
+
+      final var command = new CreateProcessInstanceCommand(createProcessInstanceRequest);
+
+       ResponseEntity<ProcessInstanceDTO> response = commandBus.send(command);
+
+       return response;
+  }
+
+   @PostMapping(
+   value = "{id}/start"
+  )
+  @Operation(
+    summary = "Start process instance by id",
+    description = "Start process instance by id",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          description = "",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = ProcessInstanceDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<ProcessInstanceDTO> startProcessInstanceById(@Valid @RequestBody ProcessVariablesRequestDTO startProcessInstanceByIdRequest
+    , @PathVariable(value = "id") String id)
+  {
+
+      final var command = new StartProcessInstanceByIdCommand(startProcessInstanceByIdRequest, id);
+
+       ResponseEntity<ProcessInstanceDTO> response = commandBus.send(command);
 
        return response;
   }
