@@ -9,7 +9,7 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-
+import cv.igrp.platform.process.management.shared.application.constants.VaribalesOperator;
 
 @Data
 @NoArgsConstructor
@@ -17,19 +17,16 @@ import lombok.AllArgsConstructor;
 
 
 @IgrpDTO
-public class AssignTaskDTO  {
+public class VariablesExpressionDTO  {
 
-  @Size(min = 1, message = "The field length <user> must be at least 1 characters")
+  @NotBlank(message = "The field <name> is required")
   
-  private String user ;
+  private String name ;
+  @NotNull(message = "The field <operator> is required")
   
+  private VaribalesOperator operator ;
+  @NotNull(message = "The field <value> is required")
   
-  private Integer priority ;
-  
-  
-  private String note ;
-  
-  
-  private String candidateGroup ;
+  private Object value ;
 
 }

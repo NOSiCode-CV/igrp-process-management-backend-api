@@ -41,7 +41,6 @@ public class ProcessInstanceMapper {
     processInstanceEntity.setStartedAt(processInstance.getStartedAt());
     processInstanceEntity.setStartedBy(processInstance.getStartedBy());
     processInstanceEntity.setObsCancel(processInstance.getObsCancel());
-    processInstanceEntity.setSearchTerms(processInstance.getSearchTerms());
     processInstanceEntity.setName(processInstance.getName());
     processInstanceEntity.setPriority(processInstance.getPriority());
     return processInstanceEntity;
@@ -63,7 +62,6 @@ public class ProcessInstanceMapper {
     processInstanceEntity.setStartedAt(processInstance.getStartedAt());
     processInstanceEntity.setStartedBy(processInstance.getStartedBy());
     processInstanceEntity.setObsCancel(processInstance.getObsCancel());
-    processInstanceEntity.setSearchTerms(processInstance.getSearchTerms());
     processInstanceEntity.setName(processInstance.getName());
     processInstanceEntity.setPriority(processInstance.getPriority());
   }
@@ -78,7 +76,6 @@ public class ProcessInstanceMapper {
         .businessKey(processInstanceEntity.getBusinessKey() != null ? Code.create(processInstanceEntity.getBusinessKey()) : null)
         .procReleaseId(Code.create(processInstanceEntity.getProcReleaseId()))
         .status(processInstanceEntity.getStatus())
-        .searchTerms(processInstanceEntity.getSearchTerms())
         .version(processInstanceEntity.getVersion())
         .startedAt(processInstanceEntity.getStartedAt())
         .endedAt(processInstanceEntity.getEndedAt())

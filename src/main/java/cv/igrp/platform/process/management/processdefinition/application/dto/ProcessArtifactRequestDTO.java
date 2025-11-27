@@ -9,7 +9,8 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -28,5 +29,8 @@ public class ProcessArtifactRequestDTO  {
   @NotBlank(message = "The field <formKey> is required")
   
   private String formKey ;
+  
+  
+  private List<String> candidateGroups = new ArrayList<>();
 
 }

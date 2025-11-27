@@ -98,12 +98,6 @@ public class ProcessInstanceRepositoryImpl implements ProcessInstanceRepository 
       });
     }
 
-    if (filter.getSearchTerms() != null) {
-      spec = spec.and((root, query, cb) -> {
-        return cb.like(cb.lower(root.get("searchTerms")), "%" + filter.getSearchTerms().toLowerCase() + "%");
-      });
-    }
-
     if (filter.getApplicationBase() != null) {
       spec = spec.and((root, query, cb) -> {
         return cb.equal(root.get("applicationBase"), filter.getApplicationBase().getValue());

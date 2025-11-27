@@ -1,18 +1,19 @@
-package cv.igrp.platform.process.management.processruntime.application.queries;
+package cv.igrp.platform.process.management.processruntime.application.commands;
 
-import cv.igrp.framework.core.domain.Query;
+import cv.igrp.framework.core.domain.Command;
 import jakarta.validation.constraints.*;
-
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-
+import cv.igrp.platform.process.management.processruntime.application.dto.VariablesFilterDTO;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ListProcessInstancesQuery implements Query {
+public class ListProcessInstancesCommand implements Command {
 
+  
+  private VariablesFilterDTO variablesfilterdto;
   @NotBlank(message = "The field <number> is required")
   private String number;
   @NotBlank(message = "The field <procReleaseKey> is required")

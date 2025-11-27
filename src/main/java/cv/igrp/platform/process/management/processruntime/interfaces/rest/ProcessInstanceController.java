@@ -20,8 +20,8 @@ import cv.igrp.framework.core.domain.QueryBus;
 import cv.igrp.platform.process.management.processruntime.application.queries.*;
 import cv.igrp.framework.core.domain.CommandBus;
 import cv.igrp.platform.process.management.processruntime.application.commands.*;
+import cv.igrp.platform.process.management.processruntime.application.dto.VariablesFilterDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceListPageDTO;
-import cv.igrp.platform.process.management.processruntime.application.dto.StartProcessRequestDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceDTO;
 import java.util.List;
 import cv.igrp.platform.process.management.shared.application.dto.ConfigParameterDTO;
@@ -46,11 +46,11 @@ public class ProcessInstanceController {
           this.queryBus = queryBus;
           this.commandBus = commandBus;
   }
-   @GetMapping(
+      @PostMapping(
   )
   @Operation(
-    summary = "List process instances",
-    description = "List process instances",
+    summary = "POST method to handle operations for List process instances",
+    description = "POST method to handle operations for List process instances",
     responses = {
       @ApiResponse(
           responseCode = "200",
@@ -65,61 +65,29 @@ public class ProcessInstanceController {
     }
   )
   
-  public ResponseEntity<ProcessInstanceListPageDTO> listProcessInstances(
-    @RequestParam(value = "number", required = false) String number,
+  public ResponseEntity<ProcessInstanceListPageDTO> listProcessInstances(@Valid @RequestBody VariablesFilterDTO listProcessInstancesRequest
+    , @RequestParam(value = "number", required = false) String number,
     @RequestParam(value = "procReleaseKey", required = false) String procReleaseKey,
     @RequestParam(value = "procReleaseId", required = false) String procReleaseId,
     @RequestParam(value = "status", required = false) String status,
-    @RequestParam(value = "searchTerms", required = false) String searchTerms,
     @RequestParam(value = "applicationBase", required = false) String applicationBase,
     @RequestParam(value = "page", required = false) Integer page,
     @RequestParam(value = "size", required = false) Integer size)
   {
 
-      final var query = new ListProcessInstancesQuery(number, procReleaseKey, procReleaseId, status, searchTerms, applicationBase, page, size);
+      final var command = new ListProcessInstancesCommand(listProcessInstancesRequest, number, procReleaseKey, procReleaseId, status, applicationBase, page, size);
 
-      ResponseEntity<ProcessInstanceListPageDTO> response = queryBus.handle(query);
-
-      return response;
-  }
-
-   @PostMapping(
-   value = "start-deprecated"
-  )
-  @Operation(
-    summary = "Start process instance",
-    description = "Start process instance",
-    responses = {
-      @ApiResponse(
-          responseCode = "201",
-          description = "Started process instance",
-          content = @Content(
-              mediaType = "application/json",
-              schema = @Schema(
-                  implementation = ProcessInstanceDTO.class,
-                  type = "object")
-          )
-      )
-    }
-  )
-  
-  public ResponseEntity<ProcessInstanceDTO> startProcessInstance(@Valid @RequestBody StartProcessRequestDTO startProcessInstanceRequest
-    )
-  {
-
-      final var command = new StartProcessInstanceCommand(startProcessInstanceRequest);
-
-       ResponseEntity<ProcessInstanceDTO> response = commandBus.send(command);
+       ResponseEntity<ProcessInstanceListPageDTO> response = commandBus.send(command);
 
        return response;
   }
 
-   @GetMapping(
+      @GetMapping(
    value = "{id}"
   )
   @Operation(
-    summary = "Get process instance by id",
-    description = "Get process instance by id",
+    summary = "GET method to handle operations for Get process instance by id",
+    description = "GET method to handle operations for Get process instance by id",
     responses = {
       @ApiResponse(
           responseCode = "200",
@@ -145,12 +113,12 @@ public class ProcessInstanceController {
       return response;
   }
 
-   @GetMapping(
+      @GetMapping(
    value = "status"
   )
   @Operation(
-    summary = "List process instance status",
-    description = "List process instance status",
+    summary = "GET method to handle operations for List process instance status",
+    description = "GET method to handle operations for List process instance status",
     responses = {
       @ApiResponse(
           responseCode = "200",
@@ -176,12 +144,12 @@ public class ProcessInstanceController {
       return response;
   }
 
-   @GetMapping(
+      @GetMapping(
    value = "{id}/task-status"
   )
   @Operation(
-    summary = "Get task status",
-    description = "Get task status",
+    summary = "GET method to handle operations for Get task status",
+    description = "GET method to handle operations for Get task status",
     responses = {
       @ApiResponse(
           responseCode = "200",
@@ -207,12 +175,12 @@ public class ProcessInstanceController {
       return response;
   }
 
-   @GetMapping(
+      @GetMapping(
    value = "stats"
   )
   @Operation(
-    summary = "Get process instance statistics",
-    description = "Get process instance statistics",
+    summary = "GET method to handle operations for Get process instance statistics",
+    description = "GET method to handle operations for Get process instance statistics",
     responses = {
       @ApiResponse(
           responseCode = "200",
@@ -238,12 +206,12 @@ public class ProcessInstanceController {
       return response;
   }
 
-   @PostMapping(
+      @PostMapping(
    value = "event"
   )
   @Operation(
-    summary = "Trigger process event",
-    description = "Trigger process event",
+    summary = "POST method to handle operations for Trigger process event",
+    description = "POST method to handle operations for Trigger process event",
     responses = {
       @ApiResponse(
           responseCode = "200",
@@ -269,12 +237,12 @@ public class ProcessInstanceController {
        return response;
   }
 
-   @PostMapping(
+      @PostMapping(
    value = "start-event"
   )
   @Operation(
-    summary = "Start process event",
-    description = "Start process event",
+    summary = "POST method to handle operations for Start process event",
+    description = "POST method to handle operations for Start process event",
     responses = {
       @ApiResponse(
           responseCode = "200",
@@ -300,11 +268,11 @@ public class ProcessInstanceController {
        return response;
   }
 
-   @PostMapping(
+      @PostMapping(
   )
   @Operation(
-    summary = "Create process instance",
-    description = "Create process instance",
+    summary = "POST method to handle operations for Create process instance",
+    description = "POST method to handle operations for Create process instance",
     responses = {
       @ApiResponse(
           responseCode = "201",
@@ -330,12 +298,12 @@ public class ProcessInstanceController {
        return response;
   }
 
-   @PostMapping(
+      @PostMapping(
    value = "{id}/start"
   )
   @Operation(
-    summary = "Start process instance by id",
-    description = "Start process instance by id",
+    summary = "POST method to handle operations for Start process instance by id",
+    description = "POST method to handle operations for Start process instance by id",
     responses = {
       @ApiResponse(
           responseCode = "200",

@@ -9,6 +9,7 @@ import cv.igrp.platform.process.management.shared.domain.models.Name;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.ProcessArtifactEntity;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -20,6 +21,7 @@ public class ProcessArtifactMapper {
         .processDefinitionId(Code.create(processDefinitionId))
         .key(Code.create(dto.getKey()))
         .formKey(Code.create(dto.getFormKey()))
+        .candidateGroups(dto.getCandidateGroups())
         .build();
   }
 
@@ -30,6 +32,7 @@ public class ProcessArtifactMapper {
     dto.setProcessDefinitionId(model.getProcessDefinitionId().getValue());
     dto.setKey(model.getKey().getValue());
     dto.setFormKey(model.getFormKey().getValue());
+    dto.setCandidateGroups(model.getCandidateGroups());
     return dto;
   }
 
@@ -40,6 +43,9 @@ public class ProcessArtifactMapper {
     entity.setKey(model.getKey().getValue());
     entity.setFormKey(model.getFormKey().getValue());
     entity.setId(model.getId().getValue());
+    if(!model.getCandidateGroups().isEmpty()) {
+      entity.setCandidateGroups(String.join(",", model.getCandidateGroups()));
+    }
     return entity;
   }
 
@@ -50,6 +56,9 @@ public class ProcessArtifactMapper {
         .processDefinitionId(Code.create(entity.getProcessDefinitionId()))
         .key(Code.create(entity.getKey()))
         .formKey(Code.create(entity.getFormKey()))
+        .candidateGroups(entity.getCandidateGroups() != null
+            ? new ArrayList<>(List.of(entity.getCandidateGroups().split(",")))
+            : new ArrayList<>())
         .build();
   }
 

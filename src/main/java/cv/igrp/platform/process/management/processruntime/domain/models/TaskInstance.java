@@ -122,7 +122,7 @@ public class TaskInstance {
   }
 
 
-  public void assign(TaskOperationData data) {
+  public void assignUser(TaskOperationData data) {
     if(this.status!=TaskInstanceStatus.CREATED) {
       throw IgrpResponseStatusException.of(HttpStatus.CONFLICT, String.format("Cannot Assign a Task in Status[%s]",this.status));
     }
@@ -134,6 +134,29 @@ public class TaskInstance {
     createTaskInstanceEvent(TaskEventType.ASSIGN,data.getCurrentUser(),data.getNote());
   }
 
+  public void addCandidateGroup(TaskOperationData data) {
+    if(this.status != TaskInstanceStatus.CREATED) {
+      throw IgrpResponseStatusException.of(HttpStatus.CONFLICT, String.format("Cannot Assign a Task in Status[%s]",this.status));
+    }
+    if(this.candidateGroups.contains(data.getCandidateGroup().getValue())){
+      throw IgrpResponseStatusException.of(HttpStatus.BAD_REQUEST, String.format("Candidate Group[%s] already assigned to this Task!", data.getCandidateGroup().getValue()));
+    }
+    this.candidateGroups.add(data.getCandidateGroup().getValue());
+    this.assignedAt = LocalDateTime.now();
+    this.status = TaskInstanceStatus.ASSIGNED;
+    if(data.getPriority()!=null && data.getPriority()!=0)
+      this.priority = data.getPriority();
+    createTaskInstanceEvent(TaskEventType.ASSIGN,data.getCurrentUser(),data.getNote());
+  }
+
+  public void addCandidateGroup(Identifier id, String groupId, Code user) {
+    TaskOperationData taskOperationData = TaskOperationData.builder()
+        .currentUser(user)
+        .id(id.toString())
+        .candidateGroup(groupId)
+        .build();
+    addCandidateGroup(taskOperationData);
+  }
 
   public void unClaim(TaskOperationData data) {
     if(this.status!=TaskInstanceStatus.ASSIGNED) {

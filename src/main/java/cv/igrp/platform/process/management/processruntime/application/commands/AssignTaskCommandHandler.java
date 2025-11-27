@@ -37,6 +37,7 @@ public class AssignTaskCommandHandler implements CommandHandler<AssignTaskComman
             .targetUser(command.getAssigntaskdto().getUser())
             .priority(command.getAssigntaskdto().getPriority())
             .note(command.getAssigntaskdto().getNote())
+            .candidateGroup(command.getAssigntaskdto().getCandidateGroup())
             .build()
     );
     LOGGER.info("User [{}] finished assigning task [{}] to user [{}]", currentUser.getValue(), command.getId(), command.getAssigntaskdto().getUser());

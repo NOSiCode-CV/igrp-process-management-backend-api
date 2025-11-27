@@ -256,4 +256,13 @@ public interface RuntimeProcessEngineRepository {
    */
   List<ProcessActivityInfo> getActivityProgress(String processInstanceId, IGRPActivityType type);
 
+  /**
+   * Add a candidate group to a task.
+   *
+   * @param taskId the unique identifier of the task
+   * @param groupId the unique identifier of the candidate group
+   * @throws RuntimeProcessEngineException if the task cannot be found or the candidate group cannot be added
+   */
+  void addCandidateGroup(String taskId, String groupId) throws RuntimeProcessEngineException;
+
 }

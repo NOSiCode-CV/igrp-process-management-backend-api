@@ -50,7 +50,6 @@ public class TaskInstanceMapper {
     taskInstanceEntity.setName(taskInstance.getName().getValue());
     taskInstanceEntity.setExternalId(taskInstance.getExternalId().getValue());
     taskInstanceEntity.setCandidateGroups(!taskInstance.getCandidateGroups().isEmpty() ? String.join(",", taskInstance.getCandidateGroups()) : null);
-    taskInstanceEntity.setSearchTerms(taskInstance.getSearchTerms());
     taskInstanceEntity.setPriority(taskInstance.getPriority());
     taskInstanceEntity.setStatus(taskInstance.getStatus());
     taskInstanceEntity.setStartedBy(taskInstance.getStartedBy().getValue());
@@ -71,7 +70,6 @@ public class TaskInstanceMapper {
     taskInstanceEntity.setEndedBy(taskInstance.getEndedBy() != null ? taskInstance.getEndedBy().getValue() : null);
     taskInstanceEntity.setEndedAt(taskInstance.getEndedAt());
     taskInstanceEntity.setPriority(taskInstance.getPriority());
-    taskInstanceEntity.setSearchTerms(taskInstance.getSearchTerms());
   }
 
 
@@ -96,7 +94,6 @@ public class TaskInstanceMapper {
         .processKey(Code.create(processInstance.getProcReleaseKey()))
         .applicationBase(Code.create(processInstance.getApplicationBase()))
         .status(taskInstanceEntity.getStatus())
-        .searchTerms(taskInstanceEntity.getSearchTerms())
         .priority(taskInstanceEntity.getPriority())
         .startedAt(taskInstanceEntity.getStartedAt())
         .startedBy(Code.create(taskInstanceEntity.getStartedBy()))

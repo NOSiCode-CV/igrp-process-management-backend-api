@@ -6,6 +6,8 @@ import cv.igrp.platform.process.management.shared.domain.models.Name;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Getter
@@ -16,18 +18,21 @@ public class ProcessArtifact {
   private final Code key;
   private final Code formKey;
   private final Code processDefinitionId;
+  private final List<String> candidateGroups;
 
   @Builder
   public ProcessArtifact(Identifier id,
                          Name name,
                          Code key,
                          Code formKey,
-                         Code processDefinitionId) {
+                         Code processDefinitionId,
+                         List<String> candidateGroups) {
     this.id = id ==  null ? Identifier.generate() : id;
     this.name = Objects.requireNonNull(name, "The Name of the task cannot be null!");
     this.key = Objects.requireNonNull(key, "Task Key Id cannot be null!");
     this.formKey = Objects.requireNonNull(formKey, "Form Key Id cannot be null!");
     this.processDefinitionId = Objects.requireNonNull(processDefinitionId, "ProcessDefinition Id cannot be null!");
+    this.candidateGroups = candidateGroups == null ? new ArrayList<>() : candidateGroups;
   }
 
 }

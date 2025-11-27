@@ -1,28 +1,15 @@
 {
   "type": "dto",
   "module": "processruntime",
-  "name": "AssignTaskDTO",
+  "name": "VariablesExpressionDTO",
   "template": "classic",
   "enableCustonValidation": false,
   "attributes": [
     {
-      "name": "user",
+      "name": "name",
       "objectType": "java",
       "type": "string",
-      "required": false,
-      "before": false,
-      "after": false,
-      "positive": false,
-      "minLength": 1,
-      "isEmail": false,
-      "isUrl": false,
-      "primaryKey": false
-    },
-    {
-      "name": "priority",
-      "objectType": "java",
-      "type": "integer",
-      "required": false,
+      "required": true,
       "before": false,
       "after": false,
       "positive": false,
@@ -31,22 +18,23 @@
       "primaryKey": false
     },
     {
-      "name": "note",
-      "objectType": "java",
-      "type": "string",
-      "required": false,
+      "name": "operator",
+      "objectType": "enum",
+      "type": "VaribalesOperator",
+      "required": true,
       "before": false,
       "after": false,
       "positive": false,
       "isEmail": false,
       "isUrl": false,
-      "primaryKey": false
+      "primaryKey": false,
+      "module": "shared"
     },
     {
-      "name": "candidateGroup",
+      "name": "value",
       "objectType": "java",
-      "type": "string",
-      "required": false,
+      "type": "object",
+      "required": true,
       "before": false,
       "after": false,
       "positive": false,
@@ -55,5 +43,5 @@
       "primaryKey": false
     }
   ],
-  "id": "fuz827wmis"
+  "id": "3s8vi9r3kc"
 }

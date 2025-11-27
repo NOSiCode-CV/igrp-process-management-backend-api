@@ -343,4 +343,18 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
         .toList();
   }
 
+  @Override
+  public void addCandidateGroup(String taskId, String groupId) throws RuntimeProcessEngineException {
+    try {
+      taskActionService.addCandidateGroup(taskId, groupId);
+      LOGGER.info("Added candidate group '{}' to task '{}'", groupId, taskId);
+    } catch (Exception e) {
+      LOGGER.error("Failed to add candidate group '{}' to task '{}'", groupId, taskId, e);
+      throw new RuntimeProcessEngineException(
+          String.format("Unable to add candidate group '%s' to task '%s'", groupId, taskId), e
+      );
+    }
+  }
+
+
 }

@@ -9,7 +9,9 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-
+import cv.igrp.platform.process.management.processruntime.application.dto.VariablesExpressionDTO;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -17,19 +19,11 @@ import lombok.AllArgsConstructor;
 
 
 @IgrpDTO
-public class AssignTaskDTO  {
+public class VariablesFilterDTO  {
 
-  @Size(min = 1, message = "The field length <user> must be at least 1 characters")
-  
-  private String user ;
-  
-  
-  private Integer priority ;
-  
-  
-  private String note ;
-  
-  
-  private String candidateGroup ;
+  @NotNull(message = "The field <variables> is required")
+	@NotEmpty(message = "The field <variables> must not be empty")
+  @Valid
+  private List<VariablesExpressionDTO> variables = new ArrayList<>();
 
 }

@@ -1,0 +1,87 @@
+{
+  "type": "enum",
+  "module": "shared",
+  "name": "VaribalesOperator",
+  "values": [
+    {
+      "name": "equals",
+      "attributes": [
+        "EQUALS",
+        "equals"
+      ]
+    },
+    {
+      "name": "equalsIgnoreCase",
+      "attributes": [
+        "EQUALS_IGNORE_CASE",
+        "equalsIgnoreCase"
+      ]
+    },
+    {
+      "name": "notEquals",
+      "attributes": [
+        "NOT_EQUALS",
+        "notEquals"
+      ]
+    },
+    {
+      "name": "notEqualsIgnoreCase",
+      "attributes": [
+        "NOT_EQUALS_IGNORE_CASE",
+        "notEqualsIgnoreCase"
+      ]
+    },
+    {
+      "name": "greaterThan",
+      "attributes": [
+        "GREATER_THAN",
+        "greaterThan"
+      ]
+    },
+    {
+      "name": "greaterThanOrEqual",
+      "attributes": [
+        "GREATER_THAN_OR_EQUAL",
+        "greaterThanOrEqual"
+      ]
+    },
+    {
+      "name": "lessThan",
+      "attributes": [
+        "LESS_THAN",
+        "lessThan"
+      ]
+    },
+    {
+      "name": "lessThanOrEqual",
+      "attributes": [
+        "LESS_THAN_OR_EQUAL",
+        "lessThanOrEqual"
+      ]
+    },
+    {
+      "name": "like",
+      "attributes": [
+        "LIKE",
+        "like"
+      ]
+    },
+    {
+      "name": "likeIgnoreCase",
+      "attributes": [
+        "LIKE_IGNORE_CASE",
+        "likeIgnoreCase"
+      ]
+    }
+  ],
+  "attributes": [
+    {
+      "type": "string",
+      "name": "Code"
+    },
+    {
+      "type": "string",
+      "name": "Description"
+    }
+  ]
+}

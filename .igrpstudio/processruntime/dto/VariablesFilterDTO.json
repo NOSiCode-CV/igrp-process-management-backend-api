@@ -1,0 +1,24 @@
+{
+  "type": "dto",
+  "module": "processruntime",
+  "name": "VariablesFilterDTO",
+  "template": "classic",
+  "enableCustonValidation": false,
+  "attributes": [
+    {
+      "name": "variables",
+      "objectType": "dto",
+      "type": "VariablesExpressionDTO",
+      "required": true,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false,
+      "module": "processruntime",
+      "collectionType": "list"
+    }
+  ],
+  "id": "0rd4mq46pu"
+}
