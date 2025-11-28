@@ -104,6 +104,12 @@ public class ProcessInstanceRepositoryImpl implements ProcessInstanceRepository 
       });
     }
 
+    if (!filter.getIncludeProcessNumbers().isEmpty()) {
+      spec = spec.and((root, query, cb) ->
+          root.get("engineProcessNumber").in(filter.getIncludeProcessNumbers())
+      );
+    }
+
     return spec;
   }
 

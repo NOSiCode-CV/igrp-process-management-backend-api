@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceDTO;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,6 +37,7 @@ public class StartProcessInstanceByIdCommandHandler implements CommandHandler<St
   }
 
 
+  @Transactional
   @IgrpCommandHandler
   public ResponseEntity<ProcessInstanceDTO> handle(StartProcessInstanceByIdCommand command) {
     ProcessInstance processInstance = processInstanceService.startProcessInstanceById(

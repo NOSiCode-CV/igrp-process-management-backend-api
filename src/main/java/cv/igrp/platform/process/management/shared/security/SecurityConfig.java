@@ -51,8 +51,7 @@ public class SecurityConfig {
    * @throws Exception if an error occurs while configuring the security
    */
   @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity http,
-                                                 @Autowired(required = false) CustomAuthenticationFilter customAuthenticationFilter) throws Exception {
+  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         /*
           Creates and configures a CORS filter.
@@ -123,7 +122,6 @@ public class SecurityConfig {
 
         if (roles != null) {
           roles.forEach(role -> {
-            System.out.println("ROLE: " + role);
             authorities.add(new SimpleGrantedAuthority(role));
             authorities.add(new SimpleGrantedAuthority("GROUP_" + role));
           });

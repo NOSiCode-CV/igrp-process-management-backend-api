@@ -47,6 +47,7 @@ public class ProcessInstanceController {
           this.commandBus = commandBus;
   }
       @PostMapping(
+   value = "search"
   )
   @Operation(
     summary = "POST method to handle operations for List process instances",

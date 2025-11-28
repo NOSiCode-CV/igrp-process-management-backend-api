@@ -4,10 +4,7 @@ import cv.igrp.framework.runtime.core.engine.activity.model.IGRPActivityType;
 import cv.igrp.framework.runtime.core.engine.activity.model.ProcessActivityInfo;
 import cv.igrp.framework.runtime.core.engine.process.ProcessDefinitionRepresentation;
 import cv.igrp.platform.process.management.processruntime.domain.exception.RuntimeProcessEngineException;
-import cv.igrp.platform.process.management.processruntime.domain.models.ActivityData;
-import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstance;
-import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstanceTaskStatus;
-import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
+import cv.igrp.platform.process.management.processruntime.domain.models.*;
 
 import java.util.List;
 import java.util.Map;
@@ -256,6 +253,14 @@ public interface RuntimeProcessEngineRepository {
    */
   List<ProcessActivityInfo> getActivityProgress(String processInstanceId, IGRPActivityType type);
 
+  /**
+   * Retrieve all process instances by variables expressions.
+   * @param variablesExpressions the list of variables expressions
+   * @return a list of {@link ProcessInstance}
+   */
+  List<ProcessInstance> getAllProcessInstancesByVariables(List<VariablesExpression> variablesExpressions);
+
+  
   /**
    * Add a candidate group to a task.
    *

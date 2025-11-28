@@ -11,7 +11,6 @@ import cv.igrp.platform.process.management.processruntime.domain.repository.Runt
 import cv.igrp.platform.process.management.shared.application.constants.ProcessInstanceStatus;
 import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
 import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 import org.springframework.stereotype.Service;
 
@@ -41,6 +40,21 @@ public class ProcessInstanceService {
   }
 
   public PageableLista<ProcessInstance> getAllProcessInstances(ProcessInstanceFilter filter) {
+
+    if (!filter.getVariablesExpressions().isEmpty()) {
+      // Call engine to filter by variables
+      List<ProcessInstance> engineProcessInstances = runtimeProcessEngineRepository.getAllProcessInstancesByVariables(
+          filter.getVariablesExpressions()
+      );
+      if (!engineProcessInstances.isEmpty()) {
+        engineProcessInstances.forEach(processInstance -> {
+          filter.includeProcessNumber(processInstance.getEngineProcessNumber().getValue());
+        });
+      } else {
+        filter.includeProcessNumber(null);
+      }
+    }
+
     PageableLista<ProcessInstance> pageableLista = processInstanceRepository.findAll(filter);
     pageableLista.getContent().forEach(processInstance -> {
       setProcessInstanceProgress(processInstance);
@@ -85,7 +99,7 @@ public class ProcessInstanceService {
     return startProcessInstance(processInstance, user);
   }
 
-    private ProcessInstance startProcessInstance(ProcessInstance processInstance, String user) {
+  private ProcessInstance startProcessInstance(ProcessInstance processInstance, String user) {
 
     processInstance.start(user);
 
@@ -153,7 +167,6 @@ public class ProcessInstanceService {
   }
 
   private void updateProcessInstanceStatus(ProcessInstance engineProcess, ProcessInstance processInstance) {
-    System.out.println("Updating process instance status(Teste): " + engineProcess.getStatus());
     if (engineProcess.getStatus() == ProcessInstanceStatus.COMPLETED) {
       processInstance.complete(
           engineProcess.getEndedAt(),
@@ -161,9 +174,8 @@ public class ProcessInstanceService {
       );
     } else if (engineProcess.getStatus() == ProcessInstanceStatus.SUSPENDED) {
       processInstance.suspend();
-    } else {
-      return;
     }
+    // Persist
     processInstanceRepository.save(processInstance);
   }
 
@@ -189,7 +201,7 @@ public class ProcessInstanceService {
   }
 
   public ProcessInstance createAndStartProcessInstance(ProcessInstance processInstance, String user) {
-    ProcessInstance createdProcessInstance =  createProcessInstance(processInstance, user);
+    ProcessInstance createdProcessInstance = createProcessInstance(processInstance, user);
     return startProcessInstance(createdProcessInstance, user);
   }
 

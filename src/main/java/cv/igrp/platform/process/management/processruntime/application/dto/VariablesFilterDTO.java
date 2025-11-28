@@ -21,8 +21,7 @@ import java.util.List;
 @IgrpDTO
 public class VariablesFilterDTO  {
 
-  @NotNull(message = "The field <variables> is required")
-	@NotEmpty(message = "The field <variables> must not be empty")
+  
   @Valid
   private List<VariablesExpressionDTO> variables = new ArrayList<>();
 

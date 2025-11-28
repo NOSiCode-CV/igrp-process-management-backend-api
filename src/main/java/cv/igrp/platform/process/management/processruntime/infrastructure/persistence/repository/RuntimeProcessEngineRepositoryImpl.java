@@ -6,16 +6,15 @@ import cv.igrp.framework.runtime.core.engine.activity.model.ProcessActivityInfo;
 import cv.igrp.framework.runtime.core.engine.process.ProcessDefinitionAdapter;
 import cv.igrp.framework.runtime.core.engine.process.ProcessDefinitionRepresentation;
 import cv.igrp.framework.runtime.core.engine.process.ProcessManagerAdapter;
+import cv.igrp.framework.runtime.core.engine.process.model.ProcessFilter;
 import cv.igrp.framework.runtime.core.engine.process.model.ProcessVariableInstance;
+import cv.igrp.framework.runtime.core.engine.process.model.VariablesOperator;
 import cv.igrp.framework.runtime.core.engine.task.TaskActionService;
 import cv.igrp.framework.runtime.core.engine.task.TaskQueryService;
 import cv.igrp.framework.runtime.core.engine.task.model.TaskInfo;
 import cv.igrp.framework.runtime.core.engine.task.model.TaskVariableInstance;
 import cv.igrp.platform.process.management.processruntime.domain.exception.RuntimeProcessEngineException;
-import cv.igrp.platform.process.management.processruntime.domain.models.ActivityData;
-import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstance;
-import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstanceTaskStatus;
-import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
+import cv.igrp.platform.process.management.processruntime.domain.models.*;
 import cv.igrp.platform.process.management.processruntime.domain.repository.RuntimeProcessEngineRepository;
 import cv.igrp.platform.process.management.processruntime.mappers.ProcessInstanceMapper;
 import cv.igrp.platform.process.management.processruntime.mappers.ProcessInstanceTaskStatusMapper;
@@ -356,5 +355,23 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
     }
   }
 
+  @Override
+  public List<ProcessInstance> getAllProcessInstancesByVariables(List<VariablesExpression> variablesExpressions) {
+    if(variablesExpressions == null || variablesExpressions.isEmpty())
+      return Collections.emptyList();
+    ProcessFilter filter = new ProcessFilter();
+    variablesExpressions.forEach(vE -> {
+      filter.getVariablesExpressions().add(
+          new cv.igrp.framework.runtime.core.engine.process.model.VariablesExpression(
+              vE.getName(),
+              VariablesOperator.valueOf(vE.getOperator().name()),
+              vE.getValue())
+      );
+    });
+    return processManagerAdapter.listProcessInstances(filter)
+        .stream()
+        .map(processInstanceMapper::toModel)
+        .collect(Collectors.toList());
+  }
 
 }

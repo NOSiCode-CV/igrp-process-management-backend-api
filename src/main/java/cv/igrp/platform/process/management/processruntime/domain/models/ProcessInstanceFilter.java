@@ -20,6 +20,7 @@ public class ProcessInstanceFilter {
   private final Integer page;
   private final Integer size;
   private final List<VariablesExpression> variablesExpressions;
+  private final List<String> includeProcessNumbers;
 
   @Builder
   private ProcessInstanceFilter(Code number,
@@ -29,7 +30,8 @@ public class ProcessInstanceFilter {
                                 Code applicationBase,
                                 Integer page,
                                 Integer size,
-                                List<VariablesExpression> variablesExpressions) {
+                                List<VariablesExpression> variablesExpressions,
+                                List<String> includeProcessNumbers) {
     this.number = number;
     this.procReleaseKey = procReleaseKey;
     this.procReleaseId = procReleaseId;
@@ -38,6 +40,11 @@ public class ProcessInstanceFilter {
     this.page = page == null ? 0 : page;
     this.size = size == null ? 50 : size;
     this.variablesExpressions = variablesExpressions ==  null ? new ArrayList<>() : variablesExpressions;
+    this.includeProcessNumbers = includeProcessNumbers == null ? new ArrayList<>() : includeProcessNumbers;
+  }
+
+  public void includeProcessNumber(String processNumber){
+    this.includeProcessNumbers.add(processNumber);
   }
 
   // Factory method goes here :-)

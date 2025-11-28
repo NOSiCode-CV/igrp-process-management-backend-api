@@ -7,6 +7,7 @@
   "actions": [
     {
       "actionName": "listProcessInstances",
+      "path": "search",
       "method": "POST",
       "requestBody": {
         "content": {
@@ -327,5 +328,5 @@
       ]
     }
   ],
-  "id": "pyn9bsrz1z-CONTROLLER-startProcessInstance-startProcessEvent-startProcessEvent-listProcessInstances-listProcessInstances"
+  "id": "pyn9bsrz1z-CONTROLLER-startProcessInstance-startProcessEvent-startProcessEvent-listProcessInstances-listProcessInstances-listProcessInstances"
 }

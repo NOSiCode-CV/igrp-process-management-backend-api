@@ -4,70 +4,70 @@
   "name": "VaribalesOperator",
   "values": [
     {
-      "name": "equals",
+      "name": "EQUALS",
       "attributes": [
         "EQUALS",
         "equals"
       ]
     },
     {
-      "name": "equalsIgnoreCase",
+      "name": "EQUALS_IGNORE_CASE",
       "attributes": [
         "EQUALS_IGNORE_CASE",
         "equalsIgnoreCase"
       ]
     },
     {
-      "name": "notEquals",
+      "name": "NOT_EQUALS",
       "attributes": [
         "NOT_EQUALS",
         "notEquals"
       ]
     },
     {
-      "name": "notEqualsIgnoreCase",
+      "name": "NOT_EQUALS_IGNORE_CASE",
       "attributes": [
         "NOT_EQUALS_IGNORE_CASE",
         "notEqualsIgnoreCase"
       ]
     },
     {
-      "name": "greaterThan",
+      "name": "GREATER_THAN",
       "attributes": [
         "GREATER_THAN",
         "greaterThan"
       ]
     },
     {
-      "name": "greaterThanOrEqual",
+      "name": "GREATER_THAN_OR_EQUAL",
       "attributes": [
         "GREATER_THAN_OR_EQUAL",
         "greaterThanOrEqual"
       ]
     },
     {
-      "name": "lessThan",
+      "name": "LESS_THAN",
       "attributes": [
         "LESS_THAN",
         "lessThan"
       ]
     },
     {
-      "name": "lessThanOrEqual",
+      "name": "LESS_THAN_OR_EQUAL",
       "attributes": [
         "LESS_THAN_OR_EQUAL",
         "lessThanOrEqual"
       ]
     },
     {
-      "name": "like",
+      "name": "LIKE",
       "attributes": [
         "LIKE",
         "like"
       ]
     },
     {
-      "name": "likeIgnoreCase",
+      "name": "LIKE_IGNORE_CASE",
       "attributes": [
         "LIKE_IGNORE_CASE",
         "likeIgnoreCase"
