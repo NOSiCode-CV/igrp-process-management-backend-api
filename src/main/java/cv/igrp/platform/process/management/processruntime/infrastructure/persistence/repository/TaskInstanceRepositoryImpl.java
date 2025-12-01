@@ -69,7 +69,6 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
 
 
   @Override
-  @Transactional(readOnly = true)
   public PageableLista<TaskInstance> findAll(TaskInstanceFilter filter) {
 
     Specification<TaskInstanceEntity> spec = buildSpecification(filter);
@@ -137,11 +136,6 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
       ));
     }
 
-    if (filter.getSearchTerms() != null) {
-      spec = spec.and((root, query, cb) ->
-          cb.like(root.get("searchTerms"), "%" + filter.getSearchTerms() + "%"));
-    }
-
     if (filter.getDateFrom() != null) {
       spec = spec.and((root, query, cb) ->
           cb.greaterThanOrEqualTo(root.get("startedAt"), filter.getDateFrom().atStartOfDay()));
@@ -150,6 +144,12 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
     if (filter.getDateTo() != null) {
       spec = spec.and((root, query, cb) ->
         cb.lessThanOrEqualTo(root.get("startedAt"), filter.getDateTo().atTime(LocalTime.MAX)));
+    }
+
+    if (!filter.getIncludeTaskIds().isEmpty()) {
+      spec = spec.and((root, query, cb) ->
+          root.get("externalId").in(filter.getIncludeTaskIds())
+      );
     }
 
     return spec;

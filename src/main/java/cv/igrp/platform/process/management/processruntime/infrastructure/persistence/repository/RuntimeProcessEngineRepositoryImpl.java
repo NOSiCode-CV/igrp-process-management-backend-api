@@ -8,6 +8,7 @@ import cv.igrp.framework.runtime.core.engine.process.ProcessDefinitionRepresenta
 import cv.igrp.framework.runtime.core.engine.process.ProcessManagerAdapter;
 import cv.igrp.framework.runtime.core.engine.process.model.ProcessFilter;
 import cv.igrp.framework.runtime.core.engine.process.model.ProcessVariableInstance;
+import cv.igrp.framework.runtime.core.engine.process.model.TaskFilter;
 import cv.igrp.framework.runtime.core.engine.process.model.VariablesOperator;
 import cv.igrp.framework.runtime.core.engine.task.TaskActionService;
 import cv.igrp.framework.runtime.core.engine.task.TaskQueryService;
@@ -178,7 +179,7 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
   @Override
   public void saveTask(String taskInstanceId, Map<String, Object> forms, Map<String, Object> variables) {
     try {
-      TaskInfo taskInfo =  taskQueryService.getTask(taskInstanceId).orElseThrow();
+      TaskInfo taskInfo = taskQueryService.getTask(taskInstanceId).orElseThrow();
       processManagerAdapter.setProcessVariables(taskInfo.processInstanceId(), variables);
       taskActionService.saveTask(taskInstanceId, forms);
     } catch (Exception e) {
@@ -190,7 +191,7 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
   @Override
   public void completeTask(String taskInstanceId, Map<String, Object> forms, Map<String, Object> variables) {
     try {
-      TaskInfo taskInfo =  taskQueryService.getTask(taskInstanceId).orElseThrow();
+      TaskInfo taskInfo = taskQueryService.getTask(taskInstanceId).orElseThrow();
       processManagerAdapter.setProcessVariables(taskInfo.processInstanceId(), variables);
       taskActionService.completeTask(taskInstanceId, forms);
     } catch (Exception e) {
@@ -205,7 +206,7 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
       taskActionService.claimTask(taskInstanceId, userId);
     } catch (Exception e) {
       LOGGER.error("Failed to claim task: {}", taskInstanceId, e);
-      throw new RuntimeProcessEngineException("Failed to claim task. " + e.getMessage() , e);
+      throw new RuntimeProcessEngineException("Failed to claim task. " + e.getMessage(), e);
     }
   }
 
@@ -245,9 +246,9 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
   public Map<String, Object> getProcessVariables(String processInstanceId) {
     try {
       List<ProcessVariableInstance> variables = processManagerAdapter.getProcessVariables(processInstanceId);
-      if(variables==null)return new HashMap<>();//todo remove
+      if (variables == null) return new HashMap<>();//todo remove
       return variables.stream()
-          .filter(p->p.name()!=null&&p.value()!=null) //todo fix
+          .filter(p -> p.name() != null && p.value() != null) //todo fix
           .collect(Collectors.toMap(ProcessVariableInstance::name, ProcessVariableInstance::value));
     } catch (Exception e) {
       LOGGER.error("Failed to retrieve variables for process with id={}", processInstanceId, e);
@@ -313,7 +314,7 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
 
     var variablesMap = new HashMap<String, Object>();
 
-    if(variables == null || variables.isEmpty()) return variablesMap;
+    if (variables == null || variables.isEmpty()) return variablesMap;
 
     variables.forEach(variable -> variablesMap.put(variable.name(), variable.value()));
 
@@ -327,11 +328,11 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
         .stream()
         .filter(a -> activityType == null || Objects.equals(a.type(), activityType))
         .map(
-        a -> {
-          var activity = ActivityData.builder().build();
-          return activity.withProperties(a);
-        }
-    ).toList();
+            a -> {
+              var activity = ActivityData.builder().build();
+              return activity.withProperties(a);
+            }
+        ).toList();
   }
 
   @Override
@@ -357,7 +358,7 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
 
   @Override
   public List<ProcessInstance> getAllProcessInstancesByVariables(List<VariablesExpression> variablesExpressions) {
-    if(variablesExpressions == null || variablesExpressions.isEmpty())
+    if (variablesExpressions == null || variablesExpressions.isEmpty())
       return Collections.emptyList();
     ProcessFilter filter = new ProcessFilter();
     variablesExpressions.forEach(vE -> {
@@ -371,6 +372,29 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
     return processManagerAdapter.listProcessInstances(filter)
         .stream()
         .map(processInstanceMapper::toModel)
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<TaskInstance> getAllTaskInstancesByVariables(List<VariablesExpression> variablesExpressions) {
+
+    if (variablesExpressions == null || variablesExpressions.isEmpty())
+      return Collections.emptyList();
+
+    TaskFilter filter = new TaskFilter();
+
+    variablesExpressions.forEach(vE -> {
+      filter.getVariablesExpressions().add(
+          new cv.igrp.framework.runtime.core.engine.process.model.VariablesExpression(
+              vE.getName(),
+              VariablesOperator.valueOf(vE.getOperator().name()),
+              vE.getValue())
+      );
+    });
+
+    return taskQueryService.listTaskInstances(filter)
+        .stream()
+        .map(taskInstanceMapper::toModel)
         .collect(Collectors.toList());
   }
 

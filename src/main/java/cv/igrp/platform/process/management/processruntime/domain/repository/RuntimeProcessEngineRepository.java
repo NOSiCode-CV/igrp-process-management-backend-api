@@ -260,7 +260,14 @@ public interface RuntimeProcessEngineRepository {
    */
   List<ProcessInstance> getAllProcessInstancesByVariables(List<VariablesExpression> variablesExpressions);
 
-  
+  /**
+   * Retrieve all task instances by variables expressions.
+   * @param variablesExpressions the list of variables expressions
+   * @return a list of {@link TaskInstance}
+   */
+  List<TaskInstance> getAllTaskInstancesByVariables(List<VariablesExpression> variablesExpressions);
+
+
   /**
    * Add a candidate group to a task.
    *

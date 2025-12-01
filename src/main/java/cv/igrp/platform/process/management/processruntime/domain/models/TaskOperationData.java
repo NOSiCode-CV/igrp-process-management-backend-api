@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -20,7 +22,7 @@ public class TaskOperationData {
   private final String note;
   private final Map<String,Object> variables;
   private final Map<String,Object> forms;
-  private final Code candidateGroup;
+  private final List<String> candidateGroups;
 
   @Builder
   public TaskOperationData(String id,
@@ -30,7 +32,7 @@ public class TaskOperationData {
                            String note,
                            Map<String,Object> variables,
                            Map<String,Object> forms,
-                           String candidateGroup) {
+                           List<String> candidateGroups) {
     this.id = Identifier.create(id);
     this.currentUser = Objects.requireNonNull(currentUser,"Current User can't be null!");
     this.targetUser = targetUser!=null ? Code.create(targetUser) : null;
@@ -38,7 +40,7 @@ public class TaskOperationData {
     this.note = (note!=null && !note.isBlank()) ? note.trim() : note;
     this.variables = (variables!=null) ? variables : Map.of();
     this.forms = (forms!=null) ? forms : Map.of();
-    this.candidateGroup = candidateGroup != null ? Code.create(candidateGroup) : null;;
+    this.candidateGroups = candidateGroups == null ? new ArrayList<>() : candidateGroups;
   }
 
   public void validateSubmitedVariablesAndForms() {

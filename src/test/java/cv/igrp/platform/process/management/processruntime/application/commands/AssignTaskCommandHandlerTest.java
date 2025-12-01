@@ -39,11 +39,12 @@ class AssignTaskCommandHandlerTest {
     String currentUserName = "demo@nosi.cv";
     String targetUserName = "igrp@nosi.cv";
     String note = "This is a note";
+    String candidateGroups = "group1,group2";
     Integer priority = 3;
 
     when(userContext.getCurrentUser()).thenReturn(Code.create(currentUserName));
 
-    AssignTaskDTO dto = new AssignTaskDTO(targetUserName, priority, note);
+    AssignTaskDTO dto = new AssignTaskDTO(targetUserName, priority, note, candidateGroups);
     command = new AssignTaskCommand();
     command.setId(taskId);
     command.setAssigntaskdto(dto);

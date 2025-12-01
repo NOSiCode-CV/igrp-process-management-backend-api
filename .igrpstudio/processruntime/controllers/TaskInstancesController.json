@@ -7,7 +7,21 @@
   "actions": [
     {
       "actionName": "listTaskInstances",
-      "method": "GET",
+      "path": "search",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "VariablesFilterDTO",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "processruntime"
+            }
+          }
+        }
+      },
       "responses": {
         "200": {
           "name": "OK",
@@ -494,5 +508,5 @@
       ]
     }
   ],
-  "id": "s7o1wob8tj-CONTROLLER-listTaskInstances-getAllMyTasks-getAllMyTasks"
+  "id": "s7o1wob8tj-CONTROLLER-listTaskInstances-getAllMyTasks-getAllMyTasks-listTaskInstances"
 }

@@ -43,7 +43,7 @@
       "primaryKey": false
     },
     {
-      "name": "candidateGroup",
+      "name": "candidateGroups",
       "objectType": "java",
       "type": "string",
       "required": false,

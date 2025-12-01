@@ -12,8 +12,6 @@ import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponse
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
-import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.ProcessArtifactEntity;
-import cv.igrp.platform.process.management.shared.infrastructure.persistence.repository.ProcessArtifactEntityRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -99,10 +97,13 @@ public class TaskInstanceService {
 
       taskInstance.addCandidateGroup(data);
 
-      runtimeProcessEngineRepository.addCandidateGroup(
-          taskInstance.getExternalId().getValue(),
-          data.getCandidateGroup().getValue()
-      );
+      data.getCandidateGroups().forEach(group -> {
+        runtimeProcessEngineRepository.addCandidateGroup(
+            taskInstance.getExternalId().getValue(),
+            group
+        );
+      });
+
     }
 
     this.save(taskInstance);
@@ -166,6 +167,21 @@ public class TaskInstanceService {
 
 
   public PageableLista<TaskInstance> getAllTaskInstances(TaskInstanceFilter filter) {
+
+    if (!filter.getVariablesExpressions().isEmpty()) {
+      // Call engine to filter by variables
+      List<TaskInstance> engineTaskInstances = runtimeProcessEngineRepository.getAllTaskInstancesByVariables(
+          filter.getVariablesExpressions()
+      );
+      if (!engineTaskInstances.isEmpty()) {
+        engineTaskInstances.forEach(taskInstance -> {
+          filter.includeTaskId(taskInstance.getExternalId().getValue());
+        });
+      } else {
+        filter.includeTaskId(null);
+      }
+    }
+
     final var pageableTask = taskInstanceRepository.findAll(filter);
     // add Process Variables
     addVariables(pageableTask);

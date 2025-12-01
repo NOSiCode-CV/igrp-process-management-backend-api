@@ -90,9 +90,9 @@
       ]
     },
     {
-      "actionName": "createArtifact",
-      "path": "{id}/artifacts",
-      "method": "POST",
+      "actionName": "configureArtifact",
+      "path": "{id}/artifacts/{taskKey}",
+      "method": "PUT",
       "requestBody": {
         "content": {
           "application/json": {
@@ -108,7 +108,7 @@
         }
       },
       "responses": {
-        "201": {
+        "200": {
           "name": "OK",
           "description": "Persisted Project Artifact",
           "content": {
@@ -130,6 +130,12 @@
           "type": "string",
           "isRequired": true,
           "description": "ID of Process Definition"
+        },
+        {
+          "name": "taskKey",
+          "type": "string",
+          "isRequired": true,
+          "description": "Key of the Task"
         }
       ]
     },
@@ -294,5 +300,5 @@
       ]
     }
   ],
-  "id": "o9isd9wv95-CONTROLLER"
+  "id": "o9isd9wv95-CONTROLLER-createArtifact-configureArtifact"
 }

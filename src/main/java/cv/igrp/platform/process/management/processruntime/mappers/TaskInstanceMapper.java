@@ -1,12 +1,14 @@
 package cv.igrp.platform.process.management.processruntime.mappers;
 
 import cv.igrp.framework.runtime.core.engine.task.model.TaskInfo;
+import cv.igrp.platform.process.management.processruntime.application.commands.ListTaskInstancesCommand;
 import cv.igrp.platform.process.management.processruntime.application.dto.*;
 import cv.igrp.platform.process.management.processruntime.application.queries.GetAllMyTasksQuery;
 import cv.igrp.platform.process.management.processruntime.application.queries.ListTaskInstancesQuery;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceFilter;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskStatistics;
+import cv.igrp.platform.process.management.processruntime.domain.models.VariablesExpression;
 import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
 import cv.igrp.platform.process.management.shared.domain.models.*;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.ProcessInstanceEntity;
@@ -70,6 +72,7 @@ public class TaskInstanceMapper {
     taskInstanceEntity.setEndedBy(taskInstance.getEndedBy() != null ? taskInstance.getEndedBy().getValue() : null);
     taskInstanceEntity.setEndedAt(taskInstance.getEndedAt());
     taskInstanceEntity.setPriority(taskInstance.getPriority());
+    taskInstanceEntity.setCandidateGroups(!taskInstance.getCandidateGroups().isEmpty() ? String.join(",", taskInstance.getCandidateGroups()) : null);
   }
 
 
@@ -233,6 +236,34 @@ public class TaskInstanceMapper {
         taskStatistics.getTotalCompletedTasks(),
         taskStatistics.getTotalCanceledTasks()
     );
+  }
+
+  public TaskInstanceFilter toFilter(ListTaskInstancesCommand command) {
+    List<VariablesExpression> vars = toVariablesExpressionList(command.getVariablesfilterdto());
+    return TaskInstanceFilter.builder()
+        .processInstanceId(command.getProcessInstanceId() != null ? Identifier.create(command.getProcessInstanceId()) : null)
+        .processNumber(command.getProcessNumber() != null ? Code.create(command.getProcessNumber()) : null)
+        .applicationBase((command.getApplicationBase() != null && !command.getApplicationBase().isBlank()) ? Code.create(command.getApplicationBase().trim()) : null)
+        .processName((command.getProcessName() != null && !command.getProcessName().isBlank()) ? Name.create(command.getProcessName().trim()) : null)
+        .candidateGroups(command.getCandidateGroups() != null ? Code.create(command.getCandidateGroups()) : null)
+        .user(command.getUser() != null ? Code.create(command.getUser()) : null)
+        .status(command.getStatus() != null ? TaskInstanceStatus.valueOf(command.getStatus()) : null)
+        .dateFrom(DateUtil.stringToLocalDate.apply(command.getDateFrom()))
+        .dateTo(DateUtil.stringToLocalDate.apply(command.getDateTo()))
+        .variablesExpressions(vars)
+        .page(command.getPage())
+        .size(command.getSize())
+        .build();
+  }
+
+  public List<VariablesExpression> toVariablesExpressionList(VariablesFilterDTO dto){
+    return dto.getVariables().stream()
+        .map(variablesExpressionDTO -> VariablesExpression.builder()
+            .name(variablesExpressionDTO.getName())
+            .operator(variablesExpressionDTO.getOperator())
+            .value(variablesExpressionDTO.getValue())
+            .build()
+        ).toList();
   }
 
 }

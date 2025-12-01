@@ -220,41 +220,8 @@
       }
     },
     {
-      "actionName": "startProcessEvent",
-      "path": "start-event",
-      "method": "POST",
-      "requestBody": {
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "StartProcessDTO",
-              "collectionType": "none",
-              "name": "data",
-              "objectType": "dto",
-              "module": "shared"
-            }
-          }
-        }
-      },
-      "responses": {
-        "200": {
-          "name": "OK",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "ProcessInstanceDTO",
-                "objectType": "dto",
-                "name": "data",
-                "collectionType": "none",
-                "module": "processruntime"
-              }
-            }
-          }
-        }
-      }
-    },
-    {
       "actionName": "createProcessInstance",
+      "path": "create",
       "method": "POST",
       "requestBody": {
         "content": {
@@ -271,6 +238,39 @@
       },
       "responses": {
         "201": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProcessInstanceDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "processruntime"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "createStartProcessInstance",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "StartProcessRequestDTO",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "processruntime"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
           "name": "OK",
           "content": {
             "application/json": {
@@ -328,5 +328,5 @@
       ]
     }
   ],
-  "id": "pyn9bsrz1z-CONTROLLER-startProcessInstance-startProcessEvent-startProcessEvent-listProcessInstances-listProcessInstances-listProcessInstances"
+  "id": "pyn9bsrz1z-CONTROLLER-startProcessInstance-startProcessEvent-startProcessEvent-listProcessInstances-listProcessInstances-listProcessInstances-createProcessInstance-startProcessEvent-createStartProcessInstance"
 }

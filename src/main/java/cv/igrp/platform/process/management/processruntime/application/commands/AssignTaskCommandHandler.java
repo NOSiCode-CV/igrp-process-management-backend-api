@@ -2,6 +2,7 @@ package cv.igrp.platform.process.management.processruntime.application.commands;
 
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
+import cv.igrp.platform.process.management.processruntime.application.dto.AssignTaskDTO;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskOperationData;
 import cv.igrp.platform.process.management.processruntime.domain.service.TaskInstanceService;
 import cv.igrp.platform.process.management.shared.security.UserContext;
@@ -10,6 +11,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Component
@@ -37,11 +41,18 @@ public class AssignTaskCommandHandler implements CommandHandler<AssignTaskComman
             .targetUser(command.getAssigntaskdto().getUser())
             .priority(command.getAssigntaskdto().getPriority())
             .note(command.getAssigntaskdto().getNote())
-            .candidateGroup(command.getAssigntaskdto().getCandidateGroup())
+            .candidateGroups(getGroups(command.getAssigntaskdto()))
             .build()
     );
     LOGGER.info("User [{}] finished assigning task [{}] to user [{}]", currentUser.getValue(), command.getId(), command.getAssigntaskdto().getUser());
     return ResponseEntity.noContent().build();
+  }
+
+  public List<String> getGroups(AssignTaskDTO dto){
+    if(dto.getCandidateGroups() != null && !dto.getCandidateGroups().isEmpty()){
+      return List.of(dto.getCandidateGroups().split(","));
+    }
+    return new ArrayList<>();
   }
 
 }

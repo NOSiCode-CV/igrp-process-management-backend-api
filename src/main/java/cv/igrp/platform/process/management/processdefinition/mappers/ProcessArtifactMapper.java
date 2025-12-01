@@ -21,7 +21,9 @@ public class ProcessArtifactMapper {
         .processDefinitionId(Code.create(processDefinitionId))
         .key(Code.create(dto.getKey()))
         .formKey(Code.create(dto.getFormKey()))
-        .candidateGroups(dto.getCandidateGroups())
+        .candidateGroups(dto.getCandidateGroups() != null
+            ? new ArrayList<>(List.of(dto.getCandidateGroups().split(",")))
+            : new ArrayList<>())
         .build();
   }
 

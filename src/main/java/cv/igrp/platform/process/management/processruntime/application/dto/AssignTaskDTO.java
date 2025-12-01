@@ -30,6 +30,6 @@ public class AssignTaskDTO  {
   private String note ;
   
   
-  private String candidateGroup ;
+  private String candidateGroups ;
 
 }

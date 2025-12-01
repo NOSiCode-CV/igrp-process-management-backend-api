@@ -16,17 +16,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 @Component
-public class StartProcessEventCommandHandler implements CommandHandler<StartProcessEventCommand, ResponseEntity<ProcessInstanceDTO>> {
+public class CreateStartProcessInstanceCommandHandler implements CommandHandler<CreateStartProcessInstanceCommand, ResponseEntity<ProcessInstanceDTO>> {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(StartProcessEventCommandHandler.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CreateStartProcessInstanceCommandHandler.class);
 
   private final ProcessInstanceService processInstanceService;
   private final ProcessInstanceMapper mapper;
   private final UserContext userContext;
 
-  public StartProcessEventCommandHandler(ProcessInstanceService processInstanceService,
-                                         ProcessInstanceMapper mapper,
-                                         UserContext userContext) {
+  public CreateStartProcessInstanceCommandHandler(ProcessInstanceService processInstanceService,
+                                                  ProcessInstanceMapper mapper,
+                                                  UserContext userContext) {
     this.processInstanceService = processInstanceService;
     this.mapper = mapper;
     this.userContext = userContext;
@@ -34,9 +34,9 @@ public class StartProcessEventCommandHandler implements CommandHandler<StartProc
 
   @Transactional
   @IgrpCommandHandler
-  public ResponseEntity<ProcessInstanceDTO> handle(StartProcessEventCommand command) {
+  public ResponseEntity<ProcessInstanceDTO> handle(CreateStartProcessInstanceCommand command) {
     ProcessInstance processInstance = processInstanceService.createAndStartProcessInstance(
-        mapper.toModel(command.getStartprocessdto()),
+        mapper.toModel(command.getStartprocessrequestdto()),
         userContext.getCurrentUser().getValue()
     );
     return ResponseEntity.ok(mapper.toDTO(processInstance));

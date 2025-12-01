@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 public class TaskInstanceFilter {
@@ -18,13 +20,14 @@ public class TaskInstanceFilter {
   private final Name processName;
   private final Code candidateGroups;
   private final TaskInstanceStatus status;
-  private final String searchTerms;
   private final LocalDate dateFrom;
   private final LocalDate dateTo;
   private final Integer page;
   private final Integer size;
   @Setter
   private Code user;
+  private List<VariablesExpression> variablesExpressions;
+  private List<String> includeTaskIds;
 
   @Builder
   private TaskInstanceFilter(
@@ -39,7 +42,10 @@ public class TaskInstanceFilter {
                              LocalDate dateFrom,
                              LocalDate dateTo,
                              Integer page,
-                             Integer size) {
+                             Integer size,
+                             List<VariablesExpression> variablesExpressions,
+                             List<String> includeTaskIds
+                             ) {
     this.processInstanceId = processInstanceId;
     this.applicationBase = applicationBase;
     this.processNumber = processNumber;
@@ -49,9 +55,14 @@ public class TaskInstanceFilter {
     this.status = status;
     this.dateFrom = dateFrom;
     this.dateTo = dateTo;
-    this.searchTerms = searchTerms;
     this.page = page == null ? 0 : page;
     this.size = size == null ? 50 : size;
+    this.variablesExpressions = variablesExpressions ==  null ? new ArrayList<>() : variablesExpressions;
+    this.includeTaskIds = includeTaskIds == null ? new ArrayList<>() : includeTaskIds;
+  }
+
+  public void includeTaskId(String taskId){
+    this.includeTaskIds.add(taskId);
   }
 
 }

@@ -28,8 +28,8 @@ import cv.igrp.platform.process.management.shared.application.dto.ConfigParamete
 import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceTaskStatusDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceStatsDTO;
 import cv.igrp.platform.process.management.shared.application.dto.ProcessEventDTO;
-import cv.igrp.platform.process.management.shared.application.dto.StartProcessDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.CreateProcessRequestDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.StartProcessRequestDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.ProcessVariablesRequestDTO;
 
 @IgrpController
@@ -239,37 +239,7 @@ public class ProcessInstanceController {
   }
 
       @PostMapping(
-   value = "start-event"
-  )
-  @Operation(
-    summary = "POST method to handle operations for Start process event",
-    description = "POST method to handle operations for Start process event",
-    responses = {
-      @ApiResponse(
-          responseCode = "200",
-          description = "",
-          content = @Content(
-              mediaType = "application/json",
-              schema = @Schema(
-                  implementation = ProcessInstanceDTO.class,
-                  type = "object")
-          )
-      )
-    }
-  )
-  
-  public ResponseEntity<ProcessInstanceDTO> startProcessEvent(@Valid @RequestBody StartProcessDTO startProcessEventRequest
-    )
-  {
-
-      final var command = new StartProcessEventCommand(startProcessEventRequest);
-
-       ResponseEntity<ProcessInstanceDTO> response = commandBus.send(command);
-
-       return response;
-  }
-
-      @PostMapping(
+   value = "create"
   )
   @Operation(
     summary = "POST method to handle operations for Create process instance",
@@ -293,6 +263,36 @@ public class ProcessInstanceController {
   {
 
       final var command = new CreateProcessInstanceCommand(createProcessInstanceRequest);
+
+       ResponseEntity<ProcessInstanceDTO> response = commandBus.send(command);
+
+       return response;
+  }
+
+      @PostMapping(
+  )
+  @Operation(
+    summary = "POST method to handle operations for Create start process instance",
+    description = "POST method to handle operations for Create start process instance",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          description = "",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = ProcessInstanceDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<ProcessInstanceDTO> createStartProcessInstance(@Valid @RequestBody StartProcessRequestDTO createStartProcessInstanceRequest
+    )
+  {
+
+      final var command = new CreateStartProcessInstanceCommand(createStartProcessInstanceRequest);
 
        ResponseEntity<ProcessInstanceDTO> response = commandBus.send(command);
 

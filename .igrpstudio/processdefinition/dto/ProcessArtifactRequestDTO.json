@@ -52,7 +52,7 @@
       "isEmail": false,
       "isUrl": false,
       "primaryKey": false,
-      "collectionType": "list"
+      "collectionType": "none"
     }
   ],
   "id": "6plsof8l2z"
