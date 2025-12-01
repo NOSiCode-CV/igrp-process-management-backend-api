@@ -92,8 +92,11 @@ public class TaskInstance {
     this.endedBy = endedBy;
     this.processKey = processKey;
     this.taskInstanceEvents = taskInstanceEvents != null ? taskInstanceEvents : new ArrayList<>();
-    this.candidateGroups = candidateGroups != null ? candidateGroups : new ArrayList<>();
     this.variables = variables != null ? variables : new HashMap<>();
+    this.candidateGroups = candidateGroups != null
+        ? new ArrayList<>(candidateGroups)
+        : new ArrayList<>();
+
   }
 
 
@@ -187,7 +190,6 @@ public class TaskInstance {
 
   public void addCandidateGroup(TaskOperationData data) {
 
-    validateAssignable();
     mergeCandidateGroups(data.getCandidateGroups());
     updateAssignmentMetadata(data.getPriority());
 
@@ -198,16 +200,7 @@ public class TaskInstance {
     );
   }
 
-  private void validateAssignable() {
-    if (this.status != TaskInstanceStatus.CREATED) {
-      throw IgrpResponseStatusException.of(
-          HttpStatus.CONFLICT,
-          String.format("Cannot Assign a Task in Status[%s]", this.status)
-      );
-    }
-  }
-
-  private void mergeCandidateGroups(Collection<String> newGroups) {
+  private void mergeCandidateGroups(List<String> newGroups) {
     if (newGroups == null || newGroups.isEmpty()) {
       return;
     }
@@ -224,10 +217,9 @@ public class TaskInstance {
     }
   }
 
-  public void addCandidateGroup(Identifier id, String groupId, Code user) {
+  public void addCandidateGroup(String groupId, Code user) {
     TaskOperationData taskOperationData = TaskOperationData.builder()
         .currentUser(user)
-        .id(id.toString())
         .candidateGroups(List.of(groupId))
         .build();
     addCandidateGroup(taskOperationData);

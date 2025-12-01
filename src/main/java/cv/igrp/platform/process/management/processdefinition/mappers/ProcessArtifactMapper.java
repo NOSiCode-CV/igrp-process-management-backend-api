@@ -15,11 +15,11 @@ import java.util.List;
 @Component
 public class ProcessArtifactMapper {
 
-  public ProcessArtifact toModel(ProcessArtifactRequestDTO dto, String processDefinitionId) {
+  public ProcessArtifact toModel(ProcessArtifactRequestDTO dto, String processDefinitionId, String taskKey) {
     return ProcessArtifact.builder()
         .name(Name.create(dto.getName()))
         .processDefinitionId(Code.create(processDefinitionId))
-        .key(Code.create(dto.getKey()))
+        .key(Code.create(taskKey))
         .formKey(Code.create(dto.getFormKey()))
         .candidateGroups(dto.getCandidateGroups() != null
             ? new ArrayList<>(List.of(dto.getCandidateGroups().split(",")))

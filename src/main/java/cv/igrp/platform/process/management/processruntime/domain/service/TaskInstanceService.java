@@ -288,7 +288,7 @@ public class TaskInstanceService {
         for (var groupId : artifact.getCandidateGroups()) {
 
           // Add group to new task instance
-          newTask.addCandidateGroup(task.getId(), groupId, user);
+          newTask.addCandidateGroup(groupId, user);
 
           // Add group to Activiti runtime task
           runtimeProcessEngineRepository.addCandidateGroup(
