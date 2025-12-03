@@ -3,30 +3,31 @@
 
 package cv.igrp.platform.process.management.processdefinition.interfaces.rest;
 
-import cv.igrp.framework.core.domain.CommandBus;
-import cv.igrp.framework.core.domain.QueryBus;
 import cv.igrp.framework.stereotype.IgrpController;
-import cv.igrp.platform.process.management.processdefinition.application.commands.CreateArtifactCommand;
-import cv.igrp.platform.process.management.processdefinition.application.commands.CreateProcessSequenceCommand;
-import cv.igrp.platform.process.management.processdefinition.application.commands.DeleteArtifactCommand;
-import cv.igrp.platform.process.management.processdefinition.application.commands.DeployProcessCommand;
-import cv.igrp.platform.process.management.processdefinition.application.dto.*;
-import cv.igrp.platform.process.management.processdefinition.application.queries.GetArtifactsByProcessDefinitionIdQuery;
-import cv.igrp.platform.process.management.processdefinition.application.queries.GetDeployedArtifactsByProcessDefinitionIdQuery;
-import cv.igrp.platform.process.management.processdefinition.application.queries.GetProcessSequenceQuery;
-import cv.igrp.platform.process.management.processdefinition.application.queries.ListDeploymentsQuery;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
+import cv.igrp.framework.core.domain.QueryBus;
+import cv.igrp.platform.process.management.processdefinition.application.queries.*;
+import cv.igrp.framework.core.domain.CommandBus;
+import cv.igrp.platform.process.management.processdefinition.application.commands.*;
+import cv.igrp.platform.process.management.processdefinition.application.dto.ProcessDeploymentRequestDTO;
+import cv.igrp.platform.process.management.processdefinition.application.dto.ProcessDeploymentDTO;
+import cv.igrp.platform.process.management.processdefinition.application.dto.ProcessDeploymentListPageDTO;
+import cv.igrp.platform.process.management.processdefinition.application.dto.ProcessArtifactRequestDTO;
+import cv.igrp.platform.process.management.processdefinition.application.dto.ProcessArtifactDTO;
 import java.util.List;
+import cv.igrp.platform.process.management.processdefinition.application.dto.ProcessSequenceDTO;
+import cv.igrp.platform.process.management.processdefinition.application.dto.SequenceRequestDTO;
 
 @IgrpController
 @RestController
@@ -34,26 +35,20 @@ import java.util.List;
 @Tag(name = "ProcessDefinition", description = "Process Definition Management")
 public class ProcessDefinitionController {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(ProcessDefinitionController.class);
-
-
-  private final CommandBus commandBus;
+  
   private final QueryBus queryBus;
+  private final CommandBus commandBus;
 
-
-  public ProcessDefinitionController(
-    CommandBus commandBus, QueryBus queryBus
-  ) {
-    this.commandBus = commandBus;
-    this.queryBus = queryBus;
+  public ProcessDefinitionController(QueryBus queryBus, CommandBus commandBus) {
+          this.queryBus = queryBus;
+          this.commandBus = commandBus;
   }
-
-  @PostMapping(
-    value = "deploy"
+      @PostMapping(
+   value = "deploy"
   )
   @Operation(
-    summary = "POST method to handle operations for deployProcess",
-    description = "POST method to handle operations for deployProcess",
+    summary = "POST method to handle operations for Deploy process",
+    description = "POST method to handle operations for Deploy process",
     responses = {
       @ApiResponse(
           responseCode = "201",
@@ -67,29 +62,23 @@ public class ProcessDefinitionController {
       )
     }
   )
-
+  
   public ResponseEntity<ProcessDeploymentDTO> deployProcess(@Valid @RequestBody ProcessDeploymentRequestDTO deployProcessRequest
     )
   {
-
-      LOGGER.debug("Operation started");
 
       final var command = new DeployProcessCommand(deployProcessRequest);
 
        ResponseEntity<ProcessDeploymentDTO> response = commandBus.send(command);
 
-       LOGGER.debug("Operation finished");
-
-        return ResponseEntity.status(response.getStatusCode())
-              .headers(response.getHeaders())
-              .body(response.getBody());
+       return response;
   }
 
-  @GetMapping(
+      @GetMapping(
   )
   @Operation(
-    summary = "GET method to handle operations for listDeployments",
-    description = "GET method to handle operations for listDeployments",
+    summary = "GET method to handle operations for List deployments",
+    description = "GET method to handle operations for List deployments",
     responses = {
       @ApiResponse(
           responseCode = "200",
@@ -103,7 +92,7 @@ public class ProcessDefinitionController {
       )
     }
   )
-
+  
   public ResponseEntity<ProcessDeploymentListPageDTO> listDeployments(
     @RequestParam(value = "applicationBase", required = false) String applicationBase,
     @RequestParam(value = "processName", required = false) String processName,
@@ -111,28 +100,22 @@ public class ProcessDefinitionController {
     @RequestParam(value = "size", defaultValue = "20") Integer size)
   {
 
-      LOGGER.debug("Operation started");
-
       final var query = new ListDeploymentsQuery(applicationBase, processName, page, size);
 
       ResponseEntity<ProcessDeploymentListPageDTO> response = queryBus.handle(query);
 
-      LOGGER.debug("Operation finished");
-
-      return ResponseEntity.status(response.getStatusCode())
-              .headers(response.getHeaders())
-              .body(response.getBody());
+      return response;
   }
 
-  @PostMapping(
-    value = "{id}/artifacts"
+      @PutMapping(
+   value = "{id}/artifacts/{taskKey}"
   )
   @Operation(
-    summary = "POST method to handle operations for createArtifact",
-    description = "POST method to handle operations for createArtifact",
+    summary = "PUT method to handle operations for Configure artifact",
+    description = "PUT method to handle operations for Configure artifact",
     responses = {
       @ApiResponse(
-          responseCode = "201",
+          responseCode = "200",
           description = "Persisted Project Artifact",
           content = @Content(
               mediaType = "application/json",
@@ -143,30 +126,24 @@ public class ProcessDefinitionController {
       )
     }
   )
-
-  public ResponseEntity<ProcessArtifactDTO> createArtifact(@Valid @RequestBody ProcessArtifactRequestDTO createArtifactRequest
-    , @PathVariable(value = "id") String id)
+  
+  public ResponseEntity<ProcessArtifactDTO> configureArtifact(@Valid @RequestBody ProcessArtifactRequestDTO configureArtifactRequest
+    , @PathVariable(value = "id") String id,@PathVariable(value = "taskKey") String taskKey)
   {
 
-      LOGGER.debug("Operation started");
-
-      final var command = new CreateArtifactCommand(createArtifactRequest, id);
+      final var command = new ConfigureArtifactCommand(configureArtifactRequest, id, taskKey);
 
        ResponseEntity<ProcessArtifactDTO> response = commandBus.send(command);
 
-       LOGGER.debug("Operation finished");
-
-        return ResponseEntity.status(response.getStatusCode())
-              .headers(response.getHeaders())
-              .body(response.getBody());
+       return response;
   }
 
-  @DeleteMapping(
-    value = "artifacts/{id}"
+      @DeleteMapping(
+   value = "artifacts/{id}"
   )
   @Operation(
-    summary = "DELETE method to handle operations for deleteArtifact",
-    description = "DELETE method to handle operations for deleteArtifact",
+    summary = "DELETE method to handle operations for Delete artifact",
+    description = "DELETE method to handle operations for Delete artifact",
     responses = {
       @ApiResponse(
           responseCode = "204",
@@ -180,30 +157,24 @@ public class ProcessDefinitionController {
       )
     }
   )
-
+  
   public ResponseEntity<String> deleteArtifact(
     @PathVariable(value = "id") String id)
   {
-
-      LOGGER.debug("Operation started");
 
       final var command = new DeleteArtifactCommand(id);
 
        ResponseEntity<String> response = commandBus.send(command);
 
-       LOGGER.debug("Operation finished");
-
-        return ResponseEntity.status(response.getStatusCode())
-              .headers(response.getHeaders())
-              .body(response.getBody());
+       return response;
   }
 
-  @GetMapping(
-    value = "{id}/artifacts"
+      @GetMapping(
+   value = "{id}/artifacts"
   )
   @Operation(
-    summary = "GET method to handle operations for getArtifactsByProcessDefinitionId",
-    description = "GET method to handle operations for getArtifactsByProcessDefinitionId",
+    summary = "GET method to handle operations for Get artifacts by process definition id",
+    description = "GET method to handle operations for Get artifacts by process definition id",
     responses = {
       @ApiResponse(
           responseCode = "200",
@@ -217,30 +188,24 @@ public class ProcessDefinitionController {
       )
     }
   )
-
+  
   public ResponseEntity<List<ProcessArtifactDTO>> getArtifactsByProcessDefinitionId(
     @PathVariable(value = "id") String id)
   {
-
-      LOGGER.debug("Operation started");
 
       final var query = new GetArtifactsByProcessDefinitionIdQuery(id);
 
       ResponseEntity<List<ProcessArtifactDTO>> response = queryBus.handle(query);
 
-      LOGGER.debug("Operation finished");
-
-      return ResponseEntity.status(response.getStatusCode())
-              .headers(response.getHeaders())
-              .body(response.getBody());
+      return response;
   }
 
-  @GetMapping(
-    value = "{id}/deployed-artifacts"
+      @GetMapping(
+   value = "{id}/deployed-artifacts"
   )
   @Operation(
-    summary = "GET method to handle operations for getDeployedArtifactsByProcessDefinitionId",
-    description = "GET method to handle operations for getDeployedArtifactsByProcessDefinitionId",
+    summary = "GET method to handle operations for Get deployed artifacts by process definition id",
+    description = "GET method to handle operations for Get deployed artifacts by process definition id",
     responses = {
       @ApiResponse(
           responseCode = "200",
@@ -254,30 +219,24 @@ public class ProcessDefinitionController {
       )
     }
   )
-
+  
   public ResponseEntity<List<ProcessArtifactDTO>> getDeployedArtifactsByProcessDefinitionId(
     @PathVariable(value = "id") String id)
   {
-
-      LOGGER.debug("Operation started");
 
       final var query = new GetDeployedArtifactsByProcessDefinitionIdQuery(id);
 
       ResponseEntity<List<ProcessArtifactDTO>> response = queryBus.handle(query);
 
-      LOGGER.debug("Operation finished");
-
-      return ResponseEntity.status(response.getStatusCode())
-              .headers(response.getHeaders())
-              .body(response.getBody());
+      return response;
   }
 
-  @GetMapping(
-    value = "{processDefinitionKey}/sequence"
+      @GetMapping(
+   value = "{processDefinitionKey}/sequence"
   )
   @Operation(
-    summary = "GET method to handle operations for getProcessSequence",
-    description = "GET method to handle operations for getProcessSequence",
+    summary = "GET method to handle operations for Get process sequence",
+    description = "GET method to handle operations for Get process sequence",
     responses = {
       @ApiResponse(
           responseCode = "200",
@@ -291,30 +250,24 @@ public class ProcessDefinitionController {
       )
     }
   )
-
+  
   public ResponseEntity<ProcessSequenceDTO> getProcessSequence(
     @PathVariable(value = "processDefinitionKey") String processDefinitionKey)
   {
-
-      LOGGER.debug("Operation started");
 
       final var query = new GetProcessSequenceQuery(processDefinitionKey);
 
       ResponseEntity<ProcessSequenceDTO> response = queryBus.handle(query);
 
-      LOGGER.debug("Operation finished");
-
-      return ResponseEntity.status(response.getStatusCode())
-              .headers(response.getHeaders())
-              .body(response.getBody());
+      return response;
   }
 
-  @PostMapping(
-    value = "{processDefinitionKey}/sequence"
+      @PostMapping(
+   value = "{processDefinitionKey}/sequence"
   )
   @Operation(
-    summary = "POST method to handle operations for createProcessSequence",
-    description = "POST method to handle operations for createProcessSequence",
+    summary = "POST method to handle operations for Create process sequence",
+    description = "POST method to handle operations for Create process sequence",
     responses = {
       @ApiResponse(
           responseCode = "200",
@@ -328,22 +281,16 @@ public class ProcessDefinitionController {
       )
     }
   )
-
+  
   public ResponseEntity<ProcessSequenceDTO> createProcessSequence(@Valid @RequestBody SequenceRequestDTO createProcessSequenceRequest
     , @PathVariable(value = "processDefinitionKey") String processDefinitionKey)
   {
-
-      LOGGER.debug("Operation started");
 
       final var command = new CreateProcessSequenceCommand(createProcessSequenceRequest, processDefinitionKey);
 
        ResponseEntity<ProcessSequenceDTO> response = commandBus.send(command);
 
-       LOGGER.debug("Operation finished");
-
-        return ResponseEntity.status(response.getStatusCode())
-              .headers(response.getHeaders())
-              .body(response.getBody());
+       return response;
   }
 
 }

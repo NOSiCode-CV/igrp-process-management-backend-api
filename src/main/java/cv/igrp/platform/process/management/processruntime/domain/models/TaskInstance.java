@@ -40,7 +40,7 @@ public class TaskInstance {
   private Code endedBy;
   private final List<TaskInstanceEvent> taskInstanceEvents;
   private final List<String> candidateGroups;
-  private final Map<String,Object> variables;
+  private final Map<String, Object> variables;
 
 
   @Builder
@@ -68,7 +68,7 @@ public class TaskInstance {
       Code endedBy,
       List<TaskInstanceEvent> taskInstanceEvents,
       List<String> candidateGroups,
-      Map<String,Object> variables
+      Map<String, Object> variables
   ) {
     this.id = id == null ? Identifier.generate() : id;
     this.taskKey = Objects.requireNonNull(taskKey, "Task Key cannot be null!");
@@ -92,52 +92,54 @@ public class TaskInstance {
     this.endedBy = endedBy;
     this.processKey = processKey;
     this.taskInstanceEvents = taskInstanceEvents != null ? taskInstanceEvents : new ArrayList<>();
-    this.candidateGroups = candidateGroups != null ? candidateGroups : new ArrayList<>();
     this.variables = variables != null ? variables : new HashMap<>();
+    this.candidateGroups = candidateGroups != null
+        ? new ArrayList<>(candidateGroups)
+        : new ArrayList<>();
+
   }
 
 
   public void create() {
-    if(processInstanceId==null) {
+    if (processInstanceId == null) {
       throw new IllegalStateException("Process Instance Id cannot be null!");
     }
-    if(startedBy==null) {
+    if (startedBy == null) {
       throw new IllegalStateException("User cannot be null!");
     }
     this.status = TaskInstanceStatus.CREATED;
-    if(startedAt==null)
-        this.startedAt = LocalDateTime.now();
-    createTaskInstanceEvent(TaskEventType.CREATE,this.startedBy,null);
+    if (startedAt == null)
+      this.startedAt = LocalDateTime.now();
+    createTaskInstanceEvent(TaskEventType.CREATE, this.startedBy, null);
   }
 
 
   public void claim(TaskOperationData data) {
-    if(this.status!=TaskInstanceStatus.CREATED) {
-      throw IgrpResponseStatusException.of(HttpStatus.CONFLICT, String.format("Cannot Claim a Task in Status[%s]",this.status));
+    if (this.status != TaskInstanceStatus.CREATED) {
+      throw IgrpResponseStatusException.of(HttpStatus.CONFLICT, String.format("Cannot Claim a Task in Status[%s]", this.status));
     }
     this.assignedBy = Objects.requireNonNull(data.getCurrentUser(), "User cannot be null!");
     this.status = TaskInstanceStatus.ASSIGNED;
     this.assignedAt = LocalDateTime.now();
-    createTaskInstanceEvent(TaskEventType.CLAIM,data.getCurrentUser(),data.getNote());
+    createTaskInstanceEvent(TaskEventType.CLAIM, data.getCurrentUser(), data.getNote());
   }
 
 
-  public void assign(TaskOperationData data) {
-    if(this.status!=TaskInstanceStatus.CREATED) {
-      throw IgrpResponseStatusException.of(HttpStatus.CONFLICT, String.format("Cannot Assign a Task in Status[%s]",this.status));
+  public void assignUser(TaskOperationData data) {
+    if (this.status != TaskInstanceStatus.CREATED) {
+      throw IgrpResponseStatusException.of(HttpStatus.CONFLICT, String.format("Cannot Assign a Task in Status[%s]", this.status));
     }
     this.assignedBy = Objects.requireNonNull(data.getTargetUser(), "Target User cannot be null!");
     this.assignedAt = LocalDateTime.now();
     this.status = TaskInstanceStatus.ASSIGNED;
-    if(data.getPriority()!=null && data.getPriority()!=0)
+    if (data.getPriority() != null && data.getPriority() != 0)
       this.priority = data.getPriority();
-    createTaskInstanceEvent(TaskEventType.ASSIGN,data.getCurrentUser(),data.getNote());
+    createTaskInstanceEvent(TaskEventType.ASSIGN, data.getCurrentUser(), data.getNote());
   }
 
-
   public void unClaim(TaskOperationData data) {
-    if(this.status!=TaskInstanceStatus.ASSIGNED) {
-      throw IgrpResponseStatusException.of(HttpStatus.CONFLICT, String.format("Cannot UnClaim a Task in Status[%s]",this.status));
+    if (this.status != TaskInstanceStatus.ASSIGNED) {
+      throw IgrpResponseStatusException.of(HttpStatus.CONFLICT, String.format("Cannot UnClaim a Task in Status[%s]", this.status));
     }
     this.assignedAt = null;
     this.assignedBy = null;
@@ -147,25 +149,22 @@ public class TaskInstance {
 
 
   public void complete(TaskOperationData data) {
-    if(this.status!=TaskInstanceStatus.ASSIGNED) {
-      throw IgrpResponseStatusException.of(HttpStatus.CONFLICT, String.format("Cannot Complete a Task in Status[%s]",this.status));
-    }
     this.endedBy = Objects.requireNonNull(data.getCurrentUser(), "Current User cannot be null!");
     this.endedAt = LocalDateTime.now();
     this.status = TaskInstanceStatus.COMPLETED;
-    createTaskInstanceEvent(TaskEventType.COMPLETE,data.getCurrentUser(),data.getNote());
+    createTaskInstanceEvent(TaskEventType.COMPLETE, data.getCurrentUser(), data.getNote());
   }
 
   private void createTaskInstanceEvent(TaskEventType eventType, Code user, String note) {
     this.taskInstanceEvents.add(
         TaskInstanceEvent.builder()
-        .taskInstanceId(Identifier.generate())
-        .taskInstanceId(this.id)
-        .eventType(eventType)
-        .status(this.status)
-        .performedBy(user)
-        .note(note!=null && !note.isBlank() ? note.trim() : null)
-        .build());
+            .taskInstanceId(Identifier.generate())
+            .taskInstanceId(this.id)
+            .eventType(eventType)
+            .status(this.status)
+            .performedBy(user)
+            .note(note != null && !note.isBlank() ? note.trim() : null)
+            .build());
   }
 
 
@@ -177,7 +176,7 @@ public class TaskInstance {
         .name(this.name)
         .startedAt(this.startedAt)
         .candidateGroups(this.candidateGroups)
-        .formKey(formKey!=null ? formKey : this.formKey) // if present overrides activity formKey
+        .formKey(formKey != null ? formKey : this.formKey) // if present overrides activity formKey
         .priority(processInstance.getPriority())
         .businessKey(processInstance.getBusinessKey())
         .processInstanceId(processInstance.getId())
@@ -185,7 +184,45 @@ public class TaskInstance {
         .build();
   }
 
-  public void addVariables(Map<String,Object> variables) {
+  public void addVariables(Map<String, Object> variables) {
     this.variables.putAll(variables);
   }
+
+  public void addCandidateGroup(TaskOperationData data) {
+
+    mergeCandidateGroups(data.getCandidateGroups());
+    updateAssignmentMetadata(data.getPriority());
+
+    createTaskInstanceEvent(
+        TaskEventType.ASSIGN,
+        data.getCurrentUser(),
+        data.getNote()
+    );
+  }
+
+  private void mergeCandidateGroups(List<String> newGroups) {
+    if (newGroups == null || newGroups.isEmpty()) {
+      return;
+    }
+    newGroups.stream()
+        .filter(g -> !this.candidateGroups.contains(g))
+        .forEach(this.candidateGroups::add);
+  }
+
+  private void updateAssignmentMetadata(Integer priority) {
+    this.assignedAt = LocalDateTime.now();
+    this.status = TaskInstanceStatus.ASSIGNED;
+    if (priority != null && priority != 0) {
+      this.priority = priority;
+    }
+  }
+
+  public void addCandidateGroup(String groupId, Code user) {
+    TaskOperationData taskOperationData = TaskOperationData.builder()
+        .currentUser(user)
+        .candidateGroups(List.of(groupId))
+        .build();
+    addCandidateGroup(taskOperationData);
+  }
+
 }

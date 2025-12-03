@@ -135,19 +135,19 @@
         <dependency>
             <groupId>cv.igrp.framework</groupId>
             <artifactId>runtime-core</artifactId>
-            <version>0.1.0-beta.6</version>
+            <version>0.1.0-beta.7</version>
         </dependency>
 
         <dependency>
             <groupId>cv.igrp.framework</groupId>
             <artifactId>runtime-activiti</artifactId>
-            <version>0.1.0-beta.6</version>
+            <version>0.1.0-beta.7</version>
         </dependency>
 
         <dependency>
             <groupId>cv.igrp.platform.access</groupId>
             <artifactId>client</artifactId>
-            <version>0.1.0-beta-20250729.152716-3</version>
+            <version>0.1.0-beta-20251203.124908-14</version>
         </dependency>
 
         <dependency>
@@ -271,6 +271,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.12</version>
                 <executions>
                     <execution>
                         <id>prepare-agent</id>

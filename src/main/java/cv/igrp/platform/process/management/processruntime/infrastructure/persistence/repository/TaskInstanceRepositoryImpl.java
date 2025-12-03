@@ -17,7 +17,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
 import java.util.*;
@@ -69,7 +68,6 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
 
 
   @Override
-  @Transactional(readOnly = true)
   public PageableLista<TaskInstance> findAll(TaskInstanceFilter filter) {
 
     Specification<TaskInstanceEntity> spec = buildSpecification(filter);
@@ -79,19 +77,40 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
 
     final var pageableTask = taskInstanceEntityRepository.findAll(spec, pageRequest);
 
-    List<TaskInstance> content = pageableTask.stream().map(taskMapper::toModel).toList();
+    List<TaskInstanceEntity> filtered = pageableTask.toList();
+
+    // Apply filter on user and groups
+    if(filter.getUser() != null || !filter.getCandidateGroups().isEmpty()){
+      filtered = pageableTask.stream()
+          .filter(taskInstanceEntity -> {
+
+            LOGGER.info("filter.getUser(): {}", filter.getUser());
+
+            boolean matchUser =  Objects.equals(taskInstanceEntity.getAssignedBy(), filter.getUser().getValue());
+
+            boolean matchGroups = matchesGroup(taskInstanceEntity, filter.getCandidateGroups());
+
+            return matchUser || matchGroups;
+          })
+          .toList();
+    }
+
+    List<TaskInstance> content = filtered
+        .stream()
+        .map(taskMapper::toModel)
+        .toList();
 
     return new PageableLista<>(
         pageableTask.getNumber(),
         pageableTask.getSize(),
-        pageableTask.getTotalElements(),
-        pageableTask.getTotalPages(),
-        pageableTask.isLast(),
-        pageableTask.isFirst(),
+        (long) filtered.size(),
+        (int) Math.ceil((double) filtered.size() / filter.getSize()),
+        pageableTask.getNumber() == (int) Math.ceil((double) filtered.size() / filter.getSize()) - 1,
+        pageableTask.getNumber() == 0,
         content
     );
-  }
 
+  }
 
   private Specification<TaskInstanceEntity> buildSpecification(TaskInstanceFilter filter) {
 
@@ -120,26 +139,9 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
           cb.like(root.get("processInstanceId").get("name"), "%"+ filter.getProcessName().getValue() +"%"));
     }
 
-    if (filter.getCandidateGroups() != null) {
-      spec = spec.and((root, query, cb) ->
-          cb.like(root.get("processInstanceId").get("candidateGroups"), "%"+ filter.getCandidateGroups().getValue() +"%"));
-    }
-
     if (filter.getStatus() != null) {
       spec = spec.and((root, query, cb) ->
           cb.equal(root.get("status"), filter.getStatus().getCode()));
-    }
-
-    if (filter.getUser() != null) {
-      spec = spec.and((root, query, cb) -> cb.or(
-          cb.equal(root.get("assignedBy"), filter.getUser().getValue()),
-          cb.equal(root.get("startedBy"), filter.getUser().getValue())
-      ));
-    }
-
-    if (filter.getSearchTerms() != null) {
-      spec = spec.and((root, query, cb) ->
-          cb.like(root.get("searchTerms"), "%" + filter.getSearchTerms() + "%"));
     }
 
     if (filter.getDateFrom() != null) {
@@ -152,7 +154,34 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
         cb.lessThanOrEqualTo(root.get("startedAt"), filter.getDateTo().atTime(LocalTime.MAX)));
     }
 
+    if (!filter.getIncludeTaskIds().isEmpty()) {
+      spec = spec.and((root, query, cb) ->
+          root.get("externalId").in(filter.getIncludeTaskIds())
+      );
+    }
+
+    if (!filter.getEngineProcessNumbers().isEmpty()) {
+      spec = spec.and((root, query, cb) ->
+          root.get("processInstanceId").get("engineProcessNumber").in(filter.getEngineProcessNumbers())
+      );
+    }
+
     return spec;
+  }
+
+  boolean matchesGroup(TaskInstanceEntity t, List<String> filterGroups) {
+
+    LOGGER.info("Task Groups: {}", t.getCandidateGroups());
+    LOGGER.info("Filter Groups: {}", filterGroups);
+
+    if (filterGroups == null || filterGroups.isEmpty()) return false;
+
+    List<String> taskGroups =
+        Arrays.stream(t.getCandidateGroups().split(","))
+            .map(String::trim)
+            .toList();
+
+    return taskGroups.stream().anyMatch(filterGroups::contains);
   }
 
 
@@ -214,11 +243,9 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
         .build();
   }
 
-
   private long countByStatus(Specification<TaskInstanceEntity> base, TaskInstanceStatus status) {
     return taskInstanceEntityRepository.count(base.and((root, q, cb) -> cb.equal(root.get("status"), status)));
   }
-
 
   private long countByStatusAndField(Specification<TaskInstanceEntity> base,
                                      TaskInstanceStatus status, String field, String value) {
@@ -228,6 +255,4 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
     );
   }
 
-
 }
-

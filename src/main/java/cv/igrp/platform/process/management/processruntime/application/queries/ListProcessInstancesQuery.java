@@ -21,8 +21,6 @@ public class ListProcessInstancesQuery implements Query {
   private String procReleaseId;
   @NotBlank(message = "The field <status> is required")
   private String status;
-  @NotBlank(message = "The field <searchTerms> is required")
-  private String searchTerms;
   @NotBlank(message = "The field <applicationBase> is required")
   private String applicationBase;
   @NotNull(message = "The field <page> is required")
