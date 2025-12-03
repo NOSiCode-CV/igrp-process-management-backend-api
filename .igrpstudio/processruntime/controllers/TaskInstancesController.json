@@ -7,7 +7,21 @@
   "actions": [
     {
       "actionName": "listTaskInstances",
-      "method": "GET",
+      "path": "search",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "VariablesFilterDTO",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "processruntime"
+            }
+          }
+        }
+      },
       "responses": {
         "200": {
           "name": "OK",
@@ -263,7 +277,20 @@
     {
       "actionName": "getAllMyTasks",
       "path": "me",
-      "method": "GET",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "VariablesFilterDTO",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "processruntime"
+            }
+          }
+        }
+      },
       "responses": {
         "200": {
           "name": "OK",
@@ -305,12 +332,6 @@
           "name": "processName",
           "isRequired": false,
           "description": "Process Name"
-        },
-        {
-          "type": "string",
-          "name": "candidateGroups",
-          "description": "Role",
-          "isRequired": false
         },
         {
           "type": "string",
@@ -494,5 +515,5 @@
       ]
     }
   ],
-  "id": "s7o1wob8tj-CONTROLLER-listTaskInstances-getAllMyTasks-getAllMyTasks"
+  "id": "s7o1wob8tj-CONTROLLER-listTaskInstances-getAllMyTasks-getAllMyTasks-listTaskInstances-getAllMyTasks-getAllMyTasks"
 }

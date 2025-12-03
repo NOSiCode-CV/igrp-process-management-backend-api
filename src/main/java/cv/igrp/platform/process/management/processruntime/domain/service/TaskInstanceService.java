@@ -1,5 +1,7 @@
 package cv.igrp.platform.process.management.processruntime.domain.service;
 
+import cv.igrp.platform.process.management.processdefinition.domain.models.ProcessArtifact;
+import cv.igrp.platform.process.management.processdefinition.domain.repository.ProcessDefinitionRepository;
 import cv.igrp.platform.process.management.processruntime.domain.models.*;
 import cv.igrp.platform.process.management.processruntime.domain.repository.ProcessInstanceRepository;
 import cv.igrp.platform.process.management.processruntime.domain.repository.RuntimeProcessEngineRepository;
@@ -10,11 +12,10 @@ import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponse
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
-import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.ProcessArtifactEntity;
-import cv.igrp.platform.process.management.shared.infrastructure.persistence.repository.ProcessArtifactEntityRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -26,19 +27,20 @@ public class TaskInstanceService {
   private final TaskInstanceEventRepository taskInstanceEventRepository;
   private final RuntimeProcessEngineRepository runtimeProcessEngineRepository;
   private final ProcessInstanceRepository processInstanceRepository;
-  private final ProcessArtifactEntityRepository processArtifactEntityRepository;
+  private final ProcessDefinitionRepository processDefinitionRepository;
 
   public TaskInstanceService(TaskInstanceRepository taskInstanceRepository,
                              TaskInstanceEventRepository taskInstanceEventRepository,
                              RuntimeProcessEngineRepository runtimeProcessEngineRepository,
                              ProcessInstanceRepository processInstanceRepository,
-                             ProcessArtifactEntityRepository processArtifactEntityRepository) {
+                             ProcessDefinitionRepository processDefinitionRepository
+  ) {
 
     this.taskInstanceRepository = taskInstanceRepository;
     this.taskInstanceEventRepository = taskInstanceEventRepository;
     this.runtimeProcessEngineRepository = runtimeProcessEngineRepository;
     this.processInstanceRepository = processInstanceRepository;
-    this.processArtifactEntityRepository = processArtifactEntityRepository;
+    this.processDefinitionRepository = processDefinitionRepository;
   }
 
 
@@ -82,14 +84,30 @@ public class TaskInstanceService {
 
   public void assignTask(TaskOperationData data) {
     var taskInstance = getByIdWihEvents(data.getId());
-    taskInstance.assign(data);
+    if (data.getTargetUser() != null) {
+
+      taskInstance.assignUser(data);
+
+      runtimeProcessEngineRepository.assignTask(
+          taskInstance.getExternalId().getValue(),
+          taskInstance.getAssignedBy().getValue(),
+          data.getNote()
+      );
+    } else {
+
+      taskInstance.addCandidateGroup(data);
+
+      data.getCandidateGroups().forEach(group -> {
+        runtimeProcessEngineRepository.addCandidateGroup(
+            taskInstance.getExternalId().getValue(),
+            group
+        );
+      });
+
+    }
+
     this.save(taskInstance);
-    // Call the process engine to assign a task
-    runtimeProcessEngineRepository.assignTask(
-        taskInstance.getExternalId().getValue(),
-        taskInstance.getAssignedBy().getValue(),
-        data.getNote()
-    );
+
   }
 
 
@@ -149,9 +167,26 @@ public class TaskInstanceService {
 
 
   public PageableLista<TaskInstance> getAllTaskInstances(TaskInstanceFilter filter) {
+
+    if (!filter.getVariablesExpressions().isEmpty()) {
+      // Call engine to filter by variables
+      List<ProcessInstance> engineProcessInstances = runtimeProcessEngineRepository.getAllProcessInstancesByVariables(
+          filter.getVariablesExpressions()
+      );
+      if (!engineProcessInstances.isEmpty()) {
+        engineProcessInstances.forEach(processInstance -> {
+          filter.includeEngineProcessNumber(processInstance.getEngineProcessNumber().getValue());
+        });
+      } else {
+        filter.includeEngineProcessNumber(null);
+      }
+    }
+
     final var pageableTask = taskInstanceRepository.findAll(filter);
+
     // add Process Variables
     addVariables(pageableTask);
+
     return pageableTask;
   }
 
@@ -210,25 +245,64 @@ public class TaskInstanceService {
     return taskInstanceRepository.getTaskStatisticsByUser(user);
   }
 
-
   void createNextTaskInstances(ProcessInstance processInstance, Code user) {
-    // tasks from activiti
-    final var activeTaskInstanceList = runtimeProcessEngineRepository
-        .getActiveTaskInstances(processInstance.getEngineProcessNumber().getValue());
 
-    if (activeTaskInstanceList.isEmpty())
+    var activeTasks = runtimeProcessEngineRepository.getActiveTaskInstances(
+        processInstance.getEngineProcessNumber().getValue());
+
+    if (activeTasks.isEmpty()) {
       return;
+    }
 
-    activeTaskInstanceList.forEach(t -> runtimeProcessEngineRepository
-        .setTaskPriority(t.getExternalId().getValue(), processInstance.getPriority()));
-
-    final var artifactAssociations = processArtifactEntityRepository
-        .findAllByProcessDefinitionId(processInstance.getId().getValue().toString())
-        .stream().collect(Collectors.toMap(ProcessArtifactEntity::getKey, a -> Code.create(a.getFormKey())));
-
-    activeTaskInstanceList.forEach(t -> this.createTask(
-        t.withProperties(processInstance, artifactAssociations.get(t.getTaskKey().toString()), user))
+    // 1. Update priorities for all active tasks
+    activeTasks.forEach(task ->
+        runtimeProcessEngineRepository.setTaskPriority(
+            task.getExternalId().getValue(),
+            processInstance.getPriority()
+        )
     );
+
+    // 2. Preload artifacts and map {taskKey → formKey}
+    var artifacts = processDefinitionRepository.findAllArtifacts(processInstance.getProcReleaseId());
+
+    var artifactFormMap = artifacts.stream()
+        .collect(Collectors.toMap(
+            ProcessArtifact::getKey,
+            a -> Code.create(a.getFormKey().getValue())
+        ));
+
+    // 3. Pre-map {taskKey → artifact} for faster lookup
+    var artifactByKey = artifacts.stream()
+        .collect(Collectors.toMap(ProcessArtifact::getKey, a -> a));
+
+    // 4. Process each task
+    for (var task : activeTasks) {
+
+      // Instantiate next task using precomputed form key
+      var newTask = task.withProperties(
+          processInstance,
+          artifactFormMap.get(task.getTaskKey()),
+          user
+      );
+
+      var artifact = artifactByKey.get(task.getTaskKey());
+      if (artifact != null) {
+        for (var groupId : artifact.getCandidateGroups()) {
+
+          // Add group to new task instance
+          newTask.addCandidateGroup(groupId, user);
+
+          // Add group to Activiti runtime task
+          runtimeProcessEngineRepository.addCandidateGroup(
+              task.getExternalId().getValue(),
+              groupId
+          );
+        }
+      }
+
+      createTask(newTask);
+    }
+
   }
 
 

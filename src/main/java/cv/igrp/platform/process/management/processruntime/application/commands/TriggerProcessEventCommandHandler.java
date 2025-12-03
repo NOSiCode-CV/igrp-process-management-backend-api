@@ -51,7 +51,7 @@ public class TriggerProcessEventCommandHandler implements CommandHandler<Trigger
         processInstanceService.correlateMessage(event.getBusinessKey(), event.getMessageName(), vars);
       } else {
         LOGGER.info("Signaling process instance for businessKey '{}'", event.getBusinessKey());
-        processInstanceService.signal(event.getBusinessKey(), vars);
+        processInstanceService.signal(event.getBusinessKey(), event.getTaskId(), vars);
       }
 
       LOGGER.info("Processed event successfully for businessKey: {}", event.getBusinessKey());

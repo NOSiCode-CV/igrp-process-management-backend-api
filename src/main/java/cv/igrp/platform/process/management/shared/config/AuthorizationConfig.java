@@ -2,7 +2,7 @@ package cv.igrp.platform.process.management.shared.config;
 
 
 import cv.igrp.platform.access.client.ApiClient;
-import cv.igrp.platform.process.management.shared.security.AuthenticationHelper;
+import cv.igrp.platform.process.management.shared.security.util.AuthenticationHelper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

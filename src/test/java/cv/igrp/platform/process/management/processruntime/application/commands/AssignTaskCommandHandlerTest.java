@@ -4,7 +4,7 @@ import cv.igrp.platform.process.management.processruntime.application.dto.Assign
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskOperationData;
 import cv.igrp.platform.process.management.processruntime.domain.service.TaskInstanceService;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
-import cv.igrp.platform.process.management.shared.security.UserContext;
+import cv.igrp.platform.process.management.shared.security.util.UserContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,11 +39,12 @@ class AssignTaskCommandHandlerTest {
     String currentUserName = "demo@nosi.cv";
     String targetUserName = "igrp@nosi.cv";
     String note = "This is a note";
+    String candidateGroups = "group1,group2";
     Integer priority = 3;
 
     when(userContext.getCurrentUser()).thenReturn(Code.create(currentUserName));
 
-    AssignTaskDTO dto = new AssignTaskDTO(targetUserName, priority, note);
+    AssignTaskDTO dto = new AssignTaskDTO(targetUserName, priority, note, candidateGroups);
     command = new AssignTaskCommand();
     command.setId(taskId);
     command.setAssigntaskdto(dto);

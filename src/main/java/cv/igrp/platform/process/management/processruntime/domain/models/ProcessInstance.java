@@ -22,7 +22,7 @@ public class ProcessInstance {
 
   private final Identifier id;
   private final Code procReleaseKey;
-  private final Code procReleaseId;
+  private Code procReleaseId;
   private ProcessNumber number;
   private Code engineProcessNumber;
   private Code businessKey;
@@ -34,6 +34,7 @@ public class ProcessInstance {
   private LocalDateTime canceledAt;
   private String startedBy;
   private String endedBy;
+  private String createdBy;
   private String canceledBy;
   private String obsCancel;
   private ProcessInstanceStatus status;
@@ -57,6 +58,7 @@ public class ProcessInstance {
                          LocalDateTime canceledAt,
                          String startedBy,
                          String endedBy,
+                         String createdBy,
                          String canceledBy,
                          String obsCancel,
                          ProcessInstanceStatus status,
@@ -67,11 +69,10 @@ public class ProcessInstance {
                          ) {
     this.id = id == null ? Identifier.generate() : id;
     this.procReleaseKey = Objects.requireNonNull(procReleaseKey, "Process release key cannot be null");
-    this.procReleaseId = Objects.requireNonNull(procReleaseId, "Process release id cannot be null");
+    this.procReleaseId = procReleaseId;
     this.number = number;
     this.engineProcessNumber = engineProcessNumber;
     this.businessKey = businessKey == null ? Code.create(generateBusinessKey()) : businessKey;
-    //this.applicationBase = Objects.requireNonNull(applicationBase, "Application base cannot be null");
     this.applicationBase = applicationBase;
     this.version = version;
     this.searchTerms = searchTerms;
@@ -80,6 +81,7 @@ public class ProcessInstance {
     this.canceledAt = canceledAt;
     this.startedBy = startedBy;
     this.endedBy = endedBy;
+    this.createdBy = createdBy;
     this.canceledBy = canceledBy;
     this.obsCancel = obsCancel;
     this.status = status == null ? ProcessInstanceStatus.CREATED : status;
@@ -89,23 +91,38 @@ public class ProcessInstance {
     this.priority = priority == null ? DEFAULT_PRIORITY : priority;
   }
 
-  public void init(ProcessNumber number, Code engineProcessNumber, String version, String processName, String startedBy){
+  public void create(ProcessNumber processNumber, ProcessInstance processInstance, String createdBy){
+    if(createdBy == null || createdBy.isBlank()){
+      throw new IllegalStateException("The createdBy (user) of the process instance cannot be null or blank");
+    }
+    if(processInstance.getName() == null || processInstance.getName().isBlank()){
+      throw new IllegalStateException("The name of the process instance cannot be null or blank");
+    }
+    if(processInstance.getProcReleaseId() == null){
+      throw new IllegalStateException("The process definition id cannot be null");
+    }
+    if(processNumber == null){
+      throw new IllegalStateException("The process number cannot be null");
+    }
+    this.number = processNumber;
+    this.procReleaseId = processInstance.getProcReleaseId();
+    this.engineProcessNumber = processInstance.getEngineProcessNumber();
+    this.status = ProcessInstanceStatus.CREATED;
+    this.createdBy = createdBy;
+    this.name = processInstance.getName();
+    this.version = processInstance.getVersion() == null || processInstance.getVersion().isBlank() ? "1.0" : processInstance.getVersion();
+  }
+
+  public void start(String startedBy){
     if(this.status != ProcessInstanceStatus.CREATED && this.status != ProcessInstanceStatus.SUSPENDED){
       throw new IllegalStateException("The status of the process instance must be CREATED or SUSPENDED");
     }
     if(startedBy == null || startedBy.isBlank()){
       throw new IllegalStateException("The started by (user) of the process instance cannot be null or blank");
     }
-    if(number == null){
-      throw new IllegalStateException("The started by (user) of the process instance cannot be null or blank");
-    }
-    this.number = Objects.requireNonNull(number, "Process number cannot be null");
-    this.status = ProcessInstanceStatus.RUNNING;
     this.startedAt = LocalDateTime.now();
-    this.engineProcessNumber = engineProcessNumber;
-    this.version = version == null || version.isBlank() ? "1.0" : version;
-    this.name = processName;
     this.startedBy = startedBy;
+    this.status = ProcessInstanceStatus.RUNNING;
   }
 
   public void complete(LocalDateTime endedAt, String endedBy){
@@ -132,5 +149,6 @@ public class ProcessInstance {
   public void addVariables(Map<String,Object> variables) {
     this.variables.putAll(variables);
   }
+
 
 }
