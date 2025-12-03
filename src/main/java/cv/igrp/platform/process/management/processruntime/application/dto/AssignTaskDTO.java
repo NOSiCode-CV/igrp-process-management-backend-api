@@ -4,11 +4,11 @@
 package cv.igrp.platform.process.management.processruntime.application.dto;
 
 import cv.igrp.framework.stereotype.IgrpDTO;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
+import jakarta.validation.*;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 
 @Data
@@ -19,15 +19,17 @@ import lombok.NoArgsConstructor;
 @IgrpDTO
 public class AssignTaskDTO  {
 
-  @NotBlank(message = "The field <user> is required")
-	@Size(min = 1, message = "The field length <user> must be at least 1 characters")
-
+  @Size(min = 1, message = "The field length <user> must be at least 1 characters")
+  
   private String user ;
-
-
+  
+  
   private Integer priority ;
-
-
+  
+  
   private String note ;
+  
+  
+  private String candidateGroups ;
 
 }

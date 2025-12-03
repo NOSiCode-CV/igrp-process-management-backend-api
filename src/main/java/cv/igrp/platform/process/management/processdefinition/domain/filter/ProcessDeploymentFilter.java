@@ -9,6 +9,7 @@ import lombok.Getter;
 public class ProcessDeploymentFilter {
 
   private String processName;
+  private String processDefinitionId;
   private final Code applicationBase;
   private Integer pageNumber;
   private Integer pageSize;

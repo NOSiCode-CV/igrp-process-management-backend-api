@@ -1,0 +1,108 @@
+{
+  "type": "controller",
+  "name": "Activities",
+  "module": "processruntime",
+  "description": "Activities Management",
+  "basePath": "activities",
+  "actions": [
+    {
+      "actionName": "getActivityById",
+      "path": "{id}",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ActivityDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "processruntime"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "getActivityInstances",
+      "path": "instances",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ActivityDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "processruntime"
+              }
+            }
+          }
+        }
+      },
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "processInstanceId",
+          "description": "Process Instance ID",
+          "isRequired": true
+        },
+        {
+          "type": "string",
+          "name": "type",
+          "description": "Activity Type",
+          "isRequired": false
+        }
+      ]
+    },
+    {
+      "actionName": "getActivityProgress",
+      "path": "progress",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ActivityProgressDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "processruntime"
+              }
+            }
+          }
+        }
+      },
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "processInstanceId",
+          "description": "Process Instance ID",
+          "isRequired": true
+        },
+        {
+          "type": "string",
+          "name": "type",
+          "description": "Activity Type",
+          "isRequired": false
+        }
+      ]
+    }
+  ],
+  "id": "d80r2w7i7o-getActivityById"
+}

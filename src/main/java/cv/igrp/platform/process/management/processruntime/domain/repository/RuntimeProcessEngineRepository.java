@@ -1,10 +1,10 @@
 package cv.igrp.platform.process.management.processruntime.domain.repository;
 
+import cv.igrp.framework.runtime.core.engine.activity.model.IGRPActivityType;
+import cv.igrp.framework.runtime.core.engine.activity.model.ProcessActivityInfo;
 import cv.igrp.framework.runtime.core.engine.process.ProcessDefinitionRepresentation;
 import cv.igrp.platform.process.management.processruntime.domain.exception.RuntimeProcessEngineException;
-import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstance;
-import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstanceTaskStatus;
-import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
+import cv.igrp.platform.process.management.processruntime.domain.models.*;
 
 import java.util.List;
 import java.util.Map;
@@ -32,6 +32,23 @@ public interface RuntimeProcessEngineRepository {
    * @throws RuntimeProcessEngineException if the process cannot be started
    */
   ProcessInstance startProcessInstanceById(
+      String processDefinitionId,
+      String businessKey,
+      Map<String, Object> variables
+  ) throws RuntimeProcessEngineException;
+
+  /**
+   * Starts a new process instance using the given process instance ID.
+   *
+   * @param processInstanceId the unique identifier of the process instance
+   * @param processDefinitionId the unique identifier of the process definition
+   * @param businessKey         a business-specific correlation key (may be {@code null})
+   * @param variables           initial process variables (may be empty or {@code null})
+   * @return the created {@link ProcessInstance}
+   * @throws RuntimeProcessEngineException if the process cannot be started
+   */
+  ProcessInstance startProcessInstanceById(
+      String processInstanceId,
       String processDefinitionId,
       String businessKey,
       Map<String, Object> variables
@@ -201,5 +218,63 @@ public interface RuntimeProcessEngineRepository {
    * @return the {@link ProcessDefinitionRepresentation}
    */
   ProcessDefinitionRepresentation getProcessDefinition(String processDefinitionId);
+
+  /**
+   * Retrieves the activity representation by its ID
+   *
+   * @param activityId the unique identifier for the activity
+   * @return the {@link ActivityData} if present
+   */
+  ActivityData getActivityById(String activityId);
+
+  /**
+   * Retrieve the activity variables through the activity's ID
+   *
+   * @param activityId the unique identifier for the activity
+   * @return a map of variables
+   */
+  Map<String, Object> getActivityVariables(String activityId);
+
+  /**
+   * Retrieve the active activity instances by process instance's ID
+   *
+   * @param processInstanceId the unique identifier for the process instance
+   * @param type the activity type filter
+   * @return a list of {@link ActivityData}
+   */
+  List<ActivityData> getActiveActivityInstances(String processInstanceId, IGRPActivityType type);
+
+  /**
+   * Retrieve the activity progress by process instance's ID
+   *
+   * @param processInstanceId the unique identifier for the process instance
+   * @param type the activity type filter
+   * @return a list of {@link ProcessActivityInfo}
+   */
+  List<ProcessActivityInfo> getActivityProgress(String processInstanceId, IGRPActivityType type);
+
+  /**
+   * Retrieve all process instances by variables expressions.
+   * @param variablesExpressions the list of variables expressions
+   * @return a list of {@link ProcessInstance}
+   */
+  List<ProcessInstance> getAllProcessInstancesByVariables(List<VariablesExpression> variablesExpressions);
+
+  /**
+   * Retrieve all task instances by variables expressions.
+   * @param variablesExpressions the list of variables expressions
+   * @return a list of {@link TaskInstance}
+   */
+  List<TaskInstance> getAllTaskInstancesByVariables(List<VariablesExpression> variablesExpressions);
+
+
+  /**
+   * Add a candidate group to a task.
+   *
+   * @param taskId the unique identifier of the task
+   * @param groupId the unique identifier of the candidate group
+   * @throws RuntimeProcessEngineException if the task cannot be found or the candidate group cannot be added
+   */
+  void addCandidateGroup(String taskId, String groupId) throws RuntimeProcessEngineException;
 
 }
