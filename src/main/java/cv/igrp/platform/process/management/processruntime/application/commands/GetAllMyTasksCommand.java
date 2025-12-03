@@ -1,18 +1,19 @@
-package cv.igrp.platform.process.management.processruntime.application.queries;
+package cv.igrp.platform.process.management.processruntime.application.commands;
 
-import cv.igrp.framework.core.domain.Query;
+import cv.igrp.framework.core.domain.Command;
 import jakarta.validation.constraints.*;
-
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-
+import cv.igrp.platform.process.management.processruntime.application.dto.VariablesFilterDTO;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class GetAllMyTasksQuery implements Query {
+public class GetAllMyTasksCommand implements Command {
 
+  
+  private VariablesFilterDTO variablesfilterdto;
   @NotBlank(message = "The field <processInstanceId> is required")
   private String processInstanceId;
   @NotBlank(message = "The field <processNumber> is required")
@@ -21,8 +22,6 @@ public class GetAllMyTasksQuery implements Query {
   private String applicationBase;
   @NotBlank(message = "The field <processName> is required")
   private String processName;
-  @NotBlank(message = "The field <candidateGroups> is required")
-  private String candidateGroups;
   @NotBlank(message = "The field <status> is required")
   private String status;
   @NotBlank(message = "The field <dateFrom> is required")

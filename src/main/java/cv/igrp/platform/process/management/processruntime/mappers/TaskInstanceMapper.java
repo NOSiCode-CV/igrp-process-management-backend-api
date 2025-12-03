@@ -1,10 +1,9 @@
 package cv.igrp.platform.process.management.processruntime.mappers;
 
 import cv.igrp.framework.runtime.core.engine.task.model.TaskInfo;
+import cv.igrp.platform.process.management.processruntime.application.commands.GetAllMyTasksCommand;
 import cv.igrp.platform.process.management.processruntime.application.commands.ListTaskInstancesCommand;
 import cv.igrp.platform.process.management.processruntime.application.dto.*;
-import cv.igrp.platform.process.management.processruntime.application.queries.GetAllMyTasksQuery;
-import cv.igrp.platform.process.management.processruntime.application.queries.ListTaskInstancesQuery;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceFilter;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskStatistics;
@@ -16,6 +15,7 @@ import cv.igrp.platform.process.management.shared.infrastructure.persistence.ent
 import cv.igrp.platform.process.management.shared.util.DateUtil;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -179,36 +179,19 @@ public class TaskInstanceMapper {
     return dto;
   }
 
-
-  public TaskInstanceFilter toFilter(ListTaskInstancesQuery query) {
+  public TaskInstanceFilter toFilter(GetAllMyTasksCommand command) {
+    List<VariablesExpression> vars = toVariablesExpressionList(command.getVariablesfilterdto());
     return TaskInstanceFilter.builder()
-        .processInstanceId(query.getProcessInstanceId() != null ? Identifier.create(query.getProcessInstanceId()) : null)
-        .processNumber(query.getProcessNumber() != null ? Code.create(query.getProcessNumber()) : null)
-        .applicationBase((query.getApplicationBase() != null && !query.getApplicationBase().isBlank()) ? Code.create(query.getApplicationBase().trim()) : null)
-        .processName((query.getProcessName() != null && !query.getProcessName().isBlank()) ? Name.create(query.getProcessName().trim()) : null)
-        .candidateGroups(query.getCandidateGroups() != null ? Code.create(query.getCandidateGroups()) : null)
-        .user(query.getUser() != null ? Code.create(query.getUser()) : null)
-        .status(query.getStatus() != null ? TaskInstanceStatus.valueOf(query.getStatus()) : null)
-        .dateFrom(DateUtil.stringToLocalDate.apply(query.getDateFrom()))
-        .dateTo(DateUtil.stringToLocalDate.apply(query.getDateTo()))
-        .page(query.getPage())
-        .size(query.getSize())
-        .build();
-  }
-
-
-  public TaskInstanceFilter toFilter(GetAllMyTasksQuery query) {
-    return TaskInstanceFilter.builder()
-        .processInstanceId(query.getProcessInstanceId() != null ? Identifier.create(query.getProcessInstanceId()) : null)
-        .processNumber(query.getProcessNumber() != null ? Code.create(query.getProcessNumber()) : null)
-        .applicationBase((query.getApplicationBase() != null && !query.getApplicationBase().isBlank()) ? Code.create(query.getApplicationBase().trim()) : null)
-        .processName((query.getProcessName() != null && !query.getProcessName().isBlank()) ? Name.create(query.getProcessName().trim()) : null)
-        .candidateGroups(query.getCandidateGroups() != null ? Code.create(query.getCandidateGroups()) : null)
-        .status(query.getStatus() != null ? TaskInstanceStatus.valueOf(query.getStatus()) : null)
-        .dateFrom(DateUtil.stringToLocalDate.apply(query.getDateFrom()))
-        .dateTo(DateUtil.stringToLocalDate.apply(query.getDateTo()))
-        .page(query.getPage())
-        .size(query.getSize())
+        .processInstanceId(command.getProcessInstanceId() != null ? Identifier.create(command.getProcessInstanceId()) : null)
+        .processNumber(command.getProcessNumber() != null ? Code.create(command.getProcessNumber()) : null)
+        .applicationBase((command.getApplicationBase() != null && !command.getApplicationBase().isBlank()) ? Code.create(command.getApplicationBase().trim()) : null)
+        .processName((command.getProcessName() != null && !command.getProcessName().isBlank()) ? Name.create(command.getProcessName().trim()) : null)
+        .status(command.getStatus() != null ? TaskInstanceStatus.valueOf(command.getStatus()) : null)
+        .dateFrom(DateUtil.stringToLocalDate.apply(command.getDateFrom()))
+        .dateTo(DateUtil.stringToLocalDate.apply(command.getDateTo()))
+        .variablesExpressions(vars)
+        .page(command.getPage())
+        .size(command.getSize())
         .build();
   }
 
@@ -245,7 +228,9 @@ public class TaskInstanceMapper {
         .processNumber(command.getProcessNumber() != null ? Code.create(command.getProcessNumber()) : null)
         .applicationBase((command.getApplicationBase() != null && !command.getApplicationBase().isBlank()) ? Code.create(command.getApplicationBase().trim()) : null)
         .processName((command.getProcessName() != null && !command.getProcessName().isBlank()) ? Name.create(command.getProcessName().trim()) : null)
-        .candidateGroups(command.getCandidateGroups() != null ? Code.create(command.getCandidateGroups()) : null)
+        .candidateGroups(command.getCandidateGroups() != null
+            ? new ArrayList<>(List.of(command.getCandidateGroups().split(",")))
+            : new ArrayList<>())
         .user(command.getUser() != null ? Code.create(command.getUser()) : null)
         .status(command.getStatus() != null ? TaskInstanceStatus.valueOf(command.getStatus()) : null)
         .dateFrom(DateUtil.stringToLocalDate.apply(command.getDateFrom()))

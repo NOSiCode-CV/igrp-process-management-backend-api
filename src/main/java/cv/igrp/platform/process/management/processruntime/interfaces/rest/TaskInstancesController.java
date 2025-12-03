@@ -240,12 +240,12 @@ public class TaskInstancesController {
        return response;
   }
 
-      @GetMapping(
+      @PostMapping(
    value = "me"
   )
   @Operation(
-    summary = "GET method to handle operations for Get all my tasks",
-    description = "GET method to handle operations for Get all my tasks",
+    summary = "POST method to handle operations for Get all my tasks",
+    description = "POST method to handle operations for Get all my tasks",
     responses = {
       @ApiResponse(
           responseCode = "200",
@@ -260,12 +260,11 @@ public class TaskInstancesController {
     }
   )
   
-  public ResponseEntity<TaskInstanceListPageDTO> getAllMyTasks(
-    @RequestParam(value = "processInstanceId", required = false) String processInstanceId,
+  public ResponseEntity<TaskInstanceListPageDTO> getAllMyTasks(@Valid @RequestBody VariablesFilterDTO getAllMyTasksRequest
+    , @RequestParam(value = "processInstanceId", required = false) String processInstanceId,
     @RequestParam(value = "processNumber", required = false) String processNumber,
     @RequestParam(value = "applicationBase", required = false) String applicationBase,
     @RequestParam(value = "processName", required = false) String processName,
-    @RequestParam(value = "candidateGroups", required = false) String candidateGroups,
     @RequestParam(value = "status", required = false) String status,
     @RequestParam(value = "dateFrom", required = false) String dateFrom,
     @RequestParam(value = "dateTo", required = false) String dateTo,
@@ -273,11 +272,11 @@ public class TaskInstancesController {
     @RequestParam(value = "size", required = false) Integer size)
   {
 
-      final var query = new GetAllMyTasksQuery(processInstanceId, processNumber, applicationBase, processName, candidateGroups, status, dateFrom, dateTo, page, size);
+      final var command = new GetAllMyTasksCommand(getAllMyTasksRequest, processInstanceId, processNumber, applicationBase, processName, status, dateFrom, dateTo, page, size);
 
-      ResponseEntity<TaskInstanceListPageDTO> response = queryBus.handle(query);
+       ResponseEntity<TaskInstanceListPageDTO> response = commandBus.send(command);
 
-      return response;
+       return response;
   }
 
       @GetMapping(

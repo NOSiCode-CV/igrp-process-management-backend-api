@@ -170,21 +170,23 @@ public class TaskInstanceService {
 
     if (!filter.getVariablesExpressions().isEmpty()) {
       // Call engine to filter by variables
-      List<TaskInstance> engineTaskInstances = runtimeProcessEngineRepository.getAllTaskInstancesByVariables(
+      List<ProcessInstance> engineProcessInstances = runtimeProcessEngineRepository.getAllProcessInstancesByVariables(
           filter.getVariablesExpressions()
       );
-      if (!engineTaskInstances.isEmpty()) {
-        engineTaskInstances.forEach(taskInstance -> {
-          filter.includeTaskId(taskInstance.getExternalId().getValue());
+      if (!engineProcessInstances.isEmpty()) {
+        engineProcessInstances.forEach(processInstance -> {
+          filter.includeEngineProcessNumber(processInstance.getEngineProcessNumber().getValue());
         });
       } else {
-        filter.includeTaskId(null);
+        filter.includeEngineProcessNumber(null);
       }
     }
 
     final var pageableTask = taskInstanceRepository.findAll(filter);
+
     // add Process Variables
     addVariables(pageableTask);
+
     return pageableTask;
   }
 
