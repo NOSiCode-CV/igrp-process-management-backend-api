@@ -5,7 +5,7 @@ import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstance;
 import cv.igrp.platform.process.management.processruntime.domain.service.ProcessInstanceService;
 import cv.igrp.platform.process.management.processruntime.mappers.ProcessInstanceMapper;
-import cv.igrp.platform.process.management.shared.security.UserContext;
+import cv.igrp.platform.process.management.shared.security.util.UserContext;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.slf4j.Logger;

@@ -5,7 +5,7 @@ import cv.igrp.platform.process.management.processdefinition.domain.models.Proce
 import cv.igrp.platform.process.management.processdefinition.domain.service.ProcessSequenceService;
 import cv.igrp.platform.process.management.processdefinition.mappers.ProcessSequenceMapper;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
-import cv.igrp.platform.process.management.shared.security.UserContext;
+import cv.igrp.platform.process.management.shared.security.util.UserContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -5,7 +5,7 @@ import cv.igrp.framework.stereotype.IgrpQueryHandler;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceListPageDTO;
 import cv.igrp.platform.process.management.processruntime.domain.service.TaskInstanceService;
 import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
-import cv.igrp.platform.process.management.shared.security.UserContext;
+import cv.igrp.platform.process.management.shared.security.util.UserContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;

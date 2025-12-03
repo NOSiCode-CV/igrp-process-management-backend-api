@@ -1,4 +1,4 @@
-package cv.igrp.platform.process.management.shared.security;
+package cv.igrp.platform.process.management.shared.security.util;
 
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import org.springframework.security.core.Authentication;

@@ -1,4 +1,4 @@
-package cv.igrp.platform.process.management.shared.security;
+package cv.igrp.platform.process.management.shared.security.util;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;

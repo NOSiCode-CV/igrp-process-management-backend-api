@@ -1,8 +1,7 @@
 package cv.igrp.platform.process.management.shared.security;
 
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import cv.igrp.platform.process.management.shared.security.authz.IAuthorizationServiceAdapter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -18,46 +17,25 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.TokenExchangeOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-/**
- * Security configuration class for setting up OAuth2 and JWT authentication with Keycloak.
- * This class defines the security filter chain, policy enforcer filter, and JWT authentication conversion logic.
- */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-  @Value("${spring.profiles.active}")
-  private String activeProfile;
+  private final IAuthorizationServiceAdapter authorizationService;
 
-  @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
-  private String jwtIssuer;
+  public SecurityConfig(IAuthorizationServiceAdapter authorizationService) {
+    this.authorizationService = authorizationService;
+  }
 
-  /**
-   * Configures the security filter chain, enabling OAuth2 resource server with JWT and specifying
-   * which requests require authentication.
-   *
-   * @param http the {@link HttpSecurity} object to configure security settings
-   * @return the configured {@link SecurityFilterChain} instance
-   * @throws Exception if an error occurs while configuring the security
-   */
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        /*
-          Creates and configures a CORS filter.
-          The filter allows requests from the specified origin, allows all headers and methods,
-          and supports credentials in cross-origin requests.
-        */
     http.cors(cors -> cors.configurationSource(request -> {
       var configuration = new CorsConfiguration();
       configuration.addAllowedOriginPattern(CorsConfiguration.ALL);
@@ -98,11 +76,6 @@ public class SecurityConfig {
     return http.build();
   }
 
-  /**
-   * Configures a JWT authentication converter that extracts roles from the JWT and assigns them to authorities.
-   *
-   * @return the {@link JwtAuthenticationConverter} used to convert JWT tokens to Spring Security authentication
-   */
   @Bean
   public JwtAuthenticationConverter jwtAuthenticationConverter() {
 
@@ -112,42 +85,38 @@ public class SecurityConfig {
 
       Set<GrantedAuthority> authorities = new HashSet<>();
 
-      Map<String, Object> resourceAccess = jwt.getClaim("resource_access");
-
-      if (resourceAccess != null && resourceAccess.containsKey("access-management")) {
-        Map<String, Object> clientAccess =
-            (Map<String, Object>) resourceAccess.get("access-management");
-
-        List<String> roles = (List<String>) clientAccess.get("roles");
-
-        if (roles != null) {
-          roles.forEach(role -> {
-            authorities.add(new SimpleGrantedAuthority(role));
-            authorities.add(new SimpleGrantedAuthority("GROUP_" + role));
+      // Enrich using your external REST API
+      final String token = jwt.getTokenValue();
+      authorizationService
+          .getRoles(token)
+          .forEach(r -> {
+            authorities.add(new SimpleGrantedAuthority("ROLE_" + r));
+            authorities.add(new SimpleGrantedAuthority("GROUP_" + r));
           });
-        }
 
-      }
+      authorizationService
+          .getPermissions(token)
+          .forEach(p -> {
+            authorities.add(new SimpleGrantedAuthority(p));
+          });
 
+      authorizationService
+          .getDepartments(token)
+          .forEach(d -> {
+            authorities.add(new SimpleGrantedAuthority(d));
+            authorities.add(new SimpleGrantedAuthority("GROUP_" + d));
+          });
+
+      // Always include activiti-user role
       authorities.add(new SimpleGrantedAuthority("ROLE_ACTIVITI_USER"));
 
       return authorities;
+
     });
 
     return converter;
   }
 
-
-
-  /**
-   * Creates a bean for an OAuth2AuthorizedClientProvider that supports token exchange.
-   *
-   * <p>Token exchange allows one token to be exchanged for another,
-   * typically used in scenarios where a client needs to act on behalf
-   * of a user or service in a federated identity environment.</p>
-   *
-   * @return An instance of TokenExchangeOAuth2AuthorizedClientProvider.
-   */
   @Bean
   public OAuth2AuthorizedClientProvider tokenExchange() {
     return new TokenExchangeOAuth2AuthorizedClientProvider();
