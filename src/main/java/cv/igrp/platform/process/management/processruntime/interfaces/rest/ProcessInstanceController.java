@@ -3,25 +3,32 @@
 
 package cv.igrp.platform.process.management.processruntime.interfaces.rest;
 
-import cv.igrp.framework.core.domain.CommandBus;
-import cv.igrp.framework.core.domain.QueryBus;
 import cv.igrp.framework.stereotype.IgrpController;
-import cv.igrp.platform.process.management.processruntime.application.commands.StartProcessInstanceCommand;
-import cv.igrp.platform.process.management.processruntime.application.dto.*;
-import cv.igrp.platform.process.management.processruntime.application.queries.*;
-import cv.igrp.platform.process.management.shared.application.dto.ConfigParameterDTO;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
+import cv.igrp.framework.core.domain.QueryBus;
+import cv.igrp.platform.process.management.processruntime.application.queries.*;
+import cv.igrp.framework.core.domain.CommandBus;
+import cv.igrp.platform.process.management.processruntime.application.commands.*;
+import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceListPageDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.StartProcessRequestDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceDTO;
 import java.util.List;
+import cv.igrp.platform.process.management.shared.application.dto.ConfigParameterDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceTaskStatusDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceStatsDTO;
+import cv.igrp.platform.process.management.shared.application.dto.ProcessEventDTO;
+import cv.igrp.platform.process.management.shared.application.dto.StartProcessDTO;
 
 @IgrpController
 @RestController
@@ -29,21 +36,15 @@ import java.util.List;
 @Tag(name = "ProcessInstance", description = "Process Instance Management")
 public class ProcessInstanceController {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(ProcessInstanceController.class);
-
-
-  private final CommandBus commandBus;
+  
   private final QueryBus queryBus;
+  private final CommandBus commandBus;
 
-
-  public ProcessInstanceController(
-    CommandBus commandBus, QueryBus queryBus
-  ) {
-    this.commandBus = commandBus;
-    this.queryBus = queryBus;
+  public ProcessInstanceController(QueryBus queryBus, CommandBus commandBus) {
+          this.queryBus = queryBus;
+          this.commandBus = commandBus;
   }
-
-  @GetMapping(
+   @GetMapping(
   )
   @Operation(
     summary = "GET method to handle operations for listProcessInstances",
@@ -61,7 +62,7 @@ public class ProcessInstanceController {
       )
     }
   )
-
+  
   public ResponseEntity<ProcessInstanceListPageDTO> listProcessInstances(
     @RequestParam(value = "number", required = false) String number,
     @RequestParam(value = "procReleaseKey", required = false) String procReleaseKey,
@@ -73,20 +74,14 @@ public class ProcessInstanceController {
     @RequestParam(value = "size", required = false) Integer size)
   {
 
-      LOGGER.debug("Operation started");
-
       final var query = new ListProcessInstancesQuery(number, procReleaseKey, procReleaseId, status, searchTerms, applicationBase, page, size);
 
       ResponseEntity<ProcessInstanceListPageDTO> response = queryBus.handle(query);
 
-      LOGGER.debug("Operation finished");
-
-      return ResponseEntity.status(response.getStatusCode())
-              .headers(response.getHeaders())
-              .body(response.getBody());
+      return response;
   }
 
-  @PostMapping(
+   @PostMapping(
   )
   @Operation(
     summary = "POST method to handle operations for startProcessInstance",
@@ -104,26 +99,20 @@ public class ProcessInstanceController {
       )
     }
   )
-
+  
   public ResponseEntity<ProcessInstanceDTO> startProcessInstance(@Valid @RequestBody StartProcessRequestDTO startProcessInstanceRequest
     )
   {
-
-      LOGGER.debug("Operation started");
 
       final var command = new StartProcessInstanceCommand(startProcessInstanceRequest);
 
        ResponseEntity<ProcessInstanceDTO> response = commandBus.send(command);
 
-       LOGGER.debug("Operation finished");
-
-        return ResponseEntity.status(response.getStatusCode())
-              .headers(response.getHeaders())
-              .body(response.getBody());
+       return response;
   }
 
-  @GetMapping(
-    value = "{id}"
+   @GetMapping(
+   value = "{id}"
   )
   @Operation(
     summary = "GET method to handle operations for getProcessInstanceById",
@@ -141,26 +130,20 @@ public class ProcessInstanceController {
       )
     }
   )
-
+  
   public ResponseEntity<ProcessInstanceDTO> getProcessInstanceById(
     @PathVariable(value = "id") String id)
   {
-
-      LOGGER.debug("Operation started");
 
       final var query = new GetProcessInstanceByIdQuery(id);
 
       ResponseEntity<ProcessInstanceDTO> response = queryBus.handle(query);
 
-      LOGGER.debug("Operation finished");
-
-      return ResponseEntity.status(response.getStatusCode())
-              .headers(response.getHeaders())
-              .body(response.getBody());
+      return response;
   }
 
-  @GetMapping(
-    value = "status"
+   @GetMapping(
+   value = "status"
   )
   @Operation(
     summary = "GET method to handle operations for listProcessInstanceStatus",
@@ -178,26 +161,20 @@ public class ProcessInstanceController {
       )
     }
   )
-
+  
   public ResponseEntity<List<ConfigParameterDTO>> listProcessInstanceStatus(
     )
   {
-
-      LOGGER.debug("Operation started");
 
       final var query = new ListProcessInstanceStatusQuery();
 
       ResponseEntity<List<ConfigParameterDTO>> response = queryBus.handle(query);
 
-      LOGGER.debug("Operation finished");
-
-      return ResponseEntity.status(response.getStatusCode())
-              .headers(response.getHeaders())
-              .body(response.getBody());
+      return response;
   }
 
-  @GetMapping(
-    value = "{id}/task-status"
+   @GetMapping(
+   value = "{id}/task-status"
   )
   @Operation(
     summary = "GET method to handle operations for getTaskStatus",
@@ -215,26 +192,20 @@ public class ProcessInstanceController {
       )
     }
   )
-
+  
   public ResponseEntity<List<ProcessInstanceTaskStatusDTO>> getTaskStatus(
     @PathVariable(value = "id") String id)
   {
-
-      LOGGER.debug("Operation started");
 
       final var query = new GetTaskStatusQuery(id);
 
       ResponseEntity<List<ProcessInstanceTaskStatusDTO>> response = queryBus.handle(query);
 
-      LOGGER.debug("Operation finished");
-
-      return ResponseEntity.status(response.getStatusCode())
-              .headers(response.getHeaders())
-              .body(response.getBody());
+      return response;
   }
 
-  @GetMapping(
-    value = "stats"
+   @GetMapping(
+   value = "stats"
   )
   @Operation(
     summary = "GET method to handle operations for getProcessInstanceStatistics",
@@ -252,22 +223,78 @@ public class ProcessInstanceController {
       )
     }
   )
-
+  
   public ResponseEntity<ProcessInstanceStatsDTO> getProcessInstanceStatistics(
     )
   {
-
-      LOGGER.debug("Operation started");
 
       final var query = new GetProcessInstanceStatisticsQuery();
 
       ResponseEntity<ProcessInstanceStatsDTO> response = queryBus.handle(query);
 
-      LOGGER.debug("Operation finished");
+      return response;
+  }
 
-      return ResponseEntity.status(response.getStatusCode())
-              .headers(response.getHeaders())
-              .body(response.getBody());
+   @PostMapping(
+   value = "event"
+  )
+  @Operation(
+    summary = "POST method to handle operations for triggerProcessEvent",
+    description = "POST method to handle operations for triggerProcessEvent",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          description = "",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = String.class,
+                  type = "String")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<String> triggerProcessEvent(@Valid @RequestBody ProcessEventDTO triggerProcessEventRequest
+    )
+  {
+
+      final var command = new TriggerProcessEventCommand(triggerProcessEventRequest);
+
+       ResponseEntity<String> response = commandBus.send(command);
+
+       return response;
+  }
+
+   @PostMapping(
+   value = "start-event"
+  )
+  @Operation(
+    summary = "POST method to handle operations for startProcessEvent",
+    description = "POST method to handle operations for startProcessEvent",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          description = "",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = String.class,
+                  type = "String")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<String> startProcessEvent(@Valid @RequestBody StartProcessDTO startProcessEventRequest
+    )
+  {
+
+      final var command = new StartProcessEventCommand(startProcessEventRequest);
+
+       ResponseEntity<String> response = commandBus.send(command);
+
+       return response;
   }
 
 }

@@ -11,7 +11,9 @@ import java.util.UUID;
 
 public interface ProcessInstanceRepository {
 
-  ProcessInstance save(ProcessInstance area);
+  ProcessInstance update(ProcessInstance processInstance);
+
+  ProcessInstance save(ProcessInstance processInstance);
 
   PageableLista<ProcessInstance> findAll(ProcessInstanceFilter filter);
 

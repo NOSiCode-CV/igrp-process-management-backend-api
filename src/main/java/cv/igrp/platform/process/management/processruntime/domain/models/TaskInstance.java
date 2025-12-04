@@ -12,9 +12,7 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Getter
 public class TaskInstance {
@@ -26,6 +24,7 @@ public class TaskInstance {
   private final Code externalId;
   private final Identifier processInstanceId;
   private final ProcessNumber processNumber;
+  private final String engineProcessNumber;// used to get variables
   private final Code processName;
   private final Code processKey;
   private final Code businessKey;
@@ -41,6 +40,8 @@ public class TaskInstance {
   private Code endedBy;
   private final List<TaskInstanceEvent> taskInstanceEvents;
   private final List<String> candidateGroups;
+  private final Map<String,Object> variables;
+
 
   @Builder
   public TaskInstance(
@@ -52,6 +53,7 @@ public class TaskInstance {
       Identifier processInstanceId,
       Code processName,
       ProcessNumber processNumber,
+      String engineProcessNumber,
       Code processKey,
       Code businessKey,
       Code applicationBase,
@@ -65,7 +67,8 @@ public class TaskInstance {
       LocalDateTime endedAt,
       Code endedBy,
       List<TaskInstanceEvent> taskInstanceEvents,
-      List<String> candidateGroups
+      List<String> candidateGroups,
+      Map<String,Object> variables
   ) {
     this.id = id == null ? Identifier.generate() : id;
     this.taskKey = Objects.requireNonNull(taskKey, "Task Key cannot be null!");
@@ -75,6 +78,7 @@ public class TaskInstance {
     this.processInstanceId = processInstanceId;
     this.processNumber = processNumber;
     this.processName = processName;
+    this.engineProcessNumber = engineProcessNumber;
     this.businessKey = businessKey;
     this.applicationBase = applicationBase;
     this.searchTerms = searchTerms;
@@ -86,9 +90,10 @@ public class TaskInstance {
     this.assignedBy = assignedBy;
     this.endedAt = endedAt;
     this.endedBy = endedBy;
-    this.taskInstanceEvents = taskInstanceEvents != null ? taskInstanceEvents : new ArrayList<>();
     this.processKey = processKey;
-    this.candidateGroups = candidateGroups == null ? new ArrayList<>() : candidateGroups;
+    this.taskInstanceEvents = taskInstanceEvents != null ? taskInstanceEvents : new ArrayList<>();
+    this.candidateGroups = candidateGroups != null ? candidateGroups : new ArrayList<>();
+    this.variables = variables != null ? variables : new HashMap<>();
   }
 
 
@@ -151,7 +156,6 @@ public class TaskInstance {
     createTaskInstanceEvent(TaskEventType.COMPLETE,data.getCurrentUser(),data.getNote());
   }
 
-
   private void createTaskInstanceEvent(TaskEventType eventType, Code user, String note) {
     this.taskInstanceEvents.add(
         TaskInstanceEvent.builder()
@@ -179,5 +183,9 @@ public class TaskInstance {
         .processInstanceId(processInstance.getId())
         .startedBy(user)
         .build();
+  }
+
+  public void addVariables(Map<String,Object> variables) {
+    this.variables.putAll(variables);
   }
 }

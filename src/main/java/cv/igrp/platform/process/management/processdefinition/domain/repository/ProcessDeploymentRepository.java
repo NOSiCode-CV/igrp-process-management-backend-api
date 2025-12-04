@@ -38,4 +38,7 @@ public interface ProcessDeploymentRepository {
    */
   List<ProcessArtifact> findAllArtifacts(String processDefinitionId);
 
+
+  String findLatesProcessDefinitionIdByKey(String processDefinitionKey);
+
 }

@@ -1,5 +1,6 @@
 package cv.igrp.platform.process.management.processruntime.application.commands;
 
+import cv.igrp.platform.process.management.processruntime.application.dto.ProcessVariableDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskDataDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskVariableDTO;
@@ -8,6 +9,7 @@ import cv.igrp.platform.process.management.processruntime.domain.models.TaskOper
 import cv.igrp.platform.process.management.processruntime.domain.service.TaskInstanceService;
 import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
+import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import cv.igrp.platform.process.management.shared.security.UserContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,17 +43,23 @@ class CompleteTaskCommandHandlerTest {
   private CompleteTaskCommand command;
 
   private TaskInstance mockTaskInstance;
+  private Code mockCodeInstance;
   private TaskInstanceDTO mockTaskInstanceDTO;
 
   @BeforeEach
   void setUp() {
 
+    var id = UUID.randomUUID().toString();
+
     when(userContext.getCurrentUser()).thenReturn(Code.create("demo@nosi.cv"));
 
     // Mock TaskInstance and TaskInstanceDTO
     mockTaskInstance = mock(TaskInstance.class);
+    mockCodeInstance = mock(Code.class);
     mockTaskInstanceDTO = mock(TaskInstanceDTO.class);
 
+    when(taskInstanceService.getTaskById(Identifier.create(id))).thenReturn(mockTaskInstance);
+    when(taskInstanceService.getTaskById(Identifier.create(id)).getTaskKey()).thenReturn(mockCodeInstance);
     when(taskInstanceService.completeTask(any(TaskOperationData.class)))
         .thenReturn(mockTaskInstance);
     when(taskInstanceMapper.toTaskInstanceDTO(mockTaskInstance))
@@ -60,10 +68,10 @@ class CompleteTaskCommandHandlerTest {
     // Command
     TaskDataDTO taskDataDTO = new TaskDataDTO();
     taskDataDTO.setForms(List.of(new TaskVariableDTO("form1", "value1")));
-    taskDataDTO.setVariables(List.of(new TaskVariableDTO("var1", "value2")));
+    taskDataDTO.setVariables(List.of(new ProcessVariableDTO("var1", "value2")));
 
     command = new CompleteTaskCommand();
-    command.setId(UUID.randomUUID().toString());
+    command.setId(id);
     command.setTaskdatadto(taskDataDTO);
   }
 

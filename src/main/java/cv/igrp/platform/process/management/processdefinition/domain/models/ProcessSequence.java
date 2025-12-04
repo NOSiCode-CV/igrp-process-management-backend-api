@@ -165,4 +165,20 @@ public class ProcessSequence {
     return sequence;
   }
 
+  public static ProcessSequence defaultSequence(Code processDefinitionKey) {
+    return ProcessSequence.builder()
+        .id(Identifier.generate())
+        .name(Name.create("Default_Sequence_" + processDefinitionKey.getValue()))
+        .prefix(Code.create("PROC_"))
+        .checkDigitSize((short) 0)
+        .padding((short) 4)
+        .dateFormat("yyyyMMdd")
+        .nextNumber(1L)
+        .numberIncrement((short) 1)
+        .processDefinitionKey(processDefinitionKey)
+        .build();
+  }
+
+
+
 }

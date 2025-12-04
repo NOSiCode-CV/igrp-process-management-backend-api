@@ -8,6 +8,9 @@ import cv.igrp.platform.process.management.shared.infrastructure.persistence.ent
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.TaskInstanceEventEntity;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Component
 public class TaskInstanceEventMapper {
 
@@ -28,6 +31,13 @@ public class TaskInstanceEventMapper {
   }
 
 
+  public List<TaskInstanceEvent> toEventModelList(List<TaskInstanceEventEntity> eventEntityList){
+    var list = new ArrayList<TaskInstanceEvent>();
+    eventEntityList.forEach(e->list.add(this.toEventModel(e)));
+    return list;
+  }
+
+
   public TaskInstanceEvent toEventModel(TaskInstanceEventEntity eventEntity) {
       return TaskInstanceEvent.builder()
           .id(Identifier.create(eventEntity.getId()))
@@ -38,6 +48,11 @@ public class TaskInstanceEventMapper {
           .performedBy(Code.create(eventEntity.getPerformedBy()))
           .note(eventEntity.getNote())
           .build();
+  }
+
+
+  public List<TaskInstanceEventListDTO> toEventListDTO(List<TaskInstanceEvent> events){
+    return events.stream().map(this::toEventListDTO).toList();
   }
 
 

@@ -14,6 +14,7 @@ import java.time.LocalDate;
 public class TaskInstanceFilter {
   private final Identifier processInstanceId;
   private final Code processNumber;
+  private final Code applicationBase;
   private final Name processName;
   private final Code candidateGroups;
   private final TaskInstanceStatus status;
@@ -29,6 +30,7 @@ public class TaskInstanceFilter {
   private TaskInstanceFilter(
                              Identifier processInstanceId,
                              Code processNumber,
+                             Code applicationBase,
                              Name processName,
                              Code candidateGroups,
                              Code user,
@@ -39,6 +41,7 @@ public class TaskInstanceFilter {
                              Integer page,
                              Integer size) {
     this.processInstanceId = processInstanceId;
+    this.applicationBase = applicationBase;
     this.processNumber = processNumber;
     this.processName = processName;
     this.candidateGroups = candidateGroups;

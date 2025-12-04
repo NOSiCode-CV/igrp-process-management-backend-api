@@ -1,17 +1,24 @@
 package cv.igrp.platform.process.management.shared.delegates.webhook;
 
+import com.google.gson.JsonElement;
+import cv.igrp.platform.process.management.shared.util.ObjectUtil;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.Expression;
 import org.activiti.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Map;
+import java.util.Objects;
+
+import static java.util.Optional.ofNullable;
 
 @Component("igrpWebhookDelegate")
 public class IgrpWebhookDelegate implements JavaDelegate {
@@ -20,15 +27,28 @@ public class IgrpWebhookDelegate implements JavaDelegate {
 
   private final RestClient restClient = RestClient.create();
 
+  @Value(value = "${igrp.delegate.webhook.auth-token:}")
+  private String globalAuthToken;
+
   public Expression webhookUrl;
   public Expression webhookMethod;
+  public Expression webhookUrlPath;
+  public Expression webhookQueryParams;
+  public Expression webhookPayload;
+  public Expression webhookPayloadHeader;
 
   @Override
   public void execute(DelegateExecution execution) {
 
-    String baseUrl = webhookUrl.getValue(execution).toString();
-    String path = (String) execution.getVariable("webhookUrlPath");
-    String query = (String) execution.getVariable("webhookUrlQueryParams");
+    String taskId = execution.getCurrentActivityId();
+    String processInstanceId = execution.getProcessInstanceId();
+    log.info("[IgrpWebhookDelegate] Executing webhook task: {} from process instance: {}", taskId, processInstanceId);
+    String baseUrlVariable = (String) execution.getVariable("webhookUrl");
+    String baseUrl = Objects.nonNull(baseUrlVariable)? baseUrlVariable: Objects.nonNull(webhookUrl)? webhookUrl.getValue(execution).toString() : null;
+    String pathVariable = (String)  execution.getVariable("webhookUrlPath");
+    String path = Objects.nonNull(pathVariable) ?  pathVariable : Objects.nonNull(webhookUrlPath) ? (String) webhookUrlPath.getValue(execution): null;
+    String queryParams = (String) execution.getVariable("webhookUrlQueryParams");
+    String query = Objects.nonNull(queryParams)? queryParams : Objects.nonNull(webhookQueryParams) ? (String) webhookQueryParams.getValue(execution) : null;
 
     String url = UriComponentsBuilder.fromUriString(baseUrl)
         .path(path != null ? path : "")
@@ -36,23 +56,34 @@ public class IgrpWebhookDelegate implements JavaDelegate {
         .build()
         .toUriString();
 
-    String method = webhookMethod.getValue(execution).toString().toUpperCase();
+    String methodVariable = (String) execution.getVariable("webhookMethod");
+    String method = ofNullable(Objects.nonNull(methodVariable)? methodVariable : Objects.nonNull(webhookMethod) ? webhookMethod.getValue(execution) : null)
+        .orElseThrow(() -> new IllegalArgumentException("webhookMethod argument is required and was not provided"))
+        .toString().toUpperCase();
 
-    Map<String, Object> payload = (Map<String, Object>) execution.getVariable("webhookPayload");
-    Map<String, String> headersMap = (Map<String, String>) execution.getVariable("webhookHeaders");
+    Object payloadVariable = execution.getVariable("webhookPayload");
+    Object payload = Objects.nonNull(payloadVariable) ? payloadVariable : Objects.nonNull(webhookPayload) ? webhookPayload.getValue(execution) : "";
+
+    Object payloadHeader = execution.getVariable("webhookPayloadHeader");
+    Map<String, String> headersMap = ObjectUtil.parseJsonObjectString(
+        ofNullable(Objects.nonNull(payloadHeader)? payloadHeader : Objects.nonNull(webhookPayloadHeader) ? webhookPayloadHeader.getValue(execution) : null)
+            .orElse("").toString()
+    );
+
+    Object responseBody;
+    int statusCode;
 
     try {
       HttpHeaders headers = new HttpHeaders();
       headers.setContentType(MediaType.APPLICATION_JSON);
-      if (headersMap != null) {
+      if (!headersMap.isEmpty()) {
         headersMap.forEach(headers::set);
+      } else {
+        headers.set("Authorization", "Bearer " + globalAuthToken);
       }
 
       log.info("[IgrpWebhookDelegate] Sending {} request to {}", method, url);
       log.debug("[IgrpWebhookDelegate] Payload: {}", payload);
-
-      String responseBody = null;
-      int statusCode = 0;
 
       switch (method.toUpperCase()) {
         case "GET" -> {
@@ -98,11 +129,26 @@ public class IgrpWebhookDelegate implements JavaDelegate {
 
       log.info("[IgrpWebhookDelegate] Response {}: {}", statusCode, responseBody);
 
+    } catch (RestClientResponseException e) {
+      statusCode = e.getStatusCode().value();
+      responseBody = e.getResponseBodyAs(String.class);
+      log.warn("[IgrpWebhookDelegate] Webhook returned error {}: {}", statusCode, responseBody);
     } catch (Exception e) {
       log.error("[IgrpWebhookDelegate] Error calling webhook {}", url, e);
-      execution.setVariable("webhookError", e.getMessage());
-      throw new RuntimeException("IgrpWebhookDelegate execution failed", e);
+      execution.setTransientVariable(taskId + "Error", e.getMessage());
+      return;
     }
+
+    JsonElement responseBodyElement = ObjectUtil.parseJsonObject(responseBody);
+    Object responseBodyParsed = ObjectUtil.toJavaObject(responseBodyElement);
+
+    execution.getEngineServices().getRuntimeService().setVariable(
+        processInstanceId,
+        taskId + "Data", responseBodyParsed);
+
+    execution.getEngineServices().getRuntimeService().setVariable(
+        processInstanceId,taskId + "StatusCode", statusCode);
+
   }
 
 }

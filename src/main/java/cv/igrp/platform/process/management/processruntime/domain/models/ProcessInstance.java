@@ -71,7 +71,8 @@ public class ProcessInstance {
     this.number = number;
     this.engineProcessNumber = engineProcessNumber;
     this.businessKey = businessKey == null ? Code.create(generateBusinessKey()) : businessKey;
-    this.applicationBase = Objects.requireNonNull(applicationBase, "Application base cannot be null");;
+    //this.applicationBase = Objects.requireNonNull(applicationBase, "Application base cannot be null");
+    this.applicationBase = applicationBase;
     this.version = version;
     this.searchTerms = searchTerms;
     this.startedAt = startedAt;
@@ -88,7 +89,7 @@ public class ProcessInstance {
     this.priority = priority == null ? DEFAULT_PRIORITY : priority;
   }
 
-  public void start(ProcessNumber number, Code engineProcessNumber, String version, String processName, String startedBy){
+  public void init(ProcessNumber number, Code engineProcessNumber, String version, String processName, String startedBy){
     if(this.status != ProcessInstanceStatus.CREATED && this.status != ProcessInstanceStatus.SUSPENDED){
       throw new IllegalStateException("The status of the process instance must be CREATED or SUSPENDED");
     }
@@ -128,7 +129,7 @@ public class ProcessInstance {
     this.progress = String.format("%d/%d", completedTasks, totalTasks);
   }
 
-  public void addVariables(Map<String,Object> variables){
+  public void addVariables(Map<String,Object> variables) {
     this.variables.putAll(variables);
   }
 
