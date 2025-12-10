@@ -199,6 +199,12 @@
             <artifactId>opentelemetry-spring-boot-starter</artifactId>
         </dependency>
 
+        <!-- Spring Cache abstraction -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
+
     </dependencies>
 
     <dependencyManagement>
