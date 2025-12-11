@@ -202,7 +202,17 @@ public class ProcessInstanceService {
 
   public ProcessInstance createAndStartProcessInstance(ProcessInstance processInstance, String user) {
     ProcessInstance createdProcessInstance = createProcessInstance(processInstance, user);
+    // Copy variables from processInstance to createdProcessInstance
+    createdProcessInstance.addVariables(processInstance.getVariables());
     return startProcessInstance(createdProcessInstance, user);
+  }
+
+  public void rescheduleTimerByProcessInstanceId(UUID id, Long seconds) {
+    ProcessInstance processInstance = getProcessInstanceById(id);
+    runtimeProcessEngineRepository.rescheduleTimer(
+        processInstance.getEngineProcessNumber().getValue(),
+        seconds
+    );
   }
 
 }

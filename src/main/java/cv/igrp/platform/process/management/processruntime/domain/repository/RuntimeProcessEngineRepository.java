@@ -277,4 +277,14 @@ public interface RuntimeProcessEngineRepository {
    */
   void addCandidateGroup(String taskId, String groupId) throws RuntimeProcessEngineException;
 
+  /**
+   * Reschedules the timer job of a running process instance by updating its due date.
+   * The timer will fire after the specified number of seconds from now.
+   *
+   * @param processInstanceId the ID of the process instance
+   * @param seconds the number of seconds to postpone the timer
+   * @throws IllegalStateException if no active timer job exists for the process instance
+   */
+  void rescheduleTimer(String processInstanceId, long seconds);
+
 }
