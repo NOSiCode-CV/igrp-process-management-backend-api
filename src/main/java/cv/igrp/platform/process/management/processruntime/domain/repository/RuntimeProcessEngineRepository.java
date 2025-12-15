@@ -129,8 +129,6 @@ public interface RuntimeProcessEngineRepository {
   void completeTask(String taskInstanceId, Map<String, Object> forms, Map<String, Object> variables)
       throws RuntimeProcessEngineException;
 
-
-
   /**
    * Claims a task on behalf of a specific user.
    *

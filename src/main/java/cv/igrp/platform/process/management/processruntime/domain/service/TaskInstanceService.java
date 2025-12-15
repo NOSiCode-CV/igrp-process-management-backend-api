@@ -123,7 +123,7 @@ public class TaskInstanceService {
 
   public TaskInstance saveTask(TaskOperationData data) {
     var taskInstance = getByIdWihEvents(data.getId());
-    data.validateSubmitedVariablesAndForms();
+    data.validateVariablesAndForms();
     var savedTask = save(taskInstance);
     runtimeProcessEngineRepository.saveTask(
         taskInstance.getExternalId().getValue(),
@@ -134,15 +134,17 @@ public class TaskInstanceService {
   }
 
   public TaskInstance completeTask(TaskOperationData data) {
+    data.validateVariablesAndForms();
+
     var taskInstance = getByIdWihEvents(data.getId());
     taskInstance.complete(data);
-    data.validateSubmitedVariablesAndForms();
     var completedTask = save(taskInstance);
+
     // Call the process engine to complete a task
     runtimeProcessEngineRepository.completeTask(
         taskInstance.getExternalId().getValue(),
-        data.getForms(),
-        data.getVariables()
+        taskInstance.getForms(),
+        taskInstance.getVariables()
     );
 
     var processInstance = processInstanceRepository

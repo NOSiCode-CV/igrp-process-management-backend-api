@@ -3,11 +3,13 @@ package cv.igrp.platform.process.management.shared.domain.models;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.util.UUID;
 
 @Getter
 @EqualsAndHashCode
+@ToString
 public class Identifier {
 
   private final UUID value;

@@ -41,6 +41,7 @@ public class CompleteTaskCommandHandler implements CommandHandler<CompleteTaskCo
 
     final var forms = new HashMap<String,Object>();
     forms.put("forms", command.getTaskdatadto().getForms());
+
     LOGGER.info("[Complete Task] Forms: {}", forms);
 
     final var variables = new HashMap<String,Object>();

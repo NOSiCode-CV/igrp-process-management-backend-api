@@ -41,6 +41,7 @@ public class TaskInstance {
   private final List<TaskInstanceEvent> taskInstanceEvents;
   private final List<String> candidateGroups;
   private final Map<String, Object> variables;
+  private final Map<String,Object> forms;
 
 
   @Builder
@@ -68,7 +69,8 @@ public class TaskInstance {
       Code endedBy,
       List<TaskInstanceEvent> taskInstanceEvents,
       List<String> candidateGroups,
-      Map<String, Object> variables
+      Map<String, Object> variables,
+      Map<String, Object> forms
   ) {
     this.id = id == null ? Identifier.generate() : id;
     this.taskKey = Objects.requireNonNull(taskKey, "Task Key cannot be null!");
@@ -93,6 +95,7 @@ public class TaskInstance {
     this.processKey = processKey;
     this.taskInstanceEvents = taskInstanceEvents != null ? taskInstanceEvents : new ArrayList<>();
     this.variables = variables != null ? variables : new HashMap<>();
+    this.forms = forms != null ? forms : new HashMap<>();
     this.candidateGroups = candidateGroups != null
         ? new ArrayList<>(candidateGroups)
         : new ArrayList<>();
@@ -152,6 +155,8 @@ public class TaskInstance {
     this.endedBy = Objects.requireNonNull(data.getCurrentUser(), "Current User cannot be null!");
     this.endedAt = LocalDateTime.now();
     this.status = TaskInstanceStatus.COMPLETED;
+    this.variables.putAll(data.getVariables());
+    this.forms.put(this.id.getValue() + "_forms", data.getForms().remove("forms"));
     createTaskInstanceEvent(TaskEventType.COMPLETE, data.getCurrentUser(), data.getNote());
   }
 
