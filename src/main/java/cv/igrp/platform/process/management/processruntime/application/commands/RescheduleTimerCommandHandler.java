@@ -28,6 +28,7 @@ public class RescheduleTimerCommandHandler implements CommandHandler<RescheduleT
 
     processInstanceService.rescheduleTimerByProcessInstanceId(
         UUID.fromString(command.getId()),
+        command.getTimerrescheduledto().getElementId(),
         command.getTimerrescheduledto().getSeconds()
     );
 

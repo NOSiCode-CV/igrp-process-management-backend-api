@@ -409,4 +409,15 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
     }
   }
 
+  @Override
+  public void rescheduleTimer(String processInstanceId, String timerElementId, long seconds) {
+    try {
+      processManagerAdapter.rescheduleTimer(processInstanceId, timerElementId, seconds);
+      LOGGER.info("Timer '{}' for process instance '{}' successfully rescheduled to fire after {} seconds", timerElementId, processInstanceId, seconds);
+    } catch (Exception e) {
+      LOGGER.error("Failed to reschedule timer '{}' for process instance '{}'", timerElementId, processInstanceId, e);
+      throw new RuntimeProcessEngineException("Failed to reschedule timer '" + timerElementId + "' for process instance '" + processInstanceId + "'", e);
+    }
+  }
+
 }

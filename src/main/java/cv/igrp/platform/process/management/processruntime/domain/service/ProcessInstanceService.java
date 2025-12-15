@@ -207,12 +207,20 @@ public class ProcessInstanceService {
     return startProcessInstance(createdProcessInstance, user);
   }
 
-  public void rescheduleTimerByProcessInstanceId(UUID id, Long seconds) {
+  public void rescheduleTimerByProcessInstanceId(UUID id, String timerElementId, Long seconds) {
     ProcessInstance processInstance = getProcessInstanceById(id);
-    runtimeProcessEngineRepository.rescheduleTimer(
-        processInstance.getEngineProcessNumber().getValue(),
-        seconds
-    );
+    if(timerElementId == null || timerElementId.isBlank()){
+      runtimeProcessEngineRepository.rescheduleTimer(
+          processInstance.getEngineProcessNumber().getValue(),
+          seconds
+      );
+    }else {
+      runtimeProcessEngineRepository.rescheduleTimer(
+          processInstance.getEngineProcessNumber().getValue(),
+          timerElementId,
+          seconds
+      );
+    }
   }
 
 }

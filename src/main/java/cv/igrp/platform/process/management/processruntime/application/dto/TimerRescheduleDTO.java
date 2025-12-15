@@ -1,5 +1,5 @@
 /* THIS FILE WAS GENERATED AUTOMATICALLY BY iGRP STUDIO. */
-/* DO NOT MODIFY IT BECAUSE IT COULD BE REWRITTEN AT ANY TIME */
+/* DO NOT MODIFY IT BECAUSE IT COULD BE REWRITTEN AT ANY TIME. */
 
 package cv.igrp.platform.process.management.processruntime.application.dto;
 
@@ -19,6 +19,9 @@ import lombok.AllArgsConstructor;
 @IgrpDTO
 public class TimerRescheduleDTO  {
 
+  
+  
+  private String elementId ;
   @NotNull(message = "The field <seconds> is required")
   
   private Long seconds ;
