@@ -238,7 +238,7 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
           .collect(Collectors.toMap(TaskVariableInstance::name, TaskVariableInstance::value));
     } catch (Exception e) {
       LOGGER.error("Failed to retrieve variables for task with id={}", taskInstanceId, e);
-      throw new RuntimeProcessEngineException("Unable to retrieve task variables for task: " + taskInstanceId, e);
+      return Map.of();
     }
   }
 
@@ -252,7 +252,7 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
           .collect(Collectors.toMap(ProcessVariableInstance::name, ProcessVariableInstance::value));
     } catch (Exception e) {
       LOGGER.error("Failed to retrieve variables for process with id={}", processInstanceId, e);
-      throw new RuntimeProcessEngineException("Unable to retrieve process variables for process: " + processInstanceId, e);
+      return Map.of();
     }
   }
 
