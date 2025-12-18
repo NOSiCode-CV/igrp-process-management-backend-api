@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cv.igrp.platform.process.management.processdefinition.application.dto.ProcessArtifactDTO;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class ConfigureArtifactCommandHandler implements CommandHandler<ConfigureArtifactCommand, ResponseEntity<ProcessArtifactDTO>> {
@@ -26,9 +27,10 @@ public class ConfigureArtifactCommandHandler implements CommandHandler<Configure
     this.mapper = mapper;
   }
 
+  @Transactional
   @IgrpCommandHandler
   public ResponseEntity<ProcessArtifactDTO> handle(ConfigureArtifactCommand command) {
-    ProcessArtifact processArtifact = processArtifactService.create(
+    ProcessArtifact processArtifact = processArtifactService.configureArtifact(
         mapper.toModel(
             command.getProcessartifactrequestdto(),
             command.getId(),

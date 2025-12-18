@@ -47,6 +47,12 @@ public class ProcessArtifactServiceImpl implements ProcessDefinitionRepository {
     processArtifactEntityRepository.deleteById(processArtifact.getId().getValue());
   }
 
-
+  @Override
+  public Optional<ProcessArtifact> findArtifactByProcessDefinitionIdAndKey(Code processDefinitionId, Code key) {
+    return processArtifactEntityRepository.findByProcessDefinitionIdAndKey(
+        processDefinitionId.getValue(),
+        key.getValue()
+    ).map(mapper::toModel);
+  }
 
 }

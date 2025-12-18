@@ -17,4 +17,6 @@ public interface ProcessDefinitionRepository {
 
   void deleteArtifact(ProcessArtifact area);
 
+  Optional<ProcessArtifact> findArtifactByProcessDefinitionIdAndKey(Code processDefinitionId, Code key);
+
 }
