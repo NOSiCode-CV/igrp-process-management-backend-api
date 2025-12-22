@@ -1,6 +1,7 @@
 package cv.igrp.platform.process.management.processruntime.infrastructure.persistence.repository;
 
 import cv.igrp.framework.runtime.core.engine.activity.ActivityQueryService;
+import cv.igrp.framework.runtime.core.engine.activity.model.ActivityInfo;
 import cv.igrp.framework.runtime.core.engine.activity.model.IGRPActivityType;
 import cv.igrp.framework.runtime.core.engine.activity.model.ProcessActivityInfo;
 import cv.igrp.framework.runtime.core.engine.process.ProcessDefinitionAdapter;
@@ -324,7 +325,13 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
 
   @Override
   public List<ActivityData> getActiveActivityInstances(String processInstanceId, IGRPActivityType activityType) {
-    return activityQueryService.getActiveActivityInstances(processInstanceId)
+
+    List<ActivityInfo> activityInfos = activityQueryService.getActiveActivityInstances(processInstanceId);
+
+    System.out.println("processInstanceId: " + processInstanceId);
+    System.out.println("ActivityInfos(Teste): " + activityInfos);
+
+    return activityInfos
         .stream()
         .filter(a -> activityType == null || Objects.equals(a.type(), activityType))
         .map(

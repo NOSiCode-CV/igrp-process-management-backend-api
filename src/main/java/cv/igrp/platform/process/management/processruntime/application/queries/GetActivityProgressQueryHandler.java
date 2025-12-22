@@ -12,10 +12,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.UUID;
+
 import cv.igrp.platform.process.management.processruntime.application.dto.ActivityProgressDTO;
 
 @Component
-public class GetActivityProgressQueryHandler implements QueryHandler<GetActivityProgressQuery, ResponseEntity<List<ActivityProgressDTO>>>{
+public class GetActivityProgressQueryHandler implements QueryHandler<GetActivityProgressQuery, ResponseEntity<List<ActivityProgressDTO>>> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(GetActivityProgressQueryHandler.class);
 
@@ -28,9 +30,13 @@ public class GetActivityProgressQueryHandler implements QueryHandler<GetActivity
     this.activityMapper = activityMapper;
   }
 
-   @IgrpQueryHandler
+  @IgrpQueryHandler
   public ResponseEntity<List<ActivityProgressDTO>> handle(GetActivityProgressQuery query) {
-     return ResponseEntity.ok(activityMapper.toProgressesDto(activityInstanceService.getActivityProgress(query.getProcessInstanceId(), IGRPActivityType.valueOf(query.getType()))));
+    return ResponseEntity.ok(activityMapper.toProgressesDto(
+        activityInstanceService.getActivityProgress(
+            UUID.fromString(query.getProcessInstanceId()),
+            query.getType() != null ? IGRPActivityType.valueOf(query.getType()) : null
+        )));
   }
 
 }
