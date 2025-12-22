@@ -43,7 +43,7 @@ public class TaskOperationData {
     this.candidateGroups = candidateGroups == null ? new ArrayList<>() : candidateGroups;
   }
 
-  public void validateSubmitedVariablesAndForms() {
+  public void validateVariablesAndForms() {
     variables.forEach((k,v)->{
       if(k==null || k.isBlank() || v==null)
         throw IgrpResponseStatusException.badRequest("Invalid param for variable [name:"+ k +"] [value:"+ v +"]");

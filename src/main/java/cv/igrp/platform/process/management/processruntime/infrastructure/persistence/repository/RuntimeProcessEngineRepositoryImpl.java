@@ -238,7 +238,7 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
           .collect(Collectors.toMap(TaskVariableInstance::name, TaskVariableInstance::value));
     } catch (Exception e) {
       LOGGER.error("Failed to retrieve variables for task with id={}", taskInstanceId, e);
-      throw new RuntimeProcessEngineException("Unable to retrieve task variables for task: " + taskInstanceId, e);
+      return Map.of();
     }
   }
 
@@ -252,7 +252,7 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
           .collect(Collectors.toMap(ProcessVariableInstance::name, ProcessVariableInstance::value));
     } catch (Exception e) {
       LOGGER.error("Failed to retrieve variables for process with id={}", processInstanceId, e);
-      throw new RuntimeProcessEngineException("Unable to retrieve process variables for process: " + processInstanceId, e);
+      return Map.of();
     }
   }
 
@@ -396,6 +396,28 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
         .stream()
         .map(taskInstanceMapper::toModel)
         .collect(Collectors.toList());
+  }
+
+  @Override
+  public void rescheduleTimer(String processInstanceId, long seconds) {
+    try {
+      processManagerAdapter.rescheduleTimer(processInstanceId, seconds);
+      LOGGER.info("Rescheduled timer for process instance '{}' in {} seconds", processInstanceId, seconds);
+    } catch (Exception e) {
+      LOGGER.error("Failed to reschedule timer for process instance '{}'", processInstanceId, e);
+      throw new RuntimeProcessEngineException("Failed to reschedule timer for process instance: " + processInstanceId, e);
+    }
+  }
+
+  @Override
+  public void rescheduleTimer(String processInstanceId, String timerElementId, long seconds) {
+    try {
+      processManagerAdapter.rescheduleTimer(processInstanceId, timerElementId, seconds);
+      LOGGER.info("Timer '{}' for process instance '{}' successfully rescheduled to fire after {} seconds", timerElementId, processInstanceId, seconds);
+    } catch (Exception e) {
+      LOGGER.error("Failed to reschedule timer '{}' for process instance '{}'", timerElementId, processInstanceId, e);
+      throw new RuntimeProcessEngineException("Failed to reschedule timer '" + timerElementId + "' for process instance '" + processInstanceId + "'", e);
+    }
   }
 
 }

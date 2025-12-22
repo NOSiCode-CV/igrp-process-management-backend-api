@@ -326,7 +326,48 @@
           "isRequired": true
         }
       ]
+    },
+    {
+      "actionName": "rescheduleTimer",
+      "path": "{id}/timer/reschedule",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "TimerRescheduleDTO",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "processruntime",
+              "isRequired": true
+            }
+          }
+        }
+      },
+      "responses": {
+        "204": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true,
+          "description": "ID of the Process Instance"
+        }
+      ]
     }
   ],
-  "id": "pyn9bsrz1z-CONTROLLER-startProcessInstance-startProcessEvent-startProcessEvent-listProcessInstances-listProcessInstances-listProcessInstances-createProcessInstance-startProcessEvent-createStartProcessInstance"
+  "id": "pyn9bsrz1z-CONTROLLER-startProcessInstance-startProcessEvent-startProcessEvent-listProcessInstances-listProcessInstances-listProcessInstances-createProcessInstance-startProcessEvent-createStartProcessInstance-rescheduleTimer-rescheduleTimer-rescheduleTimer"
 }

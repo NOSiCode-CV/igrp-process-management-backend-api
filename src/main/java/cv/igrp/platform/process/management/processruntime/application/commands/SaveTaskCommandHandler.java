@@ -39,18 +39,15 @@ public class SaveTaskCommandHandler implements CommandHandler<SaveTaskCommand, R
      final var currentUser = userContext.getCurrentUser();
      LOGGER.info("User [{}] started completing task [{}]", currentUser.getValue(), command.getId());
 
-     var taskKey = taskInstanceService.getTaskById(Identifier.create(command.getId())).getTaskKey().getValue();
-
      final var forms = new HashMap<String,Object>();
+     forms.put("forms", command.getTaskdatadto().getForms());
+     LOGGER.info("[Save Task] Forms: {}", forms);
 
      final var variables = new HashMap<String,Object>();
      if(command.getTaskdatadto().getVariables()!=null)
        command.getTaskdatadto().getVariables().forEach( v -> variables.put(v.getName(), v.getValue()));
 
-     forms.put(taskKey + "Data", command.getTaskdatadto().getForms());
-
      LOGGER.info("[Save Task] Variables: {}", variables);
-     LOGGER.info("[Save Task] Forms: {}", forms);
 
      final var taskInstanceResp =  taskInstanceService.saveTask(
          TaskOperationData.builder()
