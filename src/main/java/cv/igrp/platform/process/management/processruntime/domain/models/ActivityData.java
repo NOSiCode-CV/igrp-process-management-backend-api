@@ -49,6 +49,7 @@ public class ActivityData {
   }
 
   public ActivityData withProperties(ActivityInfo info) {
+    System.out.println("Informacao: " + info);
     return ActivityData.builder()
         .id(Code.create(info.id()))
         .name(Name.create(info.name()))

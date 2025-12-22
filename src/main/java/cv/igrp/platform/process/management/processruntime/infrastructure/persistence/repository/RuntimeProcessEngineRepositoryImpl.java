@@ -21,6 +21,8 @@ import cv.igrp.platform.process.management.processruntime.domain.repository.Runt
 import cv.igrp.platform.process.management.processruntime.mappers.ProcessInstanceMapper;
 import cv.igrp.platform.process.management.processruntime.mappers.ProcessInstanceTaskStatusMapper;
 import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
+import cv.igrp.platform.process.management.shared.domain.models.Code;
+import cv.igrp.platform.process.management.shared.domain.models.Name;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -302,10 +304,25 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
 
   @Override
   public ActivityData getActivityById(String activityId) {
-    ActivityData activity = ActivityData.builder().build();
-    return activity.withProperties(activityQueryService.getActivity(activityId).orElseThrow(
-        () -> new RuntimeProcessEngineException("No activity found with id: " + activityId)
-    ));
+    ActivityInfo info = activityQueryService
+        .getActivity(activityId)
+        .orElseThrow(() ->
+            new RuntimeProcessEngineException(
+                "No activity found with id: " + activityId
+            )
+        );
+    return ActivityData.builder()
+        .id(Code.create(info.id()))
+        .name(Name.create(info.name()))
+        .description(info.description())
+        .processInstanceId(Code.create(info.processInstanceId()))
+        .parentId(Code.create(info.parentId()))
+        .parentProcessInstanceId(
+            Code.create(info.parentProcessInstanceId())
+        )
+        .status(info.status())
+        .type(info.type())
+        .build();
   }
 
   @Override
@@ -335,10 +352,16 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
         .stream()
         .filter(a -> activityType == null || Objects.equals(a.type(), activityType))
         .map(
-            a -> {
-              var activity = ActivityData.builder().build();
-              return activity.withProperties(a);
-            }
+            info -> ActivityData.builder()
+                .id(Code.create(info.id()))
+                .name(Name.create(info.name()))
+                .description(info.description())
+                .processInstanceId(Code.create(info.processInstanceId()))
+                .parentId(Code.create(info.parentId()))
+                .parentProcessInstanceId(Code.create(processInstanceId))
+                .status(info.status())
+                .type(info.type())
+                .build()
         ).toList();
   }
 
