@@ -342,13 +342,7 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
 
   @Override
   public List<ActivityData> getActiveActivityInstances(String processInstanceId, IGRPActivityType activityType) {
-
-    List<ActivityInfo> activityInfos = activityQueryService.getActiveActivityInstances(processInstanceId);
-
-    System.out.println("processInstanceId: " + processInstanceId);
-    System.out.println("ActivityInfos(Teste): " + activityInfos);
-
-    return activityInfos
+    return activityQueryService.getActiveActivityInstances(processInstanceId)
         .stream()
         .filter(a -> activityType == null || Objects.equals(a.type(), activityType))
         .map(
