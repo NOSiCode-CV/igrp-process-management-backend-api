@@ -7,6 +7,8 @@ import cv.igrp.platform.process.management.processruntime.application.dto.TaskVa
 import cv.igrp.platform.process.management.processruntime.domain.models.ActivityData;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -50,6 +52,15 @@ public class ActivityMapper {
     activityProgressDTO.setAssignee(activityInfo.assignee());
     activityProgressDTO.setCandidateGroups(activityInfo.candidateGroups());
     activityProgressDTO.setCandidateUsers(activityInfo.candidateUsers());
+
+    activityProgressDTO.setDurationMillis(activityInfo.durationMillis());
+    ZoneId cvZone = ZoneId.of("Atlantic/Cape_Verde");
+    activityProgressDTO.setStartTime(
+        activityInfo.startTime() != null ? LocalDateTime.ofInstant(activityInfo.startTime(), cvZone) : null
+    );
+    activityProgressDTO.setEndTime(
+        activityInfo.endTime() != null ? LocalDateTime.ofInstant(activityInfo.endTime(), cvZone) : null
+    );
 
     return activityProgressDTO;
 
