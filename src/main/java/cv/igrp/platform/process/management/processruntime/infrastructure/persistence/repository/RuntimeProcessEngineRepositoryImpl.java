@@ -318,7 +318,7 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
         .processInstanceId(Code.create(info.processInstanceId()))
         .parentId(Code.create(info.parentId()))
         .parentProcessInstanceId(
-            Code.create(info.parentProcessInstanceId())
+            Code.create(info.parentProcessInstanceId() != null ? info.parentProcessInstanceId() : info.parentId())
         )
         .status(info.status())
         .type(info.type())

@@ -54,5 +54,8 @@ public class ActivityProgressDTO  {
   
   
   private Long durationMillis ;
+  
+  
+  private String activityId ;
 
 }

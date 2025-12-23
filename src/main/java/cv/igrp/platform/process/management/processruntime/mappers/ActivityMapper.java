@@ -44,6 +44,7 @@ public class ActivityMapper {
 
     var activityProgressDTO = new ActivityProgressDTO();
 
+    activityProgressDTO.setActivityId(activityInfo.activityId());
     activityProgressDTO.setActivityKey(activityInfo.activityKey());
     activityProgressDTO.setActivityName(activityInfo.activityName());
     activityProgressDTO.setType(activityInfo.type().name());
