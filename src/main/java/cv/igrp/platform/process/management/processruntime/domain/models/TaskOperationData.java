@@ -35,7 +35,7 @@ public class TaskOperationData {
                            List<String> candidateGroups) {
     this.id = id != null && !id.isBlank() ? Identifier.create(id) : Identifier.generate();
     this.currentUser = Objects.requireNonNull(currentUser,"Current User can't be null!");
-    this.targetUser = targetUser!=null ? Code.create(targetUser) : null;
+    this.targetUser = targetUser != null && !targetUser.isBlank() ? Code.create(targetUser) : null;
     this.priority = (priority!=null && priority>0) ? priority: null;
     this.note = (note!=null && !note.isBlank()) ? note.trim() : note;
     this.variables = (variables!=null) ? variables : Map.of();

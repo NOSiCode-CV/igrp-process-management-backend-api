@@ -55,4 +55,9 @@ public class ActivityInstanceService {
         .orElseThrow(() -> IgrpResponseStatusException.notFound("No process instance found with id: " + processInstanceId));
   }
 
+  private void addVariables(TaskInstance taskInstance) {
+    taskInstance.addVariables(runtimeProcessEngineRepository.getProcessVariables(taskInstance.getEngineProcessNumber()));
+    taskInstance.addVariables(runtimeProcessEngineRepository.getTaskVariables(taskInstance.getExternalId().getValue()));
+  }
+
 }
