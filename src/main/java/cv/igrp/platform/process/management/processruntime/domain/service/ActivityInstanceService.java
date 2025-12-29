@@ -46,18 +46,14 @@ public class ActivityInstanceService {
     );
   }
 
-  private void addVariables(ActivityData activityData) {
-    activityData.addVariables(runtimeProcessEngineRepository.getActivityVariables(activityData.getId().getValue()));
-  }
-
   private ProcessInstance getProcessInstanceById(UUID processInstanceId) {
     return processInstanceRepository.findById(processInstanceId)
         .orElseThrow(() -> IgrpResponseStatusException.notFound("No process instance found with id: " + processInstanceId));
   }
 
-  private void addVariables(TaskInstance taskInstance) {
-    taskInstance.addVariables(runtimeProcessEngineRepository.getProcessVariables(taskInstance.getEngineProcessNumber()));
-    taskInstance.addVariables(runtimeProcessEngineRepository.getTaskVariables(taskInstance.getExternalId().getValue()));
+  private void addVariables(ActivityData activityData) {
+    activityData.addVariables(runtimeProcessEngineRepository.getProcessVariables(activityData.getProcessInstanceId().getValue()));
+    activityData.addVariables(runtimeProcessEngineRepository.getTaskVariables(activityData.getId().getValue()));
   }
 
 }
