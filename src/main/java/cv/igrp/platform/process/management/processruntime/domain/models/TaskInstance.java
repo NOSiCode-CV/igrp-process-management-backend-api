@@ -135,7 +135,7 @@ public class TaskInstance {
     this.assignedBy = Objects.requireNonNull(data.getTargetUser(), "Target User cannot be null!");
     this.assignedAt = LocalDateTime.now();
     this.status = TaskInstanceStatus.ASSIGNED;
-    if (data.getPriority() != null && data.getPriority() != 0)
+    if (data.getPriority() != null && !data.getPriority().equals(this.priority))
       this.priority = data.getPriority();
     createTaskInstanceEvent(TaskEventType.ASSIGN, data.getCurrentUser(), data.getNote());
   }
@@ -168,7 +168,7 @@ public class TaskInstance {
             .eventType(eventType)
             .status(this.status)
             .performedBy(user)
-            .note(note != null && !note.isBlank() ? note.trim() : null)
+            .note(note)
             .build());
   }
 

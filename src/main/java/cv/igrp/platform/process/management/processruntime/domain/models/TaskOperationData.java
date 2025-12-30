@@ -37,7 +37,7 @@ public class TaskOperationData {
     this.currentUser = Objects.requireNonNull(currentUser,"Current User can't be null!");
     this.targetUser = targetUser != null && !targetUser.isBlank() ? Code.create(targetUser) : null;
     this.priority = (priority!=null && priority>0) ? priority: null;
-    this.note = (note!=null && !note.isBlank()) ? note.trim() : note;
+    this.note = note != null && !note.trim().isBlank() ? note : null;
     this.variables = (variables!=null) ? variables : Map.of();
     this.forms = (forms!=null) ? forms : Map.of();
     this.candidateGroups = candidateGroups == null ? new ArrayList<>() : candidateGroups;

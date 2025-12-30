@@ -23,6 +23,7 @@ import cv.igrp.platform.process.management.processruntime.application.commands.*
 import cv.igrp.platform.process.management.processruntime.application.dto.VariablesFilterDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceListPageDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.UnclaimTaskDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.AssignTaskDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskDataDTO;
 import java.util.List;
@@ -167,11 +168,11 @@ public class TaskInstancesController {
     }
   )
   
-  public ResponseEntity<?> unClaimTask(
-    @PathVariable(value = "id") String id)
+  public ResponseEntity<?> unClaimTask(@Valid @RequestBody UnclaimTaskDTO unClaimTaskRequest
+    , @PathVariable(value = "id") String id)
   {
 
-      final var command = new UnClaimTaskCommand(id);
+      final var command = new UnClaimTaskCommand(unClaimTaskRequest, id);
 
        ResponseEntity<?> response = commandBus.send(command);
 

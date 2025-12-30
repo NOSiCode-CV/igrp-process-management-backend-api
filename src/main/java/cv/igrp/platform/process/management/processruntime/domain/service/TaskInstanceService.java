@@ -89,6 +89,13 @@ public class TaskInstanceService {
 
     }
 
+    if(data.getPriority() != null && !data.getPriority().equals(taskInstance.getPriority())){
+      runtimeProcessEngineRepository.setTaskPriority(
+          taskInstance.getExternalId().getValue(),
+          data.getPriority()
+      );
+    }
+
     this.save(taskInstance);
 
   }
