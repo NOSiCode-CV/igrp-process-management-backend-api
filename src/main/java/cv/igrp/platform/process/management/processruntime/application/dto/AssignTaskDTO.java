@@ -19,7 +19,7 @@ import lombok.AllArgsConstructor;
 @IgrpDTO
 public class AssignTaskDTO  {
 
-  @Size(min = 1, message = "The field length <user> must be at least 1 characters")
+  @Size(min = 0, message = "The field length <user> must be at least 0 characters")
   
   private String user ;
   
