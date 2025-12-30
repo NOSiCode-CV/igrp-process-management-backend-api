@@ -60,6 +60,7 @@ public class ProcessInstanceService {
       setProcessInstanceProgress(processInstance);
       addProcessVariables(processInstance);
     });
+
     return pageableLista;
   }
 

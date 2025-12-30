@@ -14,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -108,6 +109,16 @@ public class ProcessInstanceRepositoryImpl implements ProcessInstanceRepository 
       spec = spec.and((root, query, cb) ->
           root.get("engineProcessNumber").in(filter.getIncludeProcessNumbers())
       );
+    }
+
+    if (filter.getDateFrom() != null) {
+      spec = spec.and((root, query, cb) ->
+          cb.greaterThanOrEqualTo(root.get("startedAt"), filter.getDateFrom().atStartOfDay()));
+    }
+
+    if (filter.getDateTo() != null) {
+      spec = spec.and((root, query, cb) ->
+          cb.lessThanOrEqualTo(root.get("startedAt"), filter.getDateTo().atTime(LocalTime.MAX)));
     }
 
     return spec;
