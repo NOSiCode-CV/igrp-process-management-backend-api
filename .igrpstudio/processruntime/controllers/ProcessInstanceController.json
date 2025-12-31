@@ -71,6 +71,18 @@
           "isRequired": false
         },
         {
+          "type": "string",
+          "name": "dateFrom",
+          "description": "Date From",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "dateTo",
+          "description": "Date To",
+          "isRequired": false
+        },
+        {
           "type": "integer",
           "name": "page",
           "description": "Current Page",
@@ -369,5 +381,5 @@
       ]
     }
   ],
-  "id": "pyn9bsrz1z-CONTROLLER-startProcessInstance-startProcessEvent-startProcessEvent-listProcessInstances-listProcessInstances-listProcessInstances-createProcessInstance-startProcessEvent-createStartProcessInstance-rescheduleTimer-rescheduleTimer-rescheduleTimer"
+  "id": "pyn9bsrz1z-CONTROLLER-startProcessInstance-startProcessEvent-startProcessEvent-listProcessInstances-listProcessInstances-listProcessInstances-createProcessInstance-startProcessEvent-createStartProcessInstance-rescheduleTimer-rescheduleTimer-rescheduleTimer-listProcessInstances-listProcessInstances"
 }

@@ -24,6 +24,10 @@ public class ListProcessInstancesCommand implements Command {
   private String status;
   @NotBlank(message = "The field <applicationBase> is required")
   private String applicationBase;
+  @NotBlank(message = "The field <dateFrom> is required")
+  private String dateFrom;
+  @NotBlank(message = "The field <dateTo> is required")
+  private String dateTo;
   @NotNull(message = "The field <page> is required")
   private Integer page;
   @NotNull(message = "The field <size> is required")

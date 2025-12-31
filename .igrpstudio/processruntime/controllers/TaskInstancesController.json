@@ -167,6 +167,19 @@
       "actionName": "unClaimTask",
       "path": "{id}/unclaim",
       "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "UnclaimTaskDTO",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "processruntime"
+            }
+          }
+        }
+      },
       "responses": {
         "204": {
           "name": "nocontent",
@@ -515,5 +528,5 @@
       ]
     }
   ],
-  "id": "s7o1wob8tj-CONTROLLER-listTaskInstances-getAllMyTasks-getAllMyTasks-listTaskInstances-getAllMyTasks-getAllMyTasks"
+  "id": "s7o1wob8tj-CONTROLLER-listTaskInstances-getAllMyTasks-getAllMyTasks-listTaskInstances-getAllMyTasks-getAllMyTasks-unClaimTask"
 }

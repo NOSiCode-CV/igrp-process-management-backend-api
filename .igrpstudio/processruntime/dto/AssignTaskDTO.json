@@ -13,7 +13,7 @@
       "before": false,
       "after": false,
       "positive": false,
-      "minLength": 1,
+      "minLength": 0,
       "isEmail": false,
       "isUrl": false,
       "primaryKey": false

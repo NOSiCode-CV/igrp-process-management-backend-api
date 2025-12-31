@@ -9,6 +9,7 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -44,5 +45,17 @@ public class ActivityProgressDTO  {
   
   
   private Set<String> candidateGroups  = new HashSet<>();
+  
+  
+  private LocalDateTime startTime ;
+  
+  
+  private LocalDateTime endTime ;
+  
+  
+  private Long durationMillis ;
+  
+  
+  private String activityId ;
 
 }

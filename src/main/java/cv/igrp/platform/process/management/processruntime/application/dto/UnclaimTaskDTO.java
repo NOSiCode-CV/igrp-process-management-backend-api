@@ -17,19 +17,10 @@ import lombok.AllArgsConstructor;
 
 
 @IgrpDTO
-public class AssignTaskDTO  {
+public class UnclaimTaskDTO  {
 
-  @Size(min = 0, message = "The field length <user> must be at least 0 characters")
-  
-  private String user ;
-  
-  
-  private Integer priority ;
   
   
   private String note ;
-  
-  
-  private String candidateGroups ;
 
 }

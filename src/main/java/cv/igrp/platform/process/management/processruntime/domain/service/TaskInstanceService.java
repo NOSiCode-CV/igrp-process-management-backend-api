@@ -45,30 +45,13 @@ public class TaskInstanceService {
 
 
   public void createTaskInstancesByProcess(ProcessInstance processInstance) {
-
     this.createNextTaskInstances(processInstance, Code.create(processInstance.getStartedBy()));
   }
-
-
-  public TaskInstance getTaskById(Identifier id) {
-    var taskInstance = getByIdWihEvents(id);
-    // add Process Variables
-    addVariables(taskInstance);
-    return taskInstance;
-  }
-
 
   public TaskInstance getByIdWihEvents(Identifier id) {
     return taskInstanceRepository.findByIdWithEvents(id.getValue())
         .orElseThrow(() -> IgrpResponseStatusException.notFound("No Task Instance found with id: " + id));
   }
-
-
-  private void addVariables(TaskInstance taskInstance) {
-    taskInstance.addVariables(runtimeProcessEngineRepository.getProcessVariables(taskInstance.getEngineProcessNumber()));
-    taskInstance.addVariables(runtimeProcessEngineRepository.getTaskVariables(taskInstance.getExternalId().getValue()));
-  }
-
 
   public void claimTask(TaskOperationData data) {
     var taskInstance = getByIdWihEvents(data.getId());
@@ -104,6 +87,13 @@ public class TaskInstanceService {
         );
       });
 
+    }
+
+    if(data.getPriority() != null && !data.getPriority().equals(taskInstance.getPriority())){
+      runtimeProcessEngineRepository.setTaskPriority(
+          taskInstance.getExternalId().getValue(),
+          data.getPriority()
+      );
     }
 
     this.save(taskInstance);
@@ -167,6 +157,17 @@ public class TaskInstanceService {
     return completedTask;
   }
 
+  public TaskInstance getTaskById(Identifier id) {
+    var taskInstance = getByIdWihEvents(id);
+    // Add Process Variables
+    addVariables(taskInstance);
+    return taskInstance;
+  }
+
+  private void addVariables(TaskInstance taskInstance) {
+    taskInstance.addVariables(runtimeProcessEngineRepository.getProcessVariables(taskInstance.getEngineProcessNumber()));
+    taskInstance.addVariables(runtimeProcessEngineRepository.getTaskVariables(taskInstance.getExternalId().getValue()));
+  }
 
   public PageableLista<TaskInstance> getAllTaskInstances(TaskInstanceFilter filter) {
 
@@ -186,7 +187,7 @@ public class TaskInstanceService {
 
     final var pageableTask = taskInstanceRepository.findAll(filter);
 
-    // add Process Variables
+    // Add Process Variables
     addVariables(pageableTask);
 
     return pageableTask;
@@ -227,15 +228,10 @@ public class TaskInstanceService {
 
 
   public Map<String, Object> getTaskVariables(Identifier id) {
-    var taskInstance = getById(id);
-    return runtimeProcessEngineRepository.getTaskVariables(taskInstance.getExternalId().getValue());
+    var taskInstance = getTaskById(id);
+    return taskInstance.getVariables();
   }
 
-
-  public TaskInstance getById(Identifier id) {
-    return taskInstanceRepository.findById(id.getValue())
-        .orElseThrow(() -> IgrpResponseStatusException.notFound("No Task Instance found with id: " + id));
-  }
 
 
   public TaskStatistics getGlobalTaskStatistics() {
