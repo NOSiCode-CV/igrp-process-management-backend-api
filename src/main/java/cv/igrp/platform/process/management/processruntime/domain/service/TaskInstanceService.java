@@ -113,12 +113,16 @@ public class TaskInstanceService {
 
   public TaskInstance saveTask(TaskOperationData data) {
     var taskInstance = getByIdWihEvents(data.getId());
+    // Validate
     data.validateVariablesAndForms();
+    // Save
+    taskInstance.saveVariables(data);
     var savedTask = save(taskInstance);
+    // Process Engine
     runtimeProcessEngineRepository.saveTask(
         taskInstance.getExternalId().getValue(),
-        data.getForms(),
-        data.getVariables()
+        taskInstance.getForms(),
+        taskInstance.getVariables()
     );
     return savedTask;
   }

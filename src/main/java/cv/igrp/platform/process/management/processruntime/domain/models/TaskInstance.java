@@ -155,8 +155,7 @@ public class TaskInstance {
     this.endedBy = Objects.requireNonNull(data.getCurrentUser(), "Current User cannot be null!");
     this.endedAt = LocalDateTime.now();
     this.status = TaskInstanceStatus.COMPLETED;
-    this.variables.putAll(data.getVariables());
-    this.forms.put(this.id.getValue() + "_forms", data.getForms().remove("forms"));
+    this.saveVariables(data);
     createTaskInstanceEvent(TaskEventType.COMPLETE, data.getCurrentUser(), data.getNote());
   }
 
@@ -172,6 +171,16 @@ public class TaskInstance {
             .build());
   }
 
+  public void saveVariables(TaskOperationData data) {
+    this.variables.putAll(data.getVariables());
+    Map<String, Object> forms = data.getForms();
+    if (forms != null) {
+      Object removed = forms.remove("forms");
+      if (removed != null) {
+        this.forms.put(this.id.getValue() + "_forms", removed);
+      }
+    }
+  }
 
   public TaskInstance withProperties(ProcessInstance processInstance, Code formKey, Code user) {
     return TaskInstance.builder()
