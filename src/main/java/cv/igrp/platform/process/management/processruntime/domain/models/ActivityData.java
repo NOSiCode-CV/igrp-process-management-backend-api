@@ -65,4 +65,8 @@ public class ActivityData {
     this.variables.putAll(variables);
   }
 
+  public void addVariable(String key, Object value) {
+    this.variables.put(key, value);
+  }
+
 }
