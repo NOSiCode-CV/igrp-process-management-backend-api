@@ -9,6 +9,7 @@ import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponse
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -52,8 +53,19 @@ public class ActivityInstanceService {
   }
 
   private void addVariables(ActivityData activityData) {
-    activityData.addVariables(runtimeProcessEngineRepository.getProcessVariables(activityData.getProcessInstanceId().getValue()));
-    activityData.addVariables(runtimeProcessEngineRepository.getTaskVariables(activityData.getId().getValue()));
+
+    Map<String, Object> processVariables = runtimeProcessEngineRepository.getProcessVariables(activityData.getProcessInstanceId().getValue());
+    String formsKey = activityData.getId().getValue() + "_forms";
+    if (processVariables.containsKey(formsKey)) {
+      activityData.addVariable(formsKey, processVariables.get(formsKey));
+    }
+
+    Map<String, Object> taskVariables = runtimeProcessEngineRepository.getTaskVariables(activityData.getId().getValue());
+    if (taskVariables != null && !taskVariables.isEmpty()) {
+      activityData.addVariables(taskVariables);
+    }
+
   }
+
 
 }

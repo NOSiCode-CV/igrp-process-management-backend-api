@@ -177,7 +177,7 @@ public class TaskInstance {
     if (forms != null) {
       Object removed = forms.remove("forms");
       if (removed != null) {
-        this.forms.put(this.id.getValue() + "_forms", removed);
+        this.forms.put(this.externalId.getValue() + "_forms", removed);
       }
     }
   }
