@@ -54,7 +54,7 @@
         },
         {
           "type": "string",
-          "name": "processName",
+          "name": "processReleaseKey",
           "description": "Process Definition Key",
           "isRequired": false
         },
@@ -102,6 +102,18 @@
         {
           "type": "integer",
           "name": "size",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "name",
+          "description": "Task name",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "processName",
+          "description": "Process name",
           "isRequired": false
         }
       ]
@@ -371,6 +383,18 @@
           "type": "integer",
           "name": "size",
           "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "processReleaseKey",
+          "description": "Process Release Key",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "name",
+          "description": "Task Name",
+          "isRequired": false
         }
       ]
     },
@@ -528,5 +552,5 @@
       ]
     }
   ],
-  "id": "s7o1wob8tj-CONTROLLER-listTaskInstances-getAllMyTasks-getAllMyTasks-listTaskInstances-getAllMyTasks-getAllMyTasks-unClaimTask"
+  "id": "s7o1wob8tj-CONTROLLER-listTaskInstances-getAllMyTasks-getAllMyTasks-listTaskInstances-getAllMyTasks-getAllMyTasks-unClaimTask-listTaskInstances-getAllMyTasks"
 }

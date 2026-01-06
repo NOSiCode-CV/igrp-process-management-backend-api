@@ -48,6 +48,12 @@
         },
         {
           "type": "string",
+          "name": "name",
+          "description": "Process Name",
+          "isRequired": false
+        },
+        {
+          "type": "string",
           "name": "procReleaseKey",
           "description": "Process Key",
           "isRequired": false
@@ -381,5 +387,5 @@
       ]
     }
   ],
-  "id": "pyn9bsrz1z-CONTROLLER-startProcessInstance-startProcessEvent-startProcessEvent-listProcessInstances-listProcessInstances-listProcessInstances-createProcessInstance-startProcessEvent-createStartProcessInstance-rescheduleTimer-rescheduleTimer-rescheduleTimer-listProcessInstances-listProcessInstances"
+  "id": "pyn9bsrz1z-CONTROLLER-startProcessInstance-startProcessEvent-startProcessEvent-listProcessInstances-listProcessInstances-listProcessInstances-createProcessInstance-startProcessEvent-createStartProcessInstance-rescheduleTimer-rescheduleTimer-rescheduleTimer-listProcessInstances-listProcessInstances-listProcessInstances"
 }

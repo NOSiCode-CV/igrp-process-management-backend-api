@@ -31,23 +31,28 @@ public class TaskInstanceFilter {
   private List<String> candidateGroups;
   private List<String> engineProcessNumbers;
 
+  private final Name name;
+  private final Code processRealeaseKey;
+
   @Builder
   private TaskInstanceFilter(
-                             Identifier processInstanceId,
-                             Code processNumber,
-                             Code applicationBase,
-                             Name processName,
-                             List<String> candidateGroups,
-                             Code user,
-                             TaskInstanceStatus status,
-                             LocalDate dateFrom,
-                             LocalDate dateTo,
-                             Integer page,
-                             Integer size,
-                             List<VariablesExpression> variablesExpressions,
-                             List<String> includeTaskIds,
-                             List<String> engineProcessNumbers
-                             ) {
+      Identifier processInstanceId,
+      Code processNumber,
+      Code applicationBase,
+      Name processName,
+      List<String> candidateGroups,
+      Code user,
+      TaskInstanceStatus status,
+      LocalDate dateFrom,
+      LocalDate dateTo,
+      Integer page,
+      Integer size,
+      List<VariablesExpression> variablesExpressions,
+      List<String> includeTaskIds,
+      List<String> engineProcessNumbers,
+      Name name,
+      Code processReleaseKey
+  ) {
     this.processInstanceId = processInstanceId;
     this.applicationBase = applicationBase;
     this.processNumber = processNumber;
@@ -63,6 +68,8 @@ public class TaskInstanceFilter {
     this.includeTaskIds = includeTaskIds == null ? new ArrayList<>() : includeTaskIds;
     this.candidateGroups = candidateGroups == null ? new ArrayList<>() : candidateGroups;
     this.engineProcessNumbers = engineProcessNumbers == null ? new ArrayList<>() : engineProcessNumbers;
+    this.name = name;
+    this.processRealeaseKey = processReleaseKey;
   }
 
   public void includeTaskId(String taskId){
