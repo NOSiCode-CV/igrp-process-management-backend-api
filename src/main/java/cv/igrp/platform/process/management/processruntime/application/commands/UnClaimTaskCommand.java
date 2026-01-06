@@ -12,7 +12,7 @@ import cv.igrp.platform.process.management.processruntime.application.dto.Unclai
 @AllArgsConstructor
 public class UnClaimTaskCommand implements Command {
 
-
+  
   private UnclaimTaskDTO unclaimtaskdto;
   @NotBlank(message = "The field <id> is required")
   private String id;

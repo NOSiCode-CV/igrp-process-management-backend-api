@@ -121,6 +121,11 @@ public class ProcessInstanceRepositoryImpl implements ProcessInstanceRepository 
           cb.lessThanOrEqualTo(root.get("startedAt"), filter.getDateTo().atTime(LocalTime.MAX)));
     }
 
+    if (filter.getName() != null) {
+      spec = spec.and((root, query, cb) ->
+          cb.like(root.get("name"), "%"+ filter.getName().getValue() +"%"));
+    }
+
     return spec;
   }
 

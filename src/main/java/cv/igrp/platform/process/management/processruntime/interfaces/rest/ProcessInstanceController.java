@@ -69,6 +69,7 @@ public class ProcessInstanceController {
   
   public ResponseEntity<ProcessInstanceListPageDTO> listProcessInstances(@Valid @RequestBody VariablesFilterDTO listProcessInstancesRequest
     , @RequestParam(value = "number", required = false) String number,
+    @RequestParam(value = "name", required = false) String name,
     @RequestParam(value = "procReleaseKey", required = false) String procReleaseKey,
     @RequestParam(value = "procReleaseId", required = false) String procReleaseId,
     @RequestParam(value = "status", required = false) String status,
@@ -79,7 +80,7 @@ public class ProcessInstanceController {
     @RequestParam(value = "size", required = false) Integer size)
   {
 
-      final var command = new ListProcessInstancesCommand(listProcessInstancesRequest, number, procReleaseKey, procReleaseId, status, applicationBase, dateFrom, dateTo, page, size);
+      final var command = new ListProcessInstancesCommand(listProcessInstancesRequest, number, name, procReleaseKey, procReleaseId, status, applicationBase, dateFrom, dateTo, page, size);
 
        ResponseEntity<ProcessInstanceListPageDTO> response = commandBus.send(command);
 
