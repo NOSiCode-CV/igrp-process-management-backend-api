@@ -4,20 +4,22 @@
 package cv.igrp.platform.process.management.shared.application.constants;
 
 import cv.igrp.framework.core.domain.IgrpEnum;
-
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.springframework.http.HttpStatus;
+import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
+
 
 public enum ProcessInstanceStatus implements IgrpEnum<String> {
 
-  RUNNING("RUNNING", "Running"),
-    CREATED("CREATED", "CREATED"),
-    SUSPENDED("SUSPENDED", "SUSPENDED"),
-    CANCELED("CANCELED", "CANCELED"),
-    COMPLETED("COMPLETED", "COMPLETED")
+  RUNNING("RUNNING", "Em Execução"),
+    CREATED("CREATED", "Criado"),
+    SUSPENDED("SUSPENDED", "Supenso"),
+    CANCELED("CANCELED", "Cancelado"),
+    COMPLETED("COMPLETED", "Completado")
   ;
 
   private final String code;
@@ -60,7 +62,7 @@ public enum ProcessInstanceStatus implements IgrpEnum<String> {
   * @throws IllegalArgumentException if no enum value exists for the given code
   */
   public static ProcessInstanceStatus fromCodeOrThrow(String code) {
-    return fromCode(code).orElseThrow(() -> new IllegalArgumentException("Invalid ProcessInstanceStatus for this code: " + code));
+    return fromCode(code).orElseThrow(() -> IgrpResponseStatusException.of(HttpStatus.BAD_REQUEST, "Invalid ProcessInstanceStatus for this code: " + code));
   }
 
   /**
