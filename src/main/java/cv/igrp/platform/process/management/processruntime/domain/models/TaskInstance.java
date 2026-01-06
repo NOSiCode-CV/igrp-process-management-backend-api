@@ -202,6 +202,10 @@ public class TaskInstance {
     this.variables.putAll(variables);
   }
 
+  public void addVariable(String key, Object value) {
+    this.variables.put(key, value);
+  }
+
   public void addCandidateGroup(TaskOperationData data) {
 
     mergeCandidateGroups(data.getCandidateGroups());
