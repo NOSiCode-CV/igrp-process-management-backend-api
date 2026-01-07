@@ -14,6 +14,8 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.springframework.cache.annotation.Cacheable;
+
 
 @Component
 @ConditionalOnProperty(
@@ -34,6 +36,7 @@ public class IgrpAuthorizationServiceAdapter implements IAuthorizationServiceAda
   }
 
   @Override
+  @Cacheable(value = "rolesCache", key = "#userIdentifier",  unless = "#result.isEmpty()")
   public Set<String> getRoles(String userIdentifier) {
     try {
 
@@ -58,6 +61,7 @@ public class IgrpAuthorizationServiceAdapter implements IAuthorizationServiceAda
   }
 
   @Override
+  @Cacheable(value = "permissionsCache", key = "#userIdentifier",  unless = "#result.isEmpty()")
   public Set<String> getPermissions(String userIdentifier) {
     try{
 
@@ -82,6 +86,7 @@ public class IgrpAuthorizationServiceAdapter implements IAuthorizationServiceAda
   }
 
   @Override
+  @Cacheable(value = "departmentsCache", key = "#userIdentifier", unless = "#result.isEmpty()")
   public Set<String> getDepartments(String userIdentifier) {
     try {
 
@@ -102,6 +107,7 @@ public class IgrpAuthorizationServiceAdapter implements IAuthorizationServiceAda
       LOGGER.error("Error getting departments for current user", e);
       return Set.of();
     }
+
   }
 
 }

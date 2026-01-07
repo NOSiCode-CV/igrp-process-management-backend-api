@@ -10,7 +10,9 @@ import cv.igrp.platform.process.management.processruntime.domain.service.Process
 import cv.igrp.platform.process.management.processruntime.mappers.ProcessInstanceMapper;
 import cv.igrp.platform.process.management.shared.application.constants.ProcessInstanceStatus;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
+import cv.igrp.platform.process.management.shared.domain.models.Name;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
+import cv.igrp.platform.process.management.shared.util.DateUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.slf4j.Logger;
@@ -45,6 +47,9 @@ public class ListProcessInstancesCommandHandler implements CommandHandler<ListPr
         .status(command.getStatus() != null ? ProcessInstanceStatus.valueOf(command.getStatus()) : null)
         .applicationBase(command.getApplicationBase() != null ? Code.create(command.getApplicationBase()) : null)
         .variablesExpressions(toVariablesExpressionList(command.getVariablesfilterdto()))
+        .dateFrom(DateUtil.stringToLocalDate.apply(command.getDateFrom()))
+        .dateTo(DateUtil.stringToLocalDate.apply(command.getDateTo()))
+        .name(command.getName() != null && !command.getName().isBlank() ? Name.create(command.getName()) : null)
         .page(command.getPage())
         .size(command.getSize())
         .build();

@@ -35,6 +35,7 @@ public class UnClaimTaskCommandHandler implements CommandHandler<UnClaimTaskComm
         TaskOperationData.builder()
             .currentUser(currentUser)
             .id(command.getId())
+            .note(command.getUnclaimtaskdto() != null ? command.getUnclaimtaskdto().getNote() : null)
             .build()
     );
     LOGGER.info("User [{}] finished unclaiming task [{}]", currentUser.getValue(), command.getId());

@@ -18,8 +18,8 @@ public class ListTaskInstancesCommand implements Command {
   private String processInstanceId;
   @NotBlank(message = "The field <processNumber> is required")
   private String processNumber;
-  @NotBlank(message = "The field <processName> is required")
-  private String processName;
+  @NotBlank(message = "The field <processReleaseKey> is required")
+  private String processReleaseKey;
   @NotBlank(message = "The field <applicationBase> is required")
   private String applicationBase;
   @NotBlank(message = "The field <candidateGroups> is required")
@@ -36,5 +36,9 @@ public class ListTaskInstancesCommand implements Command {
   private Integer page;
   @NotNull(message = "The field <size> is required")
   private Integer size;
+  @NotBlank(message = "The field <name> is required")
+  private String name;
+  @NotBlank(message = "The field <processName> is required")
+  private String processName;
 
 }

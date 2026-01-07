@@ -3,18 +3,25 @@ package cv.igrp.platform.process.management.processruntime.domain.service;
 import cv.igrp.framework.runtime.core.engine.activity.model.IGRPActivityType;
 import cv.igrp.framework.runtime.core.engine.activity.model.ProcessActivityInfo;
 import cv.igrp.platform.process.management.processruntime.domain.models.*;
+import cv.igrp.platform.process.management.processruntime.domain.repository.ProcessInstanceRepository;
 import cv.igrp.platform.process.management.processruntime.domain.repository.RuntimeProcessEngineRepository;
+import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @Service
 public class ActivityInstanceService {
 
   private final RuntimeProcessEngineRepository runtimeProcessEngineRepository;
+  private final ProcessInstanceRepository processInstanceRepository;
 
-  public ActivityInstanceService(RuntimeProcessEngineRepository runtimeProcessEngineRepository) {
+  public ActivityInstanceService(RuntimeProcessEngineRepository runtimeProcessEngineRepository,
+                                 ProcessInstanceRepository processInstanceRepository) {
     this.runtimeProcessEngineRepository = runtimeProcessEngineRepository;
+    this.processInstanceRepository = processInstanceRepository;
   }
 
   public ActivityData getById(String id) {
@@ -24,16 +31,43 @@ public class ActivityInstanceService {
   }
 
 
-  public List<ActivityData> getActiveActivityInstances(String processInstanceId, IGRPActivityType type) {
-    return runtimeProcessEngineRepository.getActiveActivityInstances(processInstanceId, type);
+  public List<ActivityData> getActiveActivityInstances(UUID processInstanceId, IGRPActivityType type) {
+    ProcessInstance processInstance = getProcessInstanceById(processInstanceId);
+    return runtimeProcessEngineRepository.getActiveActivityInstances(
+        processInstance.getEngineProcessNumber().getValue(),
+        type
+    );
   }
 
-  public List<ProcessActivityInfo> getActivityProgress(String processInstanceId, IGRPActivityType type) {
-    return runtimeProcessEngineRepository.getActivityProgress(processInstanceId, type);
+  public List<ProcessActivityInfo> getActivityProgress(UUID processInstanceId, IGRPActivityType type) {
+    ProcessInstance processInstance = getProcessInstanceById(processInstanceId);
+    List<ProcessActivityInfo> processActivityInfos = runtimeProcessEngineRepository.getActivityProgress(
+        processInstance.getEngineProcessNumber().getValue(),
+        type
+    );
+
+    return processActivityInfos;
+  }
+
+  private ProcessInstance getProcessInstanceById(UUID processInstanceId) {
+    return processInstanceRepository.findById(processInstanceId)
+        .orElseThrow(() -> IgrpResponseStatusException.notFound("No process instance found with id: " + processInstanceId));
   }
 
   private void addVariables(ActivityData activityData) {
-    activityData.addVariables(runtimeProcessEngineRepository.getActivityVariables(activityData.getId().getValue()));
+
+    Map<String, Object> processVariables = runtimeProcessEngineRepository.getProcessVariables(activityData.getProcessInstanceId().getValue());
+    String formsKey = activityData.getId().getValue() + "_forms";
+    if (processVariables.containsKey(formsKey)) {
+      activityData.addVariable(formsKey, processVariables.get(formsKey));
+    }
+
+    Map<String, Object> taskVariables = runtimeProcessEngineRepository.getTaskVariables(activityData.getId().getValue());
+    if (taskVariables != null && !taskVariables.isEmpty()) {
+      activityData.addVariables(taskVariables);
+    }
+
   }
+
 
 }

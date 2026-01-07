@@ -7,15 +7,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import cv.igrp.framework.core.domain.QueryHandler;
 import cv.igrp.framework.stereotype.IgrpQueryHandler;
-import org.springframework.context.event.EventListener;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.UUID;
+
 import cv.igrp.platform.process.management.processruntime.application.dto.ActivityDTO;
 
 @Component
-public class GetActivityInstancesQueryHandler implements QueryHandler<GetActivityInstancesQuery, ResponseEntity<List<ActivityDTO>>>{
+public class GetActivityInstancesQueryHandler implements QueryHandler<GetActivityInstancesQuery, ResponseEntity<List<ActivityDTO>>> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(GetActivityInstancesQueryHandler.class);
 
@@ -28,9 +29,13 @@ public class GetActivityInstancesQueryHandler implements QueryHandler<GetActivit
     this.activityMapper = activityMapper;
   }
 
-   @IgrpQueryHandler
+  @IgrpQueryHandler
   public ResponseEntity<List<ActivityDTO>> handle(GetActivityInstancesQuery query) {
-     return ResponseEntity.ok(activityMapper.toInstancesDto(activityInstanceService.getActiveActivityInstances(query.getProcessInstanceId(), IGRPActivityType.valueOf(query.getType()))));
+    return ResponseEntity.ok(activityMapper.toInstancesDto(
+        activityInstanceService.getActiveActivityInstances(
+            UUID.fromString(query.getProcessInstanceId()),
+            query.getType() != null ? IGRPActivityType.valueOf(query.getType()) : null
+        )));
   }
 
 }

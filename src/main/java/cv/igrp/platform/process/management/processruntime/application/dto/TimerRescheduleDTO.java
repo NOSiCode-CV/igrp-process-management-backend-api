@@ -17,19 +17,13 @@ import lombok.AllArgsConstructor;
 
 
 @IgrpDTO
-public class AssignTaskDTO  {
+public class TimerRescheduleDTO  {
 
-  @Size(min = 0, message = "The field length <user> must be at least 0 characters")
-  
-  private String user ;
   
   
-  private Integer priority ;
+  private String elementId ;
+  @NotNull(message = "The field <seconds> is required")
   
-  
-  private String note ;
-  
-  
-  private String candidateGroups ;
+  private Long seconds ;
 
 }

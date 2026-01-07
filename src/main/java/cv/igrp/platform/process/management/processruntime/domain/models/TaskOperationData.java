@@ -35,15 +35,15 @@ public class TaskOperationData {
                            List<String> candidateGroups) {
     this.id = id != null && !id.isBlank() ? Identifier.create(id) : Identifier.generate();
     this.currentUser = Objects.requireNonNull(currentUser,"Current User can't be null!");
-    this.targetUser = targetUser!=null ? Code.create(targetUser) : null;
+    this.targetUser = targetUser != null && !targetUser.isBlank() ? Code.create(targetUser) : null;
     this.priority = (priority!=null && priority>0) ? priority: null;
-    this.note = (note!=null && !note.isBlank()) ? note.trim() : note;
+    this.note = note != null && !note.trim().isBlank() ? note : null;
     this.variables = (variables!=null) ? variables : Map.of();
     this.forms = (forms!=null) ? forms : Map.of();
     this.candidateGroups = candidateGroups == null ? new ArrayList<>() : candidateGroups;
   }
 
-  public void validateSubmitedVariablesAndForms() {
+  public void validateVariablesAndForms() {
     variables.forEach((k,v)->{
       if(k==null || k.isBlank() || v==null)
         throw IgrpResponseStatusException.badRequest("Invalid param for variable [name:"+ k +"] [value:"+ v +"]");

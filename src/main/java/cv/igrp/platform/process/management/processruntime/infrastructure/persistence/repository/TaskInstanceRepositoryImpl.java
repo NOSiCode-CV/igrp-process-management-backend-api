@@ -134,9 +134,19 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
           cb.equal(root.get("processInstanceId").get("applicationBase"), filter.getApplicationBase().getValue()));
     }
 
+    if (filter.getName() != null) {
+      spec = spec.and((root, query, cb) ->
+          cb.like(root.get("name"), "%"+ filter.getName().getValue() +"%"));
+    }
+
     if (filter.getProcessName() != null) {
       spec = spec.and((root, query, cb) ->
           cb.like(root.get("processInstanceId").get("name"), "%"+ filter.getProcessName().getValue() +"%"));
+    }
+
+    if (filter.getProcessRealeaseKey() != null) {
+      spec = spec.and((root, query, cb) ->
+          cb.equal(root.get("processInstanceId").get("procReleaseKey"), filter.getProcessRealeaseKey().getValue()));
     }
 
     if (filter.getStatus() != null) {

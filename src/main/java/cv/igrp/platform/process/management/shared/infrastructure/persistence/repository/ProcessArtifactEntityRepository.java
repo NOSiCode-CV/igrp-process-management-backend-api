@@ -19,4 +19,6 @@ public interface ProcessArtifactEntityRepository extends
 
   List<ProcessArtifactEntity> findAllByProcessDefinitionId(String processDefinitionId);
 
+  Optional<ProcessArtifactEntity> findByProcessDefinitionIdAndKey(String processDefinitionId, String key);
+
 }

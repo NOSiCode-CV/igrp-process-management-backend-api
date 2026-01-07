@@ -5,15 +5,15 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import cv.igrp.platform.process.management.processruntime.application.dto.UnclaimTaskDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.TimerRescheduleDTO;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UnClaimTaskCommand implements Command {
+public class RescheduleTimerCommand implements Command {
 
   
-  private UnclaimTaskDTO unclaimtaskdto;
+  private TimerRescheduleDTO timerrescheduledto;
   @NotBlank(message = "The field <id> is required")
   private String id;
 

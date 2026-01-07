@@ -48,6 +48,12 @@
         },
         {
           "type": "string",
+          "name": "name",
+          "description": "Process Name",
+          "isRequired": false
+        },
+        {
+          "type": "string",
           "name": "procReleaseKey",
           "description": "Process Key",
           "isRequired": false
@@ -68,6 +74,18 @@
           "type": "string",
           "name": "applicationBase",
           "description": "Application Code",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "dateFrom",
+          "description": "Date From",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "dateTo",
+          "description": "Date To",
           "isRequired": false
         },
         {
@@ -326,7 +344,48 @@
           "isRequired": true
         }
       ]
+    },
+    {
+      "actionName": "rescheduleTimer",
+      "path": "{id}/timer/reschedule",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "TimerRescheduleDTO",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "processruntime",
+              "isRequired": true
+            }
+          }
+        }
+      },
+      "responses": {
+        "204": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true,
+          "description": "ID of the Process Instance"
+        }
+      ]
     }
   ],
-  "id": "pyn9bsrz1z-CONTROLLER-startProcessInstance-startProcessEvent-startProcessEvent-listProcessInstances-listProcessInstances-listProcessInstances-createProcessInstance-startProcessEvent-createStartProcessInstance"
+  "id": "pyn9bsrz1z-CONTROLLER-startProcessInstance-startProcessEvent-startProcessEvent-listProcessInstances-listProcessInstances-listProcessInstances-createProcessInstance-startProcessEvent-createStartProcessInstance-rescheduleTimer-rescheduleTimer-rescheduleTimer-listProcessInstances-listProcessInstances-listProcessInstances"
 }

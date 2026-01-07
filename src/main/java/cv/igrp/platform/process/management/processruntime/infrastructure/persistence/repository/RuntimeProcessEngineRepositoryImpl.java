@@ -1,6 +1,7 @@
 package cv.igrp.platform.process.management.processruntime.infrastructure.persistence.repository;
 
 import cv.igrp.framework.runtime.core.engine.activity.ActivityQueryService;
+import cv.igrp.framework.runtime.core.engine.activity.model.ActivityInfo;
 import cv.igrp.framework.runtime.core.engine.activity.model.IGRPActivityType;
 import cv.igrp.framework.runtime.core.engine.activity.model.ProcessActivityInfo;
 import cv.igrp.framework.runtime.core.engine.process.ProcessDefinitionAdapter;
@@ -20,6 +21,8 @@ import cv.igrp.platform.process.management.processruntime.domain.repository.Runt
 import cv.igrp.platform.process.management.processruntime.mappers.ProcessInstanceMapper;
 import cv.igrp.platform.process.management.processruntime.mappers.ProcessInstanceTaskStatusMapper;
 import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
+import cv.igrp.platform.process.management.shared.domain.models.Code;
+import cv.igrp.platform.process.management.shared.domain.models.Name;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -238,7 +241,7 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
           .collect(Collectors.toMap(TaskVariableInstance::name, TaskVariableInstance::value));
     } catch (Exception e) {
       LOGGER.error("Failed to retrieve variables for task with id={}", taskInstanceId, e);
-      throw new RuntimeProcessEngineException("Unable to retrieve task variables for task: " + taskInstanceId, e);
+      return Map.of();
     }
   }
 
@@ -252,7 +255,7 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
           .collect(Collectors.toMap(ProcessVariableInstance::name, ProcessVariableInstance::value));
     } catch (Exception e) {
       LOGGER.error("Failed to retrieve variables for process with id={}", processInstanceId, e);
-      throw new RuntimeProcessEngineException("Unable to retrieve process variables for process: " + processInstanceId, e);
+      return Map.of();
     }
   }
 
@@ -301,10 +304,25 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
 
   @Override
   public ActivityData getActivityById(String activityId) {
-    ActivityData activity = ActivityData.builder().build();
-    return activity.withProperties(activityQueryService.getActivity(activityId).orElseThrow(
-        () -> new RuntimeProcessEngineException("No activity found with id: " + activityId)
-    ));
+    ActivityInfo info = activityQueryService
+        .getActivity(activityId)
+        .orElseThrow(() ->
+            new RuntimeProcessEngineException(
+                "No activity found with id: " + activityId
+            )
+        );
+    return ActivityData.builder()
+        .id(Code.create(info.id()))
+        .name(Name.create(info.name()))
+        .description(info.description())
+        .processInstanceId(Code.create(info.processInstanceId()))
+        .parentId(Code.create(info.parentId()))
+        .parentProcessInstanceId(
+            Code.create(info.parentProcessInstanceId() != null ? info.parentProcessInstanceId() : info.parentId())
+        )
+        .status(info.status())
+        .type(info.type())
+        .build();
   }
 
   @Override
@@ -328,10 +346,16 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
         .stream()
         .filter(a -> activityType == null || Objects.equals(a.type(), activityType))
         .map(
-            a -> {
-              var activity = ActivityData.builder().build();
-              return activity.withProperties(a);
-            }
+            info -> ActivityData.builder()
+                .id(Code.create(info.id()))
+                .name(Name.create(info.name()))
+                .description(info.description())
+                .processInstanceId(Code.create(info.processInstanceId()))
+                .parentId(Code.create(info.parentId()))
+                .parentProcessInstanceId(Code.create(processInstanceId))
+                .status(info.status())
+                .type(info.type())
+                .build()
         ).toList();
   }
 
@@ -339,7 +363,7 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
   public List<ProcessActivityInfo> getActivityProgress(String processInstanceId, IGRPActivityType type) {
     return activityQueryService.getActivityProgress(processInstanceId)
         .stream()
-        .filter(a -> type == null || Objects.equals(a.type(), type))
+        .filter(a -> type == null || Objects.equals(a.getType(), type))
         .toList();
   }
 
@@ -396,6 +420,28 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
         .stream()
         .map(taskInstanceMapper::toModel)
         .collect(Collectors.toList());
+  }
+
+  @Override
+  public void rescheduleTimer(String processInstanceId, long seconds) {
+    try {
+      processManagerAdapter.rescheduleTimer(processInstanceId, seconds);
+      LOGGER.info("Rescheduled timer for process instance '{}' in {} seconds", processInstanceId, seconds);
+    } catch (Exception e) {
+      LOGGER.error("Failed to reschedule timer for process instance '{}'", processInstanceId, e);
+      throw new RuntimeProcessEngineException("Failed to reschedule timer for process instance: " + processInstanceId, e);
+    }
+  }
+
+  @Override
+  public void rescheduleTimer(String processInstanceId, String timerElementId, long seconds) {
+    try {
+      processManagerAdapter.rescheduleTimer(processInstanceId, timerElementId, seconds);
+      LOGGER.info("Timer '{}' for process instance '{}' successfully rescheduled to fire after {} seconds", timerElementId, processInstanceId, seconds);
+    } catch (Exception e) {
+      LOGGER.error("Failed to reschedule timer '{}' for process instance '{}'", timerElementId, processInstanceId, e);
+      throw new RuntimeProcessEngineException("Failed to reschedule timer '" + timerElementId + "' for process instance '" + processInstanceId + "'", e);
+    }
   }
 
 }

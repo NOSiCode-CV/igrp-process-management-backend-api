@@ -32,5 +32,9 @@ public class GetAllMyTasksCommand implements Command {
   private Integer page;
   @NotNull(message = "The field <size> is required")
   private Integer size;
+  @NotBlank(message = "The field <processReleaseKey> is required")
+  private String processReleaseKey;
+  @NotBlank(message = "The field <name> is required")
+  private String name;
 
 }

@@ -16,9 +16,9 @@ public class ProcessArtifact {
   private final Identifier id;
   private final Name name;
   private final Code key;
-  private final Code formKey;
+  private Code formKey;
   private final Code processDefinitionId;
-  private final List<String> candidateGroups;
+  private List<String> candidateGroups;
 
   @Builder
   public ProcessArtifact(Identifier id,
@@ -33,6 +33,11 @@ public class ProcessArtifact {
     this.formKey = Objects.requireNonNull(formKey, "Form Key Id cannot be null!");
     this.processDefinitionId = Objects.requireNonNull(processDefinitionId, "ProcessDefinition Id cannot be null!");
     this.candidateGroups = candidateGroups == null ? new ArrayList<>() : candidateGroups;
+  }
+
+  public void update(ProcessArtifact processArtifact) {
+    this.formKey = processArtifact.formKey != null ? processArtifact.formKey : this.formKey;
+    this.candidateGroups = processArtifact.candidateGroups != null && !processArtifact.candidateGroups.isEmpty() ? processArtifact.candidateGroups : this.candidateGroups;
   }
 
 }

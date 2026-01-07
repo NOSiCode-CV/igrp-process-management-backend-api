@@ -31,6 +31,7 @@ import cv.igrp.platform.process.management.shared.application.dto.ProcessEventDT
 import cv.igrp.platform.process.management.processruntime.application.dto.CreateProcessRequestDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.StartProcessRequestDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.ProcessVariablesRequestDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.TimerRescheduleDTO;
 
 @IgrpController
 @RestController
@@ -68,15 +69,18 @@ public class ProcessInstanceController {
   
   public ResponseEntity<ProcessInstanceListPageDTO> listProcessInstances(@Valid @RequestBody VariablesFilterDTO listProcessInstancesRequest
     , @RequestParam(value = "number", required = false) String number,
+    @RequestParam(value = "name", required = false) String name,
     @RequestParam(value = "procReleaseKey", required = false) String procReleaseKey,
     @RequestParam(value = "procReleaseId", required = false) String procReleaseId,
     @RequestParam(value = "status", required = false) String status,
     @RequestParam(value = "applicationBase", required = false) String applicationBase,
+    @RequestParam(value = "dateFrom", required = false) String dateFrom,
+    @RequestParam(value = "dateTo", required = false) String dateTo,
     @RequestParam(value = "page", required = false) Integer page,
     @RequestParam(value = "size", required = false) Integer size)
   {
 
-      final var command = new ListProcessInstancesCommand(listProcessInstancesRequest, number, procReleaseKey, procReleaseId, status, applicationBase, page, size);
+      final var command = new ListProcessInstancesCommand(listProcessInstancesRequest, number, name, procReleaseKey, procReleaseId, status, applicationBase, dateFrom, dateTo, page, size);
 
        ResponseEntity<ProcessInstanceListPageDTO> response = commandBus.send(command);
 
@@ -326,6 +330,37 @@ public class ProcessInstanceController {
       final var command = new StartProcessInstanceByIdCommand(startProcessInstanceByIdRequest, id);
 
        ResponseEntity<ProcessInstanceDTO> response = commandBus.send(command);
+
+       return response;
+  }
+
+      @PostMapping(
+   value = "{id}/timer/reschedule"
+  )
+  @Operation(
+    summary = "POST method to handle operations for Reschedule timer",
+    description = "POST method to handle operations for Reschedule timer",
+    responses = {
+      @ApiResponse(
+          responseCode = "204",
+          description = "",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = String.class,
+                  type = "String")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<String> rescheduleTimer(@Valid @RequestBody TimerRescheduleDTO rescheduleTimerRequest
+    , @PathVariable(value = "id") String id)
+  {
+
+      final var command = new RescheduleTimerCommand(rescheduleTimerRequest, id);
+
+       ResponseEntity<String> response = commandBus.send(command);
 
        return response;
   }
