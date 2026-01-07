@@ -363,7 +363,7 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
   public List<ProcessActivityInfo> getActivityProgress(String processInstanceId, IGRPActivityType type) {
     return activityQueryService.getActivityProgress(processInstanceId)
         .stream()
-        .filter(a -> type == null || Objects.equals(a.type(), type))
+        .filter(a -> type == null || Objects.equals(a.getType(), type))
         .toList();
   }
 

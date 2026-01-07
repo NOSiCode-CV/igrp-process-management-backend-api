@@ -41,10 +41,12 @@ public class ActivityInstanceService {
 
   public List<ProcessActivityInfo> getActivityProgress(UUID processInstanceId, IGRPActivityType type) {
     ProcessInstance processInstance = getProcessInstanceById(processInstanceId);
-    return runtimeProcessEngineRepository.getActivityProgress(
+    List<ProcessActivityInfo> processActivityInfos = runtimeProcessEngineRepository.getActivityProgress(
         processInstance.getEngineProcessNumber().getValue(),
         type
     );
+
+    return processActivityInfos;
   }
 
   private ProcessInstance getProcessInstanceById(UUID processInstanceId) {

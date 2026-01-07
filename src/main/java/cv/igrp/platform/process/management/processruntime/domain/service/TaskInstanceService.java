@@ -255,7 +255,7 @@ public class TaskInstanceService {
     if (processVariables == null || processVariables.isEmpty()) {
       return Map.of();
     }
-    String formsKey = taskInstance.getExternalId().getValue() + "_forms";
+    String formsKey = taskInstance.getId().getValue() + "_forms";
     if (processVariables.containsKey(formsKey)) {
       return Map.of(formsKey, processVariables.get(formsKey));
     }
