@@ -7,6 +7,8 @@ import cv.igrp.platform.process.management.processruntime.application.dto.TaskVa
 import cv.igrp.platform.process.management.processruntime.domain.models.ActivityData;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -42,14 +44,26 @@ public class ActivityMapper {
 
     var activityProgressDTO = new ActivityProgressDTO();
 
-    activityProgressDTO.setActivityKey(activityInfo.activityKey());
-    activityProgressDTO.setActivityName(activityInfo.activityName());
-    activityProgressDTO.setType(activityInfo.type().name());
-    activityProgressDTO.setStatus(activityInfo.status().name());
-    activityProgressDTO.setProcessInstanceId(activityInfo.processInstanceId());
-    activityProgressDTO.setAssignee(activityInfo.assignee());
-    activityProgressDTO.setCandidateGroups(activityInfo.candidateGroups());
-    activityProgressDTO.setCandidateUsers(activityInfo.candidateUsers());
+    activityProgressDTO.setActivityId(activityInfo.getActivityId());
+    activityProgressDTO.setActivityKey(activityInfo.getActivityKey());
+    activityProgressDTO.setActivityName(activityInfo.getActivityName());
+    activityProgressDTO.setType(activityInfo.getType().name());
+    activityProgressDTO.setStatus(activityInfo.getStatus().name());
+    activityProgressDTO.setProcessInstanceId(activityInfo.getProcessInstanceId());
+    activityProgressDTO.setAssignee(activityInfo.getAssignee());
+    activityProgressDTO.setCandidateGroups(activityInfo.getCandidateGroups());
+    activityProgressDTO.setCandidateUsers(activityInfo.getCandidateUsers());
+
+    activityProgressDTO.setDurationMillis(activityInfo.getDurationMillis());
+    ZoneId cvZone = ZoneId.of("Atlantic/Cape_Verde");
+    activityProgressDTO.setStartTime(
+        activityInfo.getStartTime() != null ? LocalDateTime.ofInstant(activityInfo.getStartTime(), cvZone) : null
+    );
+    activityProgressDTO.setEndTime(
+        activityInfo.getEndTime() != null ? LocalDateTime.ofInstant(activityInfo.getEndTime(), cvZone) : null
+    );
+
+    activityProgressDTO.setVariables(toActivityVariableDTO(activityInfo.getVariables()));
 
     return activityProgressDTO;
 

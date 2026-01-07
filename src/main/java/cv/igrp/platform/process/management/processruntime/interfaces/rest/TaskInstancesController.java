@@ -23,6 +23,7 @@ import cv.igrp.platform.process.management.processruntime.application.commands.*
 import cv.igrp.platform.process.management.processruntime.application.dto.VariablesFilterDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceListPageDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.UnclaimTaskDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.AssignTaskDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskDataDTO;
 import java.util.List;
@@ -67,7 +68,7 @@ public class TaskInstancesController {
   public ResponseEntity<TaskInstanceListPageDTO> listTaskInstances(@Valid @RequestBody VariablesFilterDTO listTaskInstancesRequest
     , @RequestParam(value = "processInstanceId", required = false) String processInstanceId,
     @RequestParam(value = "processNumber", required = false) String processNumber,
-    @RequestParam(value = "processName", required = false) String processName,
+    @RequestParam(value = "processReleaseKey", required = false) String processReleaseKey,
     @RequestParam(value = "applicationBase", required = false) String applicationBase,
     @RequestParam(value = "candidateGroups", required = false) String candidateGroups,
     @RequestParam(value = "user", required = false) String user,
@@ -75,10 +76,12 @@ public class TaskInstancesController {
     @RequestParam(value = "dateFrom", required = false) String dateFrom,
     @RequestParam(value = "dateTo", required = false) String dateTo,
     @RequestParam(value = "page", required = false) Integer page,
-    @RequestParam(value = "size", required = false) Integer size)
+    @RequestParam(value = "size", required = false) Integer size,
+    @RequestParam(value = "name", required = false) String name,
+    @RequestParam(value = "processName", required = false) String processName)
   {
 
-      final var command = new ListTaskInstancesCommand(listTaskInstancesRequest, processInstanceId, processNumber, processName, applicationBase, candidateGroups, user, status, dateFrom, dateTo, page, size);
+      final var command = new ListTaskInstancesCommand(listTaskInstancesRequest, processInstanceId, processNumber, processReleaseKey, applicationBase, candidateGroups, user, status, dateFrom, dateTo, page, size, name, processName);
 
        ResponseEntity<TaskInstanceListPageDTO> response = commandBus.send(command);
 
@@ -167,11 +170,11 @@ public class TaskInstancesController {
     }
   )
   
-  public ResponseEntity<?> unClaimTask(
-    @PathVariable(value = "id") String id)
+  public ResponseEntity<?> unClaimTask(@Valid @RequestBody UnclaimTaskDTO unClaimTaskRequest
+    , @PathVariable(value = "id") String id)
   {
 
-      final var command = new UnClaimTaskCommand(id);
+      final var command = new UnClaimTaskCommand(unClaimTaskRequest, id);
 
        ResponseEntity<?> response = commandBus.send(command);
 
@@ -269,10 +272,12 @@ public class TaskInstancesController {
     @RequestParam(value = "dateFrom", required = false) String dateFrom,
     @RequestParam(value = "dateTo", required = false) String dateTo,
     @RequestParam(value = "page", required = false) Integer page,
-    @RequestParam(value = "size", required = false) Integer size)
+    @RequestParam(value = "size", required = false) Integer size,
+    @RequestParam(value = "processReleaseKey", required = false) String processReleaseKey,
+    @RequestParam(value = "name", required = false) String name)
   {
 
-      final var command = new GetAllMyTasksCommand(getAllMyTasksRequest, processInstanceId, processNumber, applicationBase, processName, status, dateFrom, dateTo, page, size);
+      final var command = new GetAllMyTasksCommand(getAllMyTasksRequest, processInstanceId, processNumber, applicationBase, processName, status, dateFrom, dateTo, page, size, processReleaseKey, name);
 
        ResponseEntity<TaskInstanceListPageDTO> response = commandBus.send(command);
 

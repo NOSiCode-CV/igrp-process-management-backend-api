@@ -41,6 +41,7 @@ public class TaskInstance {
   private final List<TaskInstanceEvent> taskInstanceEvents;
   private final List<String> candidateGroups;
   private final Map<String, Object> variables;
+  private final Map<String,Object> forms;
 
 
   @Builder
@@ -68,7 +69,8 @@ public class TaskInstance {
       Code endedBy,
       List<TaskInstanceEvent> taskInstanceEvents,
       List<String> candidateGroups,
-      Map<String, Object> variables
+      Map<String, Object> variables,
+      Map<String, Object> forms
   ) {
     this.id = id == null ? Identifier.generate() : id;
     this.taskKey = Objects.requireNonNull(taskKey, "Task Key cannot be null!");
@@ -93,6 +95,7 @@ public class TaskInstance {
     this.processKey = processKey;
     this.taskInstanceEvents = taskInstanceEvents != null ? taskInstanceEvents : new ArrayList<>();
     this.variables = variables != null ? variables : new HashMap<>();
+    this.forms = forms != null ? forms : new HashMap<>();
     this.candidateGroups = candidateGroups != null
         ? new ArrayList<>(candidateGroups)
         : new ArrayList<>();
@@ -132,7 +135,7 @@ public class TaskInstance {
     this.assignedBy = Objects.requireNonNull(data.getTargetUser(), "Target User cannot be null!");
     this.assignedAt = LocalDateTime.now();
     this.status = TaskInstanceStatus.ASSIGNED;
-    if (data.getPriority() != null && data.getPriority() != 0)
+    if (data.getPriority() != null && !data.getPriority().equals(this.priority))
       this.priority = data.getPriority();
     createTaskInstanceEvent(TaskEventType.ASSIGN, data.getCurrentUser(), data.getNote());
   }
@@ -152,6 +155,7 @@ public class TaskInstance {
     this.endedBy = Objects.requireNonNull(data.getCurrentUser(), "Current User cannot be null!");
     this.endedAt = LocalDateTime.now();
     this.status = TaskInstanceStatus.COMPLETED;
+    this.saveVariables(data);
     createTaskInstanceEvent(TaskEventType.COMPLETE, data.getCurrentUser(), data.getNote());
   }
 
@@ -163,10 +167,20 @@ public class TaskInstance {
             .eventType(eventType)
             .status(this.status)
             .performedBy(user)
-            .note(note != null && !note.isBlank() ? note.trim() : null)
+            .note(note)
             .build());
   }
 
+  public void saveVariables(TaskOperationData data) {
+    this.variables.putAll(data.getVariables());
+    Map<String, Object> forms = data.getForms();
+    if (forms != null) {
+      Object removed = forms.remove("forms");
+      if (removed != null) {
+        this.forms.put(this.id.getValue() + "_forms", removed);
+      }
+    }
+  }
 
   public TaskInstance withProperties(ProcessInstance processInstance, Code formKey, Code user) {
     return TaskInstance.builder()
@@ -186,6 +200,10 @@ public class TaskInstance {
 
   public void addVariables(Map<String, Object> variables) {
     this.variables.putAll(variables);
+  }
+
+  public void addVariable(String key, Object value) {
+    this.variables.put(key, value);
   }
 
   public void addCandidateGroup(TaskOperationData data) {

@@ -60,6 +60,7 @@ public class ProcessInstanceService {
       setProcessInstanceProgress(processInstance);
       addProcessVariables(processInstance);
     });
+
     return pageableLista;
   }
 
@@ -202,7 +203,25 @@ public class ProcessInstanceService {
 
   public ProcessInstance createAndStartProcessInstance(ProcessInstance processInstance, String user) {
     ProcessInstance createdProcessInstance = createProcessInstance(processInstance, user);
+    // Copy variables from processInstance to createdProcessInstance
+    createdProcessInstance.addVariables(processInstance.getVariables());
     return startProcessInstance(createdProcessInstance, user);
+  }
+
+  public void rescheduleTimerByProcessInstanceId(UUID id, String timerElementId, Long seconds) {
+    ProcessInstance processInstance = getProcessInstanceById(id);
+    if(timerElementId == null || timerElementId.isBlank()){
+      runtimeProcessEngineRepository.rescheduleTimer(
+          processInstance.getEngineProcessNumber().getValue(),
+          seconds
+      );
+    }else {
+      runtimeProcessEngineRepository.rescheduleTimer(
+          processInstance.getEngineProcessNumber().getValue(),
+          timerElementId,
+          seconds
+      );
+    }
   }
 
 }

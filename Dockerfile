@@ -5,7 +5,7 @@ COPY pom.xml ./
 RUN mvn -B -q dependency:go-offline
 
 COPY src ./src
-RUN mvn -B -DskipTests clean package && ls -lh target
+RUN mvn -B -Dmaven.test.skip=true clean package && ls -lh target
 
 FROM cgr.dev/chainguard/jre:latest
 WORKDIR /app

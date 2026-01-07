@@ -192,6 +192,8 @@ public class TaskInstanceMapper {
         .variablesExpressions(vars)
         .page(command.getPage())
         .size(command.getSize())
+        .name(command.getName() != null && !command.getName().isBlank() ? Name.create(command.getName()) : null)
+        .processReleaseKey(command.getProcessReleaseKey() != null && !command.getProcessReleaseKey().isBlank() ? Code.create(command.getProcessReleaseKey()) : null)
         .build();
   }
 
@@ -238,6 +240,8 @@ public class TaskInstanceMapper {
         .variablesExpressions(vars)
         .page(command.getPage())
         .size(command.getSize())
+        .name(command.getName() != null && !command.getName().isBlank() ? Name.create(command.getName()) : null)
+        .processReleaseKey(command.getProcessReleaseKey() != null && !command.getProcessReleaseKey().isBlank() ? Code.create(command.getProcessReleaseKey()) : null)
         .build();
   }
 

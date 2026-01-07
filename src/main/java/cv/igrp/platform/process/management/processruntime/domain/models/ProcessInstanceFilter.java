@@ -3,9 +3,11 @@ package cv.igrp.platform.process.management.processruntime.domain.models;
 
 import cv.igrp.platform.process.management.shared.application.constants.ProcessInstanceStatus;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
+import cv.igrp.platform.process.management.shared.domain.models.Name;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +23,9 @@ public class ProcessInstanceFilter {
   private final Integer size;
   private final List<VariablesExpression> variablesExpressions;
   private final List<String> includeProcessNumbers;
+  private final LocalDate dateFrom;
+  private final LocalDate dateTo;
+  private final Name name;
 
   @Builder
   private ProcessInstanceFilter(Code number,
@@ -31,7 +36,10 @@ public class ProcessInstanceFilter {
                                 Integer page,
                                 Integer size,
                                 List<VariablesExpression> variablesExpressions,
-                                List<String> includeProcessNumbers) {
+                                List<String> includeProcessNumbers,
+                                LocalDate dateFrom,
+                                LocalDate dateTo,
+                                Name name) {
     this.number = number;
     this.procReleaseKey = procReleaseKey;
     this.procReleaseId = procReleaseId;
@@ -41,6 +49,9 @@ public class ProcessInstanceFilter {
     this.size = size == null ? 50 : size;
     this.variablesExpressions = variablesExpressions ==  null ? new ArrayList<>() : variablesExpressions;
     this.includeProcessNumbers = includeProcessNumbers == null ? new ArrayList<>() : includeProcessNumbers;
+    this.dateFrom = dateFrom;
+    this.dateTo = dateTo;
+    this.name = name;
   }
 
   public void includeProcessNumber(String processNumber){
