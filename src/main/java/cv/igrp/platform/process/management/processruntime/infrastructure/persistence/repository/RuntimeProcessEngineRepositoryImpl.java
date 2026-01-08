@@ -194,6 +194,8 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
   @Override
   public void completeTask(String taskInstanceId, Map<String, Object> forms, Map<String, Object> variables) {
     try {
+      System.out.println("FORMS: " + forms);
+      System.out.println("VARIABLES: " + variables);
       TaskInfo taskInfo = taskQueryService.getTask(taskInstanceId).orElseThrow();
       processManagerAdapter.setProcessVariables(taskInfo.processInstanceId(), variables);
       taskActionService.completeTask(taskInstanceId, forms);

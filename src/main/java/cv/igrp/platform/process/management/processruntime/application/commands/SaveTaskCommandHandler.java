@@ -40,7 +40,9 @@ public class SaveTaskCommandHandler implements CommandHandler<SaveTaskCommand, R
      LOGGER.info("User [{}] started completing task [{}]", currentUser.getValue(), command.getId());
 
      final var forms = new HashMap<String,Object>();
-     forms.put("forms", command.getTaskdatadto().getForms());
+     command.getTaskdatadto()
+         .getForms()
+         .forEach(v -> forms.put(v.getName(), v.getValue()));
      LOGGER.info("[Save Task] Forms: {}", forms);
 
      final var variables = new HashMap<String,Object>();
