@@ -6,6 +6,7 @@ import cv.igrp.platform.process.management.processruntime.application.dto.Activi
 import cv.igrp.platform.process.management.processruntime.application.dto.ActivityProgressDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskVariableDTO;
 import cv.igrp.platform.process.management.processruntime.domain.models.ActivityData;
+import cv.igrp.platform.process.management.shared.application.constants.VariableTag;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -29,15 +30,20 @@ public class ActivityMapper {
     activityDto.setParentId(activityData.getParentId().getValue());
     activityDto.setParentProcessInstanceId(activityData.getParentProcessInstanceId().getValue());
     activityDto.setProcessInstanceId(activityData.getProcessInstanceId().getValue());
-    activityDto.setVariables(toActivityVariableDTO(activityData.getVariables()));
+    activityDto.setVariables(toActivityVariableDTO(activityData.getVariables(), VariableTag.VARIABLES));
 
     return activityDto;
 
   }
 
-  public List<TaskVariableDTO> toActivityVariableDTO(Map<String,Object> variables){
-    return variables==null ? List.of() : variables.entrySet().stream()
-        .map(e-> new TaskVariableDTO(e.getKey(),e.getValue()))
+  public List<TaskVariableDTO> toActivityVariableDTO(Map<String,Object> variables, VariableTag tag){
+    Object group = variables.get(tag.getCode());
+
+    if (!(group instanceof Map<?, ?> map))
+      return List.of();
+
+    return map.entrySet().stream()
+        .map(e -> new TaskVariableDTO(e.getKey().toString(), e.getValue()))
         .toList();
   }
 
@@ -66,7 +72,8 @@ public class ActivityMapper {
         timelineEvent.getEndTime() != null ? LocalDateTime.ofInstant(timelineEvent.getEndTime(), cvZone) : null
     );
 
-    activityProgressDTO.setVariables(toActivityVariableDTO(timelineEvent.getVariables()));
+    activityProgressDTO.setVariables(toActivityVariableDTO(timelineEvent.getVariables(), VariableTag.VARIABLES));
+    activityProgressDTO.setForms(toActivityVariableDTO(timelineEvent.getVariables(), VariableTag.FORMS));
 
     return activityProgressDTO;
 
