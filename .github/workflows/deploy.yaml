@@ -8,6 +8,7 @@ on:
       - '.github/**'
       - 'k8s/**'
       - '.gitattributes'
+      - 'docs/**'
 
 env:
   DISCORD_WEBHOOK_URL: https://discord.com/api/webhooks/1425673583837053140/EI5l4JbtOFm3bQ8c8HG984ePvodVzuQeBQMGKJAFA2jtcooOPYXRCFHfE7rojeuxz7hT
