@@ -9,7 +9,6 @@ import java.util.UUID;
 
 @Getter
 @EqualsAndHashCode
-@ToString
 public class Identifier {
 
   private final UUID value;
@@ -34,5 +33,7 @@ public class Identifier {
   public static Identifier generate() {
     return Identifier.builder().build();
   }
+
+
 
 }

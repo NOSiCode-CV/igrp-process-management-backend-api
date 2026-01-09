@@ -8,17 +8,15 @@ import cv.igrp.platform.process.management.processruntime.domain.repository.Runt
 import cv.igrp.platform.process.management.processruntime.domain.repository.TaskInstanceEventRepository;
 import cv.igrp.platform.process.management.processruntime.domain.repository.TaskInstanceRepository;
 import cv.igrp.platform.process.management.shared.application.constants.ProcessInstanceStatus;
+import cv.igrp.platform.process.management.shared.application.constants.VariableTag;
 import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 import org.springframework.stereotype.Service;
-
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
+
 
 @Service
 public class TaskInstanceService {
@@ -113,17 +111,16 @@ public class TaskInstanceService {
 
   public TaskInstance saveTask(TaskOperationData data) {
     var taskInstance = getByIdWihEvents(data.getId());
-    // Load Process/Task Variables
-    addVariables(taskInstance);
     // Validate
     data.validateVariablesAndForms();
     // Save
-    taskInstance.saveVariables(data);
+    taskInstance.addVariablesAndForms(data);
+    this.save(taskInstance);
     // Process Engine
     runtimeProcessEngineRepository.saveTask(
         taskInstance.getExternalId().getValue(),
-        taskInstance.getForms(),
-        taskInstance.getVariables()
+        null,
+        data.getVariables()
     );
     return taskInstance;
   }
@@ -133,13 +130,15 @@ public class TaskInstanceService {
 
     var taskInstance = getByIdWihEvents(data.getId());
     taskInstance.complete(data);
+    // Save
+    taskInstance.addVariablesAndForms(data);
     var completedTask = save(taskInstance);
 
     // Call the process engine to complete a task
     runtimeProcessEngineRepository.completeTask(
         taskInstance.getExternalId().getValue(),
-        taskInstance.getForms(),
-        taskInstance.getVariables()
+        null,
+        data.getVariables()
     );
 
     var processInstance = processInstanceRepository
@@ -163,109 +162,21 @@ public class TaskInstanceService {
   }
 
   public TaskInstance getTaskById(Identifier id) {
-    var taskInstance = getByIdWihEvents(id);
-    // Add Process Variables
-    addVariables(taskInstance);
-    return taskInstance;
+    return getByIdWihEvents(id);
   }
 
   public PageableLista<TaskInstance> getAllTaskInstances(TaskInstanceFilter filter) {
-
-    if (!filter.getVariablesExpressions().isEmpty()) {
-      // Call engine to filter by variables
-      List<ProcessInstance> engineProcessInstances = runtimeProcessEngineRepository.getAllProcessInstancesByVariables(
-          filter.getVariablesExpressions()
-      );
-      if (!engineProcessInstances.isEmpty()) {
-        engineProcessInstances.forEach(processInstance -> {
-          filter.includeEngineProcessNumber(processInstance.getEngineProcessNumber().getValue());
-        });
-      } else {
-        filter.includeEngineProcessNumber(null);
-      }
-    }
-
-    final var pageableTask = taskInstanceRepository.findAll(filter);
-
-    // Add Process Variables
-    addVariables(pageableTask);
-
-    return pageableTask;
+    return taskInstanceRepository.findAll(filter);
   }
-
-
-  private void addVariables(PageableLista<TaskInstance> pageableTask) {
-    // Collect distinct process instance IDs and fetch process-level variables once
-    final var processVariablesMap = pageableTask.getContent().stream()
-        .map(TaskInstance::getEngineProcessNumber)
-        .filter(Objects::nonNull)
-        .distinct()
-        .collect(Collectors.toMap(
-            processId -> processId,
-            this::getFilteredProcessVariables // fetch all process variables
-        ));
-
-    // For each task, merge process variables (filtered per task) with task-local variables
-    pageableTask.getContent().forEach(taskInstance -> {
-      // Start with all process variables for this process
-      var processVars = processVariablesMap.get(taskInstance.getEngineProcessNumber());
-
-      // Apply task-specific filtering (formsKey)
-      processVars = filterFormsKey(taskInstance, processVars);
-
-      // Fetch task-local variables
-      var taskVars = runtimeProcessEngineRepository.getTaskVariables(
-          taskInstance.getExternalId().getValue()
-      );
-
-      // Merge process vars + task vars (task overrides process on key conflict)
-      var mergedVars = new HashMap<String, Object>();
-      if (processVars != null) mergedVars.putAll(processVars);
-      if (taskVars != null) mergedVars.putAll(taskVars);
-
-      taskInstance.addVariables(mergedVars);
-    });
-  }
-
-  private void addVariables(TaskInstance taskInstance) {
-    // Fetch all process variables
-    var processVariables = getFilteredProcessVariables(taskInstance.getEngineProcessNumber());
-
-    // Apply task-specific filtering (formsKey)
-    processVariables = filterFormsKey(taskInstance, processVariables);
-
-    // Add filtered process variables to task
-    if (!processVariables.isEmpty()) {
-      taskInstance.addVariables(processVariables);
-    }
-
-    // Add task-local variables
-    var taskVariables = runtimeProcessEngineRepository.getTaskVariables(taskInstance.getExternalId().getValue());
-    if (taskVariables != null && !taskVariables.isEmpty()) {
-      taskInstance.addVariables(taskVariables);
-    }
-  }
-
-  private Map<String, Object> getFilteredProcessVariables(String processInstanceId) {
-    Map<String, Object> processVariables = runtimeProcessEngineRepository.getProcessVariables(processInstanceId);
-    return processVariables != null ? processVariables : Map.of();
-  }
-
-  private Map<String, Object> filterFormsKey(TaskInstance taskInstance, Map<String, Object> processVariables) {
-    if (processVariables == null || processVariables.isEmpty()) {
-      return Map.of();
-    }
-    String formsKey = taskInstance.getId().getValue() + "_forms";
-    if (processVariables.containsKey(formsKey)) {
-      return Map.of(formsKey, processVariables.get(formsKey));
-    }
-    return Map.of();
-  }
-
 
   public Map<String, Object> getTaskVariables(Identifier id) {
     var taskInstance = getTaskById(id);
-    return taskInstance.getVariables();
+    Map<String, Object> variables = taskInstance.getVariables();
+    Map<String, Object> forms = taskInstance.getForms();
+    return Map.of(
+        VariableTag.FORMS.getCode(), forms,
+        VariableTag.VARIABLES.getCode(), variables
+    );
   }
 
 
@@ -356,6 +267,5 @@ public class TaskInstanceService {
     taskInstanceEvent.create();
     taskInstanceEventRepository.save(taskInstanceEvent);
   }
-
 
 }

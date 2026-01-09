@@ -2,6 +2,7 @@ package cv.igrp.platform.process.management.processruntime.domain.repository;
 
 import cv.igrp.framework.runtime.core.engine.activity.model.IGRPActivityType;
 import cv.igrp.framework.runtime.core.engine.activity.model.ProcessActivityInfo;
+import cv.igrp.framework.runtime.core.engine.activity.model.ProcessTimelineEvent;
 import cv.igrp.framework.runtime.core.engine.process.ProcessDefinitionRepresentation;
 import cv.igrp.platform.process.management.processruntime.domain.exception.RuntimeProcessEngineException;
 import cv.igrp.platform.process.management.processruntime.domain.models.*;
@@ -243,13 +244,13 @@ public interface RuntimeProcessEngineRepository {
   List<ActivityData> getActiveActivityInstances(String processInstanceId, IGRPActivityType type);
 
   /**
-   * Retrieve the activity progress by process instance's ID
+   * Retrieve the process timeline events by process instance's ID
    *
    * @param processInstanceId the unique identifier for the process instance
    * @param type the activity type filter
-   * @return a list of {@link ProcessActivityInfo}
+   * @return a list of {@link ProcessTimelineEvent}
    */
-  List<ProcessActivityInfo> getActivityProgress(String processInstanceId, IGRPActivityType type);
+  List<ProcessTimelineEvent> getProcessTimelineEvents(String processInstanceId, IGRPActivityType type);
 
   /**
    * Retrieve all process instances by variables expressions.

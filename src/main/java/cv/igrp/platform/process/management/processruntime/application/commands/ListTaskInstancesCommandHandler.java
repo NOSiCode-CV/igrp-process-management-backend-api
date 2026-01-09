@@ -4,7 +4,6 @@ import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import cv.igrp.platform.process.management.processruntime.domain.service.TaskInstanceService;
 import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
-import cv.igrp.platform.process.management.shared.security.util.UserContext;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.slf4j.Logger;
@@ -20,14 +19,12 @@ public class ListTaskInstancesCommandHandler implements CommandHandler<ListTaskI
 
   private final TaskInstanceService taskInstanceService;
   private final TaskInstanceMapper taskInstanceMapper;
-  private final UserContext userContext;
 
   public ListTaskInstancesCommandHandler(TaskInstanceService taskInstanceService,
-                                         TaskInstanceMapper taskInstanceMapper,
-                                         UserContext userContext) {
+                                         TaskInstanceMapper taskInstanceMapper
+  ) {
     this.taskInstanceService = taskInstanceService;
     this.taskInstanceMapper = taskInstanceMapper;
-    this.userContext = userContext;
   }
 
   @Transactional(readOnly = true)

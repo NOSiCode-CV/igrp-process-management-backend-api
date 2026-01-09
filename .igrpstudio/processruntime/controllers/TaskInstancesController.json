@@ -450,10 +450,10 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "TaskVariableDTO",
+                "type": "TaskVariablesFormsDTO",
                 "objectType": "dto",
                 "name": "data",
-                "collectionType": "list",
+                "collectionType": "none",
                 "module": "processruntime"
               }
             }
@@ -552,5 +552,5 @@
       ]
     }
   ],
-  "id": "s7o1wob8tj-CONTROLLER-listTaskInstances-getAllMyTasks-getAllMyTasks-listTaskInstances-getAllMyTasks-getAllMyTasks-unClaimTask-listTaskInstances-getAllMyTasks"
+  "id": "s7o1wob8tj-CONTROLLER-listTaskInstances-getAllMyTasks-getAllMyTasks-listTaskInstances-getAllMyTasks-getAllMyTasks-unClaimTask-listTaskInstances-getAllMyTasks-getTaskVariablesById"
 }

@@ -14,12 +14,13 @@ import java.util.List;
 import java.util.UUID;
 
 import cv.igrp.platform.process.management.processruntime.application.dto.ActivityProgressDTO;
+import org.springframework.transaction.annotation.Transactional;
+
 
 @Component
 public class GetActivityProgressQueryHandler implements QueryHandler<GetActivityProgressQuery, ResponseEntity<List<ActivityProgressDTO>>> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(GetActivityProgressQueryHandler.class);
-
 
   private final ActivityInstanceService activityInstanceService;
   private final ActivityMapper activityMapper;
@@ -29,10 +30,11 @@ public class GetActivityProgressQueryHandler implements QueryHandler<GetActivity
     this.activityMapper = activityMapper;
   }
 
+  @Transactional
   @IgrpQueryHandler
   public ResponseEntity<List<ActivityProgressDTO>> handle(GetActivityProgressQuery query) {
     return ResponseEntity.ok(activityMapper.toProgressesDto(
-        activityInstanceService.getActivityProgress(
+        activityInstanceService.getProcessTimelineEvents(
             UUID.fromString(query.getProcessInstanceId()),
             query.getType() != null ? IGRPActivityType.valueOf(query.getType()) : null
         )));

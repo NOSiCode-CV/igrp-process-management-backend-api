@@ -4,6 +4,7 @@ import cv.igrp.framework.runtime.core.engine.activity.ActivityQueryService;
 import cv.igrp.framework.runtime.core.engine.activity.model.ActivityInfo;
 import cv.igrp.framework.runtime.core.engine.activity.model.IGRPActivityType;
 import cv.igrp.framework.runtime.core.engine.activity.model.ProcessActivityInfo;
+import cv.igrp.framework.runtime.core.engine.activity.model.ProcessTimelineEvent;
 import cv.igrp.framework.runtime.core.engine.process.ProcessDefinitionAdapter;
 import cv.igrp.framework.runtime.core.engine.process.ProcessDefinitionRepresentation;
 import cv.igrp.framework.runtime.core.engine.process.ProcessManagerAdapter;
@@ -303,6 +304,14 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
   }
 
   @Override
+  public List<ProcessTimelineEvent> getProcessTimelineEvents(String processInstanceId, IGRPActivityType type) {
+    List<ProcessTimelineEvent> timelineEvents = activityQueryService.getActivityTimelineEvents(processInstanceId);
+    if (timelineEvents == null)
+      return List.of();
+    return timelineEvents;
+  }
+
+  @Override
   public ActivityData getActivityById(String activityId) {
     ActivityInfo info = activityQueryService
         .getActivity(activityId)
@@ -317,9 +326,7 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
         .description(info.description())
         .processInstanceId(Code.create(info.processInstanceId()))
         .parentId(Code.create(info.parentId()))
-        .parentProcessInstanceId(
-            Code.create(info.parentProcessInstanceId() != null ? info.parentProcessInstanceId() : info.parentId())
-        )
+        .parentProcessInstanceId(Code.create(info.parentProcessInstanceId() != null ? info.parentProcessInstanceId() : info.parentId()))
         .status(info.status())
         .type(info.type())
         .build();
@@ -357,14 +364,6 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
                 .type(info.type())
                 .build()
         ).toList();
-  }
-
-  @Override
-  public List<ProcessActivityInfo> getActivityProgress(String processInstanceId, IGRPActivityType type) {
-    return activityQueryService.getActivityProgress(processInstanceId)
-        .stream()
-        .filter(a -> type == null || Objects.equals(a.getType(), type))
-        .toList();
   }
 
   @Override

@@ -88,7 +88,7 @@
       "isEmail": false,
       "isUrl": false,
       "primaryKey": false,
-      "collectionType": "set"
+      "collectionType": "none"
     },
     {
       "name": "candidateGroups",
@@ -101,7 +101,7 @@
       "isEmail": false,
       "isUrl": false,
       "primaryKey": false,
-      "collectionType": "set"
+      "collectionType": "none"
     },
     {
       "name": "startTime",
@@ -164,6 +164,54 @@
       "primaryKey": false,
       "module": "processruntime",
       "collectionType": "list"
+    },
+    {
+      "name": "executionId",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    },
+    {
+      "name": "taskId",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    },
+    {
+      "name": "activityInstanceId",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    },
+    {
+      "name": "treeNumber",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
     }
   ],
   "id": "ssa7ocxttj"

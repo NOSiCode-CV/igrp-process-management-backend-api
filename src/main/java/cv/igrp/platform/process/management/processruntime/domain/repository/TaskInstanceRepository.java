@@ -24,4 +24,6 @@ public interface TaskInstanceRepository {
   TaskStatistics getGlobalTaskStatistics();
 
   TaskStatistics getTaskStatisticsByUser(Code user);
+
+  Optional<TaskInstance> findByExternalId(String id);
 }

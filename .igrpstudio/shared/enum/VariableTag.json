@@ -1,0 +1,31 @@
+{
+  "type": "enum",
+  "module": "shared",
+  "name": "VariableTag",
+  "values": [
+    {
+      "name": "FORMS",
+      "attributes": [
+        "forms",
+        "FORMS"
+      ]
+    },
+    {
+      "name": "VARIABLES",
+      "attributes": [
+        "variables",
+        "VARIABLES"
+      ]
+    }
+  ],
+  "attributes": [
+    {
+      "type": "string",
+      "name": "Code"
+    },
+    {
+      "type": "string",
+      "name": "Description"
+    }
+  ]
+}

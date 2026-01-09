@@ -27,9 +27,7 @@ public class TaskInstanceFilter {
   @Setter
   private Code user;
   private List<VariablesExpression> variablesExpressions;
-  private List<String> includeTaskIds;
   private List<String> candidateGroups;
-  private List<String> engineProcessNumbers;
 
   private final Name name;
   private final Code processRealeaseKey;
@@ -48,8 +46,6 @@ public class TaskInstanceFilter {
       Integer page,
       Integer size,
       List<VariablesExpression> variablesExpressions,
-      List<String> includeTaskIds,
-      List<String> engineProcessNumbers,
       Name name,
       Code processReleaseKey
   ) {
@@ -65,22 +61,13 @@ public class TaskInstanceFilter {
     this.page = page == null ? 0 : page;
     this.size = size == null ? 50 : size;
     this.variablesExpressions = variablesExpressions ==  null ? new ArrayList<>() : variablesExpressions;
-    this.includeTaskIds = includeTaskIds == null ? new ArrayList<>() : includeTaskIds;
     this.candidateGroups = candidateGroups == null ? new ArrayList<>() : candidateGroups;
-    this.engineProcessNumbers = engineProcessNumbers == null ? new ArrayList<>() : engineProcessNumbers;
     this.name = name;
     this.processRealeaseKey = processReleaseKey;
-  }
-
-  public void includeTaskId(String taskId){
-    this.includeTaskIds.add(taskId);
   }
 
   public void addGroup(String group){
     this.candidateGroups.add(group);
   }
 
-  public void includeEngineProcessNumber(String engineProcessNumber) {
-    this.engineProcessNumbers.add(engineProcessNumber);
-  }
 }
