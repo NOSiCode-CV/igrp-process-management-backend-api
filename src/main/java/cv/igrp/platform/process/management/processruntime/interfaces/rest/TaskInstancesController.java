@@ -28,7 +28,7 @@ import cv.igrp.platform.process.management.processruntime.application.dto.Assign
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskDataDTO;
 import java.util.List;
 import cv.igrp.platform.process.management.shared.application.dto.ConfigParameterDTO;
-import cv.igrp.platform.process.management.processruntime.application.dto.TaskVariableDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.TaskVariablesFormsDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceStatsDTO;
 
 @IgrpController
@@ -359,20 +359,20 @@ public class TaskInstancesController {
           content = @Content(
               mediaType = "application/json",
               schema = @Schema(
-                  implementation = TaskVariableDTO.class,
+                  implementation = TaskVariablesFormsDTO.class,
                   type = "object")
           )
       )
     }
   )
   
-  public ResponseEntity<List<TaskVariableDTO>> getTaskVariablesById(
+  public ResponseEntity<TaskVariablesFormsDTO> getTaskVariablesById(
     @PathVariable(value = "id") String id)
   {
 
       final var query = new GetTaskVariablesByIdQuery(id);
 
-      ResponseEntity<List<TaskVariableDTO>> response = queryBus.handle(query);
+      ResponseEntity<TaskVariablesFormsDTO> response = queryBus.handle(query);
 
       return response;
   }

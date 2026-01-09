@@ -9,6 +9,7 @@ import cv.igrp.platform.process.management.processruntime.domain.models.TaskInst
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskStatistics;
 import cv.igrp.platform.process.management.processruntime.domain.models.VariablesExpression;
 import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
+import cv.igrp.platform.process.management.shared.application.constants.VariableTag;
 import cv.igrp.platform.process.management.shared.domain.models.*;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.ProcessInstanceEntity;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.TaskInstanceEntity;
@@ -16,6 +17,7 @@ import cv.igrp.platform.process.management.shared.util.DateUtil;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -73,6 +75,8 @@ public class TaskInstanceMapper {
     taskInstanceEntity.setEndedAt(taskInstance.getEndedAt());
     taskInstanceEntity.setPriority(taskInstance.getPriority());
     taskInstanceEntity.setCandidateGroups(!taskInstance.getCandidateGroups().isEmpty() ? String.join(",", taskInstance.getCandidateGroups()) : null);
+    taskInstanceEntity.setVariables(taskInstance.getVariables());
+    taskInstanceEntity.setForms(taskInstance.getForms());
   }
 
 
@@ -106,9 +110,10 @@ public class TaskInstanceMapper {
         .endedBy(taskInstanceEntity.getEndedBy()!=null ? Code.create(taskInstanceEntity.getEndedBy()) : null)
         .candidateGroups(taskInstanceEntity.getCandidateGroups()!=null ? List.of(taskInstanceEntity.getCandidateGroups().split(",")) : null)
         .taskInstanceEvents(withEvents ? eventMapper.toEventModelList(taskInstanceEntity.getTaskinstanceevents()) : null)
+        .forms(taskInstanceEntity.getForms())
+        .variables(taskInstanceEntity.getVariables())
         .build();
   }
-
 
   public TaskInstanceListPageDTO toTaskInstanceListPageDTO(PageableLista<TaskInstance> taskInstances) {
     var listDto = new TaskInstanceListPageDTO();
@@ -146,6 +151,7 @@ public class TaskInstanceMapper {
     dto.setStatusDesc(model.getStatus().getDescription());
     dto.setStartedBy(model.getStartedBy().getValue());
     dto.setVariables(toProcessVariableDTO(model.getVariables()));
+    dto.setForms(toProcessVariableDTO(model.getForms()));
     return dto;
   }
 
@@ -176,6 +182,7 @@ public class TaskInstanceMapper {
     dto.setEndedAt(taskInstance.getEndedAt());
     dto.setTaskInstanceEvents(eventMapper.toEventListDTO(taskInstance.getTaskInstanceEvents()));
     dto.setVariables(toProcessVariableDTO(taskInstance.getVariables()));
+    dto.setForms(toProcessVariableDTO(taskInstance.getForms()));
     return dto;
   }
 
@@ -203,6 +210,30 @@ public class TaskInstanceMapper {
         .map(e-> new TaskVariableDTO(e.getKey(),e.getValue()))
         .toList();
   }
+
+  public TaskVariablesFormsDTO toTaskVariablesFormsDTO(Map<String, Object> variables) {
+    TaskVariablesFormsDTO dto = new TaskVariablesFormsDTO();
+    Object formsObj = variables.get(VariableTag.FORMS.getCode());
+    if (formsObj instanceof Map<?, ?> formsMap) {
+      dto.setForms(
+          formsMap.entrySet().stream()
+              .map(e -> new TaskVariableDTO(e.getKey().toString(), e.getValue()))
+              .toList()
+      );
+    }
+    Object varsObj = variables.get(VariableTag.VARIABLES.getCode());
+    if (varsObj instanceof Map<?, ?> varsMap) {
+      dto.setVariables(
+          varsMap.entrySet().stream()
+              .map(e -> new TaskVariableDTO(e.getKey().toString(), e.getValue()))
+              .toList()
+      );
+    }
+
+    return dto;
+  }
+
+
 
 
   public List<ProcessVariableDTO> toProcessVariableDTO(Map<String,Object> variables){

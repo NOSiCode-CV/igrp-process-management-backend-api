@@ -10,7 +10,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskVariableDTO;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,58 +19,13 @@ import java.util.List;
 
 
 @IgrpDTO
-public class ActivityProgressDTO  {
+public class TaskVariablesFormsDTO  {
 
-  
-  
-  private String activityKey ;
-  
-  
-  private String activityName ;
-  
-  
-  private String status ;
-  
-  
-  private String type ;
-  
-  
-  private String processInstanceId ;
-  
-  
-  private String assignee ;
-  
-  
-  private String candidateUsers ;
-  
-  
-  private String candidateGroups ;
-  
-  
-  private LocalDateTime startTime ;
-  
-  
-  private LocalDateTime endTime ;
-  
-  
-  private Long durationMillis ;
-  
-  
-  private String activityId ;
   
   @Valid
   private List<TaskVariableDTO> variables = new ArrayList<>();
   
-  
-  private String executionId ;
-  
-  
-  private String taskId ;
-  
-  
-  private String activityInstanceId ;
-  
-  
-  private String treeNumber ;
+  @Valid
+  private List<TaskVariableDTO> forms = new ArrayList<>();
 
 }
