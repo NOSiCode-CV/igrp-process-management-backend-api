@@ -1,7 +1,7 @@
 package cv.igrp.platform.process.management.processruntime.domain.service;
 
 import cv.igrp.framework.runtime.core.engine.activity.model.IGRPActivityType;
-import cv.igrp.framework.runtime.core.engine.activity.model.ProcessActivityInfo;
+import cv.igrp.framework.runtime.core.engine.activity.model.ProcessTimelineEvent;
 import cv.igrp.platform.process.management.processruntime.domain.models.*;
 import cv.igrp.platform.process.management.processruntime.domain.repository.ProcessInstanceRepository;
 import cv.igrp.platform.process.management.processruntime.domain.repository.RuntimeProcessEngineRepository;
@@ -9,10 +9,7 @@ import cv.igrp.platform.process.management.processruntime.domain.repository.Task
 import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class ActivityInstanceService {
@@ -49,12 +46,24 @@ public class ActivityInstanceService {
     );
   }
 
-  public List<ProcessActivityInfo> getActivityProgress(UUID processInstanceId, IGRPActivityType type) {
+  public List<ProcessTimelineEvent> getProcessTimelineEvents(UUID processInstanceId, IGRPActivityType type) {
     ProcessInstance processInstance = getProcessInstanceById(processInstanceId);
-    return runtimeProcessEngineRepository.getActivityProgress(
+    List<ProcessTimelineEvent> timelineEvents = runtimeProcessEngineRepository.getProcessTimelineEvents(
         processInstance.getEngineProcessNumber().getValue(),
         type
     );
+    // Enrich the timeline events with task variables
+    timelineEvents.forEach(timelineEvent -> {
+      if(timelineEvent.getTaskId() != null){
+        Optional<TaskInstance> optTaskInstance =  taskInstanceRepository.findByExternalId(timelineEvent.getTaskId());
+        if(optTaskInstance.isPresent()){
+          TaskInstance taskInstance = optTaskInstance.get();
+          Map<String, Object> variables = timelineEvent.getVariables();
+          variables.putAll(taskInstance.getVariables());
+        }
+      }
+    });
+    return timelineEvents;
   }
 
   private ProcessInstance getProcessInstanceById(UUID processInstanceId) {

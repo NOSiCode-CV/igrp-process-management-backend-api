@@ -1,6 +1,7 @@
 package cv.igrp.platform.process.management.processruntime.mappers;
 
 import cv.igrp.framework.runtime.core.engine.activity.model.ProcessActivityInfo;
+import cv.igrp.framework.runtime.core.engine.activity.model.ProcessTimelineEvent;
 import cv.igrp.platform.process.management.processruntime.application.dto.ActivityDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.ActivityProgressDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskVariableDTO;
@@ -40,30 +41,32 @@ public class ActivityMapper {
         .toList();
   }
 
-  public ActivityProgressDTO toProgressDto(ProcessActivityInfo activityInfo) {
+  public ActivityProgressDTO toProgressDto(ProcessTimelineEvent timelineEvent) {
 
     var activityProgressDTO = new ActivityProgressDTO();
 
-    activityProgressDTO.setActivityId(activityInfo.getActivityId());
-    activityProgressDTO.setActivityKey(activityInfo.getActivityKey());
-    activityProgressDTO.setActivityName(activityInfo.getActivityName());
-    activityProgressDTO.setType(activityInfo.getType().name());
-    activityProgressDTO.setStatus(activityInfo.getStatus().name());
-    activityProgressDTO.setProcessInstanceId(activityInfo.getProcessInstanceId());
-    activityProgressDTO.setAssignee(activityInfo.getAssignee());
-    activityProgressDTO.setCandidateGroups(activityInfo.getCandidateGroups());
-    activityProgressDTO.setCandidateUsers(activityInfo.getCandidateUsers());
+    activityProgressDTO.setActivityId(timelineEvent.getActivityId());
+    activityProgressDTO.setActivityName(timelineEvent.getActivityName());
+    activityProgressDTO.setType(timelineEvent.getType().name());
+    activityProgressDTO.setStatus(timelineEvent.getStatus().name());
+    activityProgressDTO.setProcessInstanceId(timelineEvent.getProcessInstanceId());
+    activityProgressDTO.setAssignee(timelineEvent.getAssignee());
+    activityProgressDTO.setDurationMillis(timelineEvent.getDuration());
+    activityProgressDTO.setAssignee(timelineEvent.getAssignee());
+    activityProgressDTO.setExecutionId(timelineEvent.getExecutionId());
+    activityProgressDTO.setTaskId(timelineEvent.getTaskId());
+    activityProgressDTO.setActivityInstanceId(timelineEvent.getActivityInstanceId());
+    activityProgressDTO.setTreeNumber(timelineEvent.getTreeNumber());
 
-    activityProgressDTO.setDurationMillis(activityInfo.getDurationMillis());
     ZoneId cvZone = ZoneId.of("Atlantic/Cape_Verde");
     activityProgressDTO.setStartTime(
-        activityInfo.getStartTime() != null ? LocalDateTime.ofInstant(activityInfo.getStartTime(), cvZone) : null
+        timelineEvent.getStartTime() != null ? LocalDateTime.ofInstant(timelineEvent.getStartTime(), cvZone) : null
     );
     activityProgressDTO.setEndTime(
-        activityInfo.getEndTime() != null ? LocalDateTime.ofInstant(activityInfo.getEndTime(), cvZone) : null
+        timelineEvent.getEndTime() != null ? LocalDateTime.ofInstant(timelineEvent.getEndTime(), cvZone) : null
     );
 
-    activityProgressDTO.setVariables(toActivityVariableDTO(activityInfo.getVariables()));
+    activityProgressDTO.setVariables(toActivityVariableDTO(timelineEvent.getVariables()));
 
     return activityProgressDTO;
 
@@ -73,8 +76,8 @@ public class ActivityMapper {
     return instances.stream().map(this::toDto).collect(Collectors.toList());
   }
 
-  public List<ActivityProgressDTO> toProgressesDto(List<ProcessActivityInfo> progresses) {
-    return progresses.stream().map(this::toProgressDto).collect(Collectors.toList());
+  public List<ActivityProgressDTO> toProgressesDto(List<ProcessTimelineEvent> progress) {
+    return progress.stream().map(this::toProgressDto).collect(Collectors.toList());
   }
 
 }
