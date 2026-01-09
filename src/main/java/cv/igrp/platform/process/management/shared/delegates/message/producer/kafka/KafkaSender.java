@@ -17,7 +17,6 @@ public class KafkaSender implements MessageBrokerSender {
   @Override
   public void send(String destination, String message) {
     kafkaTemplate.send(destination, message);
-    System.out.println("Sent message to Kafka topic [" + destination + "]: " + message);
   }
 
 }
