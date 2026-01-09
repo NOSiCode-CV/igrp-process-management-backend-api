@@ -20,13 +20,15 @@ import cv.igrp.framework.core.domain.QueryBus;
 import cv.igrp.platform.process.management.processruntime.application.queries.*;
 import cv.igrp.framework.core.domain.CommandBus;
 import cv.igrp.platform.process.management.processruntime.application.commands.*;
+import cv.igrp.platform.process.management.processruntime.application.dto.VariablesFilterDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceListPageDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.UnclaimTaskDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.AssignTaskDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskDataDTO;
 import java.util.List;
 import cv.igrp.platform.process.management.shared.application.dto.ConfigParameterDTO;
-import cv.igrp.platform.process.management.processruntime.application.dto.TaskVariableDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.TaskVariablesFormsDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceStatsDTO;
 
 @IgrpController
@@ -35,7 +37,7 @@ import cv.igrp.platform.process.management.processruntime.application.dto.TaskIn
 @Tag(name = "TaskInstances", description = "Task Instances Management")
 public class TaskInstancesController {
 
-
+  
   private final QueryBus queryBus;
   private final CommandBus commandBus;
 
@@ -43,11 +45,12 @@ public class TaskInstancesController {
           this.queryBus = queryBus;
           this.commandBus = commandBus;
   }
-   @GetMapping(
+      @PostMapping(
+   value = "search"
   )
   @Operation(
-    summary = "GET method to handle operations for listTaskInstances",
-    description = "GET method to handle operations for listTaskInstances",
+    summary = "POST method to handle operations for List task instances",
+    description = "POST method to handle operations for List task instances",
     responses = {
       @ApiResponse(
           responseCode = "200",
@@ -61,11 +64,11 @@ public class TaskInstancesController {
       )
     }
   )
-
-  public ResponseEntity<TaskInstanceListPageDTO> listTaskInstances(
-    @RequestParam(value = "processInstanceId", required = false) String processInstanceId,
+  
+  public ResponseEntity<TaskInstanceListPageDTO> listTaskInstances(@Valid @RequestBody VariablesFilterDTO listTaskInstancesRequest
+    , @RequestParam(value = "processInstanceId", required = false) String processInstanceId,
     @RequestParam(value = "processNumber", required = false) String processNumber,
-    @RequestParam(value = "processName", required = false) String processName,
+    @RequestParam(value = "processReleaseKey", required = false) String processReleaseKey,
     @RequestParam(value = "applicationBase", required = false) String applicationBase,
     @RequestParam(value = "candidateGroups", required = false) String candidateGroups,
     @RequestParam(value = "user", required = false) String user,
@@ -73,22 +76,24 @@ public class TaskInstancesController {
     @RequestParam(value = "dateFrom", required = false) String dateFrom,
     @RequestParam(value = "dateTo", required = false) String dateTo,
     @RequestParam(value = "page", required = false) Integer page,
-    @RequestParam(value = "size", required = false) Integer size)
+    @RequestParam(value = "size", required = false) Integer size,
+    @RequestParam(value = "name", required = false) String name,
+    @RequestParam(value = "processName", required = false) String processName)
   {
 
-      final var query = new ListTaskInstancesQuery(processInstanceId, processNumber, processName, applicationBase, candidateGroups, user, status, dateFrom, dateTo, page, size);
+      final var command = new ListTaskInstancesCommand(listTaskInstancesRequest, processInstanceId, processNumber, processReleaseKey, applicationBase, candidateGroups, user, status, dateFrom, dateTo, page, size, name, processName);
 
-      ResponseEntity<TaskInstanceListPageDTO> response = queryBus.handle(query);
+       ResponseEntity<TaskInstanceListPageDTO> response = commandBus.send(command);
 
-      return response;
+       return response;
   }
 
-   @GetMapping(
+      @GetMapping(
    value = "{id}"
   )
   @Operation(
-    summary = "GET method to handle operations for getTaskInstanceById",
-    description = "GET method to handle operations for getTaskInstanceById",
+    summary = "GET method to handle operations for Get task instance by id",
+    description = "GET method to handle operations for Get task instance by id",
     responses = {
       @ApiResponse(
           responseCode = "200",
@@ -102,7 +107,7 @@ public class TaskInstancesController {
       )
     }
   )
-
+  
   public ResponseEntity<TaskInstanceDTO> getTaskInstanceById(
     @PathVariable(value = "id") String id)
   {
@@ -114,12 +119,12 @@ public class TaskInstancesController {
       return response;
   }
 
-   @PostMapping(
+      @PostMapping(
    value = "{id}/claim"
   )
   @Operation(
-    summary = "POST method to handle operations for claimTask",
-    description = "POST method to handle operations for claimTask",
+    summary = "POST method to handle operations for Claim task",
+    description = "POST method to handle operations for Claim task",
     responses = {
       @ApiResponse(
           responseCode = "204",
@@ -133,7 +138,7 @@ public class TaskInstancesController {
       )
     }
   )
-
+  
   public ResponseEntity<?> claimTask(
     @PathVariable(value = "id") String id)
   {
@@ -145,12 +150,12 @@ public class TaskInstancesController {
        return response;
   }
 
-   @PostMapping(
+      @PostMapping(
    value = "{id}/unclaim"
   )
   @Operation(
-    summary = "POST method to handle operations for unClaimTask",
-    description = "POST method to handle operations for unClaimTask",
+    summary = "POST method to handle operations for Un claim task",
+    description = "POST method to handle operations for Un claim task",
     responses = {
       @ApiResponse(
           responseCode = "204",
@@ -164,24 +169,24 @@ public class TaskInstancesController {
       )
     }
   )
-
-  public ResponseEntity<?> unClaimTask(
-    @PathVariable(value = "id") String id)
+  
+  public ResponseEntity<?> unClaimTask(@Valid @RequestBody UnclaimTaskDTO unClaimTaskRequest
+    , @PathVariable(value = "id") String id)
   {
 
-      final var command = new UnClaimTaskCommand(id);
+      final var command = new UnClaimTaskCommand(unClaimTaskRequest, id);
 
        ResponseEntity<?> response = commandBus.send(command);
 
        return response;
   }
 
-   @PostMapping(
+      @PostMapping(
    value = "{id}/assign"
   )
   @Operation(
-    summary = "POST method to handle operations for assignTask",
-    description = "POST method to handle operations for assignTask",
+    summary = "POST method to handle operations for Assign task",
+    description = "POST method to handle operations for Assign task",
     responses = {
       @ApiResponse(
           responseCode = "204",
@@ -195,7 +200,7 @@ public class TaskInstancesController {
       )
     }
   )
-
+  
   public ResponseEntity<?> assignTask(@Valid @RequestBody AssignTaskDTO assignTaskRequest
     , @PathVariable(value = "id") String id)
   {
@@ -207,12 +212,12 @@ public class TaskInstancesController {
        return response;
   }
 
-   @PostMapping(
+      @PostMapping(
    value = "{id}/complete"
   )
   @Operation(
-    summary = "POST method to handle operations for completeTask",
-    description = "POST method to handle operations for completeTask",
+    summary = "POST method to handle operations for Complete task",
+    description = "POST method to handle operations for Complete task",
     responses = {
       @ApiResponse(
           responseCode = "200",
@@ -226,7 +231,7 @@ public class TaskInstancesController {
       )
     }
   )
-
+  
   public ResponseEntity<TaskInstanceDTO> completeTask(@Valid @RequestBody TaskDataDTO completeTaskRequest
     , @PathVariable(value = "id") String id)
   {
@@ -238,12 +243,12 @@ public class TaskInstancesController {
        return response;
   }
 
-   @GetMapping(
+      @PostMapping(
    value = "me"
   )
   @Operation(
-    summary = "GET method to handle operations for getAllMyTasks",
-    description = "GET method to handle operations for getAllMyTasks",
+    summary = "POST method to handle operations for Get all my tasks",
+    description = "POST method to handle operations for Get all my tasks",
     responses = {
       @ApiResponse(
           responseCode = "200",
@@ -257,33 +262,34 @@ public class TaskInstancesController {
       )
     }
   )
-
-  public ResponseEntity<TaskInstanceListPageDTO> getAllMyTasks(
-    @RequestParam(value = "processInstanceId", required = false) String processInstanceId,
+  
+  public ResponseEntity<TaskInstanceListPageDTO> getAllMyTasks(@Valid @RequestBody VariablesFilterDTO getAllMyTasksRequest
+    , @RequestParam(value = "processInstanceId", required = false) String processInstanceId,
     @RequestParam(value = "processNumber", required = false) String processNumber,
     @RequestParam(value = "applicationBase", required = false) String applicationBase,
     @RequestParam(value = "processName", required = false) String processName,
-    @RequestParam(value = "candidateGroups", required = false) String candidateGroups,
     @RequestParam(value = "status", required = false) String status,
     @RequestParam(value = "dateFrom", required = false) String dateFrom,
     @RequestParam(value = "dateTo", required = false) String dateTo,
     @RequestParam(value = "page", required = false) Integer page,
-    @RequestParam(value = "size", required = false) Integer size)
+    @RequestParam(value = "size", required = false) Integer size,
+    @RequestParam(value = "processReleaseKey", required = false) String processReleaseKey,
+    @RequestParam(value = "name", required = false) String name)
   {
 
-      final var query = new GetAllMyTasksQuery(processInstanceId, processNumber, applicationBase, processName, candidateGroups, status, dateFrom, dateTo, page, size);
+      final var command = new GetAllMyTasksCommand(getAllMyTasksRequest, processInstanceId, processNumber, applicationBase, processName, status, dateFrom, dateTo, page, size, processReleaseKey, name);
 
-      ResponseEntity<TaskInstanceListPageDTO> response = queryBus.handle(query);
+       ResponseEntity<TaskInstanceListPageDTO> response = commandBus.send(command);
 
-      return response;
+       return response;
   }
 
-   @GetMapping(
+      @GetMapping(
    value = "status"
   )
   @Operation(
-    summary = "GET method to handle operations for listTaskInstanceStatus",
-    description = "GET method to handle operations for listTaskInstanceStatus",
+    summary = "GET method to handle operations for List task instance status",
+    description = "GET method to handle operations for List task instance status",
     responses = {
       @ApiResponse(
           responseCode = "200",
@@ -297,7 +303,7 @@ public class TaskInstancesController {
       )
     }
   )
-
+  
   public ResponseEntity<List<ConfigParameterDTO>> listTaskInstanceStatus(
     )
   {
@@ -309,12 +315,12 @@ public class TaskInstancesController {
       return response;
   }
 
-   @GetMapping(
+      @GetMapping(
    value = "event_type"
   )
   @Operation(
-    summary = "GET method to handle operations for listTaskInstanceEventType",
-    description = "GET method to handle operations for listTaskInstanceEventType",
+    summary = "GET method to handle operations for List task instance event type",
+    description = "GET method to handle operations for List task instance event type",
     responses = {
       @ApiResponse(
           responseCode = "200",
@@ -328,7 +334,7 @@ public class TaskInstancesController {
       )
     }
   )
-
+  
   public ResponseEntity<List<ConfigParameterDTO>> listTaskInstanceEventType(
     )
   {
@@ -340,12 +346,12 @@ public class TaskInstancesController {
       return response;
   }
 
-   @GetMapping(
+      @GetMapping(
    value = "{id}/variables"
   )
   @Operation(
-    summary = "GET method to handle operations for getTaskVariablesById",
-    description = "GET method to handle operations for getTaskVariablesById",
+    summary = "GET method to handle operations for Get task variables by id",
+    description = "GET method to handle operations for Get task variables by id",
     responses = {
       @ApiResponse(
           responseCode = "200",
@@ -353,30 +359,30 @@ public class TaskInstancesController {
           content = @Content(
               mediaType = "application/json",
               schema = @Schema(
-                  implementation = TaskVariableDTO.class,
+                  implementation = TaskVariablesFormsDTO.class,
                   type = "object")
           )
       )
     }
   )
-
-  public ResponseEntity<List<TaskVariableDTO>> getTaskVariablesById(
+  
+  public ResponseEntity<TaskVariablesFormsDTO> getTaskVariablesById(
     @PathVariable(value = "id") String id)
   {
 
       final var query = new GetTaskVariablesByIdQuery(id);
 
-      ResponseEntity<List<TaskVariableDTO>> response = queryBus.handle(query);
+      ResponseEntity<TaskVariablesFormsDTO> response = queryBus.handle(query);
 
       return response;
   }
 
-   @GetMapping(
+      @GetMapping(
    value = "stats"
   )
   @Operation(
-    summary = "GET method to handle operations for getTaskInstanceStatistics",
-    description = "GET method to handle operations for getTaskInstanceStatistics",
+    summary = "GET method to handle operations for Get task instance statistics",
+    description = "GET method to handle operations for Get task instance statistics",
     responses = {
       @ApiResponse(
           responseCode = "200",
@@ -390,7 +396,7 @@ public class TaskInstancesController {
       )
     }
   )
-
+  
   public ResponseEntity<TaskInstanceStatsDTO> getTaskInstanceStatistics(
     )
   {
@@ -402,12 +408,12 @@ public class TaskInstancesController {
       return response;
   }
 
-   @GetMapping(
+      @GetMapping(
    value = "stats/me"
   )
   @Operation(
-    summary = "GET method to handle operations for getMyTaskInstanceStatistics",
-    description = "GET method to handle operations for getMyTaskInstanceStatistics",
+    summary = "GET method to handle operations for Get my task instance statistics",
+    description = "GET method to handle operations for Get my task instance statistics",
     responses = {
       @ApiResponse(
           responseCode = "200",
@@ -421,7 +427,7 @@ public class TaskInstancesController {
       )
     }
   )
-
+  
   public ResponseEntity<TaskInstanceStatsDTO> getMyTaskInstanceStatistics(
     )
   {
@@ -433,12 +439,12 @@ public class TaskInstancesController {
       return response;
   }
 
-   @PostMapping(
+      @PostMapping(
    value = "{id}/save"
   )
   @Operation(
-    summary = "POST method to handle operations for saveTask",
-    description = "POST method to handle operations for saveTask",
+    summary = "POST method to handle operations for Save task",
+    description = "POST method to handle operations for Save task",
     responses = {
       @ApiResponse(
           responseCode = "200",
@@ -452,7 +458,7 @@ public class TaskInstancesController {
       )
     }
   )
-
+  
   public ResponseEntity<TaskInstanceDTO> saveTask(@Valid @RequestBody TaskDataDTO saveTaskRequest
     , @PathVariable(value = "id") String id)
   {

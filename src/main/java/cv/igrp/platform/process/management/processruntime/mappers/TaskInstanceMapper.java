@@ -1,19 +1,23 @@
 package cv.igrp.platform.process.management.processruntime.mappers;
 
 import cv.igrp.framework.runtime.core.engine.task.model.TaskInfo;
+import cv.igrp.platform.process.management.processruntime.application.commands.GetAllMyTasksCommand;
+import cv.igrp.platform.process.management.processruntime.application.commands.ListTaskInstancesCommand;
 import cv.igrp.platform.process.management.processruntime.application.dto.*;
-import cv.igrp.platform.process.management.processruntime.application.queries.GetAllMyTasksQuery;
-import cv.igrp.platform.process.management.processruntime.application.queries.ListTaskInstancesQuery;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstanceFilter;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskStatistics;
+import cv.igrp.platform.process.management.processruntime.domain.models.VariablesExpression;
 import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
+import cv.igrp.platform.process.management.shared.application.constants.VariableTag;
 import cv.igrp.platform.process.management.shared.domain.models.*;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.ProcessInstanceEntity;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.TaskInstanceEntity;
 import cv.igrp.platform.process.management.shared.util.DateUtil;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -50,7 +54,6 @@ public class TaskInstanceMapper {
     taskInstanceEntity.setName(taskInstance.getName().getValue());
     taskInstanceEntity.setExternalId(taskInstance.getExternalId().getValue());
     taskInstanceEntity.setCandidateGroups(!taskInstance.getCandidateGroups().isEmpty() ? String.join(",", taskInstance.getCandidateGroups()) : null);
-    taskInstanceEntity.setSearchTerms(taskInstance.getSearchTerms());
     taskInstanceEntity.setPriority(taskInstance.getPriority());
     taskInstanceEntity.setStatus(taskInstance.getStatus());
     taskInstanceEntity.setStartedBy(taskInstance.getStartedBy().getValue());
@@ -71,7 +74,9 @@ public class TaskInstanceMapper {
     taskInstanceEntity.setEndedBy(taskInstance.getEndedBy() != null ? taskInstance.getEndedBy().getValue() : null);
     taskInstanceEntity.setEndedAt(taskInstance.getEndedAt());
     taskInstanceEntity.setPriority(taskInstance.getPriority());
-    taskInstanceEntity.setSearchTerms(taskInstance.getSearchTerms());
+    taskInstanceEntity.setCandidateGroups(!taskInstance.getCandidateGroups().isEmpty() ? String.join(",", taskInstance.getCandidateGroups()) : null);
+    taskInstanceEntity.setVariables(taskInstance.getVariables());
+    taskInstanceEntity.setForms(taskInstance.getForms());
   }
 
 
@@ -96,7 +101,6 @@ public class TaskInstanceMapper {
         .processKey(Code.create(processInstance.getProcReleaseKey()))
         .applicationBase(Code.create(processInstance.getApplicationBase()))
         .status(taskInstanceEntity.getStatus())
-        .searchTerms(taskInstanceEntity.getSearchTerms())
         .priority(taskInstanceEntity.getPriority())
         .startedAt(taskInstanceEntity.getStartedAt())
         .startedBy(Code.create(taskInstanceEntity.getStartedBy()))
@@ -106,9 +110,10 @@ public class TaskInstanceMapper {
         .endedBy(taskInstanceEntity.getEndedBy()!=null ? Code.create(taskInstanceEntity.getEndedBy()) : null)
         .candidateGroups(taskInstanceEntity.getCandidateGroups()!=null ? List.of(taskInstanceEntity.getCandidateGroups().split(",")) : null)
         .taskInstanceEvents(withEvents ? eventMapper.toEventModelList(taskInstanceEntity.getTaskinstanceevents()) : null)
+        .forms(taskInstanceEntity.getForms())
+        .variables(taskInstanceEntity.getVariables())
         .build();
   }
-
 
   public TaskInstanceListPageDTO toTaskInstanceListPageDTO(PageableLista<TaskInstance> taskInstances) {
     var listDto = new TaskInstanceListPageDTO();
@@ -146,6 +151,7 @@ public class TaskInstanceMapper {
     dto.setStatusDesc(model.getStatus().getDescription());
     dto.setStartedBy(model.getStartedBy().getValue());
     dto.setVariables(toProcessVariableDTO(model.getVariables()));
+    dto.setForms(toProcessVariableDTO(model.getForms()));
     return dto;
   }
 
@@ -176,39 +182,25 @@ public class TaskInstanceMapper {
     dto.setEndedAt(taskInstance.getEndedAt());
     dto.setTaskInstanceEvents(eventMapper.toEventListDTO(taskInstance.getTaskInstanceEvents()));
     dto.setVariables(toProcessVariableDTO(taskInstance.getVariables()));
+    dto.setForms(toProcessVariableDTO(taskInstance.getForms()));
     return dto;
   }
 
-
-  public TaskInstanceFilter toFilter(ListTaskInstancesQuery query) {
+  public TaskInstanceFilter toFilter(GetAllMyTasksCommand command) {
+    List<VariablesExpression> vars = toVariablesExpressionList(command.getVariablesfilterdto());
     return TaskInstanceFilter.builder()
-        .processInstanceId(query.getProcessInstanceId() != null ? Identifier.create(query.getProcessInstanceId()) : null)
-        .processNumber(query.getProcessNumber() != null ? Code.create(query.getProcessNumber()) : null)
-        .applicationBase((query.getApplicationBase() != null && !query.getApplicationBase().isBlank()) ? Code.create(query.getApplicationBase().trim()) : null)
-        .processName((query.getProcessName() != null && !query.getProcessName().isBlank()) ? Name.create(query.getProcessName().trim()) : null)
-        .candidateGroups(query.getCandidateGroups() != null ? Code.create(query.getCandidateGroups()) : null)
-        .user(query.getUser() != null ? Code.create(query.getUser()) : null)
-        .status(query.getStatus() != null ? TaskInstanceStatus.valueOf(query.getStatus()) : null)
-        .dateFrom(DateUtil.stringToLocalDate.apply(query.getDateFrom()))
-        .dateTo(DateUtil.stringToLocalDate.apply(query.getDateTo()))
-        .page(query.getPage())
-        .size(query.getSize())
-        .build();
-  }
-
-
-  public TaskInstanceFilter toFilter(GetAllMyTasksQuery query) {
-    return TaskInstanceFilter.builder()
-        .processInstanceId(query.getProcessInstanceId() != null ? Identifier.create(query.getProcessInstanceId()) : null)
-        .processNumber(query.getProcessNumber() != null ? Code.create(query.getProcessNumber()) : null)
-        .applicationBase((query.getApplicationBase() != null && !query.getApplicationBase().isBlank()) ? Code.create(query.getApplicationBase().trim()) : null)
-        .processName((query.getProcessName() != null && !query.getProcessName().isBlank()) ? Name.create(query.getProcessName().trim()) : null)
-        .candidateGroups(query.getCandidateGroups() != null ? Code.create(query.getCandidateGroups()) : null)
-        .status(query.getStatus() != null ? TaskInstanceStatus.valueOf(query.getStatus()) : null)
-        .dateFrom(DateUtil.stringToLocalDate.apply(query.getDateFrom()))
-        .dateTo(DateUtil.stringToLocalDate.apply(query.getDateTo()))
-        .page(query.getPage())
-        .size(query.getSize())
+        .processInstanceId(command.getProcessInstanceId() != null ? Identifier.create(command.getProcessInstanceId()) : null)
+        .processNumber(command.getProcessNumber() != null ? Code.create(command.getProcessNumber()) : null)
+        .applicationBase((command.getApplicationBase() != null && !command.getApplicationBase().isBlank()) ? Code.create(command.getApplicationBase().trim()) : null)
+        .processName((command.getProcessName() != null && !command.getProcessName().isBlank()) ? Name.create(command.getProcessName().trim()) : null)
+        .status(command.getStatus() != null ? TaskInstanceStatus.valueOf(command.getStatus()) : null)
+        .dateFrom(DateUtil.stringToLocalDate.apply(command.getDateFrom()))
+        .dateTo(DateUtil.stringToLocalDate.apply(command.getDateTo()))
+        .variablesExpressions(vars)
+        .page(command.getPage())
+        .size(command.getSize())
+        .name(command.getName() != null && !command.getName().isBlank() ? Name.create(command.getName()) : null)
+        .processReleaseKey(command.getProcessReleaseKey() != null && !command.getProcessReleaseKey().isBlank() ? Code.create(command.getProcessReleaseKey()) : null)
         .build();
   }
 
@@ -218,6 +210,30 @@ public class TaskInstanceMapper {
         .map(e-> new TaskVariableDTO(e.getKey(),e.getValue()))
         .toList();
   }
+
+  public TaskVariablesFormsDTO toTaskVariablesFormsDTO(Map<String, Object> variables) {
+    TaskVariablesFormsDTO dto = new TaskVariablesFormsDTO();
+    Object formsObj = variables.get(VariableTag.FORMS.getCode());
+    if (formsObj instanceof Map<?, ?> formsMap) {
+      dto.setForms(
+          formsMap.entrySet().stream()
+              .map(e -> new TaskVariableDTO(e.getKey().toString(), e.getValue()))
+              .toList()
+      );
+    }
+    Object varsObj = variables.get(VariableTag.VARIABLES.getCode());
+    if (varsObj instanceof Map<?, ?> varsMap) {
+      dto.setVariables(
+          varsMap.entrySet().stream()
+              .map(e -> new TaskVariableDTO(e.getKey().toString(), e.getValue()))
+              .toList()
+      );
+    }
+
+    return dto;
+  }
+
+
 
 
   public List<ProcessVariableDTO> toProcessVariableDTO(Map<String,Object> variables){
@@ -236,6 +252,38 @@ public class TaskInstanceMapper {
         taskStatistics.getTotalCompletedTasks(),
         taskStatistics.getTotalCanceledTasks()
     );
+  }
+
+  public TaskInstanceFilter toFilter(ListTaskInstancesCommand command) {
+    List<VariablesExpression> vars = toVariablesExpressionList(command.getVariablesfilterdto());
+    return TaskInstanceFilter.builder()
+        .processInstanceId(command.getProcessInstanceId() != null ? Identifier.create(command.getProcessInstanceId()) : null)
+        .processNumber(command.getProcessNumber() != null ? Code.create(command.getProcessNumber()) : null)
+        .applicationBase((command.getApplicationBase() != null && !command.getApplicationBase().isBlank()) ? Code.create(command.getApplicationBase().trim()) : null)
+        .processName((command.getProcessName() != null && !command.getProcessName().isBlank()) ? Name.create(command.getProcessName().trim()) : null)
+        .candidateGroups(command.getCandidateGroups() != null
+            ? new ArrayList<>(List.of(command.getCandidateGroups().split(",")))
+            : new ArrayList<>())
+        .user(command.getUser() != null ? Code.create(command.getUser()) : null)
+        .status(command.getStatus() != null ? TaskInstanceStatus.valueOf(command.getStatus()) : null)
+        .dateFrom(DateUtil.stringToLocalDate.apply(command.getDateFrom()))
+        .dateTo(DateUtil.stringToLocalDate.apply(command.getDateTo()))
+        .variablesExpressions(vars)
+        .page(command.getPage())
+        .size(command.getSize())
+        .name(command.getName() != null && !command.getName().isBlank() ? Name.create(command.getName()) : null)
+        .processReleaseKey(command.getProcessReleaseKey() != null && !command.getProcessReleaseKey().isBlank() ? Code.create(command.getProcessReleaseKey()) : null)
+        .build();
+  }
+
+  public List<VariablesExpression> toVariablesExpressionList(VariablesFilterDTO dto){
+    return dto.getVariables().stream()
+        .map(variablesExpressionDTO -> VariablesExpression.builder()
+            .name(variablesExpressionDTO.getName())
+            .operator(variablesExpressionDTO.getOperator())
+            .value(variablesExpressionDTO.getValue())
+            .build()
+        ).toList();
   }
 
 }

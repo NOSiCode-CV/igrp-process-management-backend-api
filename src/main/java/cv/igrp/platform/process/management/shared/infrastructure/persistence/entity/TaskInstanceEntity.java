@@ -3,20 +3,20 @@
 
 package cv.igrp.platform.process.management.shared.infrastructure.persistence.entity;
 
-import cv.igrp.framework.stereotype.IgrpEntity;
-import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
+
 import cv.igrp.platform.process.management.shared.config.AuditEntity;
+import cv.igrp.framework.stereotype.IgrpEntity;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.envers.Audited;
 
+import java.util.*;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
+import jakarta.validation.constraints.NotNull;
+import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
+import org.hibernate.type.SqlTypes;
+
 
 @Audited
 @Getter
@@ -74,10 +74,6 @@ public class TaskInstanceEntity extends AuditEntity {
     private LocalDateTime assignedAt;
 
 
-    @Column(name="search_terms")
-    private String searchTerms;
-
-
     @Column(name="priority")
     private Integer priority;
 
@@ -96,7 +92,14 @@ public class TaskInstanceEntity extends AuditEntity {
     private TaskInstanceStatus status;
 
      @OneToMany(mappedBy = "taskInstanceId")
-private List<TaskInstanceEventEntity> taskinstanceevents;
+private List<TaskInstanceEventEntity> taskinstanceevents = new ArrayList<>();
 
+  @JdbcTypeCode(SqlTypes.JSON)
+  @Column(name = "variables", columnDefinition = "jsonb")
+  private Map<String, Object> variables = new HashMap<>();
+
+  @JdbcTypeCode(SqlTypes.JSON)
+  @Column(name = "forms", columnDefinition = "jsonb")
+  private Map<String, Object> forms = new HashMap<>();
 
 }

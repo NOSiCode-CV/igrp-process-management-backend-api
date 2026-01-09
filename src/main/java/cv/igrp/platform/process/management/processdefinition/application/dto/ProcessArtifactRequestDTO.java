@@ -22,11 +22,11 @@ public class ProcessArtifactRequestDTO  {
   @NotBlank(message = "The field <name> is required")
   
   private String name ;
-  @NotBlank(message = "The field <key> is required")
-  
-  private String key ;
   @NotBlank(message = "The field <formKey> is required")
   
   private String formKey ;
+  
+  
+  private String candidateGroups ;
 
 }

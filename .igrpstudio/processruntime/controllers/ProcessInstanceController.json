@@ -7,7 +7,21 @@
   "actions": [
     {
       "actionName": "listProcessInstances",
-      "method": "GET",
+      "path": "search",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "VariablesFilterDTO",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "processruntime"
+            }
+          }
+        }
+      },
       "responses": {
         "200": {
           "name": "OK",
@@ -34,6 +48,12 @@
         },
         {
           "type": "string",
+          "name": "name",
+          "description": "Process Name",
+          "isRequired": false
+        },
+        {
+          "type": "string",
           "name": "procReleaseKey",
           "description": "Process Key",
           "isRequired": false
@@ -52,14 +72,20 @@
         },
         {
           "type": "string",
-          "name": "searchTerms",
-          "description": "Serach Terms",
+          "name": "applicationBase",
+          "description": "Application Code",
           "isRequired": false
         },
         {
           "type": "string",
-          "name": "applicationBase",
-          "description": "Application Code",
+          "name": "dateFrom",
+          "description": "Date From",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "dateTo",
+          "description": "Date To",
           "isRequired": false
         },
         {
@@ -75,41 +101,6 @@
           "isRequired": false
         }
       ]
-    },
-    {
-      "actionName": "startProcessInstance",
-      "method": "POST",
-      "requestBody": {
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "StartProcessRequestDTO",
-              "collectionType": "none",
-              "name": "data",
-              "objectType": "dto",
-              "module": "processruntime",
-              "description": "Start process request data"
-            }
-          }
-        }
-      },
-      "responses": {
-        "201": {
-          "name": "OK",
-          "description": "Started process instance",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "ProcessInstanceDTO",
-                "objectType": "dto",
-                "name": "data",
-                "collectionType": "none",
-                "module": "processruntime"
-              }
-            }
-          }
-        }
-      }
     },
     {
       "actionName": "getProcessInstanceById",
@@ -247,24 +238,133 @@
       }
     },
     {
-      "actionName": "startProcessEvent",
-      "path": "start-event",
+      "actionName": "createProcessInstance",
+      "path": "create",
       "method": "POST",
       "requestBody": {
         "content": {
           "application/json": {
             "schema": {
-              "type": "StartProcessDTO",
+              "type": "CreateProcessRequestDTO",
               "collectionType": "none",
               "name": "data",
               "objectType": "dto",
-              "module": "shared"
+              "module": "processruntime"
+            }
+          }
+        }
+      },
+      "responses": {
+        "201": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProcessInstanceDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "processruntime"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "createStartProcessInstance",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "StartProcessRequestDTO",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "processruntime"
             }
           }
         }
       },
       "responses": {
         "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProcessInstanceDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "processruntime"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "actionName": "startProcessInstanceById",
+      "path": "{id}/start",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ProcessVariablesRequestDTO",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "processruntime"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProcessInstanceDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "processruntime"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "rescheduleTimer",
+      "path": "{id}/timer/reschedule",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "TimerRescheduleDTO",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "processruntime",
+              "isRequired": true
+            }
+          }
+        }
+      },
+      "responses": {
+        "204": {
           "name": "OK",
           "content": {
             "application/json": {
@@ -276,8 +376,16 @@
             }
           }
         }
-      }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true,
+          "description": "ID of the Process Instance"
+        }
+      ]
     }
   ],
-  "id": "pyn9bsrz1z-CONTROLLER"
+  "id": "pyn9bsrz1z-CONTROLLER-startProcessInstance-startProcessEvent-startProcessEvent-listProcessInstances-listProcessInstances-listProcessInstances-createProcessInstance-startProcessEvent-createStartProcessInstance-rescheduleTimer-rescheduleTimer-rescheduleTimer-listProcessInstances-listProcessInstances-listProcessInstances"
 }
