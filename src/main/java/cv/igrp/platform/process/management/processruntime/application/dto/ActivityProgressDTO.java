@@ -12,9 +12,7 @@ import lombok.AllArgsConstructor;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskVariableDTO;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -44,10 +42,10 @@ public class ActivityProgressDTO  {
   private String assignee ;
   
   
-  private Set<String> candidateUsers  = new HashSet<>();
+  private String candidateUsers ;
   
   
-  private Set<String> candidateGroups  = new HashSet<>();
+  private String candidateGroups ;
   
   
   private LocalDateTime startTime ;
@@ -63,5 +61,17 @@ public class ActivityProgressDTO  {
   
   @Valid
   private List<TaskVariableDTO> variables = new ArrayList<>();
+  
+  
+  private String executionId ;
+  
+  
+  private String taskId ;
+  
+  
+  private String activityInstanceId ;
+  
+  
+  private String treeNumber ;
 
 }
