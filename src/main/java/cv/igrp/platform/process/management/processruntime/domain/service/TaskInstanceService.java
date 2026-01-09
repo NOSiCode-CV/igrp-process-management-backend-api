@@ -1,23 +1,22 @@
 package cv.igrp.platform.process.management.processruntime.domain.service;
 
+import cv.igrp.platform.process.management.processdefinition.domain.models.ProcessArtifact;
+import cv.igrp.platform.process.management.processdefinition.domain.repository.ProcessDefinitionRepository;
 import cv.igrp.platform.process.management.processruntime.domain.models.*;
 import cv.igrp.platform.process.management.processruntime.domain.repository.ProcessInstanceRepository;
 import cv.igrp.platform.process.management.processruntime.domain.repository.RuntimeProcessEngineRepository;
 import cv.igrp.platform.process.management.processruntime.domain.repository.TaskInstanceEventRepository;
 import cv.igrp.platform.process.management.processruntime.domain.repository.TaskInstanceRepository;
 import cv.igrp.platform.process.management.shared.application.constants.ProcessInstanceStatus;
+import cv.igrp.platform.process.management.shared.application.constants.VariableTag;
 import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
-import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.ProcessArtifactEntity;
-import cv.igrp.platform.process.management.shared.infrastructure.persistence.repository.ProcessArtifactEntityRepository;
 import org.springframework.stereotype.Service;
-
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
+
 
 @Service
 public class TaskInstanceService {
@@ -26,47 +25,31 @@ public class TaskInstanceService {
   private final TaskInstanceEventRepository taskInstanceEventRepository;
   private final RuntimeProcessEngineRepository runtimeProcessEngineRepository;
   private final ProcessInstanceRepository processInstanceRepository;
-  private final ProcessArtifactEntityRepository processArtifactEntityRepository;
+  private final ProcessDefinitionRepository processDefinitionRepository;
 
   public TaskInstanceService(TaskInstanceRepository taskInstanceRepository,
                              TaskInstanceEventRepository taskInstanceEventRepository,
                              RuntimeProcessEngineRepository runtimeProcessEngineRepository,
                              ProcessInstanceRepository processInstanceRepository,
-                             ProcessArtifactEntityRepository processArtifactEntityRepository) {
+                             ProcessDefinitionRepository processDefinitionRepository
+  ) {
 
     this.taskInstanceRepository = taskInstanceRepository;
     this.taskInstanceEventRepository = taskInstanceEventRepository;
     this.runtimeProcessEngineRepository = runtimeProcessEngineRepository;
     this.processInstanceRepository = processInstanceRepository;
-    this.processArtifactEntityRepository = processArtifactEntityRepository;
+    this.processDefinitionRepository = processDefinitionRepository;
   }
 
 
   public void createTaskInstancesByProcess(ProcessInstance processInstance) {
-
     this.createNextTaskInstances(processInstance, Code.create(processInstance.getStartedBy()));
   }
-
-
-  public TaskInstance getTaskById(Identifier id) {
-    var taskInstance = getByIdWihEvents(id);
-    // add Process Variables
-    addVariables(taskInstance);
-    return taskInstance;
-  }
-
 
   public TaskInstance getByIdWihEvents(Identifier id) {
     return taskInstanceRepository.findByIdWithEvents(id.getValue())
         .orElseThrow(() -> IgrpResponseStatusException.notFound("No Task Instance found with id: " + id));
   }
-
-
-  private void addVariables(TaskInstance taskInstance) {
-    taskInstance.addVariables(runtimeProcessEngineRepository.getProcessVariables(taskInstance.getEngineProcessNumber()));
-    taskInstance.addVariables(runtimeProcessEngineRepository.getTaskVariables(taskInstance.getExternalId().getValue()));
-  }
-
 
   public void claimTask(TaskOperationData data) {
     var taskInstance = getByIdWihEvents(data.getId());
@@ -82,14 +65,37 @@ public class TaskInstanceService {
 
   public void assignTask(TaskOperationData data) {
     var taskInstance = getByIdWihEvents(data.getId());
-    taskInstance.assign(data);
+    if (data.getTargetUser() != null) {
+
+      taskInstance.assignUser(data);
+
+      runtimeProcessEngineRepository.assignTask(
+          taskInstance.getExternalId().getValue(),
+          taskInstance.getAssignedBy().getValue(),
+          data.getNote()
+      );
+    } else {
+
+      taskInstance.addCandidateGroup(data);
+
+      data.getCandidateGroups().forEach(group -> {
+        runtimeProcessEngineRepository.addCandidateGroup(
+            taskInstance.getExternalId().getValue(),
+            group
+        );
+      });
+
+    }
+
+    if (data.getPriority() != null && !data.getPriority().equals(taskInstance.getPriority())) {
+      runtimeProcessEngineRepository.setTaskPriority(
+          taskInstance.getExternalId().getValue(),
+          data.getPriority()
+      );
+    }
+
     this.save(taskInstance);
-    // Call the process engine to assign a task
-    runtimeProcessEngineRepository.assignTask(
-        taskInstance.getExternalId().getValue(),
-        taskInstance.getAssignedBy().getValue(),
-        data.getNote()
-    );
+
   }
 
 
@@ -105,25 +111,33 @@ public class TaskInstanceService {
 
   public TaskInstance saveTask(TaskOperationData data) {
     var taskInstance = getByIdWihEvents(data.getId());
-    data.validateSubmitedVariablesAndForms();
-    var savedTask = save(taskInstance);
+    // Validate
+    data.validateVariablesAndForms();
+    // Save
+    taskInstance.addVariablesAndForms(data);
+    this.save(taskInstance);
+    // Process Engine
     runtimeProcessEngineRepository.saveTask(
         taskInstance.getExternalId().getValue(),
-        data.getForms(),
+        null,
         data.getVariables()
     );
-    return savedTask;
+    return taskInstance;
   }
 
   public TaskInstance completeTask(TaskOperationData data) {
+    data.validateVariablesAndForms();
+
     var taskInstance = getByIdWihEvents(data.getId());
     taskInstance.complete(data);
-    data.validateSubmitedVariablesAndForms();
+    // Save
+    taskInstance.addVariablesAndForms(data);
     var completedTask = save(taskInstance);
+
     // Call the process engine to complete a task
     runtimeProcessEngineRepository.completeTask(
         taskInstance.getExternalId().getValue(),
-        data.getForms(),
+        null,
         data.getVariables()
     );
 
@@ -147,57 +161,22 @@ public class TaskInstanceService {
     return completedTask;
   }
 
+  public TaskInstance getTaskById(Identifier id) {
+    return getByIdWihEvents(id);
+  }
 
   public PageableLista<TaskInstance> getAllTaskInstances(TaskInstanceFilter filter) {
-    final var pageableTask = taskInstanceRepository.findAll(filter);
-    // add Process Variables
-    addVariables(pageableTask);
-    return pageableTask;
+    return taskInstanceRepository.findAll(filter);
   }
-
-
-  /**
-   * Adds both process-level and task-local variables to each TaskInstance in the pageable list.
-   * Process variables are fetched once per process instance, and task-local variables are fetched per task.
-   */
-  private void addVariables(PageableLista<TaskInstance> pageableTask) {
-
-    // Collect distinct process instance IDs and fetch process-level variables once
-    final var processVariablesMap = pageableTask.getContent().stream()
-        .map(TaskInstance::getEngineProcessNumber)
-        .filter(Objects::nonNull)
-        .distinct()
-        .collect(Collectors.toMap(
-            processId -> processId,
-            runtimeProcessEngineRepository::getProcessVariables
-        ));
-
-    // For each task, also fetch and merge its local task variables
-    pageableTask.getContent().forEach(taskInstance -> {
-      var processVars = processVariablesMap.get(taskInstance.getEngineProcessNumber());
-      var taskVars = runtimeProcessEngineRepository.getTaskVariables(
-          taskInstance.getExternalId().getValue()
-      );
-
-      // Merge both sets of variables (task-local overrides process vars if same key)
-      var mergedVars = new HashMap<String, Object>();
-      if (processVars != null) mergedVars.putAll(processVars);
-      if (taskVars != null) mergedVars.putAll(taskVars);
-
-      taskInstance.addVariables(mergedVars);
-    });
-  }
-
 
   public Map<String, Object> getTaskVariables(Identifier id) {
-    var taskInstance = getById(id);
-    return runtimeProcessEngineRepository.getTaskVariables(taskInstance.getExternalId().getValue());
-  }
-
-
-  public TaskInstance getById(Identifier id) {
-    return taskInstanceRepository.findById(id.getValue())
-        .orElseThrow(() -> IgrpResponseStatusException.notFound("No Task Instance found with id: " + id));
+    var taskInstance = getTaskById(id);
+    Map<String, Object> variables = taskInstance.getVariables();
+    Map<String, Object> forms = taskInstance.getForms();
+    return Map.of(
+        VariableTag.FORMS.getCode(), forms,
+        VariableTag.VARIABLES.getCode(), variables
+    );
   }
 
 
@@ -210,25 +189,64 @@ public class TaskInstanceService {
     return taskInstanceRepository.getTaskStatisticsByUser(user);
   }
 
-
   void createNextTaskInstances(ProcessInstance processInstance, Code user) {
-    // tasks from activiti
-    final var activeTaskInstanceList = runtimeProcessEngineRepository
-        .getActiveTaskInstances(processInstance.getEngineProcessNumber().getValue());
 
-    if (activeTaskInstanceList.isEmpty())
+    var activeTasks = runtimeProcessEngineRepository.getActiveTaskInstances(
+        processInstance.getEngineProcessNumber().getValue());
+
+    if (activeTasks.isEmpty()) {
       return;
+    }
 
-    activeTaskInstanceList.forEach(t -> runtimeProcessEngineRepository
-        .setTaskPriority(t.getExternalId().getValue(), processInstance.getPriority()));
-
-    final var artifactAssociations = processArtifactEntityRepository
-        .findAllByProcessDefinitionId(processInstance.getId().getValue().toString())
-        .stream().collect(Collectors.toMap(ProcessArtifactEntity::getKey, a -> Code.create(a.getFormKey())));
-
-    activeTaskInstanceList.forEach(t -> this.createTask(
-        t.withProperties(processInstance, artifactAssociations.get(t.getTaskKey().toString()), user))
+    // 1. Update priorities for all active tasks
+    activeTasks.forEach(task ->
+        runtimeProcessEngineRepository.setTaskPriority(
+            task.getExternalId().getValue(),
+            processInstance.getPriority()
+        )
     );
+
+    // 2. Preload artifacts and map {taskKey → formKey}
+    var artifacts = processDefinitionRepository.findAllArtifacts(processInstance.getProcReleaseId());
+
+    var artifactFormMap = artifacts.stream()
+        .collect(Collectors.toMap(
+            ProcessArtifact::getKey,
+            a -> Code.create(a.getFormKey().getValue())
+        ));
+
+    // 3. Pre-map {taskKey → artifact} for faster lookup
+    var artifactByKey = artifacts.stream()
+        .collect(Collectors.toMap(ProcessArtifact::getKey, a -> a));
+
+    // 4. Process each task
+    for (var task : activeTasks) {
+
+      // Instantiate next task using precomputed form key
+      var newTask = task.withProperties(
+          processInstance,
+          artifactFormMap.get(task.getTaskKey()),
+          user
+      );
+
+      var artifact = artifactByKey.get(task.getTaskKey());
+      if (artifact != null) {
+        for (var groupId : artifact.getCandidateGroups()) {
+
+          // Add group to new task instance
+          newTask.addCandidateGroup(groupId, user);
+
+          // Add group to Activiti runtime task
+          runtimeProcessEngineRepository.addCandidateGroup(
+              task.getExternalId().getValue(),
+              groupId
+          );
+        }
+      }
+
+      createTask(newTask);
+    }
+
   }
 
 
@@ -249,6 +267,5 @@ public class TaskInstanceService {
     taskInstanceEvent.create();
     taskInstanceEventRepository.save(taskInstanceEvent);
   }
-
 
 }

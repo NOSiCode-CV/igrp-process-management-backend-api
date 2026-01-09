@@ -6,7 +6,7 @@ import cv.igrp.platform.process.management.processruntime.domain.models.TaskOper
 import cv.igrp.platform.process.management.processruntime.domain.service.TaskInstanceService;
 import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
-import cv.igrp.platform.process.management.shared.security.UserContext;
+import cv.igrp.platform.process.management.shared.security.util.UserContext;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.slf4j.Logger;
@@ -39,18 +39,17 @@ public class SaveTaskCommandHandler implements CommandHandler<SaveTaskCommand, R
      final var currentUser = userContext.getCurrentUser();
      LOGGER.info("User [{}] started completing task [{}]", currentUser.getValue(), command.getId());
 
-     var taskKey = taskInstanceService.getTaskById(Identifier.create(command.getId())).getTaskKey().getValue();
-
      final var forms = new HashMap<String,Object>();
+     command.getTaskdatadto()
+         .getForms()
+         .forEach(v -> forms.put(v.getName(), v.getValue()));
+     LOGGER.info("[Save Task] Forms: {}", forms);
 
      final var variables = new HashMap<String,Object>();
      if(command.getTaskdatadto().getVariables()!=null)
        command.getTaskdatadto().getVariables().forEach( v -> variables.put(v.getName(), v.getValue()));
 
-     forms.put(taskKey + "Data", command.getTaskdatadto().getForms());
-
      LOGGER.info("[Save Task] Variables: {}", variables);
-     LOGGER.info("[Save Task] Forms: {}", forms);
 
      final var taskInstanceResp =  taskInstanceService.saveTask(
          TaskOperationData.builder()

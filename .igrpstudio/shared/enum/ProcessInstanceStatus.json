@@ -7,35 +7,35 @@
       "name": "RUNNING",
       "attributes": [
         "RUNNING",
-        "Running"
+        "Em Execução"
       ]
     },
     {
       "name": "CREATED",
       "attributes": [
         "CREATED",
-        "CREATED"
+        "Criado"
       ]
     },
     {
       "name": "SUSPENDED",
       "attributes": [
         "SUSPENDED",
-        "SUSPENDED"
+        "Supenso"
       ]
     },
     {
       "name": "CANCELED",
       "attributes": [
         "CANCELED",
-        "CANCELED"
+        "Cancelado"
       ]
     },
     {
       "name": "COMPLETED",
       "attributes": [
         "COMPLETED",
-        "COMPLETED"
+        "Completado"
       ]
     }
   ],

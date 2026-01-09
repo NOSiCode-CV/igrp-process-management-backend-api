@@ -18,7 +18,7 @@
       "primaryKey": false
     },
     {
-      "name": "key",
+      "name": "formKey",
       "objectType": "java",
       "type": "string",
       "required": true,
@@ -30,16 +30,17 @@
       "primaryKey": false
     },
     {
-      "name": "formKey",
+      "name": "candidateGroups",
       "objectType": "java",
       "type": "string",
-      "required": true,
+      "required": false,
       "before": false,
       "after": false,
       "positive": false,
       "isEmail": false,
       "isUrl": false,
-      "primaryKey": false
+      "primaryKey": false,
+      "collectionType": "none"
     }
   ],
   "id": "6plsof8l2z"

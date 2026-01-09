@@ -297,6 +297,20 @@
       "primaryKey": false,
       "collectionType": "list",
       "module": "processruntime"
+    },
+    {
+      "name": "forms",
+      "objectType": "dto",
+      "type": "ProcessVariableDTO",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false,
+      "module": "processruntime",
+      "collectionType": "list"
     }
   ],
   "id": "ll93o55sni"
