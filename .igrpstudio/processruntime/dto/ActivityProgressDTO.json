@@ -212,6 +212,20 @@
       "isEmail": false,
       "isUrl": false,
       "primaryKey": false
+    },
+    {
+      "name": "forms",
+      "objectType": "dto",
+      "type": "TaskVariableDTO",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false,
+      "collectionType": "list",
+      "module": "processruntime"
     }
   ],
   "id": "ssa7ocxttj"
