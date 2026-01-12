@@ -6,6 +6,7 @@ import cv.igrp.platform.process.management.processruntime.domain.models.*;
 import cv.igrp.platform.process.management.processruntime.domain.repository.ProcessInstanceRepository;
 import cv.igrp.platform.process.management.processruntime.domain.repository.RuntimeProcessEngineRepository;
 import cv.igrp.platform.process.management.processruntime.domain.repository.TaskInstanceRepository;
+import cv.igrp.platform.process.management.shared.application.constants.VariableTag;
 import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
 import org.springframework.stereotype.Service;
 
@@ -58,8 +59,11 @@ public class ActivityInstanceService {
         Optional<TaskInstance> optTaskInstance =  taskInstanceRepository.findByExternalId(timelineEvent.getTaskId());
         if(optTaskInstance.isPresent()){
           TaskInstance taskInstance = optTaskInstance.get();
-          Map<String, Object> variables = timelineEvent.getVariables();
-          variables.putAll(taskInstance.getVariables());
+          Map<String, Object> variables = new HashMap<>();
+          variables.put(VariableTag.VARIABLES.getCode(), taskInstance.getVariables());
+          variables.put(VariableTag.FORMS.getCode(), taskInstance.getForms());
+          System.out.println("VARIAVEIS: " + variables);
+          timelineEvent.setVariables(variables);
         }
       }
     });

@@ -73,5 +73,8 @@ public class ActivityProgressDTO  {
   
   
   private String treeNumber ;
+  
+  @Valid
+  private List<TaskVariableDTO> forms = new ArrayList<>();
 
 }
