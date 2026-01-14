@@ -14,6 +14,9 @@ import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -162,11 +165,36 @@ public class TaskInstanceService {
   }
 
   public TaskInstance getTaskById(Identifier id) {
-    return getByIdWihEvents(id);
+    TaskInstance taskInstance = getByIdWihEvents(id);
+    // Enrich with process variables
+    Map<String, Object> variables = runtimeProcessEngineRepository.getProcessVariables(taskInstance.getEngineProcessNumber());
+    taskInstance.addProcessVariables(variables);
+    return taskInstance;
   }
 
   public PageableLista<TaskInstance> getAllTaskInstances(TaskInstanceFilter filter) {
-    return taskInstanceRepository.findAll(filter);
+
+    PageableLista<TaskInstance> taskInstances = taskInstanceRepository.findAll(filter);
+
+    // Enrich with process variables
+    Map<String, Map<String, Object>> variablesMap = new HashMap<>();
+    List<String> engineProcessNumbers = taskInstances.getContent().stream()
+        .map(TaskInstance::getEngineProcessNumber)
+        .toList();
+    for (String engineProcessNumber : engineProcessNumbers) {
+      if (variablesMap.containsKey(engineProcessNumber))
+        continue;
+      Map<String, Object> variables = runtimeProcessEngineRepository.getProcessVariables(engineProcessNumber);
+      variablesMap.put(engineProcessNumber, variables);
+    }
+    for (TaskInstance task : taskInstances.getContent()) {
+      Map<String, Object> vars = variablesMap.get(task.getEngineProcessNumber());
+      if (vars != null) {
+        task.addProcessVariables(vars);
+      }
+    }
+
+    return taskInstances;
   }
 
   public Map<String, Object> getTaskVariables(Identifier id) {
