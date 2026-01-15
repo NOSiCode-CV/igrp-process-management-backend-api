@@ -311,6 +311,20 @@
       "primaryKey": false,
       "module": "processruntime",
       "collectionType": "list"
+    },
+    {
+      "name": "processVariables",
+      "objectType": "dto",
+      "type": "ProcessVariableDTO",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false,
+      "collectionType": "list",
+      "module": "processruntime"
     }
   ],
   "id": "ll93o55sni"
