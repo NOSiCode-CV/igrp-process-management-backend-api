@@ -2,6 +2,7 @@ package cv.igrp.platform.process.management.shared.security;
 
 
 import cv.igrp.platform.process.management.shared.security.authz.IAuthorizationServiceAdapter;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -18,6 +19,8 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider
 import org.springframework.security.oauth2.client.TokenExchangeOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.cors.CorsConfiguration;
 
 import java.util.HashSet;
@@ -83,25 +86,28 @@ public class SecurityConfig {
 
     converter.setJwtGrantedAuthoritiesConverter(jwt -> {
 
-      Set<GrantedAuthority> authorities = new HashSet<>();
+      HttpServletRequest request =
+          ((ServletRequestAttributes) RequestContextHolder
+              .getRequestAttributes())
+              .getRequest();
 
-      // Enrich using your external REST API
+      Set<GrantedAuthority> authorities = new HashSet<>();
       final String token = jwt.getTokenValue();
       authorizationService
-          .getRoles(token)
+          .getRoles(token, request)
           .forEach(r -> {
             authorities.add(new SimpleGrantedAuthority("ROLE_" + r));
             authorities.add(new SimpleGrantedAuthority("GROUP_" + r));
           });
 
       authorizationService
-          .getPermissions(token)
+          .getPermissions(token, request)
           .forEach(p -> {
             authorities.add(new SimpleGrantedAuthority(p));
           });
 
       authorizationService
-          .getDepartments(token)
+          .getDepartments(token, request)
           .forEach(d -> {
             authorities.add(new SimpleGrantedAuthority(d));
             authorities.add(new SimpleGrantedAuthority("GROUP_" + d));
