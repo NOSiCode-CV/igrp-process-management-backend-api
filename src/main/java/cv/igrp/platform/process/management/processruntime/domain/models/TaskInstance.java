@@ -42,6 +42,7 @@ public class TaskInstance {
   private final List<String> candidateGroups;
   private final Map<String, Object> variables;
   private final Map<String,Object> forms;
+  private Map<String, Object> processVariables;
 
 
   @Builder
@@ -70,7 +71,8 @@ public class TaskInstance {
       List<TaskInstanceEvent> taskInstanceEvents,
       List<String> candidateGroups,
       Map<String, Object> variables,
-      Map<String, Object> forms
+      Map<String, Object> forms,
+      Map<String, Object> processVariables
   ) {
     this.id = id == null ? Identifier.generate() : id;
     this.taskKey = Objects.requireNonNull(taskKey, "Task Key cannot be null!");
@@ -99,6 +101,7 @@ public class TaskInstance {
     this.candidateGroups = candidateGroups != null
         ? new ArrayList<>(candidateGroups)
         : new ArrayList<>();
+    this.processVariables = processVariables != null ? processVariables : new HashMap<>();
   }
 
 
@@ -197,6 +200,10 @@ public class TaskInstance {
 
   public void addVariable(String key, Object value) {
     this.variables.put(key, value);
+  }
+
+  public void addProcessVariables(Map<String, Object> variables) {
+    this.processVariables.putAll(variables);
   }
 
   public void addCandidateGroup(TaskOperationData data) {

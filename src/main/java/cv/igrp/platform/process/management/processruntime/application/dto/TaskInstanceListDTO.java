@@ -90,5 +90,8 @@ public class TaskInstanceListDTO  {
   
   @Valid
   private List<ProcessVariableDTO> forms = new ArrayList<>();
+  
+  @Valid
+  private List<ProcessVariableDTO> processVariables = new ArrayList<>();
 
 }
