@@ -152,6 +152,7 @@ public class TaskInstanceMapper {
     dto.setStartedBy(model.getStartedBy().getValue());
     dto.setVariables(toProcessVariableDTO(model.getVariables()));
     dto.setForms(toProcessVariableDTO(model.getForms()));
+    dto.setProcessVariables(toProcessVariableDTO(model.getProcessVariables()));
     return dto;
   }
 
@@ -183,6 +184,7 @@ public class TaskInstanceMapper {
     dto.setTaskInstanceEvents(eventMapper.toEventListDTO(taskInstance.getTaskInstanceEvents()));
     dto.setVariables(toProcessVariableDTO(taskInstance.getVariables()));
     dto.setForms(toProcessVariableDTO(taskInstance.getForms()));
+    dto.setProcessVariables(toProcessVariableDTO(taskInstance.getProcessVariables()));
     return dto;
   }
 

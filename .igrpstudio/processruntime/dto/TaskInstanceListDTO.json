@@ -273,6 +273,20 @@
       "primaryKey": false,
       "collectionType": "list",
       "module": "processruntime"
+    },
+    {
+      "name": "processVariables",
+      "objectType": "dto",
+      "type": "ProcessVariableDTO",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false,
+      "collectionType": "list",
+      "module": "processruntime"
     }
   ],
   "id": "mmtzoh9vg4"
