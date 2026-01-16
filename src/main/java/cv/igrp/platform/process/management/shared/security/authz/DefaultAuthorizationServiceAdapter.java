@@ -1,5 +1,6 @@
 package cv.igrp.platform.process.management.shared.security.authz;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -18,20 +19,20 @@ public class DefaultAuthorizationServiceAdapter implements IAuthorizationService
   private static final Logger log = LoggerFactory.getLogger(DefaultAuthorizationServiceAdapter.class);
 
   @Override
-  public Set<String> getRoles(String userIdentifier) {
-    log.debug("Fetching roles for user: {}", userIdentifier);
+  public Set<String> getRoles(String jwt, HttpServletRequest request) {
+    log.debug("Fetching roles for user: {}", jwt);
     return Set.of();
   }
 
   @Override
-  public Set<String> getPermissions(String userIdentifier) {
-    log.debug("Fetching permissions for user: {}", userIdentifier);
+  public Set<String> getPermissions(String jwt, HttpServletRequest request) {
+    log.debug("Fetching permissions for user: {}", jwt);
     return Set.of();
   }
 
   @Override
-  public Set<String> getDepartments(String userIdentifier) {
-    log.debug("Fetching departments for user: {}", userIdentifier);
+  public Set<String> getDepartments(String jwt, HttpServletRequest request) {
+    log.debug("Fetching departments for user: {}", jwt);
     return Set.of();
   }
 
