@@ -6,6 +6,7 @@ import cv.igrp.platform.access.client.model.DepartmentDTO;
 import cv.igrp.platform.access.client.model.PermissionDTO;
 import cv.igrp.platform.access.client.model.RoleDTO;
 import cv.igrp.platform.process.management.shared.security.util.AuthenticationHelper;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -36,13 +37,13 @@ public class IgrpAuthorizationServiceAdapter implements IAuthorizationServiceAda
   }
 
   @Override
-  @Cacheable(value = "rolesCache", key = "#userIdentifier",  unless = "#result.isEmpty()")
-  public Set<String> getRoles(String userIdentifier) {
+  @Cacheable(value = "rolesCache", key = "#jwt",  unless = "#result.isEmpty()")
+  public Set<String> getRoles(String jwt, HttpServletRequest request) {
     try {
 
       LOGGER.debug("Getting roles for current user");
 
-      client.setAuthToken(userIdentifier);
+      client.setAuthToken(jwt);
 
       var usersApi = new UsersApi(client);
 
@@ -61,13 +62,13 @@ public class IgrpAuthorizationServiceAdapter implements IAuthorizationServiceAda
   }
 
   @Override
-  @Cacheable(value = "permissionsCache", key = "#userIdentifier",  unless = "#result.isEmpty()")
-  public Set<String> getPermissions(String userIdentifier) {
+  @Cacheable(value = "permissionsCache", key = "#jwt",  unless = "#result.isEmpty()")
+  public Set<String> getPermissions(String jwt, HttpServletRequest request) {
     try{
 
       LOGGER.debug("Getting permissions for current user");
 
-      client.setAuthToken(userIdentifier);
+      client.setAuthToken(jwt);
 
       var usersApi = new UsersApi(client);
 
@@ -86,13 +87,13 @@ public class IgrpAuthorizationServiceAdapter implements IAuthorizationServiceAda
   }
 
   @Override
-  @Cacheable(value = "departmentsCache", key = "#userIdentifier", unless = "#result.isEmpty()")
-  public Set<String> getDepartments(String userIdentifier) {
+  @Cacheable(value = "departmentsCache", key = "#jwt", unless = "#result.isEmpty()")
+  public Set<String> getDepartments(String jwt, HttpServletRequest request) {
     try {
 
       LOGGER.debug("Getting departments for current user");
 
-      client.setAuthToken(userIdentifier);
+      client.setAuthToken(jwt);
 
       var usersApi = new UsersApi(client);
 
