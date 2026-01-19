@@ -5,7 +5,6 @@ import cv.igrp.platform.access.client.api.UsersApi;
 import cv.igrp.platform.access.client.model.DepartmentDTO;
 import cv.igrp.platform.access.client.model.PermissionDTO;
 import cv.igrp.platform.access.client.model.RoleDTO;
-import cv.igrp.platform.process.management.shared.security.util.AuthenticationHelper;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,12 +27,9 @@ public class IgrpAuthorizationServiceAdapter implements IAuthorizationServiceAda
   private static final Logger LOGGER = LoggerFactory.getLogger(IgrpAuthorizationServiceAdapter.class);
 
   private final ApiClient client;
-  private final AuthenticationHelper authHelper;
 
-  public IgrpAuthorizationServiceAdapter(ApiClient client,
-                                         AuthenticationHelper authHelper) {
+  public IgrpAuthorizationServiceAdapter(ApiClient client) {
     this.client = client;
-    this.authHelper = authHelper;
   }
 
   @Override
