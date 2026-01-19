@@ -191,6 +191,9 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
     LOGGER.info("Task Groups: {}", t.getCandidateGroups());
     LOGGER.info("Filter Groups: {}", filterGroups);
 
+    //todo with IEKINE if getCandidateGroups is null
+    if (t.getCandidateGroups() == null ) t.setCandidateGroups("");
+
     if (filterGroups == null || filterGroups.isEmpty()) return false;
 
     List<String> taskGroups =
