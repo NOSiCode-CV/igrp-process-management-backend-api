@@ -40,5 +40,7 @@ public class ListTaskInstancesCommand implements Command {
   private String name;
   @NotBlank(message = "The field <processName> is required")
   private String processName;
+  @NotNull(message = "The field <filterByCurrentUser> is required")
+  private boolean filterByCurrentUser;
 
 }

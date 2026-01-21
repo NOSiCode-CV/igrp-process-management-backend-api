@@ -13,6 +13,7 @@ import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponse
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
+import cv.igrp.platform.process.management.shared.security.util.UserContext;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -30,11 +31,14 @@ public class TaskInstanceService {
   private final ProcessInstanceRepository processInstanceRepository;
   private final ProcessDefinitionRepository processDefinitionRepository;
 
+  private final UserContext userContext;
+
   public TaskInstanceService(TaskInstanceRepository taskInstanceRepository,
                              TaskInstanceEventRepository taskInstanceEventRepository,
                              RuntimeProcessEngineRepository runtimeProcessEngineRepository,
                              ProcessInstanceRepository processInstanceRepository,
-                             ProcessDefinitionRepository processDefinitionRepository
+                             ProcessDefinitionRepository processDefinitionRepository,
+                             UserContext userContext
   ) {
 
     this.taskInstanceRepository = taskInstanceRepository;
@@ -42,6 +46,7 @@ public class TaskInstanceService {
     this.runtimeProcessEngineRepository = runtimeProcessEngineRepository;
     this.processInstanceRepository = processInstanceRepository;
     this.processDefinitionRepository = processDefinitionRepository;
+    this.userContext = userContext;
   }
 
 
@@ -173,6 +178,13 @@ public class TaskInstanceService {
   }
 
   public PageableLista<TaskInstance> getAllTaskInstances(TaskInstanceFilter filter) {
+
+    System.out.println("filter.isFilterByCurrentUser(): " + filter.isFilterByCurrentUser());
+    if(filter.isFilterByCurrentUser()){
+      final var currentUser = userContext.getCurrentUser();
+      filter.setUser(currentUser);
+      userContext.getCurrentGroups().forEach(filter::addContextUserGroup);
+    }
 
     PageableLista<TaskInstance> taskInstances = taskInstanceRepository.findAll(filter);
 

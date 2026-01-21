@@ -16,10 +16,7 @@ import cv.igrp.platform.process.management.shared.infrastructure.persistence.ent
 import cv.igrp.platform.process.management.shared.util.DateUtil;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static cv.igrp.platform.process.management.shared.util.DateUtil.utilDateToLocalDateTime;
 
@@ -203,6 +200,7 @@ public class TaskInstanceMapper {
         .size(command.getSize())
         .name(command.getName() != null && !command.getName().isBlank() ? Name.create(command.getName()) : null)
         .processReleaseKey(command.getProcessReleaseKey() != null && !command.getProcessReleaseKey().isBlank() ? Code.create(command.getProcessReleaseKey()) : null)
+        .filterByCurrentUser(true)
         .build();
   }
 
@@ -264,8 +262,8 @@ public class TaskInstanceMapper {
         .applicationBase((command.getApplicationBase() != null && !command.getApplicationBase().isBlank()) ? Code.create(command.getApplicationBase().trim()) : null)
         .processName((command.getProcessName() != null && !command.getProcessName().isBlank()) ? Name.create(command.getProcessName().trim()) : null)
         .candidateGroups(command.getCandidateGroups() != null
-            ? new ArrayList<>(List.of(command.getCandidateGroups().split(",")))
-            : new ArrayList<>())
+            ? new HashSet<>(List.of(command.getCandidateGroups().split(",")))
+            : new HashSet<>())
         .user(command.getUser() != null ? Code.create(command.getUser()) : null)
         .status(command.getStatus() != null ? TaskInstanceStatus.valueOf(command.getStatus()) : null)
         .dateFrom(DateUtil.stringToLocalDate.apply(command.getDateFrom()))
@@ -275,6 +273,7 @@ public class TaskInstanceMapper {
         .size(command.getSize())
         .name(command.getName() != null && !command.getName().isBlank() ? Name.create(command.getName()) : null)
         .processReleaseKey(command.getProcessReleaseKey() != null && !command.getProcessReleaseKey().isBlank() ? Code.create(command.getProcessReleaseKey()) : null)
+        .filterByCurrentUser(command.isFilterByCurrentUser())
         .build();
   }
 

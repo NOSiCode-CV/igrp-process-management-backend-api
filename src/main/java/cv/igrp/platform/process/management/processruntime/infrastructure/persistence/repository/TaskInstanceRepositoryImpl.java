@@ -27,6 +27,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static cv.igrp.platform.process.management.shared.application.constants.VaribalesOperator.*;
 
@@ -88,24 +89,11 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
 
     List<TaskInstanceEntity> filtered = pageableTask.toList();
 
-    // Apply filter on user and groups
-    if (filter.getUser() != null || !filter.getCandidateGroups().isEmpty()) {
-      filtered = pageableTask.stream()
-          .filter(taskInstanceEntity -> {
-
-            LOGGER.info("filter.getUser(): {}", filter.getUser());
-
-            boolean matchUser = Objects.equals(taskInstanceEntity.getAssignedBy(), filter.getUser().getValue());
-
-            boolean matchGroups = matchesGroup(taskInstanceEntity, filter.getCandidateGroups());
-
-            return matchUser || matchGroups;
-          })
-          .toList();
-    }
-
-    List<TaskInstance> content = filtered
-        .stream()
+    List<TaskInstance> content = pageableTask.stream()
+        .filter(t -> userCanSeeTask(t,
+            filter.getUser() != null ? filter.getUser().getValue() : null,
+            filter.getContextUserGroups()))
+        .filter(t -> matchesClientFilter(t, filter.getCandidateGroups()))
         .map(taskMapper::toModel)
         .toList();
 
@@ -186,21 +174,39 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
     return spec;
   }
 
-  boolean matchesGroup(TaskInstanceEntity t, List<String> filterGroups) {
+  private boolean isPublicTask(TaskInstanceEntity t) {
+    return t.getCandidateGroups() == null || t.getCandidateGroups().isBlank();
+  }
 
-    LOGGER.info("Task Groups: {}", t.getCandidateGroups());
-    LOGGER.info("Filter Groups: {}", filterGroups);
+  private Set<String> splitGroups(String groups) {
+    if (groups == null || groups.isBlank()) return Set.of();
+    return Arrays.stream(groups.split(","))
+        .map(String::trim)
+        .collect(Collectors.toSet());
+  }
 
-    //todo with IEKINE if getCandidateGroups is null
-    if (t.getCandidateGroups() == null ) t.setCandidateGroups("");
+  private boolean userCanSeeTask(TaskInstanceEntity t, String currentUser, Set<String> userGroups) {
+    // Assigned user always sees the task
+    if (Objects.equals(t.getAssignedBy(), currentUser)) {
+      return true;
+    }
+    // Public task
+    if (isPublicTask(t)) {
+      return true;
+    }
+    // Group-based visibility
+    Set<String> taskGroups = splitGroups(t.getCandidateGroups());
+    return taskGroups.stream().anyMatch(userGroups::contains);
+  }
 
-    if (filterGroups == null || filterGroups.isEmpty()) return false;
-
-    List<String> taskGroups =
-        Arrays.stream(t.getCandidateGroups().split(","))
-            .map(String::trim)
-            .toList();
-
+  private boolean matchesClientFilter(TaskInstanceEntity t, Set<String> filterGroups) {
+    if (filterGroups == null || filterGroups.isEmpty()) {
+      return true;
+    }
+    if (isPublicTask(t)) {
+      return false;
+    }
+    Set<String> taskGroups = splitGroups(t.getCandidateGroups());
     return taskGroups.stream().anyMatch(filterGroups::contains);
   }
 
