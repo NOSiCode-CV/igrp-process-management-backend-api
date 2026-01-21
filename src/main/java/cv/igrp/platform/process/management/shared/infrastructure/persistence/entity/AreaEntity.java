@@ -17,7 +17,7 @@ import java.util.List;
 @Audited
 @Getter
 @Setter
-@ToString
+@ToString(exclude = {"processdefinitions", "areaId"})
 @IgrpEntity
 @Entity
 @NoArgsConstructor
@@ -37,25 +37,25 @@ public class AreaEntity extends AuditEntity {
     @Column(name = "id", unique = true, nullable = false)
     private UUID id;
 
-  
+
     @NotBlank(message = "applicationBase is mandatory")
     @Column(name="application_base", nullable = false)
     private String applicationBase;
 
-  
+
     @NotBlank(message = "code is mandatory")
     @Column(name="code", nullable = false)
     private String code;
 
-  
+
     @Column(name="name")
     private String name;
 
-  
+
     @Column(name="description")
     private String description;
 
-  
+
 
 
   @ManyToOne(fetch = FetchType.LAZY)
