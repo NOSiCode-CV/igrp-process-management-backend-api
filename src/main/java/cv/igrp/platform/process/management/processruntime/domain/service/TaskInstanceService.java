@@ -179,11 +179,11 @@ public class TaskInstanceService {
 
   public PageableLista<TaskInstance> getAllTaskInstances(TaskInstanceFilter filter) {
 
-    System.out.println("filter.isFilterByCurrentUser(): " + filter.isFilterByCurrentUser());
     if(filter.isFilterByCurrentUser()){
       final var currentUser = userContext.getCurrentUser();
       filter.setUser(currentUser);
-      userContext.getCurrentGroups().forEach(filter::addContextUserGroup);
+      userContext.getCurrentGroups()
+          .forEach(filter::addContextUserGroup);
     }
 
     PageableLista<TaskInstance> taskInstances = taskInstanceRepository.findAll(filter);
@@ -225,8 +225,8 @@ public class TaskInstanceService {
   }
 
 
-  public TaskStatistics getTaskStatisticsByUser(Code user) {
-    return taskInstanceRepository.getTaskStatisticsByUser(user);
+  public TaskStatistics getTaskStatisticsByUser(Code user, List<String> groups) {
+    return taskInstanceRepository.getTaskStatisticsByUser(user, groups);
   }
 
   void createNextTaskInstances(ProcessInstance processInstance, Code user) {

@@ -116,6 +116,8 @@ public class SecurityConfig {
       // Always include activiti-user role
       authorities.add(new SimpleGrantedAuthority("ROLE_ACTIVITI_USER"));
 
+      System.out.println("AUTHORITIES: " + authorities);
+
       return authorities;
 
     });
