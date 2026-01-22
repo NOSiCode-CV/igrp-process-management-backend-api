@@ -18,6 +18,7 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -28,6 +29,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static cv.igrp.platform.process.management.shared.application.constants.VaribalesOperator.*;
 
@@ -82,32 +84,43 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
 
     Specification<TaskInstanceEntity> spec = buildSpecification(filter);
 
-    PageRequest pageRequest = PageRequest.of(filter.getPage(), filter.getSize(),
-        Sort.by(Sort.Direction.DESC, "startedAt"));
-
-    final var pageableTask = taskInstanceEntityRepository.findAll(spec, pageRequest);
-
-    List<TaskInstanceEntity> filtered = pageableTask.toList();
-
-    List<TaskInstance> content = pageableTask.stream()
-        .filter(t -> userCanSeeTask(t,
-            filter.getUser() != null ? filter.getUser().getValue() : null,
-            filter.getContextUserGroups()))
-        .filter(t -> matchesClientFilter(t, filter.getCandidateGroups()))
-        .map(taskMapper::toModel)
-        .toList();
-
-    return new PageableLista<>(
-        pageableTask.getNumber(),
-        pageableTask.getSize(),
-        (long) filtered.size(),
-        (int) Math.ceil((double) filtered.size() / filter.getSize()),
-        pageableTask.getNumber() == (int) Math.ceil((double) filtered.size() / filter.getSize()) - 1,
-        pageableTask.getNumber() == 0,
-        content
+    PageRequest pageRequest = PageRequest.of(
+        filter.getPage(),
+        filter.getSize(),
+        Sort.by(Sort.Direction.DESC, "startedAt")
     );
 
+    Page<TaskInstanceEntity> page = taskInstanceEntityRepository.findAll(spec, pageRequest);
+
+    Stream<TaskInstanceEntity> stream = page.getContent().stream();
+
+    if (filter.isFilterByCurrentUser()) {
+      stream = stream.filter(t ->
+          userCanSeeTask(
+              t,
+              filter.getUser() != null ? filter.getUser().getValue() : null,
+              filter.getContextUserGroups()
+          )
+      );
+    }
+
+    stream = stream.filter(t -> matchesClientFilter(t, filter.getCandidateGroups()));
+
+    List<TaskInstance> content = stream.map(taskMapper::toModel).toList();
+
+    int totalPages = page.getTotalPages();
+
+    return new PageableLista<>(
+        page.getNumber(),
+        page.getSize(),
+        page.getTotalElements(),
+        totalPages,
+        page.isLast(),
+        page.isFirst(),
+        content
+    );
   }
+
 
   private Specification<TaskInstanceEntity> buildSpecification(TaskInstanceFilter filter) {
 
@@ -186,6 +199,11 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
   }
 
   private boolean userCanSeeTask(TaskInstanceEntity t, String currentUser, Set<String> userGroups) {
+
+    System.out.println("User: " + currentUser);
+    System.out.println("Groups: " + userGroups);
+    System.out.println("t.getCandidateGroups(): " + t.getCandidateGroups());
+
     // Assigned user always sees the task
     if (Objects.equals(t.getAssignedBy(), currentUser)) {
       return true;
@@ -196,6 +214,9 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
     }
     // Group-based visibility
     Set<String> taskGroups = splitGroups(t.getCandidateGroups());
+
+    System.out.println("Task Groups: " + taskGroups);
+
     return taskGroups.stream().anyMatch(userGroups::contains);
   }
 
@@ -362,25 +383,44 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
 
 
   @Override
-  public TaskStatistics getTaskStatisticsByUser(Code user) {
+  public TaskStatistics getTaskStatisticsByUser(Code user, List<String> groups) {
 
-    LOGGER.debug("User: {}", user.getValue());
+    Set<String> userGroups = groups == null
+        ? Set.of()
+        : groups.stream().map(String::trim).collect(Collectors.toSet());
 
-    // base: tasks related to user
-    Specification<TaskInstanceEntity> userSpec = (root, q, cb) ->
-        cb.or(
-            cb.equal(root.get("assignedBy"), user.getValue()),
-            cb.equal(root.get("endedBy"), user.getValue())
-        );
+    List<TaskInstanceEntity> tasks =
+        taskInstanceEntityRepository.findAll();
 
-    // total: all tasks, general context, not only user
-    long total = taskInstanceEntityRepository.count();
+    List<TaskInstanceEntity> visibleTasks = tasks.stream()
+        .filter(t -> userCanSeeTask(t, user.getValue(), userGroups))
+        .toList();
 
-    long available = countByStatus(userSpec, TaskInstanceStatus.CREATED);
-    long assigned = countByStatusAndField(userSpec, TaskInstanceStatus.ASSIGNED, "assignedBy", user.getValue());
-    long suspended = countByStatusAndField(userSpec, TaskInstanceStatus.SUSPENDED, "assignedBy", user.getValue());
-    long completed = countByStatusAndField(userSpec, TaskInstanceStatus.COMPLETED, "endedBy", user.getValue());
-    long canceled = countByStatusAndField(userSpec, TaskInstanceStatus.CANCELED, "endedBy", user.getValue());
+    long total = tasks.size();
+
+    long available = visibleTasks.stream()
+        .filter(t -> t.getStatus() == TaskInstanceStatus.CREATED)
+        .count();
+
+    long assigned = visibleTasks.stream()
+        .filter(t -> t.getStatus() == TaskInstanceStatus.ASSIGNED)
+        .filter(t -> Objects.equals(t.getAssignedBy(), user.getValue()))
+        .count();
+
+    long suspended = visibleTasks.stream()
+        .filter(t -> t.getStatus() == TaskInstanceStatus.SUSPENDED)
+        .filter(t -> Objects.equals(t.getAssignedBy(), user.getValue()))
+        .count();
+
+    long completed = visibleTasks.stream()
+        .filter(t -> t.getStatus() == TaskInstanceStatus.COMPLETED)
+        .filter(t -> Objects.equals(t.getEndedBy(), user.getValue()))
+        .count();
+
+    long canceled = visibleTasks.stream()
+        .filter(t -> t.getStatus() == TaskInstanceStatus.CANCELED)
+        .filter(t -> Objects.equals(t.getEndedBy(), user.getValue()))
+        .count();
 
     return TaskStatistics.builder()
         .totalTaskInstances(total)
@@ -390,18 +430,6 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
         .totalCompletedTasks(completed)
         .totalCanceledTasks(canceled)
         .build();
-  }
-
-  private long countByStatus(Specification<TaskInstanceEntity> base, TaskInstanceStatus status) {
-    return taskInstanceEntityRepository.count(base.and((root, q, cb) -> cb.equal(root.get("status"), status)));
-  }
-
-  private long countByStatusAndField(Specification<TaskInstanceEntity> base,
-                                     TaskInstanceStatus status, String field, String value) {
-    return taskInstanceEntityRepository.count(
-        base.and((root, q, cb) -> cb.equal(root.get("status"), status))
-            .and((root, q, cb) -> cb.equal(root.get(field), value))
-    );
   }
 
   @Override
