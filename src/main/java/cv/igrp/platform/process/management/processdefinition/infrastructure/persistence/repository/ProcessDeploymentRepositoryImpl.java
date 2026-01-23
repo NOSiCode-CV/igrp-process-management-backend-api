@@ -33,18 +33,13 @@ public class ProcessDeploymentRepositoryImpl implements ProcessDeploymentReposit
 
   private final ProcessDefinitionAdapter processDefinitionAdapter;
   private  final ProcessDeploymentMapper processDeploymentMapper;
-  private final ProcessManagerAdapter processManagerAdapter;
 
-  private final TaskQueryService taskQueryService;
 
   public ProcessDeploymentRepositoryImpl(ProcessDefinitionAdapter processDefinitionAdapter,
-                                         ProcessDeploymentMapper processDeploymentMapper,
-                                         ProcessManagerAdapter processManagerAdapter,
-                                         TaskQueryService taskQueryService) {
+                                         ProcessDeploymentMapper processDeploymentMapper
+  ) {
     this.processDefinitionAdapter = processDefinitionAdapter;
     this.processDeploymentMapper = processDeploymentMapper;
-    this.processManagerAdapter = processManagerAdapter;
-    this.taskQueryService = taskQueryService;
   }
 
   @Override
@@ -97,6 +92,10 @@ public class ProcessDeploymentRepositoryImpl implements ProcessDeploymentReposit
     ProcessFilter processFilter = new ProcessFilter();
     processFilter.setName(filter.getProcessName()!=null && !filter.getProcessName().isBlank() ? filter.getProcessName() : null );
     processFilter.setApplicationBase(filter.getApplicationBase() != null ? filter.getApplicationBase().getValue() : null);
+    List<String> groupsIds = filter.isFilterByCurrentUser()
+        ? filter.getContextGroups().stream().toList()
+        : filter.getGroups().stream().toList();
+    processFilter.setGroupsIds(groupsIds);
     return processFilter;
   }
 
@@ -112,8 +111,13 @@ public class ProcessDeploymentRepositoryImpl implements ProcessDeploymentReposit
   }
 
   @Override
-  public String findLatesProcessDefinitionIdByKey(String processDefinitionKey) {
-    return processDefinitionAdapter.getLatesProcessDefinitionIdByKey(processDefinitionKey);
+  public String findLastProcessDefinitionIdByKey(String processDefinitionKey) {
+    return processDefinitionAdapter.getLastProcessDefinitionIdByKey(processDefinitionKey);
+  }
+
+  @Override
+  public void addCandidateStarterGroup(String processDefinitionId, String groupId) {
+    processDefinitionAdapter.addCandidateStarterGroup(processDefinitionId, groupId);
   }
 
 }

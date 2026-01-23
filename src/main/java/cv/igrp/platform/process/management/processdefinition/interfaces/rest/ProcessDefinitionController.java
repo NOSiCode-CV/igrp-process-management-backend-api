@@ -28,6 +28,7 @@ import cv.igrp.platform.process.management.processdefinition.application.dto.Pro
 import java.util.List;
 import cv.igrp.platform.process.management.processdefinition.application.dto.ProcessSequenceDTO;
 import cv.igrp.platform.process.management.processdefinition.application.dto.SequenceRequestDTO;
+import cv.igrp.platform.process.management.processdefinition.application.dto.AssignProcessDTO;
 
 @IgrpController
 @RestController
@@ -97,10 +98,12 @@ public class ProcessDefinitionController {
     @RequestParam(value = "applicationBase", required = false) String applicationBase,
     @RequestParam(value = "processName", required = false) String processName,
     @RequestParam(value = "page", defaultValue = "0") Integer page,
-    @RequestParam(value = "size", defaultValue = "20") Integer size)
+    @RequestParam(value = "size", defaultValue = "20") Integer size,
+    @RequestParam(value = "filterByCurrentUser", required = false) boolean filterByCurrentUser,
+    @RequestParam(value = "candidateGroups", required = false) String candidateGroups)
   {
 
-      final var query = new ListDeploymentsQuery(applicationBase, processName, page, size);
+      final var query = new ListDeploymentsQuery(applicationBase, processName, page, size, filterByCurrentUser, candidateGroups);
 
       ResponseEntity<ProcessDeploymentListPageDTO> response = queryBus.handle(query);
 
@@ -289,6 +292,37 @@ public class ProcessDefinitionController {
       final var command = new CreateProcessSequenceCommand(createProcessSequenceRequest, processDefinitionKey);
 
        ResponseEntity<ProcessSequenceDTO> response = commandBus.send(command);
+
+       return response;
+  }
+
+      @PostMapping(
+   value = "{id}/assign"
+  )
+  @Operation(
+    summary = "POST method to handle operations for Assign process definition",
+    description = "POST method to handle operations for Assign process definition",
+    responses = {
+      @ApiResponse(
+          responseCode = "204",
+          description = "",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = String.class,
+                  type = "String")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<String> assignProcessDefinition(@Valid @RequestBody AssignProcessDTO assignProcessDefinitionRequest
+    , @PathVariable(value = "id") String id)
+  {
+
+      final var command = new AssignProcessDefinitionCommand(assignProcessDefinitionRequest, id);
+
+       ResponseEntity<String> response = commandBus.send(command);
 
        return response;
   }

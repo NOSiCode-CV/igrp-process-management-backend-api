@@ -39,6 +39,18 @@ public interface ProcessDeploymentRepository {
   List<ProcessArtifact> findAllArtifacts(String processDefinitionId);
 
 
-  String findLatesProcessDefinitionIdByKey(String processDefinitionKey);
+  /**
+   *
+   * @param processDefinitionKey
+   * @return
+   */
+  String findLastProcessDefinitionIdByKey(String processDefinitionKey);
+
+  /**
+   *
+   * @param processDefinitionId
+   * @param groupId
+   */
+  void addCandidateStarterGroup(String processDefinitionId, String groupId);
 
 }
