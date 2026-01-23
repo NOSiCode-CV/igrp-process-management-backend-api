@@ -182,7 +182,7 @@ public class ProcessInstanceService {
 
   public ProcessInstance createProcessInstance(ProcessInstance processInstance, String user) {
     var latestProcessDefinitionId = processInstance.getProcReleaseId() == null
-        ? processDeploymentService.findLatesProcessDefinitionIdByKey(processInstance.getProcReleaseKey().getValue())
+        ? processDeploymentService.findLastProcessDefinitionIdByKey(processInstance.getProcReleaseKey().getValue())
         : processInstance.getProcReleaseId().getValue();
 
     var engineProcessInstance = runtimeProcessEngineRepository.createProcessInstanceById(

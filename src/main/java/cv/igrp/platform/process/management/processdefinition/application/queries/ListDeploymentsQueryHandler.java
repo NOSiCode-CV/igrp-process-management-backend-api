@@ -14,6 +14,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 @Component
 public class ListDeploymentsQueryHandler implements QueryHandler<ListDeploymentsQuery, ResponseEntity<ProcessDeploymentListPageDTO>> {
 
@@ -35,9 +40,23 @@ public class ListDeploymentsQueryHandler implements QueryHandler<ListDeployments
         .applicationBase(query.getApplicationBase() != null ? Code.create(query.getApplicationBase()) : null)
         .pageNumber(query.getPage())
         .pageSize(query.getSize())
+        .filterByCurrentUser(query.isFilterByCurrentUser())
+        .groups(convertGroups(query.getCandidateGroups()))
         .build();
     PageableLista<ProcessDeployment> deployments = processDeploymentService.getAllDeployments(filter);
     return ResponseEntity.ok(mapper.toDTO(deployments));
+  }
+
+  private Set<String> convertGroups(String candidateGroups) {
+    Set<String> groups = new HashSet<>();
+    if(candidateGroups == null)
+      return groups;
+    Arrays.stream(candidateGroups.split(","))
+        .map(String::trim)
+        .filter(g -> !g.isEmpty())
+        .distinct()
+        .forEach(groups::add);
+    return groups;
   }
 
 }

@@ -86,6 +86,18 @@
           "value": "20",
           "isRequired": true,
           "description": "Page Size"
+        },
+        {
+          "type": "boolean",
+          "name": "filterByCurrentUser",
+          "description": "Current User Filter",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "candidateGroups",
+          "description": "Candidate Groups",
+          "isRequired": false
         }
       ]
     },
@@ -298,7 +310,47 @@
           "description": "Process definition key"
         }
       ]
+    },
+    {
+      "actionName": "assignProcessDefinition",
+      "path": "{id}/assign",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AssignProcessDTO",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "processdefinition"
+            }
+          }
+        }
+      },
+      "responses": {
+        "204": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true,
+          "description": "Process Definition ID"
+        }
+      ]
     }
   ],
-  "id": "o9isd9wv95-CONTROLLER-createArtifact-configureArtifact"
+  "id": "o9isd9wv95-CONTROLLER-createArtifact-configureArtifact-listDeployments"
 }
