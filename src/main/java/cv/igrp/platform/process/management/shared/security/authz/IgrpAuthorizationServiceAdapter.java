@@ -52,7 +52,10 @@ public class IgrpAuthorizationServiceAdapter implements IAuthorizationServiceAda
               LOGGER.warn("Role {} has no department code", roleDTO.getCode());
               return roleDTO.getCode();
             }
-            return roleDTO.getDepartmentCode() + "." + roleDTO.getCode();
+            String prefix = roleDTO.getDepartmentCode() + ".";
+            if(!roleDTO.getCode().startsWith(prefix))
+              return prefix + roleDTO.getCode();
+            return roleDTO.getCode();
           })
           .collect(Collectors.toSet());
 
