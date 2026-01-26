@@ -47,7 +47,13 @@ public class IgrpAuthorizationServiceAdapter implements IAuthorizationServiceAda
       LOGGER.debug("Roles: {}", roles);
 
       return roles.stream()
-          .map(RoleDTO::getCode)
+          .map(roleDTO -> {
+            if(roleDTO.getDepartmentCode() == null){
+              LOGGER.warn("Role {} has no department code", roleDTO.getCode());
+              return roleDTO.getCode();
+            }
+            return roleDTO.getDepartmentCode() + "." + roleDTO.getCode();
+          })
           .collect(Collectors.toSet());
 
     } catch (Exception e) {
