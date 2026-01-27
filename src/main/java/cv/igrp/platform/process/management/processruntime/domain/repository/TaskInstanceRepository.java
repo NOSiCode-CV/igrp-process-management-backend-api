@@ -24,7 +24,7 @@ public interface TaskInstanceRepository {
 
   TaskStatistics getGlobalTaskStatistics();
 
-  TaskStatistics getTaskStatisticsByUser(Code user, List<String> groups);
+  TaskStatistics getTaskStatisticsByUser(Code user, List<String> groups, boolean isSuperAdmin);
 
   Optional<TaskInstance> findByExternalId(String id);
 }

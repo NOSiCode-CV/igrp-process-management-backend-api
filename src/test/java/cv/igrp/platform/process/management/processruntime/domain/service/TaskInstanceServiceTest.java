@@ -323,9 +323,9 @@ class TaskInstanceServiceTest {
         .totalTaskInstances(10L)
         .build();
   /*
-    when(taskInstanceRepository.getTaskStatisticsByUser(currentUser)).thenReturn(stats);
+    when(taskInstanceRepository.getTaskStatisticsByUser(bindCurrentUser)).thenReturn(stats);
 
-    TaskStatistics result = taskInstanceService.getTaskStatisticsByUser(currentUser);
+    TaskStatistics result = taskInstanceService.getTaskStatisticsByUser(bindCurrentUser);
 
     assertEquals(stats, result);
 

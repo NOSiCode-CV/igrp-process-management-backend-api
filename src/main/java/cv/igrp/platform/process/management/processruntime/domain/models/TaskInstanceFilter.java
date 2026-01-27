@@ -6,7 +6,6 @@ import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import cv.igrp.platform.process.management.shared.domain.models.Name;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -14,7 +13,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static cv.igrp.platform.process.management.shared.security.util.IgrpAuthorizationConstants.SUPER_ADMIN_ROLE;
 
 @Getter
 public class TaskInstanceFilter {
@@ -28,7 +26,6 @@ public class TaskInstanceFilter {
   private final LocalDate dateTo;
   private final Integer page;
   private final Integer size;
-  @Setter
   private Code user;
   private List<VariablesExpression> variablesExpressions;
 
@@ -84,9 +81,11 @@ public class TaskInstanceFilter {
 
   public void addContextUserGroup(String group){
     this.contextUserGroups.add(group);
-    if(group.equals(SUPER_ADMIN_ROLE)){
-      this.isSuperAdmin = true;
-    }
+  }
+
+  public void bindCurrentUser(Code user, boolean isSuperAdmin){
+    this.user = user;
+    this.isSuperAdmin = isSuperAdmin;
   }
 
 }

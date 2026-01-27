@@ -4,6 +4,7 @@ package cv.igrp.platform.process.management.shared.security.authz;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.oauth2.jwt.Jwt;
 
+import java.util.Optional;
 import java.util.Set;
 
 public interface IAuthorizationServiceAdapter {
@@ -17,5 +18,7 @@ public interface IAuthorizationServiceAdapter {
   default Jwt parseJWT(String jwt) {
     return Jwt.withTokenValue(jwt).build();
   }
+
+  Optional<String> getCurrentActiveRole(String jwt, HttpServletRequest  request);
 
 }
