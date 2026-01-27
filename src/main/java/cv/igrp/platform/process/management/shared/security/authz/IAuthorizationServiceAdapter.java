@@ -12,6 +12,7 @@ public interface IAuthorizationServiceAdapter {
   Set<String> getPermissions(String jwt, HttpServletRequest  request);
   Set<String> getDepartments(String jwt, HttpServletRequest  request);
 
+  boolean isSuperAdmin(String jwt, HttpServletRequest  request);
 
   default Jwt parseJWT(String jwt) {
     return Jwt.withTokenValue(jwt).build();

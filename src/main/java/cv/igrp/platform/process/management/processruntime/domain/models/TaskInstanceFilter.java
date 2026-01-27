@@ -14,6 +14,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static cv.igrp.platform.process.management.shared.security.util.IgrpAuthorizationConstants.SUPER_ADMIN_ROLE;
+
 @Getter
 public class TaskInstanceFilter {
 
@@ -38,6 +40,8 @@ public class TaskInstanceFilter {
 
   private final boolean filterByCurrentUser;
 
+  private boolean isSuperAdmin;
+
   @Builder
   private TaskInstanceFilter(
       Identifier processInstanceId,
@@ -55,7 +59,8 @@ public class TaskInstanceFilter {
       Name name,
       Code processReleaseKey,
       boolean filterByCurrentUser,
-      Set<String> contextUserGroups
+      Set<String> contextUserGroups,
+      boolean isSuperAdmin
   ) {
     this.processInstanceId = processInstanceId;
     this.applicationBase = applicationBase;
@@ -74,10 +79,14 @@ public class TaskInstanceFilter {
     this.processRealeaseKey = processReleaseKey;
     this.filterByCurrentUser = filterByCurrentUser;
     this.contextUserGroups = contextUserGroups == null ? new HashSet<>() : contextUserGroups;
+    this.isSuperAdmin = isSuperAdmin;
   }
 
   public void addContextUserGroup(String group){
     this.contextUserGroups.add(group);
+    if(group.equals(SUPER_ADMIN_ROLE)){
+      this.isSuperAdmin = true;
+    }
   }
 
 }

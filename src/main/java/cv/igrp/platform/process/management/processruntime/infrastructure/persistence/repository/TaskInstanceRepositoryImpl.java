@@ -94,7 +94,7 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
 
     Stream<TaskInstanceEntity> stream = page.getContent().stream();
 
-    if (filter.isFilterByCurrentUser()) {
+    if (filter.isFilterByCurrentUser() && !filter.isSuperAdmin()) {
       stream = stream.filter(t ->
           userCanSeeTask(
               t,
@@ -108,13 +108,11 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
 
     List<TaskInstance> content = stream.map(taskMapper::toModel).toList();
 
-    int totalPages = page.getTotalPages();
-
     return new PageableLista<>(
         page.getNumber(),
         page.getSize(),
         page.getTotalElements(),
-        totalPages,
+        page.getTotalPages(),
         page.isLast(),
         page.isFirst(),
         content
@@ -199,11 +197,6 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
   }
 
   private boolean userCanSeeTask(TaskInstanceEntity t, String currentUser, Set<String> userGroups) {
-
-    System.out.println("User: " + currentUser);
-    System.out.println("Groups: " + userGroups);
-    System.out.println("t.getCandidateGroups(): " + t.getCandidateGroups());
-
     // Assigned user always sees the task
     if (Objects.equals(t.getAssignedBy(), currentUser)) {
       return true;
@@ -214,8 +207,6 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
     }
     // Group-based visibility
     Set<String> taskGroups = splitGroups(t.getCandidateGroups());
-
-    System.out.println("Task Groups: " + taskGroups);
 
     return taskGroups.stream().anyMatch(userGroups::contains);
   }

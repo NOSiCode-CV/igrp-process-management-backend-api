@@ -37,8 +37,8 @@ public class SecurityUserContext implements UserContext {
     return authentication.getAuthorities()
         .stream()
         .map(GrantedAuthority::getAuthority)
-        .filter(role -> role.startsWith("GROUP_"))
-        .map(role -> role.substring("GROUP_".length()))
+        .filter(role -> role.startsWith(ActivitiConstants.GROUP_PREFIX))
+        .map(role -> role.substring(ActivitiConstants.GROUP_PREFIX.length()))
         .toList();
   }
 

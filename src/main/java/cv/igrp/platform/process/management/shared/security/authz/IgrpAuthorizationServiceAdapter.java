@@ -47,16 +47,7 @@ public class IgrpAuthorizationServiceAdapter implements IAuthorizationServiceAda
       LOGGER.debug("Roles: {}", roles);
 
       return roles.stream()
-          .map(roleDTO -> {
-            if(roleDTO.getDepartmentCode() == null){
-              LOGGER.warn("Role {} has no department code", roleDTO.getCode());
-              return roleDTO.getCode();
-            }
-            String prefix = roleDTO.getDepartmentCode() + ".";
-            if(!roleDTO.getCode().startsWith(prefix))
-              return prefix + roleDTO.getCode();
-            return roleDTO.getCode();
-          })
+          .map(this::normalizeRoleCode)
           .collect(Collectors.toSet());
 
     } catch (Exception e) {
@@ -65,6 +56,18 @@ public class IgrpAuthorizationServiceAdapter implements IAuthorizationServiceAda
     }
 
   }
+
+  private String normalizeRoleCode(RoleDTO roleDTO) {
+    if (roleDTO.getDepartmentCode() == null) {
+      LOGGER.warn("Role {} has no department code", roleDTO.getCode());
+      return roleDTO.getCode();
+    }
+    String prefix = roleDTO.getDepartmentCode() + ".";
+    return roleDTO.getCode().startsWith(prefix)
+        ? roleDTO.getCode()
+        : prefix + roleDTO.getCode();
+  }
+
 
   @Override
   @Cacheable(value = "permissionsCache", key = "#jwt",  unless = "#result.isEmpty()")
@@ -114,6 +117,26 @@ public class IgrpAuthorizationServiceAdapter implements IAuthorizationServiceAda
       return Set.of();
     }
 
+  }
+
+  @Override
+  @Cacheable(value = "superAdminCache", key = "#jwt")
+  public boolean isSuperAdmin(String jwt, HttpServletRequest request) {
+    try{
+
+      LOGGER.debug("Checking if current user is super admin");
+
+      client.setAuthToken(jwt);
+      var usersApi = new UsersApi(client);
+      boolean isSuperAdmin = usersApi.isSuperadmin();
+
+      LOGGER.debug("Current user is super admin: {}", isSuperAdmin);
+      return isSuperAdmin;
+
+    }catch (Exception e){
+      LOGGER.error("Error checking if current user is super admin", e);
+    }
+    return false;
   }
 
 }
