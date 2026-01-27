@@ -36,4 +36,10 @@ public class DefaultAuthorizationServiceAdapter implements IAuthorizationService
     return Set.of();
   }
 
+  @Override
+  public boolean isSuperAdmin(String jwt, HttpServletRequest request) {
+    log.debug("Checking if user: {} is super admin", jwt);
+    return false;
+  }
+
 }
