@@ -42,4 +42,32 @@ public class SecurityUserContext implements UserContext {
         .toList();
   }
 
+  @Override
+  public List<String> getCurrentRoles() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+    if (authentication == null || !authentication.isAuthenticated()) {
+      return List.of();
+    }
+
+    return authentication.getAuthorities()
+        .stream()
+        .map(GrantedAuthority::getAuthority)
+        .filter(role -> role.startsWith(IgrpAuthorizationConstants.ROLE_PREFIX))
+        .map(role -> role.substring(IgrpAuthorizationConstants.ROLE_PREFIX.length()))
+        .toList();
+  }
+
+  @Override
+  public boolean isSuperAdmin() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (authentication == null || !authentication.isAuthenticated()) {
+      return false;
+    }
+    return authentication.getAuthorities()
+        .stream()
+        .map(GrantedAuthority::getAuthority)
+        .anyMatch(r -> r.contains(IgrpAuthorizationConstants.SUPER_ADMIN_ROLE));
+  }
+
 }

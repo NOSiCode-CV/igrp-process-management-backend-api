@@ -5,6 +5,7 @@ import cv.igrp.platform.access.client.api.UsersApi;
 import cv.igrp.platform.access.client.model.DepartmentDTO;
 import cv.igrp.platform.access.client.model.PermissionDTO;
 import cv.igrp.platform.access.client.model.RoleDTO;
+import cv.igrp.platform.access.client.model.RoleDepartmentDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +13,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.cache.annotation.Cacheable;
@@ -47,7 +49,7 @@ public class IgrpAuthorizationServiceAdapter implements IAuthorizationServiceAda
       LOGGER.debug("Roles: {}", roles);
 
       return roles.stream()
-          .map(this::normalizeRoleCode)
+          .map(roleDTO -> normalizeRoleCode(roleDTO.getDepartmentCode(), roleDTO.getCode()))
           .collect(Collectors.toSet());
 
     } catch (Exception e) {
@@ -57,15 +59,13 @@ public class IgrpAuthorizationServiceAdapter implements IAuthorizationServiceAda
 
   }
 
-  private String normalizeRoleCode(RoleDTO roleDTO) {
-    if (roleDTO.getDepartmentCode() == null) {
-      LOGGER.warn("Role {} has no department code", roleDTO.getCode());
-      return roleDTO.getCode();
+  private String normalizeRoleCode(String departmentCode, String roleCode) {
+    if (departmentCode == null) {
+      LOGGER.warn("Role {} has no department code", roleCode);
+      return roleCode;
     }
-    String prefix = roleDTO.getDepartmentCode() + ".";
-    return roleDTO.getCode().startsWith(prefix)
-        ? roleDTO.getCode()
-        : prefix + roleDTO.getCode();
+    String prefix = departmentCode + ".";
+    return roleCode.startsWith(prefix) ? roleCode : prefix + roleCode;
   }
 
 
@@ -131,12 +131,37 @@ public class IgrpAuthorizationServiceAdapter implements IAuthorizationServiceAda
       boolean isSuperAdmin = usersApi.isSuperadmin();
 
       LOGGER.debug("Current user is super admin: {}", isSuperAdmin);
+
       return isSuperAdmin;
 
     }catch (Exception e){
       LOGGER.error("Error checking if current user is super admin", e);
     }
     return false;
+  }
+
+  @Override
+  @Cacheable(value = "activeRoleCache", key = "#jwt")
+  public Optional<String> getCurrentActiveRole(String jwt, HttpServletRequest request) {
+    try{
+
+      LOGGER.debug("Get current active role for current user");
+
+      client.setAuthToken(jwt);
+      var usersApi = new UsersApi(client);
+      RoleDepartmentDTO currentRole = usersApi.getCurrentUserActiveRole();
+
+      LOGGER.debug("Current active role: {}", currentRole);
+
+      if(currentRole != null){
+        return Optional.of(
+            normalizeRoleCode(currentRole.getDepartmentCode(), currentRole.getRoleCode())
+        );
+      }
+    } catch (Exception e) {
+      LOGGER.error("Error getting current active role for current user", e);
+    }
+    return Optional.empty();
   }
 
 }

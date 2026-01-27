@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
 import java.util.Set;
 
 @Component
@@ -40,6 +41,11 @@ public class DefaultAuthorizationServiceAdapter implements IAuthorizationService
   public boolean isSuperAdmin(String jwt, HttpServletRequest request) {
     log.debug("Checking if user: {} is super admin", jwt);
     return false;
+  }
+
+  @Override
+  public Optional<String> getCurrentActiveRole(String jwt, HttpServletRequest request) {
+    return Optional.empty();
   }
 
 }

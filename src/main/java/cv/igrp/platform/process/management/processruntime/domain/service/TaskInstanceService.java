@@ -181,7 +181,8 @@ public class TaskInstanceService {
 
     if(filter.isFilterByCurrentUser()){
       final var currentUser = userContext.getCurrentUser();
-      filter.setUser(currentUser);
+      final var isSuperAdmin = userContext.isSuperAdmin();
+      filter.bindCurrentUser(currentUser, isSuperAdmin);
       userContext.getCurrentGroups()
           .forEach(filter::addContextUserGroup);
     }
@@ -226,7 +227,11 @@ public class TaskInstanceService {
 
 
   public TaskStatistics getTaskStatisticsByUser(Code user, List<String> groups) {
-    return taskInstanceRepository.getTaskStatisticsByUser(user, groups);
+    return taskInstanceRepository.getTaskStatisticsByUser(
+        user,
+        groups,
+        userContext.isSuperAdmin()
+    );
   }
 
   void createNextTaskInstances(ProcessInstance processInstance, Code user) {

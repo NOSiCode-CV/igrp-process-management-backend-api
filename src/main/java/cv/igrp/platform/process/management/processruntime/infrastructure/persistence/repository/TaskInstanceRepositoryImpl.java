@@ -374,7 +374,7 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
 
 
   @Override
-  public TaskStatistics getTaskStatisticsByUser(Code user, List<String> groups) {
+  public TaskStatistics getTaskStatisticsByUser(Code user, List<String> groups, boolean isSuperAdmin) {
 
     Set<String> userGroups = groups == null
         ? Set.of()
@@ -384,7 +384,7 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
         taskInstanceEntityRepository.findAll();
 
     List<TaskInstanceEntity> visibleTasks = tasks.stream()
-        .filter(t -> userCanSeeTask(t, user.getValue(), userGroups))
+        .filter(t -> isSuperAdmin || userCanSeeTask(t, user.getValue(), userGroups))
         .toList();
 
     long total = tasks.size();

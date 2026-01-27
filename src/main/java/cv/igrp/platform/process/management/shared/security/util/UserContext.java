@@ -12,4 +12,8 @@ public interface UserContext {
 
   List<String> getCurrentGroups();
 
+  List<String> getCurrentRoles();
+
+  boolean isSuperAdmin();
+
 }
