@@ -44,8 +44,9 @@ public class DefaultAuthorizationServiceAdapter implements IAuthorizationService
   }
 
   @Override
-  public Optional<String> getCurrentActiveRole(String jwt, HttpServletRequest request) {
-    return Optional.empty();
+  public Set<String> getActiveRoles(String jwt, HttpServletRequest request) {
+    log.debug("Fetching active roles for user: {}", jwt);
+    return Set.of();
   }
 
 }

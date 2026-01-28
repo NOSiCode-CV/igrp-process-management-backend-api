@@ -1,21 +1,20 @@
 package cv.igrp.platform.process.management.shared.security.authz;
 
 import cv.igrp.platform.access.client.ApiClient;
+import cv.igrp.platform.access.client.api.DepartmentsApi;
 import cv.igrp.platform.access.client.api.UsersApi;
-import cv.igrp.platform.access.client.model.DepartmentDTO;
-import cv.igrp.platform.access.client.model.PermissionDTO;
-import cv.igrp.platform.access.client.model.RoleDTO;
-import cv.igrp.platform.access.client.model.RoleDepartmentDTO;
+import cv.igrp.platform.access.client.model.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import org.springframework.cache.annotation.Cacheable;
 
 
@@ -35,7 +34,7 @@ public class IgrpAuthorizationServiceAdapter implements IAuthorizationServiceAda
   }
 
   @Override
-  @Cacheable(value = "rolesCache", key = "#jwt",  unless = "#result.isEmpty()")
+  @Cacheable(value = "rolesCache", key = "#jwt", unless = "#result.isEmpty()")
   public Set<String> getRoles(String jwt, HttpServletRequest request) {
     try {
 
@@ -45,12 +44,17 @@ public class IgrpAuthorizationServiceAdapter implements IAuthorizationServiceAda
 
       var usersApi = new UsersApi(client);
 
-      List<RoleDTO> roles = usersApi.getCurrentUserRoles();
-      LOGGER.debug("Roles: {}", roles);
+      List<RoleDTO> currentUserRoles = usersApi.getCurrentUserRoles();
+      LOGGER.debug("Current User Roles: {}", currentUserRoles);
 
-      return roles.stream()
+      Set<String> roles = currentUserRoles.stream()
           .map(roleDTO -> normalizeRoleCode(roleDTO.getDepartmentCode(), roleDTO.getCode()))
           .collect(Collectors.toSet());
+
+      // Descendant roles
+      currentUserRoles.forEach(role -> roles.addAll(getDescendantRoles(role.getDepartmentCode(), role.getCode())));
+
+      return roles;
 
     } catch (Exception e) {
       LOGGER.error("Error getting roles for current user", e);
@@ -68,11 +72,31 @@ public class IgrpAuthorizationServiceAdapter implements IAuthorizationServiceAda
     return roleCode.startsWith(prefix) ? roleCode : prefix + roleCode;
   }
 
+  private Set<String> getDescendantRoles(String departmentCode, String roleCode) {
+    Set<String> descendantRoles = new HashSet<>();
+    try {
+      var departmentsApi = new DepartmentsApi(client);
+      RoleChildHierarchyDTO roleChildHierarchyDTO = departmentsApi.getRoleChildren(
+          departmentCode,
+          roleCode,
+          null
+      );
+      LOGGER.debug("Role Children: {}", roleChildHierarchyDTO);
+      if (roleChildHierarchyDTO != null && roleChildHierarchyDTO.getChildren() != null) {
+        roleChildHierarchyDTO.getChildren()
+            .forEach(childRole ->
+                descendantRoles.add(normalizeRoleCode(childRole.getDepartmentCode(), childRole.getRoleCode())));
+      }
+    } catch (Exception e) {
+      LOGGER.error("Error getting role children for role {}", roleCode, e);
+    }
+    return descendantRoles;
+  }
 
   @Override
-  @Cacheable(value = "permissionsCache", key = "#jwt",  unless = "#result.isEmpty()")
+  @Cacheable(value = "permissionsCache", key = "#jwt", unless = "#result.isEmpty()")
   public Set<String> getPermissions(String jwt, HttpServletRequest request) {
-    try{
+    try {
 
       LOGGER.debug("Getting permissions for current user");
 
@@ -87,7 +111,7 @@ public class IgrpAuthorizationServiceAdapter implements IAuthorizationServiceAda
           .map(PermissionDTO::getName)
           .collect(Collectors.toSet());
 
-    }catch (Exception e){
+    } catch (Exception e) {
       LOGGER.error("Error getting permissions for current user", e);
       return Set.of();
     }
@@ -122,7 +146,7 @@ public class IgrpAuthorizationServiceAdapter implements IAuthorizationServiceAda
   @Override
   @Cacheable(value = "superAdminCache", key = "#jwt")
   public boolean isSuperAdmin(String jwt, HttpServletRequest request) {
-    try{
+    try {
 
       LOGGER.debug("Checking if current user is super admin");
 
@@ -134,7 +158,7 @@ public class IgrpAuthorizationServiceAdapter implements IAuthorizationServiceAda
 
       return isSuperAdmin;
 
-    }catch (Exception e){
+    } catch (Exception e) {
       LOGGER.error("Error checking if current user is super admin", e);
     }
     return false;
@@ -142,10 +166,13 @@ public class IgrpAuthorizationServiceAdapter implements IAuthorizationServiceAda
 
   @Override
   @Cacheable(value = "activeRoleCache", key = "#jwt")
-  public Optional<String> getCurrentActiveRole(String jwt, HttpServletRequest request) {
-    try{
+  public Set<String> getActiveRoles(String jwt, HttpServletRequest request) {
 
-      LOGGER.debug("Get current active role for current user");
+    LOGGER.debug("Get active roles for current user");
+
+    Set<String> roles = new HashSet<>();
+
+    try {
 
       client.setAuthToken(jwt);
       var usersApi = new UsersApi(client);
@@ -153,15 +180,17 @@ public class IgrpAuthorizationServiceAdapter implements IAuthorizationServiceAda
 
       LOGGER.debug("Current active role: {}", currentRole);
 
-      if(currentRole != null){
-        return Optional.of(
-            normalizeRoleCode(currentRole.getDepartmentCode(), currentRole.getRoleCode())
-        );
+      if (currentRole != null) {
+        roles.add(normalizeRoleCode(currentRole.getDepartmentCode(), currentRole.getRoleCode()));
+        // Descendant roles
+        roles.addAll(getDescendantRoles(currentRole.getDepartmentCode(), currentRole.getRoleCode()));
       }
+
     } catch (Exception e) {
-      LOGGER.error("Error getting current active role for current user", e);
+      LOGGER.error("Error getting active roles for current user", e);
     }
-    return Optional.empty();
+
+    return roles;
   }
 
 }
