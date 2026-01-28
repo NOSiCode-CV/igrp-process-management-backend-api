@@ -123,7 +123,7 @@ public class SecurityConfig {
             authorities.add(new SimpleGrantedAuthority(groupValue));
           });
 
-      //authorizationService.getCurrentActiveRole(token, request);
+      //authorizationService.getActiveRoles(token, request);
 
       // Activiti Admin or User role
       if(authorizationService.isSuperAdmin(token, request)){
