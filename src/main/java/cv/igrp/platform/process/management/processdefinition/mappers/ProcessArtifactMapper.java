@@ -72,4 +72,15 @@ public class ProcessArtifactMapper {
     return entities.stream().map(this::toModel).toList();
   }
 
+  public ProcessArtifact toModel(ProcessArtifactDTO dto) {
+    return ProcessArtifact.builder()
+        .id(Identifier.create(dto.getId()))
+        .name(Name.create(dto.getName()))
+        .processDefinitionId(Code.create(dto.getProcessDefinitionId()))
+        .key(Code.create(dto.getKey()))
+        .formKey(Code.create(dto.getFormKey()))
+        .candidateGroups(dto.getCandidateGroups())
+        .build();
+  }
+
 }

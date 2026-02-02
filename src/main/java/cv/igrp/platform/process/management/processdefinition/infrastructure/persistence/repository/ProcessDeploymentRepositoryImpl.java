@@ -8,19 +8,18 @@ import cv.igrp.framework.runtime.core.engine.process.model.ProcessFilter;
 import cv.igrp.framework.runtime.core.engine.task.TaskQueryService;
 import cv.igrp.platform.process.management.processdefinition.domain.exception.ProcessDeploymentException;
 import cv.igrp.platform.process.management.processdefinition.domain.filter.ProcessDeploymentFilter;
+import cv.igrp.platform.process.management.processdefinition.domain.models.BpmnXml;
 import cv.igrp.platform.process.management.processdefinition.domain.models.ProcessArtifact;
 import cv.igrp.platform.process.management.processdefinition.domain.models.ProcessDeployment;
 import cv.igrp.platform.process.management.processdefinition.domain.repository.ProcessDeploymentRepository;
 import cv.igrp.platform.process.management.processdefinition.mappers.ProcessDeploymentMapper;
-import cv.igrp.platform.process.management.shared.domain.models.Code;
-import cv.igrp.platform.process.management.shared.domain.models.Name;
-import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
-import cv.igrp.platform.process.management.shared.domain.models.ResourceName;
+import cv.igrp.platform.process.management.shared.domain.models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Implementation of {@link ProcessDeploymentRepository} that delegates to
@@ -118,6 +117,22 @@ public class ProcessDeploymentRepositoryImpl implements ProcessDeploymentReposit
   @Override
   public void addCandidateStarterGroup(String processDefinitionId, String groupId) {
     processDefinitionAdapter.addCandidateStarterGroup(processDefinitionId, groupId);
+  }
+
+  @Override
+  public Optional<ProcessDeployment> findById(String id) {
+    return processDefinitionAdapter.getProcessDefinition(id)
+        .map(def -> ProcessDeployment.builder()
+            .key(Code.create(def.key()))
+            .name(Name.create(def.name()))
+            .description(def.description())
+            .applicationBase(def.applicationBase() != null ? Code.create(def.applicationBase()) : null)
+            .deploymentId(def.deploymentId())
+            .version( String.valueOf(def.version()))
+            .resourceName(ResourceName.create(def.resourceName()))
+            .bpmnXml(BpmnXml.create(def.bpmnXml()))
+            .build()
+        );
   }
 
 }

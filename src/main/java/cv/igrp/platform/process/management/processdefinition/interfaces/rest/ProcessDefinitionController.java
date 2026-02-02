@@ -29,6 +29,7 @@ import java.util.List;
 import cv.igrp.platform.process.management.processdefinition.application.dto.ProcessSequenceDTO;
 import cv.igrp.platform.process.management.processdefinition.application.dto.SequenceRequestDTO;
 import cv.igrp.platform.process.management.processdefinition.application.dto.AssignProcessDTO;
+import cv.igrp.platform.process.management.processdefinition.application.dto.ProcessPackageDTO;
 
 @IgrpController
 @RestController
@@ -321,6 +322,68 @@ public class ProcessDefinitionController {
   {
 
       final var command = new AssignProcessDefinitionCommand(assignProcessDefinitionRequest, id);
+
+       ResponseEntity<String> response = commandBus.send(command);
+
+       return response;
+  }
+
+      @GetMapping(
+   value = "{id}/export"
+  )
+  @Operation(
+    summary = "GET method to handle operations for Export process definition",
+    description = "GET method to handle operations for Export process definition",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          description = "",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = ProcessPackageDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<ProcessPackageDTO> exportProcessDefinition(
+    @PathVariable(value = "id") String id)
+  {
+
+      final var query = new ExportProcessDefinitionQuery(id);
+
+      ResponseEntity<ProcessPackageDTO> response = queryBus.handle(query);
+
+      return response;
+  }
+
+      @PostMapping(
+   value = "{id}/import"
+  )
+  @Operation(
+    summary = "POST method to handle operations for Import process definition",
+    description = "POST method to handle operations for Import process definition",
+    responses = {
+      @ApiResponse(
+          responseCode = "204",
+          description = "",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = String.class,
+                  type = "String")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<String> importProcessDefinition(@Valid @RequestBody ProcessPackageDTO importProcessDefinitionRequest
+    , @PathVariable(value = "id") String id)
+  {
+
+      final var command = new ImportProcessDefinitionCommand(importProcessDefinitionRequest, id);
 
        ResponseEntity<String> response = commandBus.send(command);
 

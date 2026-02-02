@@ -136,13 +136,13 @@
         <dependency>
             <groupId>cv.igrp.framework</groupId>
             <artifactId>runtime-core</artifactId>
-            <version>0.1.0-beta.14</version>
+            <version>0.1.0-beta.15</version>
         </dependency>
 
         <dependency>
             <groupId>cv.igrp.framework</groupId>
             <artifactId>runtime-activiti</artifactId>
-            <version>0.1.0-beta.14</version>
+            <version>0.1.0-beta.15</version>
         </dependency>
 
         <dependency>

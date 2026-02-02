@@ -7,6 +7,7 @@ import cv.igrp.platform.process.management.processdefinition.domain.models.Proce
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Repository interface for deploying and querying process definitions or deployments.
@@ -40,17 +41,28 @@ public interface ProcessDeploymentRepository {
 
 
   /**
+   * Retrieves the unique identifier of the most recent process definition based on the specified process definition key.
    *
-   * @param processDefinitionKey
-   * @return
+   * @param processDefinitionKey the key representing the process definition
+   * @return the unique identifier of the latest process definition associated with the provided key
    */
   String findLastProcessDefinitionIdByKey(String processDefinitionKey);
 
   /**
+   * Adds a candidate starter group to a specified process definition.
    *
-   * @param processDefinitionId
-   * @param groupId
+   * @param processDefinitionId the unique identifier of the process definition to which the group will be added
+   * @param groupId the unique identifier of the group to be added as a candidate starter for the process definition
    */
   void addCandidateStarterGroup(String processDefinitionId, String groupId);
+
+  /**
+   * Retrieves a process deployment record by its unique identifier.
+   *
+   * @param id the unique identifier of the process deployment to find
+   * @return an {@link Optional} containing the found {@link ProcessDeployment}, or an empty {@link Optional}
+   *         if no deployment is found with the specified identifier
+   */
+  Optional<ProcessDeployment> findById(String id);
 
 }

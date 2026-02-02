@@ -296,7 +296,8 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
   public ProcessDefinitionRepresentation getProcessDefinition(String processDefinitionId) {
     try {
       return processDefinitionAdapter
-          .getProcessDefinition(processDefinitionId);
+          .getProcessDefinition(processDefinitionId)
+          .orElseThrow();
     } catch (Exception e) {
       LOGGER.error("Error retrieving process definition by Id: {}", processDefinitionId, e);
       throw new RuntimeProcessEngineException("Error retrieving process definition by ID: " + processDefinitionId, e);
