@@ -452,4 +452,35 @@ public class ProcessDefinitionController {
        return response;
   }
 
+      @PostMapping(
+   value = "{id}/unassign"
+  )
+  @Operation(
+    summary = "POST method to handle operations for Un assign process definition",
+    description = "POST method to handle operations for Un assign process definition",
+    responses = {
+      @ApiResponse(
+          responseCode = "204",
+          description = "",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = String.class,
+                  type = "String")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<String> unAssignProcessDefinition(@Valid @RequestBody AssignProcessDTO unAssignProcessDefinitionRequest
+    , @PathVariable(value = "id") String id)
+  {
+
+      final var command = new UnAssignProcessDefinitionCommand(unAssignProcessDefinitionRequest, id);
+
+       ResponseEntity<String> response = commandBus.send(command);
+
+       return response;
+  }
+
 }

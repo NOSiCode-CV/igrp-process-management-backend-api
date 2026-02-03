@@ -39,7 +39,7 @@ public class TaskInstance {
   private LocalDateTime endedAt;
   private Code endedBy;
   private final List<TaskInstanceEvent> taskInstanceEvents;
-  private final List<String> candidateGroups;
+  private final Set<String> candidateGroups;
   private final Map<String, Object> variables;
   private final Map<String,Object> forms;
   private Map<String, Object> processVariables;
@@ -69,7 +69,7 @@ public class TaskInstance {
       LocalDateTime endedAt,
       Code endedBy,
       List<TaskInstanceEvent> taskInstanceEvents,
-      List<String> candidateGroups,
+      Set<String> candidateGroups,
       Map<String, Object> variables,
       Map<String, Object> forms,
       Map<String, Object> processVariables
@@ -99,8 +99,8 @@ public class TaskInstance {
     this.variables = variables != null ? variables : new HashMap<>();
     this.forms = forms != null ? forms : new HashMap<>();
     this.candidateGroups = candidateGroups != null
-        ? new ArrayList<>(candidateGroups)
-        : new ArrayList<>();
+        ? candidateGroups
+        : new HashSet<>();
     this.processVariables = processVariables != null ? processVariables : new HashMap<>();
   }
 

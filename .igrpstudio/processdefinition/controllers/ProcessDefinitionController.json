@@ -472,6 +472,46 @@
           "description": "Process Definition ID"
         }
       ]
+    },
+    {
+      "actionName": "unAssignProcessDefinition",
+      "path": "{id}/unassign",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "AssignProcessDTO",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "processdefinition"
+            }
+          }
+        }
+      },
+      "responses": {
+        "204": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true,
+          "description": "Process Definition ID"
+        }
+      ]
     }
   ],
   "id": "o9isd9wv95-CONTROLLER-createArtifact-configureArtifact-listDeployments-importProcessDefinition"

@@ -9,8 +9,8 @@ import cv.igrp.platform.process.management.shared.domain.models.Name;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.ProcessArtifactEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 public class ProcessArtifactMapper {
@@ -21,9 +21,9 @@ public class ProcessArtifactMapper {
         .processDefinitionId(Code.create(processDefinitionId))
         .key(Code.create(taskKey))
         .formKey(Code.create(dto.getFormKey()))
-        .candidateGroups(dto.getCandidateGroups() != null
-            ? new ArrayList<>(List.of(dto.getCandidateGroups().split(",")))
-            : new ArrayList<>())
+        .candidateGroups(dto.getCandidateGroups() != null && !dto.getCandidateGroups().isBlank()
+            ? new HashSet<>(List.of(dto.getCandidateGroups().split(",")))
+            : new HashSet<>())
         .build();
   }
 
@@ -34,7 +34,9 @@ public class ProcessArtifactMapper {
     dto.setProcessDefinitionId(model.getProcessDefinitionId().getValue());
     dto.setKey(model.getKey().getValue());
     dto.setFormKey(model.getFormKey().getValue());
-    dto.setCandidateGroups(model.getCandidateGroups());
+    dto.setCandidateGroups(
+        !model.getCandidateGroups().isEmpty() ? String.join(",", model.getCandidateGroups()) : null
+    );
     return dto;
   }
 
@@ -60,8 +62,8 @@ public class ProcessArtifactMapper {
         .key(Code.create(entity.getKey()))
         .formKey(Code.create(entity.getFormKey()))
         .candidateGroups(entity.getCandidateGroups() != null
-            ? new ArrayList<>(List.of(entity.getCandidateGroups().split(",")))
-            : new ArrayList<>())
+            ? new HashSet<>(List.of(entity.getCandidateGroups().split(",")))
+            : new HashSet<>())
         .build();
   }
 
@@ -80,7 +82,11 @@ public class ProcessArtifactMapper {
         .processDefinitionId(Code.create(dto.getProcessDefinitionId()))
         .key(Code.create(dto.getKey()))
         .formKey(Code.create(dto.getFormKey()))
-        .candidateGroups(dto.getCandidateGroups())
+        .candidateGroups(
+            dto.getCandidateGroups() != null
+                ? new HashSet<>(List.of(dto.getCandidateGroups().split(",")))
+                : new HashSet<>()
+        )
         .build();
   }
 
