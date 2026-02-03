@@ -38,7 +38,7 @@ public class TaskInstanceMapper {
         .formKey(taskInfo.formKey()!=null ? Code.create(taskInfo.formKey()) : null)
         .name(Name.create(taskInfo.name() != null ? taskInfo.name() : "NOT SET"))
         .startedAt(utilDateToLocalDateTime.apply(taskInfo.createdTime()))
-        .candidateGroups(taskInfo.candidateGroups())
+        .candidateGroups(new HashSet<>(taskInfo.candidateGroups()))
         .build();
   }
 
@@ -105,7 +105,7 @@ public class TaskInstanceMapper {
         .assignedBy(taskInstanceEntity.getAssignedBy()!=null ? Code.create(taskInstanceEntity.getAssignedBy()) : null)
         .endedAt(taskInstanceEntity.getEndedAt())
         .endedBy(taskInstanceEntity.getEndedBy()!=null ? Code.create(taskInstanceEntity.getEndedBy()) : null)
-        .candidateGroups(taskInstanceEntity.getCandidateGroups()!=null ? List.of(taskInstanceEntity.getCandidateGroups().split(",")) : null)
+        .candidateGroups(taskInstanceEntity.getCandidateGroups()!=null ? new HashSet<>(List.of(taskInstanceEntity.getCandidateGroups().split(","))) : null)
         .taskInstanceEvents(withEvents ? eventMapper.toEventModelList(taskInstanceEntity.getTaskinstanceevents()) : null)
         .forms(taskInstanceEntity.getForms())
         .variables(taskInstanceEntity.getVariables())

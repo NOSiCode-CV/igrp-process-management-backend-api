@@ -23,6 +23,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.stream.Stream;
 
 
 @Service
@@ -50,13 +52,13 @@ public class ProcessDeploymentService {
     this.processInstanceRepository = processInstanceRepository;
   }
 
-  public ProcessDeployment deployProcess(ProcessDeployment processDeployment){
+  public ProcessDeployment deployProcess(ProcessDeployment processDeployment) {
     processDeployment.deploy();
     return processDeploymentRepository.deploy(processDeployment);
   }
 
-  public PageableLista<ProcessDeployment> getAllDeployments(ProcessDeploymentFilter processDeploymentFilter){
-    if(processDeploymentFilter.isFilterByCurrentUser()){
+  public PageableLista<ProcessDeployment> getAllDeployments(ProcessDeploymentFilter processDeploymentFilter) {
+    if (processDeploymentFilter.isFilterByCurrentUser()) {
       userContext.getCurrentGroups()
           .forEach(processDeploymentFilter::addContextGroup);
     }
@@ -66,7 +68,7 @@ public class ProcessDeploymentService {
         .forEach(processDeployment -> {
           processDeploymentRepository.getCandidateStarterGroups(processDeployment.getId())
               .forEach(processDeployment::addCandidateGroups);
-        } );
+        });
     return pageableLista;
   }
 
@@ -78,24 +80,43 @@ public class ProcessDeploymentService {
     return processDeploymentRepository.findLastProcessDefinitionIdByKey(processDefinitionKey);
   }
 
-  public void assignProcessDefinition(String processDefinitionId, String groups) {
+  public void assignProcessDefinition(String id, String groups) {
+    updateProcessDefinitionAssignment(id, groups, true);
+  }
+
+  public void unAssignProcessDefinition(String id, String groups) {
+    updateProcessDefinitionAssignment(id, groups, false);
+  }
+
+  public void updateProcessDefinitionAssignment(String processDefinitionId, String groups, boolean assign) {
+
     if (processDefinitionId == null || processDefinitionId.isBlank()) {
-      throw IgrpResponseStatusException.badRequest("Process definition ID cannot be null or blank");
+      throw IgrpResponseStatusException.badRequest(
+          "Process definition ID cannot be null or blank"
+      );
     }
     if (groups == null || groups.isBlank()) {
-      throw IgrpResponseStatusException.badRequest("Groups cannot be null or blank");
+      throw IgrpResponseStatusException.badRequest(
+          "Groups cannot be null or blank"
+      );
     }
     Arrays.stream(groups.split(","))
         .map(String::trim)
         .filter(g -> !g.isEmpty())
         .distinct()
-        .forEach(group ->
+        .forEach(group -> {
+          if (assign) {
             processDeploymentRepository
-                .addCandidateStarterGroup(processDefinitionId, group)
-        );
+                .addCandidateStarterGroup(processDefinitionId, group);
+          } else {
+            processDeploymentRepository
+                .removeCandidateStarterGroup(processDefinitionId, group);
+          }
+        });
   }
 
-  public ProcessPackage exportProcessDefinition(String processDefinitionId){
+
+  public ProcessPackage exportProcessDefinition(String processDefinitionId) {
     ProcessDeployment processDeployment = getProcessDeploymentById(processDefinitionId);
     ProcessPackage processPackage = ProcessPackage.builder()
         .processName(processDeployment.getName())
@@ -128,7 +149,7 @@ public class ProcessDeploymentService {
         .orElseThrow(() -> IgrpResponseStatusException.notFound("No process definition found with ID: " + processDefinitionId));
   }
 
-  public void importProcessDefinition(ProcessPackage processPackage){
+  public void importProcessDefinition(ProcessPackage processPackage) {
     LOGGER.info("Importing process definition: {}", processPackage.getProcessKey());
 
     // Deploy Process
@@ -147,7 +168,7 @@ public class ProcessDeploymentService {
     Optional<ProcessSequence> processSequence = processSequenceRepository.findByProcessAndApplication(
         processPackage.getProcessKey().getValue()
     );
-    if(processSequence.isEmpty()){
+    if (processSequence.isEmpty()) {
       processSequenceRepository.save(processPackage.getSequence());
     }
 
@@ -158,11 +179,11 @@ public class ProcessDeploymentService {
               processArtifact.getProcessDefinitionId(),
               processArtifact.getKey()
           );
-      if(optProcessArtifact.isPresent()){
+      if (optProcessArtifact.isPresent()) {
         ProcessArtifact existing = optProcessArtifact.get();
         existing.update(processArtifact);
         processDefinitionRepository.saveArtifact(existing);
-      }else{
+      } else {
         processDefinitionRepository.saveArtifact(processArtifact);
       }
     });
@@ -175,7 +196,7 @@ public class ProcessDeploymentService {
     LOGGER.info("Process definition imported successfully: {}", processPackage.getProcessKey());
   }
 
-  public void archiveProcess(String processDefinitionId){
+  public void archiveProcess(String processDefinitionId) {
 
     // Process Definition
     processDeploymentRepository.archiveProcessDefinitionById(processDefinitionId);
@@ -189,7 +210,7 @@ public class ProcessDeploymentService {
 
   }
 
-  public void unArchiveProcess(String processDefinitionId){
+  public void unArchiveProcess(String processDefinitionId) {
 
     // Process Definition
     processDeploymentRepository.unArchiveProcessDefinitionById(processDefinitionId);
