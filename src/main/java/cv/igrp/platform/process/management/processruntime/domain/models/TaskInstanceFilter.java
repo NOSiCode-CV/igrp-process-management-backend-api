@@ -39,6 +39,8 @@ public class TaskInstanceFilter {
 
   private boolean isSuperAdmin;
 
+  private boolean isArchived;
+
   @Builder
   private TaskInstanceFilter(
       Identifier processInstanceId,
@@ -57,7 +59,8 @@ public class TaskInstanceFilter {
       Code processReleaseKey,
       boolean filterByCurrentUser,
       Set<String> contextUserGroups,
-      boolean isSuperAdmin
+      boolean isSuperAdmin,
+      boolean isArchived
   ) {
     this.processInstanceId = processInstanceId;
     this.applicationBase = applicationBase;
@@ -77,6 +80,7 @@ public class TaskInstanceFilter {
     this.filterByCurrentUser = filterByCurrentUser;
     this.contextUserGroups = contextUserGroups == null ? new HashSet<>() : contextUserGroups;
     this.isSuperAdmin = isSuperAdmin;
+    this.isArchived = isArchived;
   }
 
   public void addContextUserGroup(String group){

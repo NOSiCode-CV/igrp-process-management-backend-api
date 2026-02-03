@@ -390,4 +390,66 @@ public class ProcessDefinitionController {
        return response;
   }
 
+      @DeleteMapping(
+   value = "{id}/archive"
+  )
+  @Operation(
+    summary = "DELETE method to handle operations for Archive process definition",
+    description = "DELETE method to handle operations for Archive process definition",
+    responses = {
+      @ApiResponse(
+          responseCode = "204",
+          description = "",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = String.class,
+                  type = "String")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<String> archiveProcessDefinition(
+    @PathVariable(value = "id") String id)
+  {
+
+      final var command = new ArchiveProcessDefinitionCommand(id);
+
+       ResponseEntity<String> response = commandBus.send(command);
+
+       return response;
+  }
+
+      @PostMapping(
+   value = "{id}/unarchive"
+  )
+  @Operation(
+    summary = "POST method to handle operations for Un archive process definition",
+    description = "POST method to handle operations for Un archive process definition",
+    responses = {
+      @ApiResponse(
+          responseCode = "204",
+          description = "",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = String.class,
+                  type = "String")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<String> unArchiveProcessDefinition(
+    @PathVariable(value = "id") String id)
+  {
+
+      final var command = new UnArchiveProcessDefinitionCommand(id);
+
+       ResponseEntity<String> response = commandBus.send(command);
+
+       return response;
+  }
+
 }

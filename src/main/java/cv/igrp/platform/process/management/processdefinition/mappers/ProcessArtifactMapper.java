@@ -45,6 +45,7 @@ public class ProcessArtifactMapper {
     entity.setKey(model.getKey().getValue());
     entity.setFormKey(model.getFormKey().getValue());
     entity.setId(model.getId().getValue());
+
     if(!model.getCandidateGroups().isEmpty()) {
       entity.setCandidateGroups(String.join(",", model.getCandidateGroups()));
     }

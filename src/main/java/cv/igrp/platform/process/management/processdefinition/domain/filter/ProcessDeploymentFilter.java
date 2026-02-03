@@ -19,6 +19,7 @@ public class ProcessDeploymentFilter {
   private Set<String> contextGroups;
   private Set<String> groups;
 
+  private boolean isSuspended;
 
   @Builder
   public ProcessDeploymentFilter(String processName,
@@ -27,7 +28,8 @@ public class ProcessDeploymentFilter {
                                  Integer pageSize,
                                  boolean filterByCurrentUser,
                                  Set<String> contextGroups,
-                                 Set<String> groups
+                                 Set<String> groups,
+                                 boolean isSuspended
   ) {
     this.processName = processName;
     this.applicationBase = applicationBase;
@@ -36,6 +38,7 @@ public class ProcessDeploymentFilter {
     this.filterByCurrentUser = filterByCurrentUser;
     this.contextGroups = contextGroups == null ? new HashSet<>() : contextGroups;
     this.groups = groups == null ? new HashSet<>() : groups;
+    this.isSuspended = isSuspended;
   }
 
   public void addContextGroup(String contextGroup) {

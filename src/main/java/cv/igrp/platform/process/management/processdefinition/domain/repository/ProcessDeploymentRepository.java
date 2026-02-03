@@ -8,6 +8,7 @@ import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Repository interface for deploying and querying process definitions or deployments.
@@ -57,6 +58,22 @@ public interface ProcessDeploymentRepository {
   void addCandidateStarterGroup(String processDefinitionId, String groupId);
 
   /**
+   * Removes a candidate starter group from the specified process definition.
+   *
+   * @param processDefinitionId the unique identifier of the process definition from which the group will be removed
+   * @param groupId the unique identifier of the group to be removed as a candidate starter for the process definition
+   */
+  void removeCandidateStarterGroup(String processDefinitionId, String groupId);
+
+  /**
+   * Retrieves the set of candidate starter groups associated with the specified process definition.
+   *
+   * @param processDefinitionId the unique identifier of the process definition
+   * @return a set of unique identifiers representing the candidate starter groups for the specified process definition
+   */
+  Set<String> getCandidateStarterGroups(String processDefinitionId);
+
+  /**
    * Retrieves a process deployment record by its unique identifier.
    *
    * @param id the unique identifier of the process deployment to find
@@ -64,5 +81,19 @@ public interface ProcessDeploymentRepository {
    *         if no deployment is found with the specified identifier
    */
   Optional<ProcessDeployment> findById(String id);
+
+  /**
+   * Archives a process definition identified by its unique identifier.
+   *
+   * @param processDefinitionId the unique identifier of the process definition to archive
+   */
+  void archiveProcessDefinitionById(String processDefinitionId);
+
+  /**
+   * Unarchives a process definition identified by its unique identifier.
+   *
+   * @param processDefinitionId the unique identifier of the process definition to unarchive
+   */
+  void unArchiveProcessDefinitionById(String processDefinitionId);
 
 }

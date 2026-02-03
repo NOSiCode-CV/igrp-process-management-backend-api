@@ -18,8 +18,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Implementation of {@link ProcessDeploymentRepository} that delegates to
@@ -95,6 +97,7 @@ public class ProcessDeploymentRepositoryImpl implements ProcessDeploymentReposit
         ? filter.getContextGroups().stream().toList()
         : filter.getGroups().stream().toList();
     processFilter.setGroupsIds(groupsIds);
+    processFilter.setSuspended(filter.isSuspended());
     return processFilter;
   }
 
@@ -120,6 +123,17 @@ public class ProcessDeploymentRepositoryImpl implements ProcessDeploymentReposit
   }
 
   @Override
+  public void removeCandidateStarterGroup(String processDefinitionId, String groupId) {
+    processDefinitionAdapter.removeCandidateStarterGroup(processDefinitionId, groupId);
+  }
+
+  @Override
+  public Set<String> getCandidateStarterGroups(String processDefinitionId) {
+    List<String> groups = processDefinitionAdapter.getCandidateStarterGroups(processDefinitionId);
+    return Set.copyOf(groups);
+  }
+
+  @Override
   public Optional<ProcessDeployment> findById(String id) {
     return processDefinitionAdapter.getProcessDefinition(id)
         .map(def -> ProcessDeployment.builder()
@@ -133,6 +147,16 @@ public class ProcessDeploymentRepositoryImpl implements ProcessDeploymentReposit
             .bpmnXml(BpmnXml.create(def.bpmnXml()))
             .build()
         );
+  }
+
+  @Override
+  public void archiveProcessDefinitionById(String processDefinitionId) {
+    processDefinitionAdapter.suspendProcessDefinitionById(processDefinitionId);
+  }
+
+  @Override
+  public void unArchiveProcessDefinitionById(String processDefinitionId) {
+    processDefinitionAdapter.activateProcessDefinitionById(processDefinitionId);
   }
 
 }

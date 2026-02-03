@@ -43,6 +43,7 @@ public class ProcessInstanceMapper {
     processInstanceEntity.setObsCancel(processInstance.getObsCancel());
     processInstanceEntity.setName(processInstance.getName());
     processInstanceEntity.setPriority(processInstance.getPriority());
+    processInstanceEntity.setIsArchived(processInstance.isArchived());
     return processInstanceEntity;
   }
 
