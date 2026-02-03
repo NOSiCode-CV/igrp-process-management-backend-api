@@ -126,6 +126,9 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
 
     Specification<TaskInstanceEntity> spec = (root, query, builder) -> null;
 
+    spec = spec.and((root, query, cb) ->
+        cb.equal(root.get("processInstanceId").get("isArchived"), filter.isArchived()));
+
     if (filter.getProcessInstanceId() != null) {
       spec = spec.and((root, query, cb) ->
           cb.equal(root.get("processInstanceId").get("id"), filter.getProcessInstanceId().getValue()));

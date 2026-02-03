@@ -1,27 +1,15 @@
 {
   "type": "dto",
   "module": "processdefinition",
-  "name": "ProcessDeploymentListDTO",
+  "name": "ProcessPackageDTO",
   "template": "classic",
   "enableCustonValidation": false,
   "attributes": [
     {
-      "name": "id",
-      "objectType": "java",
-      "type": "string",
-      "required": false,
-      "before": false,
-      "after": false,
-      "positive": false,
-      "isEmail": false,
-      "isUrl": false,
-      "primaryKey": false
-    },
-    {
       "name": "processKey",
       "objectType": "java",
       "type": "string",
-      "required": false,
+      "required": true,
       "before": false,
       "after": false,
       "positive": false,
@@ -30,7 +18,31 @@
       "primaryKey": false
     },
     {
-      "name": "name",
+      "name": "processName",
+      "objectType": "java",
+      "type": "string",
+      "required": true,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    },
+    {
+      "name": "processVersion",
+      "objectType": "java",
+      "type": "string",
+      "required": true,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    },
+    {
+      "name": "processDescription",
       "objectType": "java",
       "type": "string",
       "required": false,
@@ -42,34 +54,10 @@
       "primaryKey": false
     },
     {
-      "name": "description",
+      "name": "bpmnXml",
       "objectType": "java",
       "type": "string",
-      "required": false,
-      "before": false,
-      "after": false,
-      "positive": false,
-      "isEmail": false,
-      "isUrl": false,
-      "primaryKey": false
-    },
-    {
-      "name": "version",
-      "objectType": "java",
-      "type": "string",
-      "required": false,
-      "before": false,
-      "after": false,
-      "positive": false,
-      "isEmail": false,
-      "isUrl": false,
-      "primaryKey": false
-    },
-    {
-      "name": "deploymentId",
-      "objectType": "java",
-      "type": "string",
-      "required": false,
+      "required": true,
       "before": false,
       "after": false,
       "positive": false,
@@ -81,13 +69,40 @@
       "name": "applicationBase",
       "objectType": "java",
       "type": "string",
-      "required": false,
+      "required": true,
       "before": false,
       "after": false,
       "positive": false,
       "isEmail": false,
       "isUrl": false,
       "primaryKey": false
+    },
+    {
+      "name": "artifacts",
+      "objectType": "dto",
+      "type": "ProcessArtifactDTO",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false,
+      "collectionType": "list",
+      "module": "processdefinition"
+    },
+    {
+      "name": "sequence",
+      "objectType": "dto",
+      "type": "ProcessSequenceDTO",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false,
+      "module": "processdefinition"
     },
     {
       "name": "candidateGroups",
@@ -102,5 +117,5 @@
       "primaryKey": false
     }
   ],
-  "id": "60d954wzla"
+  "id": "papkbjyeyj"
 }

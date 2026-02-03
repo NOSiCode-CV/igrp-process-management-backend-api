@@ -56,6 +56,9 @@ public class ProcessDeploymentMapper {
     dto.setVersion(model.getVersion());
     dto.setApplicationBase(model.getApplicationBase().getValue());
     dto.setDeploymentId(model.getDeploymentId());
+    dto.setCandidateGroups(
+        !model.getCandidateGroups().isEmpty() ? String.join(",", model.getCandidateGroups()) : null
+    );
     return dto;
   }
 

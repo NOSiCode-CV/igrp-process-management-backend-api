@@ -350,7 +350,129 @@
           "description": "Process Definition ID"
         }
       ]
+    },
+    {
+      "actionName": "exportProcessDefinition",
+      "path": "{id}/export",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProcessPackageDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "processdefinition"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true,
+          "description": "Process Definition ID"
+        }
+      ]
+    },
+    {
+      "actionName": "importProcessDefinition",
+      "path": "{id}/import",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "ProcessPackageDTO",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "processdefinition"
+            }
+          }
+        }
+      },
+      "responses": {
+        "204": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true,
+          "description": "Process Definition ID"
+        }
+      ]
+    },
+    {
+      "actionName": "archiveProcessDefinition",
+      "path": "{id}/archive",
+      "method": "DELETE",
+      "responses": {
+        "204": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "unArchiveProcessDefinition",
+      "path": "{id}/unarchive",
+      "method": "POST",
+      "responses": {
+        "204": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true,
+          "description": "Process Definition ID"
+        }
+      ]
     }
   ],
-  "id": "o9isd9wv95-CONTROLLER-createArtifact-configureArtifact-listDeployments"
+  "id": "o9isd9wv95-CONTROLLER-createArtifact-configureArtifact-listDeployments-importProcessDefinition"
 }

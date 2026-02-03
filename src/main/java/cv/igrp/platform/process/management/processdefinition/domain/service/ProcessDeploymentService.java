@@ -3,28 +3,51 @@ package cv.igrp.platform.process.management.processdefinition.domain.service;
 import cv.igrp.platform.process.management.processdefinition.domain.filter.ProcessDeploymentFilter;
 import cv.igrp.platform.process.management.processdefinition.domain.models.ProcessArtifact;
 import cv.igrp.platform.process.management.processdefinition.domain.models.ProcessDeployment;
+import cv.igrp.platform.process.management.processdefinition.domain.models.ProcessPackage;
+import cv.igrp.platform.process.management.processdefinition.domain.models.ProcessSequence;
+import cv.igrp.platform.process.management.processdefinition.domain.repository.ProcessDefinitionRepository;
 import cv.igrp.platform.process.management.processdefinition.domain.repository.ProcessDeploymentRepository;
+import cv.igrp.platform.process.management.processdefinition.domain.repository.ProcessSequenceRepository;
+import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstance;
+import cv.igrp.platform.process.management.processruntime.domain.repository.ProcessInstanceRepository;
 import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
+import cv.igrp.platform.process.management.shared.domain.models.ResourceName;
 import cv.igrp.platform.process.management.shared.security.util.UserContext;
-import jakarta.validation.constraints.NotBlank;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
 
 @Service
 public class ProcessDeploymentService {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(ProcessDeploymentService.class);
+
+
   private final ProcessDeploymentRepository processDeploymentRepository;
   private final UserContext userContext;
 
+  private final ProcessDefinitionRepository processDefinitionRepository;
+  private final ProcessSequenceRepository processSequenceRepository;
+  private final ProcessInstanceRepository processInstanceRepository;
+
   public ProcessDeploymentService(ProcessDeploymentRepository processDeploymentRepository,
-                                  UserContext userContext
-  ) {
+                                  UserContext userContext,
+                                  ProcessDefinitionRepository processDefinitionRepository,
+                                  ProcessSequenceRepository processSequenceRepository,
+                                  ProcessInstanceRepository processInstanceRepository) {
     this.processDeploymentRepository = processDeploymentRepository;
     this.userContext = userContext;
+    this.processDefinitionRepository = processDefinitionRepository;
+    this.processSequenceRepository = processSequenceRepository;
+    this.processInstanceRepository = processInstanceRepository;
   }
 
   public ProcessDeployment deployProcess(ProcessDeployment processDeployment){
@@ -37,7 +60,14 @@ public class ProcessDeploymentService {
       userContext.getCurrentGroups()
           .forEach(processDeploymentFilter::addContextGroup);
     }
-    return processDeploymentRepository.findAll(processDeploymentFilter);
+    PageableLista<ProcessDeployment> pageableLista = processDeploymentRepository.findAll(processDeploymentFilter);
+    // Enrich with candidate groups
+    pageableLista.getContent()
+        .forEach(processDeployment -> {
+          processDeploymentRepository.getCandidateStarterGroups(processDeployment.getId())
+              .forEach(processDeployment::addCandidateGroups);
+        } );
+    return pageableLista;
   }
 
   public List<ProcessArtifact> getDeployedArtifactsByProcessDefinitionId(String processDefinitionId) {
@@ -65,5 +95,112 @@ public class ProcessDeploymentService {
         );
   }
 
+  public ProcessPackage exportProcessDefinition(String processDefinitionId){
+    ProcessDeployment processDeployment = getProcessDeploymentById(processDefinitionId);
+    ProcessPackage processPackage = ProcessPackage.builder()
+        .processName(processDeployment.getName())
+        .processId(Code.create(processDefinitionId))
+        .processDescription(processDeployment.getDescription())
+        .processKey(Code.create(processDeployment.getKey().getValue()))
+        .applicationBase(processDeployment.getApplicationBase())
+        .bpmnXml(processDeployment.getBpmnXml())
+        .build();
+
+    // Add the sequence
+    ProcessSequence processSequence = processSequenceRepository.findByProcessAndApplication(processPackage.getProcessKey().getValue())
+        .orElseThrow(() -> IgrpResponseStatusException.notFound(
+            "Process Sequence not found for processDefinitionKey[" + processPackage.getProcessKey().getValue() + "]"));
+    processPackage.addSequence(processSequence);
+
+    // Add artifacts
+    processDefinitionRepository.findAllArtifacts(processPackage.getProcessId())
+        .forEach(processPackage::addArtifact);
+
+    // Add candidate groups
+    processDeploymentRepository.getCandidateStarterGroups(processPackage.getProcessId().getValue())
+        .forEach(processPackage::addGroup);
+
+    return processPackage;
+  }
+
+  private ProcessDeployment getProcessDeploymentById(String processDefinitionId) {
+    return processDeploymentRepository.findById(processDefinitionId)
+        .orElseThrow(() -> IgrpResponseStatusException.notFound("No process definition found with ID: " + processDefinitionId));
+  }
+
+  public void importProcessDefinition(ProcessPackage processPackage){
+    LOGGER.info("Importing process definition: {}", processPackage.getProcessKey());
+
+    // Deploy Process
+    deployProcess(
+        ProcessDeployment.builder()
+            .bpmnXml(processPackage.getBpmnXml())
+            .name(processPackage.getProcessName())
+            .description(processPackage.getProcessDescription())
+            .resourceName(ResourceName.create(processPackage.getProcessVersion() + ".bpmn20.xml"))
+            .key(processPackage.getProcessKey())
+            .applicationBase(processPackage.getApplicationBase())
+            .build()
+    );
+
+    // Save Process Sequence
+    Optional<ProcessSequence> processSequence = processSequenceRepository.findByProcessAndApplication(
+        processPackage.getProcessKey().getValue()
+    );
+    if(processSequence.isEmpty()){
+      processSequenceRepository.save(processPackage.getSequence());
+    }
+
+    // Save Process Artifacts
+    processPackage.getArtifacts().forEach(processArtifact -> {
+      Optional<ProcessArtifact> optProcessArtifact = processDefinitionRepository
+          .findArtifactByProcessDefinitionIdAndKey(
+              processArtifact.getProcessDefinitionId(),
+              processArtifact.getKey()
+          );
+      if(optProcessArtifact.isPresent()){
+        ProcessArtifact existing = optProcessArtifact.get();
+        existing.update(processArtifact);
+        processDefinitionRepository.saveArtifact(existing);
+      }else{
+        processDefinitionRepository.saveArtifact(processArtifact);
+      }
+    });
+
+    // Candidate Groups
+    for (String group : processPackage.getCandidateGroups()) {
+      processDeploymentRepository.addCandidateStarterGroup(processPackage.getProcessId().getValue(), group);
+    }
+
+    LOGGER.info("Process definition imported successfully: {}", processPackage.getProcessKey());
+  }
+
+  public void archiveProcess(String processDefinitionId){
+
+    // Process Definition
+    processDeploymentRepository.archiveProcessDefinitionById(processDefinitionId);
+
+    // Process Instances
+    List<ProcessInstance> processInstances = processInstanceRepository.findAllByProcessReleaseId(processDefinitionId);
+    for (ProcessInstance processInstance : processInstances) {
+      processInstance.archive();
+      processInstanceRepository.save(processInstance);
+    }
+
+  }
+
+  public void unArchiveProcess(String processDefinitionId){
+
+    // Process Definition
+    processDeploymentRepository.unArchiveProcessDefinitionById(processDefinitionId);
+
+    // Process Instances
+    List<ProcessInstance> processInstances = processInstanceRepository.findAllByProcessReleaseId(processDefinitionId);
+    for (ProcessInstance processInstance : processInstances) {
+      processInstance.unArchive();
+      processInstanceRepository.save(processInstance);
+    }
+
+  }
 
 }
