@@ -33,11 +33,11 @@ public class ProcessPackage {
                         List<ProcessArtifact> artifacts,
                         ProcessSequence sequence,
                         Set<String> candidateGroups) {
-    this.processId = Objects.requireNonNull(processId, "Process Id cannot be null!");
+    this.processId = processId;
     this.processKey = Objects.requireNonNull(processKey, "Process Key cannot be null!");
     this.processName = Objects.requireNonNull(processName, "Process Name cannot be null!");
     this.processVersion = processVersion;
-    this.processDescription = processDescription;
+    this.processDescription = processDescription == null ? processName.getValue() : processDescription;
     this.bpmnXml = bpmnXml;
     this.applicationBase = applicationBase;
     this.artifacts = artifacts == null ? new ArrayList<>() : artifacts;

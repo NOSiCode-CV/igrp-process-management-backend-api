@@ -14,7 +14,5 @@ public class ImportProcessDefinitionCommand implements Command {
 
   
   private ProcessPackageDTO processpackagedto;
-  @NotBlank(message = "The field <id> is required")
-  private String id;
 
 }

@@ -147,10 +147,11 @@ public class ProcessDeploymentService {
   }
 
   public void importProcessDefinition(ProcessPackage processPackage) {
+
     LOGGER.info("Importing process definition: {}", processPackage.getProcessKey());
 
     // Deploy Process
-    deployProcess(
+    ProcessDeployment processDeployment = deployProcess(
         ProcessDeployment.builder()
             .bpmnXml(processPackage.getBpmnXml())
             .name(processPackage.getProcessName())
@@ -163,7 +164,7 @@ public class ProcessDeploymentService {
 
     // Save Process Sequence
     Optional<ProcessSequence> processSequence = processSequenceRepository.findByProcessAndApplication(
-        processPackage.getProcessKey().getValue()
+        processDeployment.getKey().getValue()
     );
     if (processSequence.isEmpty()) {
       processSequenceRepository.save(processPackage.getSequence());
@@ -173,8 +174,8 @@ public class ProcessDeploymentService {
     processPackage.getArtifacts().forEach(processArtifact -> {
       Optional<ProcessArtifact> optProcessArtifact = processDefinitionRepository
           .findArtifactByProcessDefinitionIdAndKey(
-              processArtifact.getProcessDefinitionId(),
-              processArtifact.getKey()
+              Code.create(processDeployment.getId()),
+              processDeployment.getKey()
           );
       if (optProcessArtifact.isPresent()) {
         ProcessArtifact existing = optProcessArtifact.get();
@@ -187,10 +188,12 @@ public class ProcessDeploymentService {
 
     // Candidate Groups
     for (String group : processPackage.getCandidateGroups()) {
-      processDeploymentRepository.addCandidateStarterGroup(processPackage.getProcessId().getValue(), group);
+      processDeploymentRepository.addCandidateStarterGroup(processDeployment.getId(), group);
     }
 
-    LOGGER.info("Process definition imported successfully: {}", processPackage.getProcessKey());
+    LOGGER.info("Process definition imported successfully: ID '{}' Key '{}'",
+        processDeployment.getId(), processDeployment.getKey().getValue());
+
   }
 
   public void archiveProcess(String processDefinitionId) {

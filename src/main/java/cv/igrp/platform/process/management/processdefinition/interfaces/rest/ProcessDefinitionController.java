@@ -360,7 +360,7 @@ public class ProcessDefinitionController {
   }
 
       @PostMapping(
-   value = "{id}/import"
+   value = "import"
   )
   @Operation(
     summary = "POST method to handle operations for Import process definition",
@@ -380,10 +380,10 @@ public class ProcessDefinitionController {
   )
   
   public ResponseEntity<String> importProcessDefinition(@Valid @RequestBody ProcessPackageDTO importProcessDefinitionRequest
-    , @PathVariable(value = "id") String id)
+    )
   {
 
-      final var command = new ImportProcessDefinitionCommand(importProcessDefinitionRequest, id);
+      final var command = new ImportProcessDefinitionCommand(importProcessDefinitionRequest);
 
        ResponseEntity<String> response = commandBus.send(command);
 
