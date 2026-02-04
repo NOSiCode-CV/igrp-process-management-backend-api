@@ -7,7 +7,10 @@ import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Name;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 
 
 @Component
@@ -35,12 +38,12 @@ public class ProcessPackageMapper {
     dto.setCandidateGroups(
         !processPackage.getCandidateGroups().isEmpty() ? String.join(",", processPackage.getCandidateGroups()) : null
     );
+    dto.setProcessVersion(processPackage.getProcessVersion());
     return dto;
   }
 
-  public ProcessPackage toModel(String processDefinitionID, ProcessPackageDTO dto){
+  public ProcessPackage toModel(ProcessPackageDTO dto){
     ProcessPackage processPackage = ProcessPackage.builder()
-        .processId(Code.create(processDefinitionID))
         .processName(Name.create(dto.getProcessName()))
         .processDescription(dto.getProcessDescription())
         .processKey(Code.create(dto.getProcessKey()))
@@ -49,12 +52,12 @@ public class ProcessPackageMapper {
         .processVersion(dto.getProcessVersion())
         .sequence(sequenceMapper.toModel(dto.getSequence()))
         .artifacts(dto.getArtifacts().stream().map(artifactMapper::toModel).toList())
+        .candidateGroups(
+            dto.getCandidateGroups() != null
+                ? new HashSet<>(List.of(dto.getCandidateGroups().split(",")))
+                : new HashSet<>()
+        )
         .build();
-    if(dto.getCandidateGroups() != null && !dto.getCandidateGroups().isBlank()){
-      Arrays.stream(
-          dto.getCandidateGroups().split(",")
-      ).forEach(group -> processPackage.getCandidateGroups().add(group));
-    }
     return processPackage;
   }
 

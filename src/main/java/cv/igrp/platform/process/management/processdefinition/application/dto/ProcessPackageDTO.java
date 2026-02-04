@@ -28,7 +28,7 @@ public class ProcessPackageDTO  {
   @NotBlank(message = "The field <processName> is required")
   
   private String processName ;
-  @NotBlank(message = "The field <processVersion> is required")
+  
   
   private String processVersion ;
   

@@ -13,6 +13,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -84,6 +85,8 @@ public class SecurityConfig {
     // Set session management to stateless (no session created for API requests)
     http.sessionManagement(t -> t.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
+    http.csrf(AbstractHttpConfigurer::disable);
+
     return http.build();
   }
 
@@ -129,6 +132,7 @@ public class SecurityConfig {
       // Activiti Admin or User role
       if(authorizationService.isSuperAdmin(token, request)){
         authorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + ActivitiConstants.ROLE_ACTIVITI_ADMIN));
+        authorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + ActivitiConstants.ROLE_ACTIVITI_USER));
       } else {
         authorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + ActivitiConstants.ROLE_ACTIVITI_USER));
       }
