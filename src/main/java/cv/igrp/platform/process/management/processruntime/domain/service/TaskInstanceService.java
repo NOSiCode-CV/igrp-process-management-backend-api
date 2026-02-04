@@ -276,17 +276,27 @@ public class TaskInstanceService {
 
       var artifact = artifactByKey.get(task.getTaskKey());
       if (artifact != null) {
-        for (var groupId : artifact.getCandidateGroups()) {
 
+        // Groups
+        for (var groupId : artifact.getCandidateGroups()) {
           // Add group to new task instance
           newTask.addCandidateGroup(groupId, user);
-
           // Add group to Activiti runtime task
           runtimeProcessEngineRepository.addCandidateGroup(
               task.getExternalId().getValue(),
               groupId
           );
         }
+
+        // Due Date
+        if (artifact.getDueDate() != null) {
+          newTask.updateDueDate(artifact.getDueDate());
+          runtimeProcessEngineRepository.setTaskDueDate(
+              task.getExternalId().getValue(),
+              artifact.getDueDate()
+          );
+        }
+
       }
 
       createTask(newTask);

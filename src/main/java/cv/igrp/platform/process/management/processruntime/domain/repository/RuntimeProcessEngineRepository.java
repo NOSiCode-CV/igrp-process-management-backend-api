@@ -7,6 +7,7 @@ import cv.igrp.framework.runtime.core.engine.process.ProcessDefinitionRepresenta
 import cv.igrp.platform.process.management.processruntime.domain.exception.RuntimeProcessEngineException;
 import cv.igrp.platform.process.management.processruntime.domain.models.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -296,5 +297,13 @@ public interface RuntimeProcessEngineRepository {
    * @throws IllegalStateException if no active timer job exists for the process instance
    */
   void rescheduleTimer(String processInstanceId, String timerElementId, long seconds);
+
+  /**
+   * Updates the due date of a specific task identified by the given task ID.
+   *
+   * @param taskId the unique identifier of the task whose due date is to be updated
+   * @param dueDate the new due date and time to be set for the task
+   */
+  void setTaskDueDate(String taskId, LocalDateTime dueDate);
 
 }

@@ -47,10 +47,11 @@ public class ProcessArtifactMapper {
     entity.setKey(model.getKey().getValue());
     entity.setFormKey(model.getFormKey().getValue());
     entity.setId(model.getId().getValue());
-
     if(!model.getCandidateGroups().isEmpty()) {
       entity.setCandidateGroups(String.join(",", model.getCandidateGroups()));
     }
+    entity.setDueDate(model.getDueDate());
+    entity.setPriority(model.getPriority());
     return entity;
   }
 
@@ -64,6 +65,8 @@ public class ProcessArtifactMapper {
         .candidateGroups(entity.getCandidateGroups() != null
             ? new HashSet<>(List.of(entity.getCandidateGroups().split(",")))
             : new HashSet<>())
+        .dueDate(entity.getDueDate())
+        .priority(entity.getPriority())
         .build();
   }
 

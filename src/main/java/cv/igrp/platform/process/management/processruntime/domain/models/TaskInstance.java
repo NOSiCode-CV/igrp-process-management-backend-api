@@ -43,6 +43,7 @@ public class TaskInstance {
   private final Map<String, Object> variables;
   private final Map<String,Object> forms;
   private Map<String, Object> processVariables;
+  private LocalDateTime dueDate;
 
 
   @Builder
@@ -72,7 +73,8 @@ public class TaskInstance {
       Set<String> candidateGroups,
       Map<String, Object> variables,
       Map<String, Object> forms,
-      Map<String, Object> processVariables
+      Map<String, Object> processVariables,
+      LocalDateTime dueDate
   ) {
     this.id = id == null ? Identifier.generate() : id;
     this.taskKey = Objects.requireNonNull(taskKey, "Task Key cannot be null!");
@@ -102,6 +104,7 @@ public class TaskInstance {
         ? candidateGroups
         : new HashSet<>();
     this.processVariables = processVariables != null ? processVariables : new HashMap<>();
+    this.dueDate = dueDate;
   }
 
 
@@ -241,6 +244,10 @@ public class TaskInstance {
         .candidateGroups(List.of(groupId))
         .build();
     addCandidateGroup(taskOperationData);
+  }
+
+  public void updateDueDate(LocalDateTime dueDate) {
+    this.dueDate = dueDate;
   }
 
 }
