@@ -29,6 +29,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -441,6 +443,22 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
     } catch (Exception e) {
       LOGGER.error("Failed to reschedule timer '{}' for process instance '{}'", timerElementId, processInstanceId, e);
       throw new RuntimeProcessEngineException("Failed to reschedule timer '" + timerElementId + "' for process instance '" + processInstanceId + "'", e);
+    }
+  }
+
+  @Override
+  public void setTaskDueDate(String taskId, LocalDateTime dueDate) {
+    try{
+      long dueDateMillis = dueDate
+          .atZone(ZoneId.systemDefault())
+          .toInstant()
+          .toEpochMilli();
+      if (!taskActionService.setTaskDueDate(taskId, dueDateMillis)) {
+        throw new RuntimeProcessEngineException("Task not found or due date not updated for taskId: " + taskId);
+      }
+    }catch (Exception e){
+      LOGGER.error("Failed to set due date for task with id={}", taskId, e);
+      throw new RuntimeProcessEngineException("Failed to set due date for task with id: " + taskId, e);
     }
   }
 

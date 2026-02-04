@@ -9,6 +9,7 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
@@ -37,5 +38,11 @@ public class ProcessArtifactDTO  {
   
   
   private String candidateGroups ;
+  
+  
+  private LocalDateTime dueDate ;
+  
+  
+  private Integer priority ;
 
 }

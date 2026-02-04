@@ -10,6 +10,7 @@ import lombok.*;
 import org.hibernate.envers.Audited;
 import java.util.UUID;
 import jakarta.validation.constraints.NotBlank;
+import java.time.LocalDateTime;
 
 @Audited
 @Getter
@@ -56,6 +57,14 @@ public class ProcessArtifactEntity extends AuditEntity {
   
     @Column(name="candidate_groups")
     private String candidateGroups;
+
+  
+    @Column(name="priority")
+    private Integer priority;
+
+  
+    @Column(name="due_date")
+    private LocalDateTime dueDate;
 
   
 }

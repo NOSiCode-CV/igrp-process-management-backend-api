@@ -74,6 +74,7 @@ public class TaskInstanceMapper {
     taskInstanceEntity.setCandidateGroups(!taskInstance.getCandidateGroups().isEmpty() ? String.join(",", taskInstance.getCandidateGroups()) : null);
     taskInstanceEntity.setVariables(taskInstance.getVariables());
     taskInstanceEntity.setForms(taskInstance.getForms());
+    taskInstanceEntity.setDueDate(taskInstance.getDueDate());
   }
 
 
@@ -109,6 +110,7 @@ public class TaskInstanceMapper {
         .taskInstanceEvents(withEvents ? eventMapper.toEventModelList(taskInstanceEntity.getTaskinstanceevents()) : null)
         .forms(taskInstanceEntity.getForms())
         .variables(taskInstanceEntity.getVariables())
+        .dueDate(taskInstanceEntity.getDueDate())
         .build();
   }
 
@@ -150,6 +152,7 @@ public class TaskInstanceMapper {
     dto.setVariables(toProcessVariableDTO(model.getVariables()));
     dto.setForms(toProcessVariableDTO(model.getForms()));
     dto.setProcessVariables(toProcessVariableDTO(model.getProcessVariables()));
+    dto.setDueDate(model.getDueDate());
     return dto;
   }
 
@@ -182,6 +185,7 @@ public class TaskInstanceMapper {
     dto.setVariables(toProcessVariableDTO(taskInstance.getVariables()));
     dto.setForms(toProcessVariableDTO(taskInstance.getForms()));
     dto.setProcessVariables(toProcessVariableDTO(taskInstance.getProcessVariables()));
+    dto.setDueDate(taskInstance.getDueDate());
     return dto;
   }
 
