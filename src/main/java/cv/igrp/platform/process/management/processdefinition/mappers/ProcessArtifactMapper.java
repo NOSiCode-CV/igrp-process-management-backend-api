@@ -37,6 +37,8 @@ public class ProcessArtifactMapper {
     dto.setCandidateGroups(
         !model.getCandidateGroups().isEmpty() ? String.join(",", model.getCandidateGroups()) : null
     );
+    dto.setPriority(model.getPriority());
+    dto.setDueDate(model.getDueDate());
     return dto;
   }
 
