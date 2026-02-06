@@ -24,6 +24,8 @@ public class ProcessArtifactMapper {
         .candidateGroups(dto.getCandidateGroups() != null && !dto.getCandidateGroups().isBlank()
             ? new HashSet<>(List.of(dto.getCandidateGroups().split(",")))
             : new HashSet<>())
+        .dueDate(dto.getDueDate())
+        .priority(dto.getPriority())
         .build();
   }
 

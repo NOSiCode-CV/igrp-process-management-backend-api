@@ -9,7 +9,7 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -28,5 +28,11 @@ public class ProcessArtifactRequestDTO  {
   
   
   private String candidateGroups ;
+  
+  
+  private LocalDateTime dueDate ;
+  
+  
+  private Integer priority ;
 
 }

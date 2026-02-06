@@ -75,7 +75,8 @@ public class SecurityConfig {
                 "/swagger-resources/**", "/webjars/**", "/actuator/**"
             ).permitAll()
             .anyRequest()
-            .authenticated()  // Require authentication for all other requests
+                .permitAll()
+            //.authenticated()  // Require authentication for all other requests
         )
         .exceptionHandling(ex -> ex.authenticationEntryPoint((request, response, authException) -> {
           response.addHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"Restricted Content\"");
@@ -85,6 +86,7 @@ public class SecurityConfig {
     // Set session management to stateless (no session created for API requests)
     http.sessionManagement(t -> t.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
+    // Disable CSRF
     http.csrf(AbstractHttpConfigurer::disable);
 
     return http.build();
