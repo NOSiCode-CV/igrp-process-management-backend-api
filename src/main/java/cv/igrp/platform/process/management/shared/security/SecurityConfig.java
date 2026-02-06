@@ -75,8 +75,7 @@ public class SecurityConfig {
                 "/swagger-resources/**", "/webjars/**", "/actuator/**"
             ).permitAll()
             .anyRequest()
-                .permitAll()
-            //.authenticated()  // Require authentication for all other requests
+            .authenticated()  // Require authentication for all other requests
         )
         .exceptionHandling(ex -> ex.authenticationEntryPoint((request, response, authException) -> {
           response.addHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"Restricted Content\"");
