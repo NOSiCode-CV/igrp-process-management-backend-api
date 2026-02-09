@@ -1,7 +1,7 @@
 {
   "type": "dto",
-  "module": "area",
-  "name": "AreaRequestDTO",
+  "module": "processdefinition",
+  "name": "TaskPriorityRequestDTO",
   "template": "classic",
   "enableCustonValidation": false,
   "attributes": [
@@ -18,7 +18,7 @@
       "primaryKey": false
     },
     {
-      "name": "name",
+      "name": "label",
       "objectType": "java",
       "type": "string",
       "required": true,
@@ -30,21 +30,9 @@
       "primaryKey": false
     },
     {
-      "name": "description",
+      "name": "weight",
       "objectType": "java",
-      "type": "string",
-      "required": false,
-      "before": false,
-      "after": false,
-      "positive": false,
-      "isEmail": false,
-      "isUrl": false,
-      "primaryKey": false
-    },
-    {
-      "name": "applicationBase",
-      "objectType": "java",
-      "type": "string",
+      "type": "integer",
       "required": true,
       "before": false,
       "after": false,
@@ -54,7 +42,7 @@
       "primaryKey": false
     },
     {
-      "name": "parentId",
+      "name": "id",
       "objectType": "java",
       "type": "uuid",
       "required": false,
@@ -64,19 +52,7 @@
       "isEmail": false,
       "isUrl": false,
       "primaryKey": false
-    },
-    {
-      "name": "color",
-      "objectType": "java",
-      "type": "string",
-      "required": false,
-      "before": false,
-      "after": false,
-      "positive": false,
-      "isEmail": false,
-      "isUrl": false,
-      "primaryKey": false
     }
   ],
-  "id": "2s1u123j4n"
+  "id": "g7v3zcvr0a"
 }

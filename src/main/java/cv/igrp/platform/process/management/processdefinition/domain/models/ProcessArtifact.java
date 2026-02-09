@@ -19,7 +19,7 @@ public class ProcessArtifact {
   private Code formKey;
   private final Code processDefinitionId;
   private Set<String> candidateGroups;
-  private LocalDateTime dueDate;
+  private String dueDate;
   private Integer priority;
 
   @Builder
@@ -29,7 +29,7 @@ public class ProcessArtifact {
                          Code formKey,
                          Code processDefinitionId,
                          Set<String> candidateGroups,
-                         LocalDateTime dueDate,
+                         String dueDate,
                          Integer priority
   ) {
     this.id = id ==  null ? Identifier.generate() : id;

@@ -81,7 +81,7 @@
     {
       "name": "dueDate",
       "objectType": "java",
-      "type": "datetime",
+      "type": "string",
       "required": false,
       "before": false,
       "after": false,
