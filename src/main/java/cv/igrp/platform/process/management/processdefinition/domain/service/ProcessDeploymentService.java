@@ -112,7 +112,6 @@ public class ProcessDeploymentService {
         });
   }
 
-
   public ProcessPackage exportProcessDefinition(String processDefinitionId) {
     ProcessDeployment processDeployment = getProcessDeploymentById(processDefinitionId);
     ProcessPackage processPackage = ProcessPackage.builder()
@@ -194,6 +193,16 @@ public class ProcessDeploymentService {
     LOGGER.info("Process definition imported successfully: ID '{}' Key '{}'",
         processDeployment.getId(), processDeployment.getKey().getValue());
 
+  }
+
+  public ProcessDeployment deployProcessAndConfigure(ProcessDeployment processDeployment) {
+
+    // Groups
+    //processDeploymentRepository.getCandidateStarterGroups(processDeployment.getProcReleaseId().getValue());
+
+    ProcessDeployment deployedProcess = deployProcess(processDeployment);
+
+    return deployedProcess;
   }
 
   public void archiveProcess(String processDefinitionId) {

@@ -16,6 +16,8 @@ import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 import cv.igrp.platform.process.management.shared.security.util.UserContext;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -290,10 +292,11 @@ public class TaskInstanceService {
 
         // Due Date
         if (artifact.getDueDate() != null) {
-          newTask.updateDueDate(artifact.getDueDate());
+          LocalDateTime dueDate = LocalDateTime.now().plus(Duration.parse(artifact.getDueDate()));
+          newTask.updateDueDate(dueDate);
           runtimeProcessEngineRepository.setTaskDueDate(
               task.getExternalId().getValue(),
-              artifact.getDueDate()
+              dueDate
           );
         }
 

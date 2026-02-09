@@ -30,6 +30,8 @@ import cv.igrp.platform.process.management.processdefinition.application.dto.Pro
 import cv.igrp.platform.process.management.processdefinition.application.dto.SequenceRequestDTO;
 import cv.igrp.platform.process.management.processdefinition.application.dto.AssignProcessDTO;
 import cv.igrp.platform.process.management.processdefinition.application.dto.ProcessPackageDTO;
+import cv.igrp.platform.process.management.processdefinition.application.dto.TaskPriorityRequestDTO;
+import cv.igrp.platform.process.management.processdefinition.application.dto.TaskPriorityDTO;
 
 @IgrpController
 @RestController
@@ -481,6 +483,99 @@ public class ProcessDefinitionController {
        ResponseEntity<String> response = commandBus.send(command);
 
        return response;
+  }
+
+      @PutMapping(
+   value = "{processKey}/priorities"
+  )
+  @Operation(
+    summary = "PUT method to handle operations for Configure priority",
+    description = "PUT method to handle operations for Configure priority",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          description = "",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = TaskPriorityDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<TaskPriorityDTO> configurePriority(@Valid @RequestBody TaskPriorityRequestDTO configurePriorityRequest
+    , @PathVariable(value = "processKey") String processKey)
+  {
+
+      final var command = new ConfigurePriorityCommand(configurePriorityRequest, processKey);
+
+       ResponseEntity<TaskPriorityDTO> response = commandBus.send(command);
+
+       return response;
+  }
+
+      @DeleteMapping(
+   value = "priorities/{id}"
+  )
+  @Operation(
+    summary = "DELETE method to handle operations for Delete priority",
+    description = "DELETE method to handle operations for Delete priority",
+    responses = {
+      @ApiResponse(
+          responseCode = "204",
+          description = "",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = String.class,
+                  type = "String")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<String> deletePriority(
+    @PathVariable(value = "id") String id)
+  {
+
+      final var command = new DeletePriorityCommand(id);
+
+       ResponseEntity<String> response = commandBus.send(command);
+
+       return response;
+  }
+
+      @GetMapping(
+   value = "{processKey}/priorities"
+  )
+  @Operation(
+    summary = "GET method to handle operations for Get priorities by process definition key",
+    description = "GET method to handle operations for Get priorities by process definition key",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          description = "",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = TaskPriorityDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<List<TaskPriorityDTO>> getPrioritiesByProcessDefinitionKey(
+    @PathVariable(value = "processKey") String processKey)
+  {
+
+      final var query = new GetPrioritiesByProcessDefinitionKeyQuery(processKey);
+
+      ResponseEntity<List<TaskPriorityDTO>> response = queryBus.handle(query);
+
+      return response;
   }
 
 }

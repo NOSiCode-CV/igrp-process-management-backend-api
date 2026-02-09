@@ -17,31 +17,19 @@ import java.util.UUID;
 
 
 @IgrpDTO
-public class ProcessArtifactDTO  {
+public class TaskPriorityRequestDTO  {
 
+  @NotBlank(message = "The field <code> is required")
+  
+  private String code ;
+  @NotBlank(message = "The field <label> is required")
+  
+  private String label ;
+  @NotNull(message = "The field <weight> is required")
+  
+  private Integer weight ;
   
   
   private UUID id ;
-  
-  
-  private String name ;
-  
-  
-  private String key ;
-  
-  
-  private String processDefinitionId ;
-  
-  
-  private String formKey ;
-  
-  
-  private String candidateGroups ;
-  
-  
-  private String dueDate ;
-  
-  
-  private Integer priority ;
 
 }

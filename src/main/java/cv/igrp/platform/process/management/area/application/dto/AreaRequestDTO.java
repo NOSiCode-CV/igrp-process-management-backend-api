@@ -34,5 +34,8 @@ public class AreaRequestDTO  {
   
   
   private UUID parentId ;
+  
+  
+  private String color ;
 
 }

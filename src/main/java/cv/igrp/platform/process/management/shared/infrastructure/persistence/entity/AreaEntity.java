@@ -12,12 +12,12 @@ import java.util.UUID;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import cv.igrp.platform.process.management.shared.application.constants.Status;
+import java.util.ArrayList;
 import java.util.List;
 
 @Audited
 @Getter
 @Setter
-@ToString(exclude = {"processdefinitions", "areaId"})
 @IgrpEntity
 @Entity
 @NoArgsConstructor
@@ -37,25 +37,25 @@ public class AreaEntity extends AuditEntity {
     @Column(name = "id", unique = true, nullable = false)
     private UUID id;
 
-
+  
     @NotBlank(message = "applicationBase is mandatory")
     @Column(name="application_base", nullable = false)
     private String applicationBase;
 
-
+  
     @NotBlank(message = "code is mandatory")
     @Column(name="code", nullable = false)
     private String code;
 
-
+  
     @Column(name="name")
     private String name;
 
-
+  
     @Column(name="description")
     private String description;
 
-
+  
 
 
   @ManyToOne(fetch = FetchType.LAZY)
@@ -66,8 +66,12 @@ public class AreaEntity extends AuditEntity {
     @Column(name="status", nullable = false)
     private Status status;
 
+  
+    @Column(name="color")
+    private String color;
+
      @OneToMany(mappedBy = "areaId")
-private List<AreaProcessEntity> processdefinitions;
+private List<AreaProcessEntity> processdefinitions = new ArrayList<>();
 
 
 }

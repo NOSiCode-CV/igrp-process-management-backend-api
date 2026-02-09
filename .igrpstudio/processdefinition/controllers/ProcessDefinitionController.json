@@ -504,7 +504,103 @@
           "description": "Process Definition ID"
         }
       ]
+    },
+    {
+      "actionName": "configurePriority",
+      "path": "{processKey}/priorities",
+      "method": "PUT",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "TaskPriorityRequestDTO",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "processdefinition"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TaskPriorityDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "processdefinition"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "processKey",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "deletePriority",
+      "path": "priorities/{id}",
+      "method": "DELETE",
+      "responses": {
+        "204": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true,
+          "description": "Priority ID"
+        }
+      ]
+    },
+    {
+      "actionName": "getPrioritiesByProcessDefinitionKey",
+      "path": "{processKey}/priorities",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TaskPriorityDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "list",
+                "module": "processdefinition"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "processKey",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
     }
   ],
-  "id": "o9isd9wv95-CONTROLLER-createArtifact-configureArtifact-listDeployments-importProcessDefinition-importProcessDefinition"
+  "id": "o9isd9wv95-CONTROLLER-createArtifact-configureArtifact-listDeployments-importProcessDefinition-importProcessDefinition-configurePriority-deletePriority-configurePriority-configurePriority"
 }

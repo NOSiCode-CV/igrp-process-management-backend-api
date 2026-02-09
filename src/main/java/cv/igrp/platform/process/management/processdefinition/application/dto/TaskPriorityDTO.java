@@ -17,31 +17,22 @@ import java.util.UUID;
 
 
 @IgrpDTO
-public class ProcessArtifactDTO  {
+public class TaskPriorityDTO  {
 
   
   
   private UUID id ;
   
   
-  private String name ;
+  private String code ;
   
   
-  private String key ;
+  private String label ;
   
   
-  private String processDefinitionId ;
+  private Integer weight ;
   
   
-  private String formKey ;
-  
-  
-  private String candidateGroups ;
-  
-  
-  private String dueDate ;
-  
-  
-  private Integer priority ;
+  private String processDefinitionKey ;
 
 }
