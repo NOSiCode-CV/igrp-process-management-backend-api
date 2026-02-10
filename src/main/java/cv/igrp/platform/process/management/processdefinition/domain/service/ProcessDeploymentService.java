@@ -19,10 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
@@ -213,27 +211,33 @@ public class ProcessDeploymentService {
               group
           ));
       // Artifacts
-      List<ProcessArtifact> newArtifacts = getDeployedArtifactsByProcessDefinitionId(deployedProcess.getId());
-      Set<String> newArtifactKeys = newArtifacts.stream()
-          .map(a -> a.getKey().getValue())
-          .collect(Collectors.toSet());
+      Map<String, ProcessArtifact> previousByKey =
+          processDefinitionRepository
+              .findAllArtifacts(Code.create(optionalProcessId.get()))
+              .stream()
+              .collect(Collectors.toMap(
+                  a -> a.getKey().getValue(),
+                  Function.identity()
+              ));
 
-      processDefinitionRepository.findAllArtifacts(Code.create(optionalProcessId.get()))
-          .forEach(oldArtifact  -> {
-            if (newArtifactKeys.contains(oldArtifact.getKey().getValue())) {
-              return;
-            }
-            ProcessArtifact newProcessArtifact = ProcessArtifact.builder()
-                .key(oldArtifact.getKey())
-                .name(oldArtifact.getName())
-                .formKey(oldArtifact.getFormKey())
-                .candidateGroups(oldArtifact.getCandidateGroups())
-                .priority(oldArtifact.getPriority())
-                .dueDate(oldArtifact.getDueDate())
-                .processDefinitionId(Code.create(deployedProcess.getId()))
-                .build();
-            processDefinitionRepository.saveArtifact(newProcessArtifact);
-          });
+      List<ProcessArtifact> deployedArtifacts = getDeployedArtifactsByProcessDefinitionId(deployedProcess.getId());
+
+      deployedArtifacts.forEach(deployedArtifact -> {
+
+        ProcessArtifact previous = previousByKey.get(deployedArtifact.getKey().getValue());
+
+        ProcessArtifact toPersist = ProcessArtifact.builder()
+            .key(deployedArtifact.getKey())
+            .name(deployedArtifact.getName())
+            .processDefinitionId(Code.create(deployedProcess.getId()))
+            .candidateGroups(previous != null ? previous.getCandidateGroups() : deployedArtifact.getCandidateGroups())
+            .priority(previous != null ? previous.getPriority() : deployedArtifact.getPriority())
+            .dueDate(previous != null ? previous.getDueDate() : deployedArtifact.getDueDate())
+            .formKey(previous != null ? previous.getFormKey() : deployedArtifact.getFormKey())
+            .build();
+
+        processDefinitionRepository.saveArtifact(toPersist);
+      });
     }
 
     return deployedProcess;
