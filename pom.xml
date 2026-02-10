@@ -136,19 +136,19 @@
         <dependency>
             <groupId>cv.igrp.framework</groupId>
             <artifactId>runtime-core</artifactId>
-            <version>0.1.0-beta.13</version>
+            <version>0.1.0-beta.18</version>
         </dependency>
 
         <dependency>
             <groupId>cv.igrp.framework</groupId>
             <artifactId>runtime-activiti</artifactId>
-            <version>0.1.0-beta.13</version>
+            <version>0.1.0-beta.18</version>
         </dependency>
 
         <dependency>
             <groupId>cv.igrp.platform.access</groupId>
             <artifactId>client</artifactId>
-            <version>0.1.0-beta-20251203.124908-14</version>
+            <version>0.1.0-beta-20260127.094449-21</version>
         </dependency>
 
         <dependency>

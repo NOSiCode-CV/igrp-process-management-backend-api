@@ -126,6 +126,9 @@ public class ProcessInstanceRepositoryImpl implements ProcessInstanceRepository 
           cb.like(root.get("name"), "%"+ filter.getName().getValue() +"%"));
     }
 
+    spec = spec.and((root, query, cb) ->
+        cb.equal(root.get("isArchived"), filter.isArchived()));
+
     return spec;
   }
 
@@ -162,6 +165,14 @@ public class ProcessInstanceRepositoryImpl implements ProcessInstanceRepository 
   @Override
   public Optional<ProcessInstance> findByBusinessKey(String businessKey) {
     return processInstanceEntityRepository.findByBusinessKey(businessKey).map(mapper::toModel);
+  }
+
+  @Override
+  public List<ProcessInstance> findAllByProcessReleaseId(String processReleaseId) {
+    return processInstanceEntityRepository.findAllByProcReleaseId(processReleaseId)
+        .stream()
+        .map(mapper::toModel)
+        .toList();
   }
 
 }

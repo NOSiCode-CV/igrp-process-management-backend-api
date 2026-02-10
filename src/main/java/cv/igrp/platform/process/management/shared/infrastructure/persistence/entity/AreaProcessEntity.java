@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @Audited
 @Getter
 @Setter
-@ToString
+@ToString(exclude = "areaId")
 @IgrpEntity
 @Entity
 @NoArgsConstructor
@@ -37,7 +37,7 @@ public class AreaProcessEntity extends AuditEntity {
     @Column(name = "id", unique = true, nullable = false)
     private UUID id;
 
-  
+
     @NotNull(message = "areaId is mandatory")
 
 
@@ -48,32 +48,32 @@ public class AreaProcessEntity extends AuditEntity {
     @Column(name="proc_release_key", nullable = false)
     private String procReleaseKey;
 
-  
+
     @NotBlank(message = "procReleaseId is mandatory")
     @Column(name="proc_release_id", nullable = false)
     private String procReleaseId;
 
-  
+
     @NotNull(message = "status is mandatory")
     @Enumerated(EnumType.STRING)
     @Column(name="status", nullable = false)
     private Status status;
 
-  
+
     @Column(name="version")
     private String version;
 
-  
+
     @Column(name="removed_at")
     private LocalDateTime removedAt;
 
-  
+
     @Column(name="removed_by")
     private String removedBy;
 
-  
+
     @Column(name="name")
     private String name;
 
-  
+
 }

@@ -28,6 +28,10 @@ import cv.igrp.platform.process.management.processdefinition.application.dto.Pro
 import java.util.List;
 import cv.igrp.platform.process.management.processdefinition.application.dto.ProcessSequenceDTO;
 import cv.igrp.platform.process.management.processdefinition.application.dto.SequenceRequestDTO;
+import cv.igrp.platform.process.management.processdefinition.application.dto.AssignProcessDTO;
+import cv.igrp.platform.process.management.processdefinition.application.dto.ProcessPackageDTO;
+import cv.igrp.platform.process.management.processdefinition.application.dto.TaskPriorityRequestDTO;
+import cv.igrp.platform.process.management.processdefinition.application.dto.TaskPriorityDTO;
 
 @IgrpController
 @RestController
@@ -97,10 +101,12 @@ public class ProcessDefinitionController {
     @RequestParam(value = "applicationBase", required = false) String applicationBase,
     @RequestParam(value = "processName", required = false) String processName,
     @RequestParam(value = "page", defaultValue = "0") Integer page,
-    @RequestParam(value = "size", defaultValue = "20") Integer size)
+    @RequestParam(value = "size", defaultValue = "20") Integer size,
+    @RequestParam(value = "filterByCurrentUser", required = false) boolean filterByCurrentUser,
+    @RequestParam(value = "candidateGroups", required = false) String candidateGroups)
   {
 
-      final var query = new ListDeploymentsQuery(applicationBase, processName, page, size);
+      final var query = new ListDeploymentsQuery(applicationBase, processName, page, size, filterByCurrentUser, candidateGroups);
 
       ResponseEntity<ProcessDeploymentListPageDTO> response = queryBus.handle(query);
 
@@ -291,6 +297,285 @@ public class ProcessDefinitionController {
        ResponseEntity<ProcessSequenceDTO> response = commandBus.send(command);
 
        return response;
+  }
+
+      @PostMapping(
+   value = "{id}/assign"
+  )
+  @Operation(
+    summary = "POST method to handle operations for Assign process definition",
+    description = "POST method to handle operations for Assign process definition",
+    responses = {
+      @ApiResponse(
+          responseCode = "204",
+          description = "",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = String.class,
+                  type = "String")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<String> assignProcessDefinition(@Valid @RequestBody AssignProcessDTO assignProcessDefinitionRequest
+    , @PathVariable(value = "id") String id)
+  {
+
+      final var command = new AssignProcessDefinitionCommand(assignProcessDefinitionRequest, id);
+
+       ResponseEntity<String> response = commandBus.send(command);
+
+       return response;
+  }
+
+      @GetMapping(
+   value = "{id}/export"
+  )
+  @Operation(
+    summary = "GET method to handle operations for Export process definition",
+    description = "GET method to handle operations for Export process definition",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          description = "",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = ProcessPackageDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<ProcessPackageDTO> exportProcessDefinition(
+    @PathVariable(value = "id") String id)
+  {
+
+      final var query = new ExportProcessDefinitionQuery(id);
+
+      ResponseEntity<ProcessPackageDTO> response = queryBus.handle(query);
+
+      return response;
+  }
+
+      @PostMapping(
+   value = "import"
+  )
+  @Operation(
+    summary = "POST method to handle operations for Import process definition",
+    description = "POST method to handle operations for Import process definition",
+    responses = {
+      @ApiResponse(
+          responseCode = "204",
+          description = "",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = String.class,
+                  type = "String")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<String> importProcessDefinition(@Valid @RequestBody ProcessPackageDTO importProcessDefinitionRequest
+    )
+  {
+
+      final var command = new ImportProcessDefinitionCommand(importProcessDefinitionRequest);
+
+       ResponseEntity<String> response = commandBus.send(command);
+
+       return response;
+  }
+
+      @DeleteMapping(
+   value = "{id}/archive"
+  )
+  @Operation(
+    summary = "DELETE method to handle operations for Archive process definition",
+    description = "DELETE method to handle operations for Archive process definition",
+    responses = {
+      @ApiResponse(
+          responseCode = "204",
+          description = "",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = String.class,
+                  type = "String")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<String> archiveProcessDefinition(
+    @PathVariable(value = "id") String id)
+  {
+
+      final var command = new ArchiveProcessDefinitionCommand(id);
+
+       ResponseEntity<String> response = commandBus.send(command);
+
+       return response;
+  }
+
+      @PostMapping(
+   value = "{id}/unarchive"
+  )
+  @Operation(
+    summary = "POST method to handle operations for Un archive process definition",
+    description = "POST method to handle operations for Un archive process definition",
+    responses = {
+      @ApiResponse(
+          responseCode = "204",
+          description = "",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = String.class,
+                  type = "String")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<String> unArchiveProcessDefinition(
+    @PathVariable(value = "id") String id)
+  {
+
+      final var command = new UnArchiveProcessDefinitionCommand(id);
+
+       ResponseEntity<String> response = commandBus.send(command);
+
+       return response;
+  }
+
+      @PostMapping(
+   value = "{id}/unassign"
+  )
+  @Operation(
+    summary = "POST method to handle operations for Un assign process definition",
+    description = "POST method to handle operations for Un assign process definition",
+    responses = {
+      @ApiResponse(
+          responseCode = "204",
+          description = "",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = String.class,
+                  type = "String")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<String> unAssignProcessDefinition(@Valid @RequestBody AssignProcessDTO unAssignProcessDefinitionRequest
+    , @PathVariable(value = "id") String id)
+  {
+
+      final var command = new UnAssignProcessDefinitionCommand(unAssignProcessDefinitionRequest, id);
+
+       ResponseEntity<String> response = commandBus.send(command);
+
+       return response;
+  }
+
+      @PutMapping(
+   value = "{processKey}/priorities"
+  )
+  @Operation(
+    summary = "PUT method to handle operations for Configure priority",
+    description = "PUT method to handle operations for Configure priority",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          description = "",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = TaskPriorityDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<TaskPriorityDTO> configurePriority(@Valid @RequestBody TaskPriorityRequestDTO configurePriorityRequest
+    , @PathVariable(value = "processKey") String processKey)
+  {
+
+      final var command = new ConfigurePriorityCommand(configurePriorityRequest, processKey);
+
+       ResponseEntity<TaskPriorityDTO> response = commandBus.send(command);
+
+       return response;
+  }
+
+      @DeleteMapping(
+   value = "priorities/{id}"
+  )
+  @Operation(
+    summary = "DELETE method to handle operations for Delete priority",
+    description = "DELETE method to handle operations for Delete priority",
+    responses = {
+      @ApiResponse(
+          responseCode = "204",
+          description = "",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = String.class,
+                  type = "String")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<String> deletePriority(
+    @PathVariable(value = "id") String id)
+  {
+
+      final var command = new DeletePriorityCommand(id);
+
+       ResponseEntity<String> response = commandBus.send(command);
+
+       return response;
+  }
+
+      @GetMapping(
+   value = "{processKey}/priorities"
+  )
+  @Operation(
+    summary = "GET method to handle operations for Get priorities by process definition key",
+    description = "GET method to handle operations for Get priorities by process definition key",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          description = "",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = TaskPriorityDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+  
+  public ResponseEntity<List<TaskPriorityDTO>> getPrioritiesByProcessDefinitionKey(
+    @PathVariable(value = "processKey") String processKey)
+  {
+
+      final var query = new GetPrioritiesByProcessDefinitionKeyQuery(processKey);
+
+      ResponseEntity<List<TaskPriorityDTO>> response = queryBus.handle(query);
+
+      return response;
   }
 
 }

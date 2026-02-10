@@ -10,34 +10,36 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class CreateProcessSequenceCommandHandler implements CommandHandler<CreateProcessSequenceCommand, ResponseEntity<ProcessSequenceDTO>> {
 
-   private static final Logger LOGGER = LoggerFactory.getLogger(CreateProcessSequenceCommandHandler.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CreateProcessSequenceCommandHandler.class);
 
   private final ProcessSequenceService processSequenceService;
   private final ProcessSequenceMapper processSequenceMapper;
   private final UserContext userContext;
 
-   public CreateProcessSequenceCommandHandler(ProcessSequenceService processSequenceService, ProcessSequenceMapper processSequenceMapper, UserContext userContext) {
+  public CreateProcessSequenceCommandHandler(ProcessSequenceService processSequenceService, ProcessSequenceMapper processSequenceMapper, UserContext userContext) {
 
-     this.processSequenceService = processSequenceService;
-     this.processSequenceMapper = processSequenceMapper;
-     this.userContext = userContext;
-   }
+    this.processSequenceService = processSequenceService;
+    this.processSequenceMapper = processSequenceMapper;
+    this.userContext = userContext;
+  }
 
-   @IgrpCommandHandler
-   public ResponseEntity<ProcessSequenceDTO> handle(CreateProcessSequenceCommand command) {
-     final var currentUser = userContext.getCurrentUser();
+  @Transactional
+  @IgrpCommandHandler
+  public ResponseEntity<ProcessSequenceDTO> handle(CreateProcessSequenceCommand command) {
+    final var currentUser = userContext.getCurrentUser();
 
-     LOGGER.info("User [{}] started creating sequence for processDefinitionKey [{}]", currentUser.getValue(), command.getProcessDefinitionKey());
+    LOGGER.info("User [{}] started creating sequence for processDefinitionKey [{}]", currentUser.getValue(), command.getProcessDefinitionKey());
 
-     var sequenceResp = processSequenceService.save(processSequenceMapper.toModel(command));
+    var sequenceResp = processSequenceService.save(processSequenceMapper.toModel(command));
 
-     LOGGER.info("User [{}] finished creating sequence for processDefinitionKey [{}]", currentUser.getValue(), command.getProcessDefinitionKey());
+    LOGGER.info("User [{}] finished creating sequence for processDefinitionKey [{}]", currentUser.getValue(), command.getProcessDefinitionKey());
 
-     return ResponseEntity.ok(processSequenceMapper.toDTO(sequenceResp));
-   }
+    return ResponseEntity.ok(processSequenceMapper.toDTO(sequenceResp));
+  }
 
 }

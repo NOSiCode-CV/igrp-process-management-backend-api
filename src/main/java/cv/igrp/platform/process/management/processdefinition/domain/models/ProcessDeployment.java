@@ -9,7 +9,9 @@ import lombok.Getter;
 
 import java.net.URI;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Getter
 public class ProcessDeployment {
@@ -31,6 +33,8 @@ public class ProcessDeployment {
   private Code procReleaseId;
   private Code applicationBase;
 
+  private Set<String> candidateGroups;
+
   @Builder
   public ProcessDeployment(String id,
                            Code key,
@@ -46,7 +50,9 @@ public class ProcessDeployment {
                            LocalDateTime deployedAt,
                            Code procReleaseKey,
                            Code procReleaseId,
-                           Code applicationBase) {
+                           Code applicationBase,
+                           Set<String> candidateGroups
+  ) {
     this.id = id;
     this.key = Objects.requireNonNull(key, "Key cannot be null");
     this.name = name;
@@ -62,6 +68,7 @@ public class ProcessDeployment {
     this.procReleaseKey = procReleaseKey;
     this.procReleaseId = procReleaseId;
     this.applicationBase = Objects.requireNonNull(applicationBase, "Application Code cannot be null");;
+    this.candidateGroups = candidateGroups == null ? new HashSet<>() : candidateGroups;
   }
 
   public void deploy() {
@@ -76,6 +83,10 @@ public class ProcessDeployment {
     }
     this.deployed = true;
     this.deployedAt = LocalDateTime.now();
+  }
+
+  public void addCandidateGroups(String group) {
+    this.candidateGroups.add(group);
   }
 
 }

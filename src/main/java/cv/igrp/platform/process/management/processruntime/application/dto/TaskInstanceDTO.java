@@ -103,5 +103,8 @@ public class TaskInstanceDTO  {
   
   @Valid
   private List<ProcessVariableDTO> processVariables = new ArrayList<>();
+  
+  
+  private LocalDateTime dueDate ;
 
 }

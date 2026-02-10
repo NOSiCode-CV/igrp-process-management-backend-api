@@ -21,5 +21,9 @@ public class ListDeploymentsQuery implements Query {
   private Integer page;
   @NotNull(message = "The field <size> is required")
   private Integer size;
+  @NotNull(message = "The field <filterByCurrentUser> is required")
+  private boolean filterByCurrentUser;
+  @NotBlank(message = "The field <candidateGroups> is required")
+  private String candidateGroups;
 
 }
