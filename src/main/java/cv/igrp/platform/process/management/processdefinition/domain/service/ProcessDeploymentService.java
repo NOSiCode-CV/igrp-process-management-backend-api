@@ -22,6 +22,8 @@ import org.springframework.stereotype.Service;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -74,7 +76,8 @@ public class ProcessDeploymentService {
   }
 
   public String findLastProcessDefinitionIdByKey(String processDefinitionKey) {
-    return processDeploymentRepository.findLastProcessDefinitionIdByKey(processDefinitionKey);
+    return processDeploymentRepository.findLastProcessDefinitionIdByKey(processDefinitionKey)
+        .orElseThrow(() -> IgrpResponseStatusException.notFound("No last process definition founded by key: " +  processDefinitionKey));
   }
 
   public void assignProcessDefinition(String id, String groups) {
@@ -171,18 +174,16 @@ public class ProcessDeploymentService {
 
     // Save Process Artifacts
     processPackage.getArtifacts().forEach(processArtifact -> {
-      Optional<ProcessArtifact> optProcessArtifact = processDefinitionRepository
-          .findArtifactByProcessDefinitionIdAndKey(
-              Code.create(processDeployment.getId()),
-              processDeployment.getKey()
-          );
-      if (optProcessArtifact.isPresent()) {
-        ProcessArtifact existing = optProcessArtifact.get();
-        existing.update(processArtifact);
-        processDefinitionRepository.saveArtifact(existing);
-      } else {
-        processDefinitionRepository.saveArtifact(processArtifact);
-      }
+      ProcessArtifact newProcessArtifact = ProcessArtifact.builder()
+          .key(processArtifact.getKey())
+          .name(processArtifact.getName())
+          .formKey(processArtifact.getFormKey())
+          .candidateGroups(processArtifact.getCandidateGroups())
+          .priority(processArtifact.getPriority())
+          .dueDate(processArtifact.getDueDate())
+          .processDefinitionId(Code.create(processDeployment.getId()))
+          .build();
+      processDefinitionRepository.saveArtifact(newProcessArtifact);
     });
 
     // Candidate Groups
@@ -197,10 +198,43 @@ public class ProcessDeploymentService {
 
   public ProcessDeployment deployProcessAndConfigure(ProcessDeployment processDeployment) {
 
-    // Groups
-    //processDeploymentRepository.getCandidateStarterGroups(processDeployment.getProcReleaseId().getValue());
+    Optional<String> optionalProcessId = processDeploymentRepository.findLastProcessDefinitionIdByKey(
+        processDeployment.getKey().getValue()
+    );
 
+    // Deploy
     ProcessDeployment deployedProcess = deployProcess(processDeployment);
+
+    if (optionalProcessId.isPresent()) {
+      // Groups
+      processDeploymentRepository.getCandidateStarterGroups(optionalProcessId.get())
+          .forEach(group -> processDeploymentRepository.addCandidateStarterGroup(
+              deployedProcess.getId(),
+              group
+          ));
+      // Artifacts
+      List<ProcessArtifact> newArtifacts = getDeployedArtifactsByProcessDefinitionId(deployedProcess.getId());
+      Set<String> newArtifactKeys = newArtifacts.stream()
+          .map(a -> a.getKey().getValue())
+          .collect(Collectors.toSet());
+
+      processDefinitionRepository.findAllArtifacts(Code.create(optionalProcessId.get()))
+          .forEach(oldArtifact  -> {
+            if (newArtifactKeys.contains(oldArtifact.getKey().getValue())) {
+              return;
+            }
+            ProcessArtifact newProcessArtifact = ProcessArtifact.builder()
+                .key(oldArtifact.getKey())
+                .name(oldArtifact.getName())
+                .formKey(oldArtifact.getFormKey())
+                .candidateGroups(oldArtifact.getCandidateGroups())
+                .priority(oldArtifact.getPriority())
+                .dueDate(oldArtifact.getDueDate())
+                .processDefinitionId(Code.create(deployedProcess.getId()))
+                .build();
+            processDefinitionRepository.saveArtifact(newProcessArtifact);
+          });
+    }
 
     return deployedProcess;
   }

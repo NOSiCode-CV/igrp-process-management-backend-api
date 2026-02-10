@@ -47,7 +47,7 @@ public interface ProcessDeploymentRepository {
    * @param processDefinitionKey the key representing the process definition
    * @return the unique identifier of the latest process definition associated with the provided key
    */
-  String findLastProcessDefinitionIdByKey(String processDefinitionKey);
+  Optional<String> findLastProcessDefinitionIdByKey(String processDefinitionKey);
 
   /**
    * Adds a candidate starter group to a specified process definition.
