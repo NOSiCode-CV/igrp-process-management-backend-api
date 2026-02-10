@@ -31,6 +31,7 @@ public class AreaMapper {
           .applicationBase(Code.create(areaRequestDTO.getApplicationBase()))
           .areaId(areaRequestDTO.getParentId() != null ? Identifier.create(areaRequestDTO.getParentId()) : null)
           .description(areaRequestDTO.getDescription())
+          .color(areaRequestDTO.getColor())
           .build();
     }
 

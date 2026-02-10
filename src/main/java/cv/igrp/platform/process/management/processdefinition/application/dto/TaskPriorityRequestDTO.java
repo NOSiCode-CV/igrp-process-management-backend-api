@@ -31,5 +31,8 @@ public class TaskPriorityRequestDTO  {
   
   
   private UUID id ;
+  
+  
+  private String color ;
 
 }

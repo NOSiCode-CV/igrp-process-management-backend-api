@@ -259,7 +259,7 @@ public class TaskInstanceService {
     var artifactFormMap = artifacts.stream()
         .collect(Collectors.toMap(
             ProcessArtifact::getKey,
-            a -> Code.create(a.getFormKey().getValue())
+            a -> Code.create(a.getFormKey())
         ));
 
     // 3. Pre-map {taskKey → artifact} for faster lookup

@@ -20,6 +20,7 @@ public class TaskPriorityMapper {
         .label(dto.getLabel())
         .weight(dto.getWeight())
         .id(Identifier.create(dto.getId()))
+        .color(dto.getColor())
         .build();
   }
 
@@ -30,6 +31,7 @@ public class TaskPriorityMapper {
     dto.setWeight(model.getWeight());
     dto.setProcessDefinitionKey(model.getProcessDefinitionKey());
     dto.setId(model.getId().getValue());
+    dto.setColor(model.getColor());
     return dto;
   }
 
@@ -40,6 +42,7 @@ public class TaskPriorityMapper {
     entity.setLabel(model.getLabel());
     entity.setWeight(model.getWeight());
     entity.setId(model.getId().getValue());
+    entity.setColor(model.getColor());
     return entity;
   }
 
@@ -50,6 +53,7 @@ public class TaskPriorityMapper {
         .code(Code.create(entity.getCode()))
         .processDefinitionKey(entity.getProcessDefinitionKey())
         .id(Identifier.create(entity.getId()))
+        .color(entity.getColor())
         .build();
   }
 

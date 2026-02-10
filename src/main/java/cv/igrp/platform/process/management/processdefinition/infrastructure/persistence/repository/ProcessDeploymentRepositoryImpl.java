@@ -105,7 +105,7 @@ public class ProcessDeploymentRepositoryImpl implements ProcessDeploymentReposit
   public List<ProcessArtifact> findAllArtifacts(String processDefinitionId) {
     List<cv.igrp.framework.runtime.core.engine.task.model.ProcessArtifact> artifacts = processDefinitionAdapter.getProcessArtifacts(processDefinitionId);
     return artifacts.stream().map(artifact -> ProcessArtifact.builder()
-        .formKey(Code.create(artifact.formKey() != null ? artifact.formKey() : "NOT_SET"))
+        .formKey(artifact.formKey())
         .name(Name.create(artifact.taskName() != null ? artifact.taskName() : "NOT_SET"))
         .key(Code.create(artifact.taskKey()))
         .processDefinitionId(Code.create(processDefinitionId))
