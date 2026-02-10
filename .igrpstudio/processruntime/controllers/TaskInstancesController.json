@@ -115,6 +115,12 @@
           "name": "processName",
           "description": "Process name",
           "isRequired": false
+        },
+        {
+          "type": "boolean",
+          "name": "filterByCurrentUser",
+          "description": "Current user filter",
+          "isRequired": false
         }
       ]
     },
@@ -552,5 +558,5 @@
       ]
     }
   ],
-  "id": "s7o1wob8tj-CONTROLLER-listTaskInstances-getAllMyTasks-getAllMyTasks-listTaskInstances-getAllMyTasks-getAllMyTasks-unClaimTask-listTaskInstances-getAllMyTasks-getTaskVariablesById"
+  "id": "s7o1wob8tj-CONTROLLER-listTaskInstances-getAllMyTasks-getAllMyTasks-listTaskInstances-getAllMyTasks-getAllMyTasks-unClaimTask-listTaskInstances-getAllMyTasks-getTaskVariablesById-listTaskInstances"
 }

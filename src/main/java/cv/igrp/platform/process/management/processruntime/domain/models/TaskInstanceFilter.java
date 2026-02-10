@@ -6,11 +6,13 @@ import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import cv.igrp.platform.process.management.shared.domain.models.Name;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 
 @Getter
 public class TaskInstanceFilter {
@@ -24,13 +26,20 @@ public class TaskInstanceFilter {
   private final LocalDate dateTo;
   private final Integer page;
   private final Integer size;
-  @Setter
   private Code user;
   private List<VariablesExpression> variablesExpressions;
-  private List<String> candidateGroups;
+
+  private Set<String> candidateGroups;
+  private Set<String> contextUserGroups;
 
   private final Name name;
   private final Code processRealeaseKey;
+
+  private final boolean filterByCurrentUser;
+
+  private boolean isSuperAdmin;
+
+  private boolean isArchived;
 
   @Builder
   private TaskInstanceFilter(
@@ -38,7 +47,7 @@ public class TaskInstanceFilter {
       Code processNumber,
       Code applicationBase,
       Name processName,
-      List<String> candidateGroups,
+      Set<String> candidateGroups,
       Code user,
       TaskInstanceStatus status,
       LocalDate dateFrom,
@@ -47,7 +56,11 @@ public class TaskInstanceFilter {
       Integer size,
       List<VariablesExpression> variablesExpressions,
       Name name,
-      Code processReleaseKey
+      Code processReleaseKey,
+      boolean filterByCurrentUser,
+      Set<String> contextUserGroups,
+      boolean isSuperAdmin,
+      boolean isArchived
   ) {
     this.processInstanceId = processInstanceId;
     this.applicationBase = applicationBase;
@@ -61,13 +74,22 @@ public class TaskInstanceFilter {
     this.page = page == null ? 0 : page;
     this.size = size == null ? 50 : size;
     this.variablesExpressions = variablesExpressions ==  null ? new ArrayList<>() : variablesExpressions;
-    this.candidateGroups = candidateGroups == null ? new ArrayList<>() : candidateGroups;
+    this.candidateGroups = candidateGroups == null ? new HashSet<>() : candidateGroups;
     this.name = name;
     this.processRealeaseKey = processReleaseKey;
+    this.filterByCurrentUser = filterByCurrentUser;
+    this.contextUserGroups = contextUserGroups == null ? new HashSet<>() : contextUserGroups;
+    this.isSuperAdmin = isSuperAdmin;
+    this.isArchived = isArchived;
   }
 
-  public void addGroup(String group){
-    this.candidateGroups.add(group);
+  public void addContextUserGroup(String group){
+    this.contextUserGroups.add(group);
+  }
+
+  public void bindCurrentUser(Code user, boolean isSuperAdmin){
+    this.user = user;
+    this.isSuperAdmin = isSuperAdmin;
   }
 
 }

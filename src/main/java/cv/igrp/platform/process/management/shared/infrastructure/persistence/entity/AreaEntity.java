@@ -12,12 +12,12 @@ import java.util.UUID;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import cv.igrp.platform.process.management.shared.application.constants.Status;
+import java.util.ArrayList;
 import java.util.List;
 
 @Audited
 @Getter
 @Setter
-@ToString
 @IgrpEntity
 @Entity
 @NoArgsConstructor
@@ -66,8 +66,12 @@ public class AreaEntity extends AuditEntity {
     @Column(name="status", nullable = false)
     private Status status;
 
+  
+    @Column(name="color")
+    private String color;
+
      @OneToMany(mappedBy = "areaId")
-private List<AreaProcessEntity> processdefinitions;
+private List<AreaProcessEntity> processdefinitions = new ArrayList<>();
 
 
 }

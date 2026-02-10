@@ -29,14 +29,12 @@ public class ProcessSequenceService {
   }
 
 
-  public ProcessSequence getSequenceByProcessAndApplication(Code processDefinitionKey) {
+  public ProcessSequence getSequenceByProcessDefinitionKey(Code processDefinitionKey) {
     return processSequenceRepository.findByProcessAndApplication(processDefinitionKey.getValue())
         .orElseThrow(() -> IgrpResponseStatusException.notFound(
             "Process Sequence not found for processDefinitionKey[" + processDefinitionKey.getValue() + "]"));
   }
 
-
-  @Transactional
   public ProcessSequence save(ProcessSequence processSequence) {
     var dbSequence = getProcessSequenceAsLocked(
         processSequence.getProcessDefinitionKey());
@@ -88,6 +86,5 @@ public class ProcessSequenceService {
       }
     }
   }
-
 
 }

@@ -37,77 +37,81 @@ public class ProcessInstanceEntity extends AuditEntity {
     @Column(name = "id", unique = true, nullable = false)
     private UUID id;
 
-  
+
     @NotBlank(message = "procReleaseKey is mandatory")
     @Column(name="proc_release_key", nullable = false)
     private String procReleaseKey;
 
-  
+
     @NotBlank(message = "procReleaseId is mandatory")
     @Column(name="proc_release_id", nullable = false)
     private String procReleaseId;
 
-  
+
     @Column(name="number")
     private String number;
 
-  
+
     @Column(name="business_key")
     private String businessKey;
 
-  
+
     @Column(name="version")
     private String version;
 
-  
+
     @Column(name="started_at")
     private LocalDateTime startedAt;
 
-  
+
     @Column(name="started_by")
     private String startedBy;
 
-  
+
     @Column(name="ended_at")
     private LocalDateTime endedAt;
 
-  
+
     @Column(name="ended_by")
     private String endedBy;
 
-  
+
     @Column(name="canceled_at")
     private LocalDateTime canceledAt;
 
-  
+
     @Column(name="canceled_by")
     private String canceledBy;
 
-  
+
     @Column(name="obs_cancel")
     private String obsCancel;
 
-  
+
     @Enumerated(EnumType.STRING)
     @Column(name="status")
     private ProcessInstanceStatus status;
 
-  
+
     @NotBlank(message = "applicationBase is mandatory")
     @Column(name="application_base", nullable = false)
     private String applicationBase;
 
-  
+
     @Column(name="name")
     private String name;
 
-  
+
     @Column(name="engine_process_number")
     private String engineProcessNumber;
 
-  
+
     @Column(name="priority")
     private Integer priority;
+
+
+    @Column(name="is_archived")
+    private Boolean isArchived;
 
      @OneToMany(mappedBy = "processInstanceId")
 private List<TaskInstanceEntity> taskinstancelists = new ArrayList<>();

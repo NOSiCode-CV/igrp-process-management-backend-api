@@ -4,6 +4,8 @@ import cv.igrp.platform.process.management.shared.infrastructure.persistence.ent
 import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.repository.history.RevisionRepository;
@@ -14,5 +16,9 @@ public interface ProcessInstanceEntityRepository extends
     JpaSpecificationExecutor<ProcessInstanceEntity>,
     RevisionRepository<ProcessInstanceEntity, UUID, Integer>
 {
+
   Optional<ProcessInstanceEntity> findByBusinessKey(String businessKey);
+
+  List<ProcessInstanceEntity> findAllByProcReleaseId(String procReleaseId);
+
 }

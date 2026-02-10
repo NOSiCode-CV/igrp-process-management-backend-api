@@ -56,6 +56,9 @@ public class ProcessDeploymentMapper {
     dto.setVersion(model.getVersion());
     dto.setApplicationBase(model.getApplicationBase().getValue());
     dto.setDeploymentId(model.getDeploymentId());
+    dto.setCandidateGroups(
+        !model.getCandidateGroups().isEmpty() ? String.join(",", model.getCandidateGroups()) : null
+    );
     return dto;
   }
 
@@ -77,6 +80,7 @@ public class ProcessDeploymentMapper {
 
   public ProcessDeployment toModel(IgrpProcessDefinitionRepresentation definition) {
     return ProcessDeployment.builder()
+        .id(definition.releaseId())
         .key(Code.create(definition.key()))
         .name(Name.create(definition.name()))
         .resourceName(ResourceName.create(definition.resourceName()))

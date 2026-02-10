@@ -78,10 +78,11 @@ public class TaskInstancesController {
     @RequestParam(value = "page", required = false) Integer page,
     @RequestParam(value = "size", required = false) Integer size,
     @RequestParam(value = "name", required = false) String name,
-    @RequestParam(value = "processName", required = false) String processName)
+    @RequestParam(value = "processName", required = false) String processName,
+    @RequestParam(value = "filterByCurrentUser", required = false) boolean filterByCurrentUser)
   {
 
-      final var command = new ListTaskInstancesCommand(listTaskInstancesRequest, processInstanceId, processNumber, processReleaseKey, applicationBase, candidateGroups, user, status, dateFrom, dateTo, page, size, name, processName);
+      final var command = new ListTaskInstancesCommand(listTaskInstancesRequest, processInstanceId, processNumber, processReleaseKey, applicationBase, candidateGroups, user, status, dateFrom, dateTo, page, size, name, processName, filterByCurrentUser);
 
        ResponseEntity<TaskInstanceListPageDTO> response = commandBus.send(command);
 
