@@ -1,13 +1,11 @@
 package cv.igrp.platform.process.management.processdefinition.domain.models;
 
-import cv.igrp.platform.process.management.shared.application.constants.Status;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import cv.igrp.platform.process.management.shared.domain.models.Name;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
 import java.util.*;
 
 @Getter

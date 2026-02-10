@@ -113,7 +113,7 @@ public class ProcessDeploymentRepositoryImpl implements ProcessDeploymentReposit
   }
 
   @Override
-  public String findLastProcessDefinitionIdByKey(String processDefinitionKey) {
+  public Optional<String> findLastProcessDefinitionIdByKey(String processDefinitionKey) {
     return processDefinitionAdapter.getLastProcessDefinitionIdByKey(processDefinitionKey);
   }
 
