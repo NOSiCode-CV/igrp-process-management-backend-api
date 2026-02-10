@@ -20,7 +20,7 @@ public class ProcessArtifactMapper {
         .name(Name.create(dto.getName()))
         .processDefinitionId(Code.create(processDefinitionId))
         .key(Code.create(taskKey))
-        .formKey(Code.create(dto.getFormKey()))
+        .formKey(dto.getFormKey())
         .candidateGroups(dto.getCandidateGroups() != null && !dto.getCandidateGroups().isBlank()
             ? new HashSet<>(List.of(dto.getCandidateGroups().split(",")))
             : new HashSet<>())
@@ -35,7 +35,7 @@ public class ProcessArtifactMapper {
     dto.setName(model.getName().getValue());
     dto.setProcessDefinitionId(model.getProcessDefinitionId().getValue());
     dto.setKey(model.getKey().getValue());
-    dto.setFormKey(model.getFormKey().getValue());
+    dto.setFormKey(model.getFormKey());
     dto.setCandidateGroups(
         !model.getCandidateGroups().isEmpty() ? String.join(",", model.getCandidateGroups()) : null
     );
@@ -49,7 +49,7 @@ public class ProcessArtifactMapper {
     entity.setName(model.getName().getValue());
     entity.setProcessDefinitionId(model.getProcessDefinitionId().getValue());
     entity.setKey(model.getKey().getValue());
-    entity.setFormKey(model.getFormKey().getValue());
+    entity.setFormKey(model.getFormKey());
     entity.setId(model.getId().getValue());
     if(!model.getCandidateGroups().isEmpty()) {
       entity.setCandidateGroups(String.join(",", model.getCandidateGroups()));
@@ -65,7 +65,7 @@ public class ProcessArtifactMapper {
         .name(Name.create(entity.getName()))
         .processDefinitionId(Code.create(entity.getProcessDefinitionId()))
         .key(Code.create(entity.getKey()))
-        .formKey(Code.create(entity.getFormKey()))
+        .formKey(entity.getFormKey())
         .candidateGroups(entity.getCandidateGroups() != null
             ? new HashSet<>(List.of(entity.getCandidateGroups().split(",")))
             : new HashSet<>())
@@ -88,7 +88,7 @@ public class ProcessArtifactMapper {
         .name(Name.create(dto.getName()))
         .processDefinitionId(Code.create(dto.getProcessDefinitionId()))
         .key(Code.create(dto.getKey()))
-        .formKey(Code.create(dto.getFormKey()))
+        .formKey(dto.getFormKey())
         .candidateGroups(
             dto.getCandidateGroups() != null
                 ? new HashSet<>(List.of(dto.getCandidateGroups().split(",")))

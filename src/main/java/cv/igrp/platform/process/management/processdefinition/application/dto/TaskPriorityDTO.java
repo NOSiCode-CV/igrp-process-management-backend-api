@@ -34,5 +34,8 @@ public class TaskPriorityDTO  {
   
   
   private String processDefinitionKey ;
+  
+  
+  private String color ;
 
 }

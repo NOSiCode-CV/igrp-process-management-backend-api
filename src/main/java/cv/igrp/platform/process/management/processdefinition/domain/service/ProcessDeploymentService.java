@@ -233,10 +233,11 @@ public class ProcessDeploymentService {
             .candidateGroups(previous != null ? previous.getCandidateGroups() : deployedArtifact.getCandidateGroups())
             .priority(previous != null ? previous.getPriority() : deployedArtifact.getPriority())
             .dueDate(previous != null ? previous.getDueDate() : deployedArtifact.getDueDate())
-            .formKey(previous != null ? previous.getFormKey() : deployedArtifact.getFormKey())
+            .formKey(previous != null && previous.isFormKeySet() ? previous.getFormKey() : deployedArtifact.getFormKey())
             .build();
 
         processDefinitionRepository.saveArtifact(toPersist);
+
       });
     }
 
