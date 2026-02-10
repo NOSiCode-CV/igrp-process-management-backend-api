@@ -6,6 +6,7 @@ import cv.igrp.platform.process.management.processruntime.domain.models.ProcessI
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessStatistics;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -22,5 +23,7 @@ public interface ProcessInstanceRepository {
   ProcessStatistics getProcessInstanceStatistics();
 
   Optional<ProcessInstance> findByBusinessKey(String businessKey);
+
+  List<ProcessInstance> findAllByProcessReleaseId(String processReleaseId);
 
 }

@@ -2,7 +2,10 @@ package cv.igrp.platform.process.management.shared.security;
 
 
 import cv.igrp.platform.process.management.shared.security.authz.IAuthorizationServiceAdapter;
+import cv.igrp.platform.process.management.shared.security.util.ActivitiConstants;
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -10,6 +13,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -26,9 +30,13 @@ import org.springframework.web.cors.CorsConfiguration;
 import java.util.HashSet;
 import java.util.Set;
 
+import static cv.igrp.platform.process.management.shared.security.util.IgrpAuthorizationConstants.ROLE_PREFIX;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(SecurityConfig.class);
 
   private final IAuthorizationServiceAdapter authorizationService;
 
@@ -66,7 +74,8 @@ public class SecurityConfig {
                 "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",
                 "/swagger-resources/**", "/webjars/**", "/actuator/**"
             ).permitAll()
-            .anyRequest().authenticated()  // Require authentication for all other requests
+            .anyRequest()
+            .authenticated()  // Require authentication for all other requests
         )
         .exceptionHandling(ex -> ex.authenticationEntryPoint((request, response, authException) -> {
           response.addHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"Restricted Content\"");
@@ -75,6 +84,9 @@ public class SecurityConfig {
 
     // Set session management to stateless (no session created for API requests)
     http.sessionManagement(t -> t.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+    // Disable CSRF
+    http.csrf(AbstractHttpConfigurer::disable);
 
     return http.build();
   }
@@ -96,8 +108,10 @@ public class SecurityConfig {
       authorizationService
           .getRoles(token, request)
           .forEach(r -> {
-            authorities.add(new SimpleGrantedAuthority("ROLE_" + r));
-            authorities.add(new SimpleGrantedAuthority("GROUP_" + r));
+            String roleValue = !r.startsWith(ROLE_PREFIX) ?  ROLE_PREFIX + r : r;
+            String groupValue = !r.startsWith(ActivitiConstants.GROUP_PREFIX) ? ActivitiConstants.GROUP_PREFIX + r : r;
+            authorities.add(new SimpleGrantedAuthority(roleValue));
+            authorities.add(new SimpleGrantedAuthority(groupValue));
           });
 
       authorizationService
@@ -110,11 +124,21 @@ public class SecurityConfig {
           .getDepartments(token, request)
           .forEach(d -> {
             authorities.add(new SimpleGrantedAuthority(d));
-            authorities.add(new SimpleGrantedAuthority("GROUP_" + d));
+            String groupValue = !d.startsWith(ActivitiConstants.GROUP_PREFIX) ? ActivitiConstants.GROUP_PREFIX + d : d;
+            authorities.add(new SimpleGrantedAuthority(groupValue));
           });
 
-      // Always include activiti-user role
-      authorities.add(new SimpleGrantedAuthority("ROLE_ACTIVITI_USER"));
+      //authorizationService.getActiveRoles(token, request);
+
+      // Activiti Admin or User role
+      if(authorizationService.isSuperAdmin(token, request)){
+        authorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + ActivitiConstants.ROLE_ACTIVITI_ADMIN));
+        authorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + ActivitiConstants.ROLE_ACTIVITI_USER));
+      } else {
+        authorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + ActivitiConstants.ROLE_ACTIVITI_USER));
+      }
+
+      LOGGER.debug("Authorities: {}", authorities);
 
       return authorities;
 

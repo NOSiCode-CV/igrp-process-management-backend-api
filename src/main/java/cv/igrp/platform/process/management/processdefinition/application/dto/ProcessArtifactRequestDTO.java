@@ -28,5 +28,11 @@ public class ProcessArtifactRequestDTO  {
   
   
   private String candidateGroups ;
+  
+  
+  private String dueDate ;
+  
+  
+  private Integer priority ;
 
 }

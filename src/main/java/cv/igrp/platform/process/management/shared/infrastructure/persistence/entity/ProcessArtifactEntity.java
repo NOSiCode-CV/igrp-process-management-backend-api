@@ -58,4 +58,12 @@ public class ProcessArtifactEntity extends AuditEntity {
     private String candidateGroups;
 
   
+    @Column(name="priority")
+    private Integer priority;
+
+  
+    @Column(name="due_date")
+    private String dueDate;
+
+  
 }

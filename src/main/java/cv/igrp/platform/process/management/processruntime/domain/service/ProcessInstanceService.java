@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+
 @Service
 public class ProcessInstanceService {
 
@@ -182,7 +183,7 @@ public class ProcessInstanceService {
 
   public ProcessInstance createProcessInstance(ProcessInstance processInstance, String user) {
     var latestProcessDefinitionId = processInstance.getProcReleaseId() == null
-        ? processDeploymentService.findLatesProcessDefinitionIdByKey(processInstance.getProcReleaseKey().getValue())
+        ? processDeploymentService.findLastProcessDefinitionIdByKey(processInstance.getProcReleaseKey().getValue())
         : processInstance.getProcReleaseId().getValue();
 
     var engineProcessInstance = runtimeProcessEngineRepository.createProcessInstanceById(

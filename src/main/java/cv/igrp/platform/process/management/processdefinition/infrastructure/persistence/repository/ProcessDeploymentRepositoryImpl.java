@@ -8,19 +8,20 @@ import cv.igrp.framework.runtime.core.engine.process.model.ProcessFilter;
 import cv.igrp.framework.runtime.core.engine.task.TaskQueryService;
 import cv.igrp.platform.process.management.processdefinition.domain.exception.ProcessDeploymentException;
 import cv.igrp.platform.process.management.processdefinition.domain.filter.ProcessDeploymentFilter;
+import cv.igrp.platform.process.management.processdefinition.domain.models.BpmnXml;
 import cv.igrp.platform.process.management.processdefinition.domain.models.ProcessArtifact;
 import cv.igrp.platform.process.management.processdefinition.domain.models.ProcessDeployment;
 import cv.igrp.platform.process.management.processdefinition.domain.repository.ProcessDeploymentRepository;
 import cv.igrp.platform.process.management.processdefinition.mappers.ProcessDeploymentMapper;
-import cv.igrp.platform.process.management.shared.domain.models.Code;
-import cv.igrp.platform.process.management.shared.domain.models.Name;
-import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
-import cv.igrp.platform.process.management.shared.domain.models.ResourceName;
+import cv.igrp.platform.process.management.shared.domain.models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Implementation of {@link ProcessDeploymentRepository} that delegates to
@@ -33,18 +34,13 @@ public class ProcessDeploymentRepositoryImpl implements ProcessDeploymentReposit
 
   private final ProcessDefinitionAdapter processDefinitionAdapter;
   private  final ProcessDeploymentMapper processDeploymentMapper;
-  private final ProcessManagerAdapter processManagerAdapter;
 
-  private final TaskQueryService taskQueryService;
 
   public ProcessDeploymentRepositoryImpl(ProcessDefinitionAdapter processDefinitionAdapter,
-                                         ProcessDeploymentMapper processDeploymentMapper,
-                                         ProcessManagerAdapter processManagerAdapter,
-                                         TaskQueryService taskQueryService) {
+                                         ProcessDeploymentMapper processDeploymentMapper
+  ) {
     this.processDefinitionAdapter = processDefinitionAdapter;
     this.processDeploymentMapper = processDeploymentMapper;
-    this.processManagerAdapter = processManagerAdapter;
-    this.taskQueryService = taskQueryService;
   }
 
   @Override
@@ -97,6 +93,11 @@ public class ProcessDeploymentRepositoryImpl implements ProcessDeploymentReposit
     ProcessFilter processFilter = new ProcessFilter();
     processFilter.setName(filter.getProcessName()!=null && !filter.getProcessName().isBlank() ? filter.getProcessName() : null );
     processFilter.setApplicationBase(filter.getApplicationBase() != null ? filter.getApplicationBase().getValue() : null);
+    List<String> groupsIds = filter.isFilterByCurrentUser()
+        ? filter.getContextGroups().stream().toList()
+        : filter.getGroups().stream().toList();
+    processFilter.setGroupsIds(groupsIds);
+    processFilter.setSuspended(filter.isSuspended());
     return processFilter;
   }
 
@@ -104,7 +105,7 @@ public class ProcessDeploymentRepositoryImpl implements ProcessDeploymentReposit
   public List<ProcessArtifact> findAllArtifacts(String processDefinitionId) {
     List<cv.igrp.framework.runtime.core.engine.task.model.ProcessArtifact> artifacts = processDefinitionAdapter.getProcessArtifacts(processDefinitionId);
     return artifacts.stream().map(artifact -> ProcessArtifact.builder()
-        .formKey(Code.create(artifact.formKey() != null ? artifact.formKey() : "NOT_SET"))
+        .formKey(artifact.formKey())
         .name(Name.create(artifact.taskName() != null ? artifact.taskName() : "NOT_SET"))
         .key(Code.create(artifact.taskKey()))
         .processDefinitionId(Code.create(processDefinitionId))
@@ -112,8 +113,50 @@ public class ProcessDeploymentRepositoryImpl implements ProcessDeploymentReposit
   }
 
   @Override
-  public String findLatesProcessDefinitionIdByKey(String processDefinitionKey) {
-    return processDefinitionAdapter.getLatesProcessDefinitionIdByKey(processDefinitionKey);
+  public Optional<String> findLastProcessDefinitionIdByKey(String processDefinitionKey) {
+    return processDefinitionAdapter.getLastProcessDefinitionIdByKey(processDefinitionKey);
+  }
+
+  @Override
+  public void addCandidateStarterGroup(String processDefinitionId, String groupId) {
+    processDefinitionAdapter.addCandidateStarterGroup(processDefinitionId, groupId);
+  }
+
+  @Override
+  public void removeCandidateStarterGroup(String processDefinitionId, String groupId) {
+    processDefinitionAdapter.removeCandidateStarterGroup(processDefinitionId, groupId);
+  }
+
+  @Override
+  public Set<String> getCandidateStarterGroups(String processDefinitionId) {
+    List<String> groups = processDefinitionAdapter.getCandidateStarterGroups(processDefinitionId);
+    return Set.copyOf(groups);
+  }
+
+  @Override
+  public Optional<ProcessDeployment> findById(String id) {
+    return processDefinitionAdapter.getProcessDefinition(id)
+        .map(def -> ProcessDeployment.builder()
+            .key(Code.create(def.key()))
+            .name(Name.create(def.name()))
+            .description(def.description())
+            .applicationBase(def.applicationBase() != null ? Code.create(def.applicationBase()) : null)
+            .deploymentId(def.deploymentId())
+            .version( String.valueOf(def.version()))
+            .resourceName(ResourceName.create(def.resourceName()))
+            .bpmnXml(BpmnXml.create(def.bpmnXml()))
+            .build()
+        );
+  }
+
+  @Override
+  public void archiveProcessDefinitionById(String processDefinitionId) {
+    processDefinitionAdapter.suspendProcessDefinitionById(processDefinitionId);
+  }
+
+  @Override
+  public void unArchiveProcessDefinitionById(String processDefinitionId) {
+    processDefinitionAdapter.activateProcessDefinitionById(processDefinitionId);
   }
 
 }

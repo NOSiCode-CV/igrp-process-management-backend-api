@@ -22,28 +22,19 @@ public class GetAllMyTasksCommandHandler implements CommandHandler<GetAllMyTasks
 
   private final TaskInstanceService taskInstanceService;
   private final TaskInstanceMapper taskInstanceMapper;
-  private final UserContext userContext;
 
   public GetAllMyTasksCommandHandler(TaskInstanceService taskInstanceService,
-                                     TaskInstanceMapper taskInstanceMapper,
-                                     UserContext userContext) {
+                                     TaskInstanceMapper taskInstanceMapper
+  ) {
     this.taskInstanceService = taskInstanceService;
     this.taskInstanceMapper = taskInstanceMapper;
-    this.userContext = userContext;
   }
 
   @Transactional(readOnly = true)
   @IgrpCommandHandler
   public ResponseEntity<TaskInstanceListPageDTO> handle(GetAllMyTasksCommand command) {
     final var filter = taskInstanceMapper.toFilter(command);
-    final var currentUser = userContext.getCurrentUser();
-    filter.setUser(currentUser);
-    LOGGER.debug("User [{}] requested all his tasks with filter [{}]", currentUser.getValue(), filter);
-    userContext.getCurrentGroups()
-        .forEach(filter::addGroup);
-    LOGGER.debug("User [{}] requested all his tasks with filter [{}]", currentUser.getValue(), filter);
     PageableLista<TaskInstance> taskInstances = taskInstanceService.getAllTaskInstances(filter);
-    LOGGER.debug("User [{}] retrieved [{}] of his tasks", currentUser.getValue(), taskInstances.getTotalElements());
     return ResponseEntity.ok(taskInstanceMapper.toTaskInstanceListPageDTO(taskInstances));
   }
 

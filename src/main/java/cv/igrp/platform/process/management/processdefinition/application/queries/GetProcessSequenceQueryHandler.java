@@ -38,7 +38,7 @@ public class GetProcessSequenceQueryHandler implements QueryHandler<GetProcessSe
 
      LOGGER.debug("User [{}] requested sequence for processDefinitionKey [{}]", currentUser.getValue(), query.getProcessDefinitionKey());
 
-     final var processSequence = processSequenceService.getSequenceByProcessAndApplication(Code.create(query.getProcessDefinitionKey()));
+     final var processSequence = processSequenceService.getSequenceByProcessDefinitionKey(Code.create(query.getProcessDefinitionKey()));
 
      LOGGER.debug("Retrieved Sequence with processDefinitionKey [{}] for user [{}]", processSequence.getProcessDefinitionKey().getValue(), currentUser.getValue());
 

@@ -6,6 +6,7 @@ import cv.igrp.platform.process.management.processruntime.domain.models.TaskStat
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -23,7 +24,7 @@ public interface TaskInstanceRepository {
 
   TaskStatistics getGlobalTaskStatistics();
 
-  TaskStatistics getTaskStatisticsByUser(Code user);
+  TaskStatistics getTaskStatisticsByUser(Code user, List<String> groups, boolean isSuperAdmin);
 
   Optional<TaskInstance> findByExternalId(String id);
 }

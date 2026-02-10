@@ -31,6 +31,7 @@ public class AreaMapper {
           .applicationBase(Code.create(areaRequestDTO.getApplicationBase()))
           .areaId(areaRequestDTO.getParentId() != null ? Identifier.create(areaRequestDTO.getParentId()) : null)
           .description(areaRequestDTO.getDescription())
+          .color(areaRequestDTO.getColor())
           .build();
     }
 
@@ -53,6 +54,7 @@ public class AreaMapper {
           .map(areaProcessMapper::toDTO)
           .toList();
       areaDTO.setProcess(processDefinitions);
+      areaDTO.setColor(area.getColor());
       return areaDTO;
     }
 
@@ -69,6 +71,7 @@ public class AreaMapper {
         parent.setId(area.getAreaId().getValue());
         areaEntity.setAreaId(parent);
       }
+      areaEntity.setColor(area.getColor());
       return areaEntity;
     }
 
@@ -85,6 +88,7 @@ public class AreaMapper {
           .createdBy(areaEntity.getCreatedBy())
           .updatedBy(areaEntity.getLastModifiedBy())
           .areaId(areaEntity.getAreaId() != null ? Identifier.create(areaEntity.getAreaId().getId()) : null)
+          .color(areaEntity.getColor())
           .build();
       if(areaEntity.getProcessdefinitions() != null) {
         areaEntity.getProcessdefinitions().forEach(areaProcessEntity -> {

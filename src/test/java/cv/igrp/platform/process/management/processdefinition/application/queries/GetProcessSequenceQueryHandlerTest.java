@@ -50,7 +50,7 @@ class GetProcessSequenceQueryHandlerTest {
 
     when(userContext.getCurrentUser()).thenReturn(Code.create("demo@nosi.cv"));
 
-    when(processSequenceService.getSequenceByProcessAndApplication(Code.create(processDefinitionKey)))
+    when(processSequenceService.getSequenceByProcessDefinitionKey(Code.create(processDefinitionKey)))
         .thenReturn(processSequenceMock);
 
     when(processSequenceMock.getProcessDefinitionKey())
@@ -69,7 +69,7 @@ class GetProcessSequenceQueryHandlerTest {
     assertEquals(processSequenceDTOMock, response.getBody());
 
     verify(userContext).getCurrentUser();
-    verify(processSequenceService).getSequenceByProcessAndApplication(Code.create(processDefinitionKey));
+    verify(processSequenceService).getSequenceByProcessDefinitionKey(Code.create(processDefinitionKey));
     verify(processSequenceMapper).toDTO(processSequenceMock);
 
   }

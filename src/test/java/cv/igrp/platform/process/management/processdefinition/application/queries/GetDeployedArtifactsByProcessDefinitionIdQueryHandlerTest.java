@@ -52,7 +52,7 @@ public class GetDeployedArtifactsByProcessDefinitionIdQueryHandlerTest {
         .formKey(Code.create("/path/to/form/task_1"))
         .build();
 
-    when(processDeploymentService.getDeployedArtifactsByProcessDefinitionId(Code.create(processDefinitionId)))
+    when(processDeploymentService.getDeployedArtifactsByProcessDefinitionId(processDefinitionId))
         .thenReturn(List.of(artifact));
 
     // Act
@@ -72,7 +72,7 @@ public class GetDeployedArtifactsByProcessDefinitionIdQueryHandlerTest {
     assertEquals(artifact.getFormKey().getValue(), dto.getFormKey());
 
     verify(processDeploymentService)
-        .getDeployedArtifactsByProcessDefinitionId(Code.create(processDefinitionId));
+        .getDeployedArtifactsByProcessDefinitionId(processDefinitionId);
   }
 
 }

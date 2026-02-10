@@ -16,10 +16,7 @@ import cv.igrp.platform.process.management.shared.infrastructure.persistence.ent
 import cv.igrp.platform.process.management.shared.util.DateUtil;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static cv.igrp.platform.process.management.shared.util.DateUtil.utilDateToLocalDateTime;
 
@@ -41,7 +38,7 @@ public class TaskInstanceMapper {
         .formKey(taskInfo.formKey()!=null ? Code.create(taskInfo.formKey()) : null)
         .name(Name.create(taskInfo.name() != null ? taskInfo.name() : "NOT SET"))
         .startedAt(utilDateToLocalDateTime.apply(taskInfo.createdTime()))
-        .candidateGroups(taskInfo.candidateGroups())
+        .candidateGroups(new HashSet<>(taskInfo.candidateGroups()))
         .build();
   }
 
@@ -77,6 +74,7 @@ public class TaskInstanceMapper {
     taskInstanceEntity.setCandidateGroups(!taskInstance.getCandidateGroups().isEmpty() ? String.join(",", taskInstance.getCandidateGroups()) : null);
     taskInstanceEntity.setVariables(taskInstance.getVariables());
     taskInstanceEntity.setForms(taskInstance.getForms());
+    taskInstanceEntity.setDueDate(taskInstance.getDueDate());
   }
 
 
@@ -108,10 +106,11 @@ public class TaskInstanceMapper {
         .assignedBy(taskInstanceEntity.getAssignedBy()!=null ? Code.create(taskInstanceEntity.getAssignedBy()) : null)
         .endedAt(taskInstanceEntity.getEndedAt())
         .endedBy(taskInstanceEntity.getEndedBy()!=null ? Code.create(taskInstanceEntity.getEndedBy()) : null)
-        .candidateGroups(taskInstanceEntity.getCandidateGroups()!=null ? List.of(taskInstanceEntity.getCandidateGroups().split(",")) : null)
+        .candidateGroups(taskInstanceEntity.getCandidateGroups()!=null ? new HashSet<>(List.of(taskInstanceEntity.getCandidateGroups().split(","))) : null)
         .taskInstanceEvents(withEvents ? eventMapper.toEventModelList(taskInstanceEntity.getTaskinstanceevents()) : null)
         .forms(taskInstanceEntity.getForms())
         .variables(taskInstanceEntity.getVariables())
+        .dueDate(taskInstanceEntity.getDueDate())
         .build();
   }
 
@@ -153,6 +152,7 @@ public class TaskInstanceMapper {
     dto.setVariables(toProcessVariableDTO(model.getVariables()));
     dto.setForms(toProcessVariableDTO(model.getForms()));
     dto.setProcessVariables(toProcessVariableDTO(model.getProcessVariables()));
+    dto.setDueDate(model.getDueDate());
     return dto;
   }
 
@@ -185,6 +185,7 @@ public class TaskInstanceMapper {
     dto.setVariables(toProcessVariableDTO(taskInstance.getVariables()));
     dto.setForms(toProcessVariableDTO(taskInstance.getForms()));
     dto.setProcessVariables(toProcessVariableDTO(taskInstance.getProcessVariables()));
+    dto.setDueDate(taskInstance.getDueDate());
     return dto;
   }
 
@@ -203,6 +204,7 @@ public class TaskInstanceMapper {
         .size(command.getSize())
         .name(command.getName() != null && !command.getName().isBlank() ? Name.create(command.getName()) : null)
         .processReleaseKey(command.getProcessReleaseKey() != null && !command.getProcessReleaseKey().isBlank() ? Code.create(command.getProcessReleaseKey()) : null)
+        .filterByCurrentUser(true)
         .build();
   }
 
@@ -264,8 +266,8 @@ public class TaskInstanceMapper {
         .applicationBase((command.getApplicationBase() != null && !command.getApplicationBase().isBlank()) ? Code.create(command.getApplicationBase().trim()) : null)
         .processName((command.getProcessName() != null && !command.getProcessName().isBlank()) ? Name.create(command.getProcessName().trim()) : null)
         .candidateGroups(command.getCandidateGroups() != null
-            ? new ArrayList<>(List.of(command.getCandidateGroups().split(",")))
-            : new ArrayList<>())
+            ? new HashSet<>(List.of(command.getCandidateGroups().split(",")))
+            : new HashSet<>())
         .user(command.getUser() != null ? Code.create(command.getUser()) : null)
         .status(command.getStatus() != null ? TaskInstanceStatus.valueOf(command.getStatus()) : null)
         .dateFrom(DateUtil.stringToLocalDate.apply(command.getDateFrom()))
@@ -275,6 +277,7 @@ public class TaskInstanceMapper {
         .size(command.getSize())
         .name(command.getName() != null && !command.getName().isBlank() ? Name.create(command.getName()) : null)
         .processReleaseKey(command.getProcessReleaseKey() != null && !command.getProcessReleaseKey().isBlank() ? Code.create(command.getProcessReleaseKey()) : null)
+        .filterByCurrentUser(command.isFilterByCurrentUser())
         .build();
   }
 

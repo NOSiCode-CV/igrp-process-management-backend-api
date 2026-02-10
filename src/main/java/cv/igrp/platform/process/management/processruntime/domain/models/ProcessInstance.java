@@ -43,6 +43,8 @@ public class ProcessInstance {
   private Map<String, Object> variables;
   private Integer priority;
 
+  private boolean isArchived;
+
   @Builder
   public ProcessInstance(Identifier id,
                          Code procReleaseKey,
@@ -65,7 +67,8 @@ public class ProcessInstance {
                          String name,
                          String progress,
                          Map<String, Object> variables,
-                         Integer priority
+                         Integer priority,
+                         boolean isArchived
                          ) {
     this.id = id == null ? Identifier.generate() : id;
     this.procReleaseKey = Objects.requireNonNull(procReleaseKey, "Process release key cannot be null");
@@ -89,6 +92,7 @@ public class ProcessInstance {
     this.progress = progress;
     this.variables = variables == null ? new HashMap<>() : variables;
     this.priority = priority == null ? DEFAULT_PRIORITY : priority;
+    this.isArchived = isArchived;
   }
 
   public void create(ProcessNumber processNumber, ProcessInstance processInstance, String createdBy){
@@ -150,5 +154,12 @@ public class ProcessInstance {
     this.variables.putAll(variables);
   }
 
+  public void archive(){
+    this.isArchived = true;
+  }
+
+  public void unArchive(){
+    this.isArchived = false;
+  }
 
 }

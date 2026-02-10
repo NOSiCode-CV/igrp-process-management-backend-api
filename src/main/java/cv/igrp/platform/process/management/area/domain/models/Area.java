@@ -31,6 +31,8 @@ public class Area {
   private String createdBy;
   private String updatedBy;
 
+  private String color;
+
   @Builder
   public Area(Identifier id,
               Code code,
@@ -43,7 +45,9 @@ public class Area {
               LocalDateTime createdAt,
               LocalDateTime updatedAt,
               String createdBy,
-              String updatedBy) {
+              String updatedBy,
+              String color
+  ) {
     this.id = id == null ? Identifier.generate() : id;
     this.code = Objects.requireNonNull(code, "The code of the area must not be null");
     this.name = name;
@@ -56,6 +60,7 @@ public class Area {
     this.updatedAt = updatedAt;
     this.createdBy = createdBy;
     this.updatedBy = updatedBy;
+    this.color = color;
   }
 
   public void add(AreaProcess processDefinition) {
@@ -87,8 +92,8 @@ public class Area {
     this.name = newArea.getName();
     this.applicationBase = newArea.getApplicationBase();
     this.areaId = newArea.getAreaId() != null ? newArea.getAreaId() : this.areaId;
-    this.description = newArea.getDescription() != null && !newArea.getDescription().isBlank()
-        ? newArea.getDescription() : this.description;
+    this.description = newArea.getDescription() != null ? newArea.getDescription() : this.description;
+    this.color = newArea.getColor() != null ? newArea.getColor() : this.color;
   }
 
 }

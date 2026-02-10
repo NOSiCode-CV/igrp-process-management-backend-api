@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cv.igrp.platform.process.management.processdefinition.application.dto.ProcessDeploymentDTO;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class DeployProcessCommandHandler implements CommandHandler<DeployProcessCommand, ResponseEntity<ProcessDeploymentDTO>> {
@@ -27,11 +28,12 @@ public class DeployProcessCommandHandler implements CommandHandler<DeployProcess
     this.mapper = mapper;
   }
 
+  @Transactional
   @IgrpCommandHandler
   public ResponseEntity<ProcessDeploymentDTO> handle(DeployProcessCommand command) {
     ProcessDeployment processDeployment = mapper.toModel(command.getProcessdeploymentrequestdto());
     return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toDTO(
-        processDeploymentService.deployProcess(processDeployment)));
+        processDeploymentService.deployProcessAndConfigure(processDeployment)));
   }
 
 }
