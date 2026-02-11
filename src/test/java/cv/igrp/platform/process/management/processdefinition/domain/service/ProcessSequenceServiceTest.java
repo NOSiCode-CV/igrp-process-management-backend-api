@@ -38,27 +38,27 @@ class ProcessSequenceServiceTest {
 
   @Test
   void testGetSequenceByProcessAndApplicationByProcessDefinitionId_found() {
-    when(processSequenceRepository.findByProcessAndApplication(processDefinitionKey.getValue()))
+    when(processSequenceRepository.findByProcessDefinitionKey(processDefinitionKey.getValue()))
         .thenReturn(Optional.of(sequence));
 
     ProcessSequence result = processSequenceService.getSequenceByProcessDefinitionKey(processDefinitionKey);
 
     assertNotNull(result);
     assertEquals(sequence, result);
-    verify(processSequenceRepository).findByProcessAndApplication(processDefinitionKey.getValue());
+    verify(processSequenceRepository).findByProcessDefinitionKey(processDefinitionKey.getValue());
   }
 
 
   @Test
   void testGetSequenceByProcessAndApplicationByProcessDefinitionId_notFound() {
-    when(processSequenceRepository.findByProcessAndApplication(processDefinitionKey.getValue()))
+    when(processSequenceRepository.findByProcessDefinitionKey(processDefinitionKey.getValue()))
         .thenReturn(Optional.empty());
 
     IgrpResponseStatusException ex = assertThrows(IgrpResponseStatusException.class,
         () -> processSequenceService.getSequenceByProcessDefinitionKey(processDefinitionKey));
 
     assertTrue(ex.getMessage().contains("Process Sequence not found"));
-    verify(processSequenceRepository).findByProcessAndApplication(processDefinitionKey.getValue());
+    verify(processSequenceRepository).findByProcessDefinitionKey(processDefinitionKey.getValue());
   }
 
 
