@@ -298,7 +298,7 @@ public class TaskInstanceService {
 
   private void configureDueDate(TaskInstance runtimeTask, TaskInstance task, ProcessArtifact artifact) {
     LOGGER.info("DueDate: {} from ProcessArtifact: {}", artifact.getDueDate(), artifact.getKey());
-    if (artifact.getDueDate() == null) {
+    if (artifact.getDueDate() == null || artifact.getDueDate().isBlank()) {
       return;
     }
     LocalDateTime dueDate = LocalDateTime.now().plus(Duration.parse(artifact.getDueDate()));
