@@ -60,6 +60,7 @@ public class TaskInstanceMapper {
         processInstanceEntity.setId(taskInstance.getProcessInstanceId().getValue());
         taskInstanceEntity.setProcessInstanceId(processInstanceEntity);
     }
+    taskInstanceEntity.setDueDate(taskInstance.getDueDate());
     return taskInstanceEntity;
   }
 

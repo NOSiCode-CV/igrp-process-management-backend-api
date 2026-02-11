@@ -10,10 +10,13 @@ import cv.igrp.platform.process.management.processruntime.domain.repository.Task
 import cv.igrp.platform.process.management.shared.application.constants.ProcessInstanceStatus;
 import cv.igrp.platform.process.management.shared.application.constants.VariableTag;
 import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.platform.process.management.shared.domain.models.ArtifactContext;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 import cv.igrp.platform.process.management.shared.security.util.UserContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -21,11 +24,12 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 
 @Service
 public class TaskInstanceService {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(TaskInstanceService.class);
 
   private final TaskInstanceRepository taskInstanceRepository;
   private final TaskInstanceEventRepository taskInstanceEventRepository;
@@ -108,7 +112,6 @@ public class TaskInstanceService {
 
   }
 
-
   public void unClaimTask(TaskOperationData data) {
     var taskInstance = getByIdWihEvents(data.getId());
     taskInstance.unClaim(data);
@@ -181,7 +184,7 @@ public class TaskInstanceService {
 
   public PageableLista<TaskInstance> getAllTaskInstances(TaskInstanceFilter filter) {
 
-    if(filter.isFilterByCurrentUser()){
+    if (filter.isFilterByCurrentUser()) {
       final var currentUser = userContext.getCurrentUser();
       final var isSuperAdmin = userContext.isSuperAdmin();
       filter.bindCurrentUser(currentUser, isSuperAdmin);
@@ -238,84 +241,83 @@ public class TaskInstanceService {
 
   void createNextTaskInstances(ProcessInstance processInstance, Code user) {
 
-    var activeTasks = runtimeProcessEngineRepository.getActiveTaskInstances(
-        processInstance.getEngineProcessNumber().getValue());
-
+    var activeTasks = getActiveRuntimeTasks(processInstance);
     if (activeTasks.isEmpty()) {
       return;
     }
 
-    // 1. Update priorities for all active tasks
-    activeTasks.forEach(task ->
-        runtimeProcessEngineRepository.setTaskPriority(
-            task.getExternalId().getValue(),
-            processInstance.getPriority()
-        )
+    updateRuntimePriorities(activeTasks, processInstance);
+
+    var context = ArtifactContext.from(
+        processDefinitionRepository.findAllArtifacts(processInstance.getProcReleaseId())
     );
 
-    // 2. Preload artifacts and map {taskKey → formKey}
-    var artifacts = processDefinitionRepository.findAllArtifacts(processInstance.getProcReleaseId());
+    for (var runtimeTask : activeTasks) {
 
-    var artifactFormMap = artifacts.stream()
-        .collect(Collectors.toMap(
-            ProcessArtifact::getKey,
-            a -> Code.create(a.getFormKey())
-        ));
-
-    // 3. Pre-map {taskKey → artifact} for faster lookup
-    var artifactByKey = artifacts.stream()
-        .collect(Collectors.toMap(ProcessArtifact::getKey, a -> a));
-
-    // 4. Process each task
-    for (var task : activeTasks) {
-
-      // Instantiate next task using precomputed form key
-      var newTask = task.withProperties(
+      var newTask = runtimeTask.withProperties(
           processInstance,
-          artifactFormMap.get(task.getTaskKey()),
+          context.findFormKey(runtimeTask.getTaskKey().getValue()).orElse(null),
           user
       );
 
-      var artifact = artifactByKey.get(task.getTaskKey());
-      if (artifact != null) {
-
-        // Groups
-        for (var groupId : artifact.getCandidateGroups()) {
-          // Add group to new task instance
-          newTask.addCandidateGroup(groupId, user);
-          // Add group to Activiti runtime task
-          runtimeProcessEngineRepository.addCandidateGroup(
-              task.getExternalId().getValue(),
-              groupId
-          );
-        }
-
-        // Due Date
-        if (artifact.getDueDate() != null) {
-          LocalDateTime dueDate = LocalDateTime.now().plus(Duration.parse(artifact.getDueDate()));
-          newTask.updateDueDate(dueDate);
-          runtimeProcessEngineRepository.setTaskDueDate(
-              task.getExternalId().getValue(),
-              dueDate
-          );
-        }
-
-      }
+      context.findArtifact(runtimeTask.getTaskKey().getValue())
+          .ifPresent(artifact -> {
+            assignGroups(runtimeTask, newTask, artifact, user);
+            configureDueDate(runtimeTask, newTask, artifact);
+          });
 
       createTask(newTask);
     }
 
   }
 
+  private List<TaskInstance> getActiveRuntimeTasks(ProcessInstance processInstance) {
+    return runtimeProcessEngineRepository.getActiveTaskInstances(
+        processInstance.getEngineProcessNumber().getValue()
+    );
+  }
 
-  void createTask(TaskInstance taskInstance) {
+  private void updateRuntimePriorities(List<TaskInstance> tasks, ProcessInstance processInstance) {
+    tasks.forEach(task ->
+        runtimeProcessEngineRepository.setTaskPriority(
+            task.getExternalId().getValue(),
+            processInstance.getPriority()
+        )
+    );
+  }
+
+  private void assignGroups(TaskInstance runtimeTask, TaskInstance task, ProcessArtifact artifact, Code user) {
+    for (var groupId : artifact.getCandidateGroups()) {
+      task.addCandidateGroup(groupId, user);
+      runtimeProcessEngineRepository.addCandidateGroup(
+          runtimeTask.getExternalId().getValue(),
+          groupId
+      );
+    }
+  }
+
+  private void configureDueDate(TaskInstance runtimeTask, TaskInstance task, ProcessArtifact artifact) {
+    LOGGER.info("DueDate: {} from ProcessArtifact: {}", artifact.getDueDate(), artifact.getKey());
+    if (artifact.getDueDate() == null) {
+      return;
+    }
+    LocalDateTime dueDate = LocalDateTime.now().plus(Duration.parse(artifact.getDueDate()));
+    task.updateDueDate(dueDate);
+    runtimeProcessEngineRepository.setTaskDueDate(
+        runtimeTask.getExternalId().getValue(),
+        dueDate
+    );
+  }
+
+
+  public void createTask(TaskInstance taskInstance) {
     taskInstance.create();
     taskInstanceRepository.create(taskInstance);
     this.saveCurrentEvent(taskInstance.getTaskInstanceEvents().getFirst());
   }
 
 
-  TaskInstance save(TaskInstance taskInstance) {
+  public TaskInstance save(TaskInstance taskInstance) {
     taskInstanceRepository.update(taskInstance);
     this.saveCurrentEvent(taskInstance.getTaskInstanceEvents().getLast());
     return taskInstance;
