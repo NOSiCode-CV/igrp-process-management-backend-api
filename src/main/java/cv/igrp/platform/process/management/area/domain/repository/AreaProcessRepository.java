@@ -18,4 +18,6 @@ public interface AreaProcessRepository {
 
   void updateStatus(UUID id, Status newStatus);
 
+  void delete(UUID id);
+
 }
