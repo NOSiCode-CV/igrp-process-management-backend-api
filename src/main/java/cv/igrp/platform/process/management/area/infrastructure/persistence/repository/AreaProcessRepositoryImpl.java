@@ -109,4 +109,9 @@ public class AreaProcessRepositoryImpl implements AreaProcessRepository {
     areaProcessEntityRepository.save(areaProcessEntity);
   }
 
+  @Override
+  public void delete(UUID id) {
+    areaProcessEntityRepository.deleteById(id);
+  }
+
 }

@@ -24,10 +24,12 @@ public class RemoveProcessDefinitionCommandHandler implements CommandHandler<Rem
 
   @IgrpCommandHandler
   public ResponseEntity<String> handle(RemoveProcessDefinitionCommand command) {
+    LOGGER.info("Removing process definition");
     areaService.removeProcessDefinition(
         UUID.fromString(command.getAreaId()),
         UUID.fromString(command.getProcessDefinitionId())
     );
+    LOGGER.info("Process definition removed");
     return ResponseEntity.status(204).build();
   }
 
