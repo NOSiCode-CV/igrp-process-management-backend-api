@@ -42,7 +42,7 @@ public class ProcessSequence {
                          Short numberIncrement,
                          Code processDefinitionKey
   ){
-    this.id = id;
+    this.id = id == null ? Identifier.generate() : id;
     this.name = Objects.requireNonNull(name, "Name cannot be null");
     this.prefix = Objects.requireNonNull(prefix, "Prefix cannot be null");
     this.checkDigitSize = Objects.requireNonNull(checkDigitSize, "CheckDigitSize cannot be null");
@@ -178,6 +178,10 @@ public class ProcessSequence {
         .numberIncrement((short) 1)
         .processDefinitionKey(processDefinitionKey)
         .build();
+  }
+
+  public void resetNextNumber() {
+    this.nextNumber = 1L;
   }
 
 }

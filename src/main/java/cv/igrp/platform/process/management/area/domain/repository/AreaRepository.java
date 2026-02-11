@@ -20,4 +20,6 @@ public interface AreaRepository {
 
   void updateStatus(UUID id, Status newStatus);
 
+  void deleteArea(UUID id);
+
 }
