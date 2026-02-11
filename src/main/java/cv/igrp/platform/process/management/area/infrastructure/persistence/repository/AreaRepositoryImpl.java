@@ -120,7 +120,7 @@ public class AreaRepositoryImpl implements AreaRepository {
   }
 
   @Override
-  public void deleteArea(UUID id) {
+  public void delete(UUID id) {
     areaEntityRepository.deleteById(id);
   }
 

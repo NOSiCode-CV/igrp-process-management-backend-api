@@ -47,7 +47,7 @@ public class AreaService {
   public void deleteArea(UUID id) {
     Area area = getAreaById(id);
     area.delete();
-    areaRepository.deleteArea(id);
+    areaRepository.delete(id);
   }
 
   public AreaProcess createProcessDefinition(UUID areaId, AreaProcess areaProcess) {
@@ -66,7 +66,7 @@ public class AreaService {
     Area area = getAreaById(areaId);
     AreaProcess areaProcess = getAreaProcessById(areaProcessId);
     area.remove(areaProcess);
-    areaProcessRepository.updateStatus(areaProcess.getId().getValue(), areaProcess.getStatus());
+    areaProcessRepository.delete(areaProcess.getId().getValue());
   }
 
   public AreaProcess getAreaProcessById(UUID id) {
