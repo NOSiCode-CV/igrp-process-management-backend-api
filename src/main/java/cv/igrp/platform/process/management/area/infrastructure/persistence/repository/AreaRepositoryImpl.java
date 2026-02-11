@@ -119,4 +119,9 @@ public class AreaRepositoryImpl implements AreaRepository {
     areaEntityRepository.save(areaEntity);
   }
 
+  @Override
+  public void deleteArea(UUID id) {
+    areaEntityRepository.deleteById(id);
+  }
+
 }

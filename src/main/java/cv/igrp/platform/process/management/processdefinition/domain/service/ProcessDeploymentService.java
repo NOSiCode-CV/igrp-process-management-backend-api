@@ -125,10 +125,12 @@ public class ProcessDeploymentService {
         .build();
 
     // Add the sequence
-    ProcessSequence processSequence = processSequenceRepository.findByProcessAndApplication(processPackage.getProcessKey().getValue())
-        .orElseThrow(() -> IgrpResponseStatusException.notFound(
-            "Process Sequence not found for processDefinitionKey[" + processPackage.getProcessKey().getValue() + "]"));
-    processPackage.addSequence(processSequence);
+    Optional<ProcessSequence> optProcessSequence = processSequenceRepository.findByProcessDefinitionKey(
+        processPackage.getProcessKey().getValue()
+    );
+    processPackage.addSequence(
+        optProcessSequence.orElseGet(() -> ProcessSequence.defaultSequence(processPackage.getProcessKey()))
+    );
 
     // Add artifacts
     processDefinitionRepository.findAllArtifacts(processPackage.getProcessId())
@@ -163,10 +165,11 @@ public class ProcessDeploymentService {
     );
 
     // Save Process Sequence
-    Optional<ProcessSequence> processSequence = processSequenceRepository.findByProcessAndApplication(
+    Optional<ProcessSequence> processSequence = processSequenceRepository.findByProcessDefinitionKey(
         processDeployment.getKey().getValue()
     );
     if (processSequence.isEmpty()) {
+      processPackage.getSequence().resetNextNumber();
       processSequenceRepository.save(processPackage.getSequence());
     }
 
