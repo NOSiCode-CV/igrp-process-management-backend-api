@@ -31,11 +31,18 @@ public class GetActivityInstancesQueryHandler implements QueryHandler<GetActivit
 
   @IgrpQueryHandler
   public ResponseEntity<List<ActivityDTO>> handle(GetActivityInstancesQuery query) {
-    return ResponseEntity.ok(activityMapper.toInstancesDto(
-        activityInstanceService.getActiveActivityInstances(
-            UUID.fromString(query.getProcessInstanceId()),
-            query.getType() != null ? IGRPActivityType.valueOf(query.getType()) : null
-        )));
+    IGRPActivityType type = query.getType() != null
+        ? IGRPActivityType.valueOf(query.getType())
+        : null;
+    return ResponseEntity.ok(
+        activityMapper.toInstancesDto(
+          activityInstanceService.getActiveActivityInstances(
+              query.getProcessIdentifier(),
+              type
+          )
+        )
+    );
+
   }
 
 }
