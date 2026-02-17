@@ -36,12 +36,12 @@ public class ActivitiesController {
           this.queryBus = queryBus;
           
   }
-   @GetMapping(
+      @GetMapping(
    value = "{id}"
   )
   @Operation(
-    summary = "GET method to handle operations for getActivityById",
-    description = "GET method to handle operations for getActivityById",
+    summary = "GET method to handle operations for Get activity by id",
+    description = "GET method to handle operations for Get activity by id",
     responses = {
       @ApiResponse(
           responseCode = "200",
@@ -67,12 +67,12 @@ public class ActivitiesController {
       return response;
   }
 
-   @GetMapping(
+      @GetMapping(
    value = "instances"
   )
   @Operation(
-    summary = "GET method to handle operations for getActivityInstances",
-    description = "GET method to handle operations for getActivityInstances",
+    summary = "GET method to handle operations for Get activity instances",
+    description = "GET method to handle operations for Get activity instances",
     responses = {
       @ApiResponse(
           responseCode = "200",
@@ -88,23 +88,23 @@ public class ActivitiesController {
   )
   
   public ResponseEntity<List<ActivityDTO>> getActivityInstances(
-    @RequestParam(value = "processInstanceId") String processInstanceId,
+    @RequestParam(value = "processIdentifier") String processIdentifier,
     @RequestParam(value = "type", required = false) String type)
   {
 
-      final var query = new GetActivityInstancesQuery(processInstanceId, type);
+      final var query = new GetActivityInstancesQuery(processIdentifier, type);
 
       ResponseEntity<List<ActivityDTO>> response = queryBus.handle(query);
 
       return response;
   }
 
-   @GetMapping(
+      @GetMapping(
    value = "progress"
   )
   @Operation(
-    summary = "GET method to handle operations for getActivityProgress",
-    description = "GET method to handle operations for getActivityProgress",
+    summary = "GET method to handle operations for Get activity progress",
+    description = "GET method to handle operations for Get activity progress",
     responses = {
       @ApiResponse(
           responseCode = "200",
@@ -120,11 +120,11 @@ public class ActivitiesController {
   )
   
   public ResponseEntity<List<ActivityProgressDTO>> getActivityProgress(
-    @RequestParam(value = "processInstanceId") String processInstanceId,
+    @RequestParam(value = "processIdentifier") String processIdentifier,
     @RequestParam(value = "type", required = false) String type)
   {
 
-      final var query = new GetActivityProgressQuery(processInstanceId, type);
+      final var query = new GetActivityProgressQuery(processIdentifier, type);
 
       ResponseEntity<List<ActivityProgressDTO>> response = queryBus.handle(query);
 
