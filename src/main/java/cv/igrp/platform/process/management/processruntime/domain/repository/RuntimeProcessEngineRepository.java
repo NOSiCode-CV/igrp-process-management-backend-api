@@ -1,9 +1,9 @@
 package cv.igrp.platform.process.management.processruntime.domain.repository;
 
-import cv.igrp.framework.runtime.core.engine.activity.model.IGRPActivityType;
-import cv.igrp.framework.runtime.core.engine.activity.model.ProcessActivityInfo;
-import cv.igrp.framework.runtime.core.engine.activity.model.ProcessTimelineEvent;
-import cv.igrp.framework.runtime.core.engine.process.ProcessDefinitionRepresentation;
+
+import cv.igrp.framework.process.runtime.core.engine.activity.model.IGRPActivityType;
+import cv.igrp.framework.process.runtime.core.engine.activity.model.ProcessTimelineEvent;
+import cv.igrp.framework.process.runtime.core.engine.process.ProcessDefinitionRepresentation;
 import cv.igrp.platform.process.management.processruntime.domain.exception.RuntimeProcessEngineException;
 import cv.igrp.platform.process.management.processruntime.domain.models.*;
 

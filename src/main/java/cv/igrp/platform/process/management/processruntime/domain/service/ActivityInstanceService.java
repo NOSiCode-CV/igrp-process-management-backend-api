@@ -1,14 +1,14 @@
 package cv.igrp.platform.process.management.processruntime.domain.service;
 
-import cv.igrp.framework.runtime.core.engine.activity.model.IGRPActivityType;
-import cv.igrp.framework.runtime.core.engine.activity.model.ProcessTimelineEvent;
+import cv.igrp.framework.process.runtime.core.engine.activity.model.IGRPActivityType;
+import cv.igrp.framework.process.runtime.core.engine.activity.model.ProcessTimelineEvent;
 import cv.igrp.platform.process.management.processruntime.domain.models.*;
 import cv.igrp.platform.process.management.processruntime.domain.repository.ProcessInstanceRepository;
 import cv.igrp.platform.process.management.processruntime.domain.repository.RuntimeProcessEngineRepository;
 import cv.igrp.platform.process.management.processruntime.domain.repository.TaskInstanceRepository;
 import cv.igrp.platform.process.management.shared.application.constants.VariableTag;
 import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.platform.process.management.shared.domain.models.Code;
+
 import org.springframework.stereotype.Service;
 
 import java.util.*;
