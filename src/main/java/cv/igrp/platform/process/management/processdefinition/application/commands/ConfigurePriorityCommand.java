@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import cv.igrp.platform.process.management.processdefinition.application.dto.TaskPriorityRequestDTO;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -13,7 +15,7 @@ import cv.igrp.platform.process.management.processdefinition.application.dto.Tas
 public class ConfigurePriorityCommand implements Command {
 
   
-  private TaskPriorityRequestDTO taskpriorityrequestdto;
+  private List<TaskPriorityRequestDTO> taskpriorityrequestdto;
   @NotBlank(message = "The field <processKey> is required")
   private String processKey;
 

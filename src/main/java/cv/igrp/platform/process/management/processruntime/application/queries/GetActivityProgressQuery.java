@@ -13,8 +13,8 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class GetActivityProgressQuery implements Query {
 
-  @NotBlank(message = "The field <processInstanceId> is required")
-  private String processInstanceId;
+  @NotBlank(message = "The field <processIdentifier> is required")
+  private String processIdentifier;
   @NotBlank(message = "The field <type> is required")
   private String type;
 

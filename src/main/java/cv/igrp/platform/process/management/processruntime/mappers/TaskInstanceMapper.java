@@ -1,6 +1,6 @@
 package cv.igrp.platform.process.management.processruntime.mappers;
 
-import cv.igrp.framework.runtime.core.engine.task.model.TaskInfo;
+import cv.igrp.framework.process.runtime.core.engine.task.model.TaskInfo;
 import cv.igrp.platform.process.management.processruntime.application.commands.GetAllMyTasksCommand;
 import cv.igrp.platform.process.management.processruntime.application.commands.ListTaskInstancesCommand;
 import cv.igrp.platform.process.management.processruntime.application.dto.*;
@@ -60,6 +60,7 @@ public class TaskInstanceMapper {
         processInstanceEntity.setId(taskInstance.getProcessInstanceId().getValue());
         taskInstanceEntity.setProcessInstanceId(processInstanceEntity);
     }
+    taskInstanceEntity.setDueDate(taskInstance.getDueDate());
     return taskInstanceEntity;
   }
 
