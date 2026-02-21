@@ -1,8 +1,9 @@
 package cv.igrp.platform.process.management.processruntime.domain.models;
 
-import cv.igrp.framework.runtime.core.engine.activity.model.ActivityInfo;
-import cv.igrp.framework.runtime.core.engine.activity.model.IGRPActivityStatus;
-import cv.igrp.framework.runtime.core.engine.activity.model.IGRPActivityType;
+
+import cv.igrp.framework.process.runtime.core.engine.activity.model.ActivityInfo;
+import cv.igrp.framework.process.runtime.core.engine.activity.model.IGRPActivityStatus;
+import cv.igrp.framework.process.runtime.core.engine.activity.model.IGRPActivityType;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Name;
 import lombok.Builder;

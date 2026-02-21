@@ -1,7 +1,6 @@
 package cv.igrp.platform.process.management.processruntime.application.queries;
 
-import cv.igrp.framework.runtime.core.engine.activity.model.IGRPActivityType;
-import cv.igrp.platform.process.management.processruntime.domain.service.ActivityInstanceService;
+import cv.igrp.framework.process.runtime.core.engine.activity.model.IGRPActivityType;
 import cv.igrp.platform.process.management.processruntime.mappers.ActivityMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,10 +10,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.UUID;
 
 import cv.igrp.platform.process.management.processruntime.application.dto.ActivityProgressDTO;
 import org.springframework.transaction.annotation.Transactional;
+import cv.igrp.platform.process.management.processruntime.domain.service.ActivityInstanceService;
 
 
 @Component
@@ -33,11 +32,18 @@ public class GetActivityProgressQueryHandler implements QueryHandler<GetActivity
   @Transactional
   @IgrpQueryHandler
   public ResponseEntity<List<ActivityProgressDTO>> handle(GetActivityProgressQuery query) {
-    return ResponseEntity.ok(activityMapper.toProgressesDto(
-        activityInstanceService.getProcessTimelineEvents(
-            UUID.fromString(query.getProcessInstanceId()),
-            query.getType() != null ? IGRPActivityType.valueOf(query.getType()) : null
-        )));
+    IGRPActivityType type = query.getType() != null
+        ? IGRPActivityType.valueOf(query.getType())
+        : null;
+    return ResponseEntity.ok(
+        activityMapper.toProgressesDto(
+            activityInstanceService.getProcessTimelineEvents(
+                query.getProcessIdentifier(),
+                type
+            )
+        )
+    );
+
   }
 
 }

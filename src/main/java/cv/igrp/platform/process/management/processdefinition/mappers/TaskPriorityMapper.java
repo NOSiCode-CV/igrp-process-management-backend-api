@@ -24,6 +24,12 @@ public class TaskPriorityMapper {
         .build();
   }
 
+  public List<TaskPriority> toModel(String processDefinitionKey, List<TaskPriorityRequestDTO> dtos) {
+    return dtos.stream()
+        .map(dto -> toModel(processDefinitionKey, dto))
+        .toList();
+  }
+
   public TaskPriorityDTO toDTO(TaskPriority model) {
     TaskPriorityDTO dto = new TaskPriorityDTO();
     dto.setCode(model.getCode().getValue());

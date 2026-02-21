@@ -31,33 +31,32 @@ import jakarta.validation.constraints.NotNull;
 public class TaskPriorityEntity extends AuditEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", unique = true, nullable = false)
     private UUID id;
 
-  
+
     @NotBlank(message = "processDefinitionKey is mandatory")
     @Column(name="process_definition_key", nullable = false)
     private String processDefinitionKey;
 
-  
+
     @NotBlank(message = "code is mandatory")
     @Column(name="code", nullable = false)
     private String code;
 
-  
+
     @NotBlank(message = "label is mandatory")
     @Column(name="label", nullable = false)
     private String label;
 
-  
+
     @NotNull(message = "weight is mandatory")
     @Column(name="weight", nullable = false)
     private Integer weight;
 
-  
+
     @Column(name="color")
     private String color;
 
-  
+
 }

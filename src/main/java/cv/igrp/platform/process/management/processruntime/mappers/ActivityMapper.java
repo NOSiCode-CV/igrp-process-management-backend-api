@@ -1,7 +1,6 @@
 package cv.igrp.platform.process.management.processruntime.mappers;
 
-import cv.igrp.framework.runtime.core.engine.activity.model.ProcessActivityInfo;
-import cv.igrp.framework.runtime.core.engine.activity.model.ProcessTimelineEvent;
+import cv.igrp.framework.process.runtime.core.engine.activity.model.ProcessTimelineEvent;
 import cv.igrp.platform.process.management.processruntime.application.dto.ActivityDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.ActivityProgressDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskVariableDTO;

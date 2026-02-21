@@ -1,6 +1,6 @@
 package cv.igrp.platform.process.management.processruntime.mappers;
 
-import cv.igrp.framework.runtime.core.engine.process.model.IGRPProcessStatus;
+import cv.igrp.framework.process.runtime.core.engine.process.model.IGRPProcessStatus;
 import cv.igrp.platform.process.management.processruntime.application.dto.*;
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstance;
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessStatistics;
@@ -147,7 +147,7 @@ public class ProcessInstanceMapper {
     return dto;
   }
 
-  public ProcessInstance toModel(cv.igrp.framework.runtime.core.engine.process.model.ProcessInstance processInstance) {
+  public ProcessInstance toModel(cv.igrp.framework.process.runtime.core.engine.process.model.ProcessInstance processInstance) {
 
     if (processInstance == null) {
       return null;

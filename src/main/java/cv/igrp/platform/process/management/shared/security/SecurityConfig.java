@@ -1,7 +1,7 @@
 package cv.igrp.platform.process.management.shared.security;
 
 
-import cv.igrp.platform.process.management.shared.security.authz.IAuthorizationServiceAdapter;
+import cv.igrp.framework.process.runtime.auth.core.adapter.IAuthorizationServiceAdapter;
 import cv.igrp.platform.process.management.shared.security.util.ActivitiConstants;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;

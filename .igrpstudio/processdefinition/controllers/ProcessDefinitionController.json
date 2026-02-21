@@ -514,7 +514,7 @@
           "application/json": {
             "schema": {
               "type": "TaskPriorityRequestDTO",
-              "collectionType": "none",
+              "collectionType": "list",
               "name": "data",
               "objectType": "dto",
               "module": "processdefinition"
@@ -602,5 +602,5 @@
       ]
     }
   ],
-  "id": "o9isd9wv95-CONTROLLER-createArtifact-configureArtifact-listDeployments-importProcessDefinition-importProcessDefinition-configurePriority-deletePriority-configurePriority-configurePriority"
+  "id": "o9isd9wv95-CONTROLLER-createArtifact-configureArtifact-listDeployments-importProcessDefinition-importProcessDefinition-configurePriority-deletePriority-configurePriority-configurePriority-configurePriority"
 }
