@@ -73,4 +73,8 @@ public class ProcessInstanceSequenceEntity extends AuditEntity {
     private String processDefinitionKey;
 
   
+    @Column(name="separator")
+    private String separator;
+
+  
 }
