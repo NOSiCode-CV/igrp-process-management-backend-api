@@ -161,7 +161,6 @@ public class ProcessSequence {
     if (checkDigitSize != null && checkDigitSize > 0) {
       long checkDigit = currentNumber % (long) Math.pow(10, checkDigitSize);
       LOGGER.debug("CURRENT_NUMBER [{}] with CHECK_DIGIT_SIZE [{}] is [{}]", currentNumber, checkDigitSize, checkDigit);
-      sb.append(separator != null ? separator : "");
       sb.append(checkDigit);
     } else {
       LOGGER.debug("CHECK_DIGIT_SIZE is NULL.");
