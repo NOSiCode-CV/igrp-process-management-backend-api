@@ -45,6 +45,10 @@ public class TaskInstance {
   private Map<String, Object> processVariables;
   private LocalDateTime dueDate;
 
+  private UserProfile userProfileStartedBy;
+  private UserProfile userProfileEndedBy;
+  private UserProfile userProfileAssignedBy;
+
 
   @Builder
   public TaskInstance(
@@ -74,7 +78,10 @@ public class TaskInstance {
       Map<String, Object> variables,
       Map<String, Object> forms,
       Map<String, Object> processVariables,
-      LocalDateTime dueDate
+      LocalDateTime dueDate,
+      UserProfile userProfileStartedBy,
+      UserProfile userProfileEndedBy,
+      UserProfile userProfileAssignedBy
   ) {
     this.id = id == null ? Identifier.generate() : id;
     this.taskKey = Objects.requireNonNull(taskKey, "Task Key cannot be null!");
@@ -105,6 +112,9 @@ public class TaskInstance {
         : new HashSet<>();
     this.processVariables = processVariables != null ? processVariables : new HashMap<>();
     this.dueDate = dueDate;
+    this.userProfileStartedBy = userProfileStartedBy;
+    this.userProfileEndedBy = userProfileEndedBy;
+    this.userProfileAssignedBy = userProfileAssignedBy;
   }
 
 
@@ -248,6 +258,27 @@ public class TaskInstance {
 
   public void updateDueDate(LocalDateTime dueDate) {
     this.dueDate = dueDate;
+  }
+
+  public void resolveUserProfileEndedBy(UserProfile userProfile) {
+    if (userProfile == null) {
+      throw new IllegalArgumentException("UserProfile cannot be null");
+    }
+    this.userProfileEndedBy = userProfile;
+  }
+
+  public void resolveUserProfileStartedBy(UserProfile userProfile) {
+    if (userProfile == null) {
+      throw new IllegalArgumentException("UserProfile cannot be null");
+    }
+    this.userProfileStartedBy = userProfile;
+  }
+
+  public void resolveUserProfileAssignedBy(UserProfile userProfile) {
+    if (userProfile == null) {
+      throw new IllegalArgumentException("UserProfile cannot be null");
+    }
+    this.userProfileAssignedBy = userProfile;
   }
 
 }

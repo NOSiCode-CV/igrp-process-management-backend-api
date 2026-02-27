@@ -23,6 +23,12 @@ import java.util.stream.Collectors;
 @Component
 public class ProcessInstanceMapper {
 
+  private final UserProfileMapper userProfileMapper;
+
+  public ProcessInstanceMapper(UserProfileMapper userProfileMapper) {
+    this.userProfileMapper = userProfileMapper;
+  }
+
   public ProcessInstanceEntity toEntity(ProcessInstance processInstance) {
     ProcessInstanceEntity processInstanceEntity = new ProcessInstanceEntity();
     processInstanceEntity.setNumber(processInstance.getNumber() != null ? processInstance.getNumber().getValue() : null);
@@ -117,7 +123,7 @@ public class ProcessInstanceMapper {
     processInstanceDTO.setStartedAt(processInstance.getStartedAt());
     processInstanceDTO.setStartedBy(processInstance.getStartedBy());
     processInstanceDTO.setCanceledAt(processInstance.getCanceledAt());
-    processInstanceDTO.setCanceledBy(processInstance.getCanceledBy());
+    processInstanceDTO.setCancelledBy(processInstance.getCanceledBy());
     processInstanceDTO.setEndedAt(processInstance.getEndedAt());
     processInstanceDTO.setEndedBy(processInstance.getEndedBy());
     processInstanceDTO.setObsCancel(processInstance.getObsCancel());
@@ -128,6 +134,15 @@ public class ProcessInstanceMapper {
     processInstanceDTO.setPriority(processInstance.getPriority());
     processInstanceDTO.setVariables(processInstance.getVariables().entrySet()
         .stream().map(e->new ProcessVariableDTO(e.getKey(), e.getValue())).toList());
+    processInstanceDTO.setUserProfileCancelledBy(
+        userProfileMapper.toDTO(processInstance.getUserProfileCanceledBy())
+    );
+    processInstanceDTO.setUserProfileStartedBy(
+        userProfileMapper.toDTO(processInstance.getUserProfileStartedBy())
+    );
+    processInstanceDTO.setUserProfileEndedBy(
+        userProfileMapper.toDTO(processInstance.getUserProfileEndedBy())
+    );
     return processInstanceDTO;
   }
 
