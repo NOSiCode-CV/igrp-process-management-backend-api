@@ -1,10 +1,10 @@
 package cv.igrp.platform.process.management.processruntime.mappers;
 
-import cv.igrp.framework.process.runtime.core.engine.activity.model.ProcessTimelineEvent;
 import cv.igrp.platform.process.management.processruntime.application.dto.ActivityDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.ActivityProgressDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskVariableDTO;
 import cv.igrp.platform.process.management.processruntime.domain.models.ActivityData;
+import cv.igrp.platform.process.management.processruntime.domain.models.ProcessArtifactEvent;
 import cv.igrp.platform.process.management.shared.application.constants.VariableTag;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +16,12 @@ import java.util.stream.Collectors;
 
 @Component
 public class ActivityMapper {
+
+  private final UserProfileMapper userProfileMapper;
+
+  public ActivityMapper(UserProfileMapper userProfileMapper) {
+    this.userProfileMapper = userProfileMapper;
+  }
 
   public ActivityDTO toDto(ActivityData activityData) {
 
@@ -46,33 +52,35 @@ public class ActivityMapper {
         .toList();
   }
 
-  public ActivityProgressDTO toProgressDto(ProcessTimelineEvent timelineEvent) {
+  public ActivityProgressDTO toProgressDto(ProcessArtifactEvent processArtifactEvent) {
 
     var activityProgressDTO = new ActivityProgressDTO();
 
-    activityProgressDTO.setActivityId(timelineEvent.getActivityId());
-    activityProgressDTO.setActivityName(timelineEvent.getActivityName());
-    activityProgressDTO.setType(timelineEvent.getType().name());
-    activityProgressDTO.setStatus(timelineEvent.getStatus().name());
-    activityProgressDTO.setProcessInstanceId(timelineEvent.getProcessInstanceId());
-    activityProgressDTO.setAssignee(timelineEvent.getAssignee());
-    activityProgressDTO.setDurationMillis(timelineEvent.getDuration());
-    activityProgressDTO.setAssignee(timelineEvent.getAssignee());
-    activityProgressDTO.setExecutionId(timelineEvent.getExecutionId());
-    activityProgressDTO.setTaskId(timelineEvent.getTaskId());
-    activityProgressDTO.setActivityInstanceId(timelineEvent.getActivityInstanceId());
-    activityProgressDTO.setTreeNumber(timelineEvent.getTreeNumber());
+    activityProgressDTO.setActivityId(processArtifactEvent.getArtifactId());
+    activityProgressDTO.setActivityName(processArtifactEvent.getArtifactName());
+    activityProgressDTO.setType(processArtifactEvent.getType().name());
+    activityProgressDTO.setStatus(processArtifactEvent.getStatus().name());
+    activityProgressDTO.setProcessInstanceId(processArtifactEvent.getProcessInstanceId());
+    activityProgressDTO.setAssignee(processArtifactEvent.getAssignee());
+    activityProgressDTO.setDurationMillis(processArtifactEvent.getDuration());
+    activityProgressDTO.setAssignee(processArtifactEvent.getAssignee());
+    activityProgressDTO.setExecutionId(processArtifactEvent.getExecutionId());
+    activityProgressDTO.setTaskId(processArtifactEvent.getTaskId());
+    activityProgressDTO.setActivityInstanceId(processArtifactEvent.getArtifactInstanceId());
+    activityProgressDTO.setTreeNumber(processArtifactEvent.getTreeNumber());
 
     ZoneId cvZone = ZoneId.of("Atlantic/Cape_Verde");
     activityProgressDTO.setStartTime(
-        timelineEvent.getStartTime() != null ? LocalDateTime.ofInstant(timelineEvent.getStartTime(), cvZone) : null
+        processArtifactEvent.getStartTime() != null ? LocalDateTime.ofInstant(processArtifactEvent.getStartTime(), cvZone) : null
     );
     activityProgressDTO.setEndTime(
-        timelineEvent.getEndTime() != null ? LocalDateTime.ofInstant(timelineEvent.getEndTime(), cvZone) : null
+        processArtifactEvent.getEndTime() != null ? LocalDateTime.ofInstant(processArtifactEvent.getEndTime(), cvZone) : null
     );
 
-    activityProgressDTO.setVariables(toActivityVariableDTO(timelineEvent.getVariables(), VariableTag.VARIABLES));
-    activityProgressDTO.setForms(toActivityVariableDTO(timelineEvent.getVariables(), VariableTag.FORMS));
+    activityProgressDTO.setVariables(toActivityVariableDTO(processArtifactEvent.getVariables(), VariableTag.VARIABLES));
+    activityProgressDTO.setForms(toActivityVariableDTO(processArtifactEvent.getVariables(), VariableTag.FORMS));
+
+    activityProgressDTO.setUserProfileAssignee(userProfileMapper.toDTO(processArtifactEvent.getUserProfileAssignee()));
 
     return activityProgressDTO;
 
@@ -82,7 +90,7 @@ public class ActivityMapper {
     return instances.stream().map(this::toDto).collect(Collectors.toList());
   }
 
-  public List<ActivityProgressDTO> toProgressesDto(List<ProcessTimelineEvent> progress) {
+  public List<ActivityProgressDTO> toProgressesDto(List<ProcessArtifactEvent> progress) {
     return progress.stream().map(this::toProgressDto).collect(Collectors.toList());
   }
 

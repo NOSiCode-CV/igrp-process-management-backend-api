@@ -19,6 +19,7 @@ public class TaskInstanceEvent {
     private final Code performedBy;
     private final String note;
     private final TaskInstanceStatus status;
+    private UserProfile userProfilePerformedBy;
 
 
     @Builder
@@ -29,7 +30,8 @@ public class TaskInstanceEvent {
                 LocalDateTime performedAt,
                 Code performedBy,
                 String note,
-                TaskInstanceStatus status
+                TaskInstanceStatus status,
+                UserProfile userProfilePerformedBy
     ) {
         this.id = id == null ? Identifier.generate() : id;
         this.taskInstanceId = Objects.requireNonNull(taskInstanceId, "TaskInstanceId cannot be null");
@@ -38,12 +40,20 @@ public class TaskInstanceEvent {
         this.performedBy = Objects.requireNonNull(performedBy, "PerformedBy cannot be null");
         this.note = note!=null && !note.isBlank() ? note.trim() : null;
         this.status = Objects.requireNonNull(status, "Status cannot be null");
+        this.userProfilePerformedBy = userProfilePerformedBy;
     }
 
 
     public void create() {
         this.performedAt = LocalDateTime.now();
     }
+
+  public void resolveUserProfilePerformedBy(UserProfile userProfile) {
+    if (userProfile == null) {
+      throw new IllegalArgumentException("UserProfile cannot be null");
+    }
+    this.userProfilePerformedBy = userProfile;
+  }
 
 
 }

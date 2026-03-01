@@ -213,12 +213,15 @@ public class TaskInstanceService {
     }
 
     // Resolve user profiles
-    taskInstances.getContent().forEach(this::resolveUserProfiles);
+    taskInstances.getContent().forEach(taskInstance -> {
+      resolveUserProfiles(taskInstance);
+      taskInstance.getTaskInstanceEvents().forEach(this::resolveUserProfiles);
+    });
 
     return taskInstances;
   }
 
-  public void resolveUserProfiles(TaskInstance taskInstance) {
+  private void resolveUserProfiles(TaskInstance taskInstance) {
     Set<String> ids = new HashSet<>();
 
     addIfNotNull(ids, taskInstance.getStartedBy());
@@ -240,6 +243,11 @@ public class TaskInstanceService {
       }
     });
 
+  }
+
+  private void resolveUserProfiles(TaskInstanceEvent taskInstanceEvent) {
+    userProfileRepository.findBySubject(taskInstanceEvent.getPerformedBy().getValue())
+        .ifPresent(taskInstanceEvent::resolveUserProfilePerformedBy);
   }
 
   private void addIfNotNull(Set<String> ids, Code value) {

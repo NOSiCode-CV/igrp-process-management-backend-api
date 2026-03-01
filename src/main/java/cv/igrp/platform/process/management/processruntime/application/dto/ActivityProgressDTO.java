@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskVariableDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.UserProfileDTO;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -76,5 +77,8 @@ public class ActivityProgressDTO  {
   
   @Valid
   private List<TaskVariableDTO> forms = new ArrayList<>();
+  
+  @Valid
+  private UserProfileDTO userProfileAssignee ;
 
 }
