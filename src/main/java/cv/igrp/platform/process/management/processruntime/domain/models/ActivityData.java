@@ -1,9 +1,6 @@
 package cv.igrp.platform.process.management.processruntime.domain.models;
 
 
-import cv.igrp.framework.process.runtime.core.engine.activity.model.ActivityInfo;
-import cv.igrp.framework.process.runtime.core.engine.activity.model.IGRPActivityStatus;
-import cv.igrp.framework.process.runtime.core.engine.activity.model.IGRPActivityType;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Name;
 import lombok.Builder;
@@ -22,8 +19,8 @@ public class ActivityData {
   Code processInstanceId;
   Code parentId;
   Code parentProcessInstanceId;
-  IGRPActivityStatus status;
-  IGRPActivityType type;
+  ProcessArtifactEvent.ArtifactStatus status;
+  ProcessArtifactEvent.ArtifactType type;
   Map<String,Object> variables;
 
   @Builder
@@ -34,8 +31,8 @@ public class ActivityData {
       Code processInstanceId,
       Code parentId,
       Code parentProcessInstanceId,
-      IGRPActivityStatus status,
-      IGRPActivityType type,
+      ProcessArtifactEvent.ArtifactStatus status,
+      ProcessArtifactEvent.ArtifactType type,
       Map<String, Object> variables
   ) {
     this.id = id;
@@ -47,19 +44,6 @@ public class ActivityData {
     this.status = Objects.requireNonNull(status, "Status cannot be null");
     this.type = Objects.requireNonNull(type, "Type cannot be null");
     this.variables = Objects.nonNull(variables)? variables: new HashMap<>();
-  }
-
-  public ActivityData withProperties(ActivityInfo info) {
-    return ActivityData.builder()
-        .id(Code.create(info.id()))
-        .name(Name.create(info.name()))
-        .description(info.description())
-        .processInstanceId(Code.create(info.processInstanceId()))
-        .parentId(Code.create(info.parentId()))
-        .parentProcessInstanceId(Code.create(info.parentProcessInstanceId()))
-        .status(info.status())
-        .type(info.type())
-        .build();
   }
 
   public void addVariables(Map<String,Object> variables) {
