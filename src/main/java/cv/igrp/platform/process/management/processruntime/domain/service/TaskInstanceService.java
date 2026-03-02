@@ -179,6 +179,7 @@ public class TaskInstanceService {
     taskInstance.addProcessVariables(variables);
     // Resolve user profiles
     resolveUserProfiles(taskInstance);
+    taskInstance.getTaskInstanceEvents().forEach(this::resolveUserProfiles);
     return taskInstance;
   }
 
