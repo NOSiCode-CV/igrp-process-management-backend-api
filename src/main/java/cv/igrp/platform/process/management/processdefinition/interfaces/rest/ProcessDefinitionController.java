@@ -505,7 +505,7 @@ public class ProcessDefinitionController {
     }
   )
   
-  public ResponseEntity<TaskPriorityDTO> configurePriority(@Valid @RequestBody TaskPriorityRequestDTO configurePriorityRequest
+  public ResponseEntity<TaskPriorityDTO> configurePriority(@Valid @RequestBody List<TaskPriorityRequestDTO> configurePriorityRequest
     , @PathVariable(value = "processKey") String processKey)
   {
 

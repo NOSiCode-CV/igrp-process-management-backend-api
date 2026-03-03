@@ -2,7 +2,6 @@ package cv.igrp.platform.process.management.processdefinition.application.comman
 
 import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
-import cv.igrp.platform.process.management.processdefinition.domain.models.TaskPriority;
 import cv.igrp.platform.process.management.processdefinition.domain.service.TaskPriorityService;
 import cv.igrp.platform.process.management.processdefinition.mappers.TaskPriorityMapper;
 import org.springframework.http.ResponseEntity;
@@ -27,16 +26,16 @@ public class ConfigurePriorityCommandHandler implements CommandHandler<Configure
     this.mapper = mapper;
   }
 
-  @IgrpCommandHandler
   @Transactional
+  @IgrpCommandHandler
   public ResponseEntity<TaskPriorityDTO> handle(ConfigurePriorityCommand command) {
     LOGGER.info("Configuring priority for process [{}]", command.getProcessKey());
-    TaskPriority taskPriority = taskPriorityService.configurePriority(mapper.toModel(
+    taskPriorityService.configurePriority(mapper.toModel(
         command.getProcessKey(),
         command.getTaskpriorityrequestdto()
     ));
     LOGGER.info("Priority configured for process [{}]", command.getProcessKey());
-    return ResponseEntity.ok(mapper.toDTO(taskPriority));
+    return ResponseEntity.status(204).build();
   }
 
 }

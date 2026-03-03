@@ -37,25 +37,25 @@ public class AreaEntity extends AuditEntity {
     @Column(name = "id", unique = true, nullable = false)
     private UUID id;
 
-  
+
     @NotBlank(message = "applicationBase is mandatory")
     @Column(name="application_base", nullable = false)
     private String applicationBase;
 
-  
+
     @NotBlank(message = "code is mandatory")
     @Column(name="code", nullable = false)
     private String code;
 
-  
+
     @Column(name="name")
     private String name;
 
-  
+
     @Column(name="description")
     private String description;
 
-  
+
 
 
   @ManyToOne(fetch = FetchType.LAZY)
@@ -66,11 +66,11 @@ public class AreaEntity extends AuditEntity {
     @Column(name="status", nullable = false)
     private Status status;
 
-  
+
     @Column(name="color")
     private String color;
 
-     @OneToMany(mappedBy = "areaId")
+     @OneToMany(mappedBy = "areaId", cascade = CascadeType.ALL)
 private List<AreaProcessEntity> processdefinitions = new ArrayList<>();
 
 

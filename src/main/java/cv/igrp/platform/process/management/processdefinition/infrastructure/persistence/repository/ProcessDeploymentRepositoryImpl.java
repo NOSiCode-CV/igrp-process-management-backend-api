@@ -1,11 +1,10 @@
 package cv.igrp.platform.process.management.processdefinition.infrastructure.persistence.repository;
 
-import cv.igrp.framework.runtime.core.engine.process.ProcessDefinitionAdapter;
-import cv.igrp.framework.runtime.core.engine.process.ProcessManagerAdapter;
-import cv.igrp.framework.runtime.core.engine.process.model.IgrpProcessDefinitionRepresentation;
-import cv.igrp.framework.runtime.core.engine.process.model.ProcessDefinition;
-import cv.igrp.framework.runtime.core.engine.process.model.ProcessFilter;
-import cv.igrp.framework.runtime.core.engine.task.TaskQueryService;
+
+import cv.igrp.framework.process.runtime.core.engine.process.ProcessDefinitionAdapter;
+import cv.igrp.framework.process.runtime.core.engine.process.model.IgrpProcessDefinitionRepresentation;
+import cv.igrp.framework.process.runtime.core.engine.process.model.ProcessDefinition;
+import cv.igrp.framework.process.runtime.core.engine.process.model.ProcessFilter;
 import cv.igrp.platform.process.management.processdefinition.domain.exception.ProcessDeploymentException;
 import cv.igrp.platform.process.management.processdefinition.domain.filter.ProcessDeploymentFilter;
 import cv.igrp.platform.process.management.processdefinition.domain.models.BpmnXml;
@@ -18,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -103,7 +101,7 @@ public class ProcessDeploymentRepositoryImpl implements ProcessDeploymentReposit
 
   @Override
   public List<ProcessArtifact> findAllArtifacts(String processDefinitionId) {
-    List<cv.igrp.framework.runtime.core.engine.task.model.ProcessArtifact> artifacts = processDefinitionAdapter.getProcessArtifacts(processDefinitionId);
+    List<cv.igrp.framework.process.runtime.core.engine.task.model.ProcessArtifact> artifacts = processDefinitionAdapter.getProcessArtifacts(processDefinitionId);
     return artifacts.stream().map(artifact -> ProcessArtifact.builder()
         .formKey(artifact.formKey())
         .name(Name.create(artifact.taskName() != null ? artifact.taskName() : "NOT_SET"))

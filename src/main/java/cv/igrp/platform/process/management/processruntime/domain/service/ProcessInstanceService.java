@@ -8,15 +8,14 @@ import cv.igrp.platform.process.management.processruntime.domain.models.ProcessI
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessStatistics;
 import cv.igrp.platform.process.management.processruntime.domain.repository.ProcessInstanceRepository;
 import cv.igrp.platform.process.management.processruntime.domain.repository.RuntimeProcessEngineRepository;
+import cv.igrp.platform.process.management.processruntime.domain.repository.UserProfileRepository;
 import cv.igrp.platform.process.management.shared.application.constants.ProcessInstanceStatus;
 import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
 import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 
 @Service
@@ -24,6 +23,8 @@ public class ProcessInstanceService {
 
   private final ProcessInstanceRepository processInstanceRepository;
   private final RuntimeProcessEngineRepository runtimeProcessEngineRepository;
+  private final UserProfileRepository userProfileRepository;
+
   private final ProcessSequenceService processSequenceService;
   private final TaskInstanceService taskInstanceService;
   private final ProcessDeploymentService processDeploymentService;
@@ -32,12 +33,13 @@ public class ProcessInstanceService {
                                 RuntimeProcessEngineRepository runtimeProcessEngineRepository,
                                 ProcessSequenceService processSequenceService,
                                 TaskInstanceService taskInstanceService,
-                                ProcessDeploymentService processDeploymentService) {
+                                ProcessDeploymentService processDeploymentService, UserProfileRepository userProfileRepository) {
     this.processInstanceRepository = processInstanceRepository;
     this.runtimeProcessEngineRepository = runtimeProcessEngineRepository;
     this.processSequenceService = processSequenceService;
     this.taskInstanceService = taskInstanceService;
     this.processDeploymentService = processDeploymentService;
+    this.userProfileRepository = userProfileRepository;
   }
 
   public PageableLista<ProcessInstance> getAllProcessInstances(ProcessInstanceFilter filter) {
@@ -60,6 +62,7 @@ public class ProcessInstanceService {
     pageableLista.getContent().forEach(processInstance -> {
       setProcessInstanceProgress(processInstance);
       addProcessVariables(processInstance);
+      resolveUserProfiles(processInstance);
     });
 
     return pageableLista;
@@ -70,6 +73,7 @@ public class ProcessInstanceService {
         .orElseThrow(() -> IgrpResponseStatusException.notFound("No process instance found with id: " + id));
     setProcessInstanceProgress(processInstance);
     addProcessVariables(processInstance);
+    resolveUserProfiles(processInstance);
     return processInstance;
   }
 
@@ -78,6 +82,7 @@ public class ProcessInstanceService {
         .orElseThrow(() -> IgrpResponseStatusException.notFound("No process instance found with businessKey: " + businessKey));
     setProcessInstanceProgress(processInstance);
     addProcessVariables(processInstance);
+    resolveUserProfiles(processInstance);
     return processInstance;
   }
 
@@ -93,6 +98,40 @@ public class ProcessInstanceService {
   void addProcessVariables(ProcessInstance processInstance) {
     var processVariables = runtimeProcessEngineRepository.getProcessVariables(processInstance.getEngineProcessNumber().getValue());
     processInstance.addVariables(processVariables);
+  }
+
+  public void resolveUserProfiles(ProcessInstance processInstance) {
+
+    Set<String> ids = new HashSet<>();
+
+    addIfNotNull(ids, processInstance.getStartedBy());
+    addIfNotNull(ids, processInstance.getEndedBy());
+    addIfNotNull(ids, processInstance.getCanceledBy());
+    addIfNotNull(ids, processInstance.getCreatedBy());
+
+    userProfileRepository.findBySubject(ids).forEach(userProfile -> {
+
+      String sub = userProfile.getSub();
+
+      if (sub.equals(processInstance.getStartedBy())) {
+        processInstance.resolveUserProfileStartedBy(userProfile);
+      }
+      if (sub.equals(processInstance.getEndedBy())) {
+        processInstance.resolveUserProfileEndedBy(userProfile);
+      }
+      if (sub.equals(processInstance.getCanceledBy())) {
+        processInstance.resolveUserProfileCancelledBy(userProfile);
+      }
+      if (sub.equals(processInstance.getCreatedBy())) {
+        processInstance.resolveUserProfileCreatedBy(userProfile);
+      }
+    });
+  }
+
+  private void addIfNotNull(Set<String> ids, String value) {
+    if (value != null) {
+      ids.add(value);
+    }
   }
 
   public ProcessInstance startProcessInstanceById(UUID id, Map<String, Object> variables, String user) {
@@ -211,12 +250,12 @@ public class ProcessInstanceService {
 
   public void rescheduleTimerByProcessInstanceId(UUID id, String timerElementId, Long seconds) {
     ProcessInstance processInstance = getProcessInstanceById(id);
-    if(timerElementId == null || timerElementId.isBlank()){
+    if (timerElementId == null || timerElementId.isBlank()) {
       runtimeProcessEngineRepository.rescheduleTimer(
           processInstance.getEngineProcessNumber().getValue(),
           seconds
       );
-    }else {
+    } else {
       runtimeProcessEngineRepository.rescheduleTimer(
           processInstance.getEngineProcessNumber().getValue(),
           timerElementId,

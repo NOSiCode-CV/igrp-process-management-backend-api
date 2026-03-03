@@ -1,7 +1,8 @@
 package cv.igrp.platform.process.management.processruntime.mappers;
 
-import cv.igrp.framework.runtime.core.engine.task.model.IGRPTaskStatus;
-import cv.igrp.framework.runtime.core.engine.task.model.ProcessTaskInfo;
+
+import cv.igrp.framework.process.runtime.core.engine.task.model.IGRPTaskStatus;
+import cv.igrp.framework.process.runtime.core.engine.task.model.ProcessTaskInfo;
 import cv.igrp.platform.process.management.processruntime.application.dto.ProcessInstanceTaskStatusDTO;
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstanceTaskStatus;
 import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;

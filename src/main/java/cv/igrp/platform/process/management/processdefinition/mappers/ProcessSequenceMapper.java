@@ -22,6 +22,7 @@ public class ProcessSequenceMapper {
         .padding(command.getSequencerequestdto().getPadding())
         .checkDigitSize(command.getSequencerequestdto().getCheckDigitSize())
         .numberIncrement(command.getSequencerequestdto().getNumberIncrement())
+        .separator(command.getSequencerequestdto().getSeparator())
         .build();
   }
 
@@ -37,6 +38,7 @@ public class ProcessSequenceMapper {
     entity.setNextNumber(model.getNextNumber());
     entity.setNumberIncrement(model.getNumberIncrement());
     entity.setProcessDefinitionKey(model.getProcessDefinitionKey().getValue());
+    entity.setSeparator(model.getSeparator());
     return  entity;
   }
 
@@ -52,6 +54,7 @@ public class ProcessSequenceMapper {
         .nextNumber(entity.getNextNumber())
         .numberIncrement(entity.getNumberIncrement())
         .processDefinitionKey(Code.create(entity.getProcessDefinitionKey()))
+        .separator(entity.getSeparator())
         .build();
   }
 
@@ -67,6 +70,7 @@ public class ProcessSequenceMapper {
     dto.setNextNumber(model.getNextNumber());
     dto.setNumberIncrement(model.getNumberIncrement());
     dto.setProcessDefinitionKey(model.getProcessDefinitionKey().getValue());
+    dto.setSeparator(model.getSeparator());
     return dto;
   }
 

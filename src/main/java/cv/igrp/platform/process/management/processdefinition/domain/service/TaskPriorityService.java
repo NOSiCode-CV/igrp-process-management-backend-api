@@ -35,6 +35,10 @@ public class TaskPriorityService {
     return taskPriorityRepository.savePriority(newTaskPriority);
   }
 
+  public void configurePriority(List<TaskPriority> taskPriorities){
+    taskPriorities.forEach(this::configurePriority);
+  }
+
   public void deletePriority(Identifier id){
     TaskPriority taskPriority = getPriorityById(id);
     taskPriorityRepository.deletePriority(taskPriority);
