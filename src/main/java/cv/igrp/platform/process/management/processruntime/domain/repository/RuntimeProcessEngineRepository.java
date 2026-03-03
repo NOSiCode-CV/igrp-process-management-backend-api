@@ -1,8 +1,6 @@
 package cv.igrp.platform.process.management.processruntime.domain.repository;
 
 
-import cv.igrp.framework.process.runtime.core.engine.activity.model.IGRPActivityType;
-import cv.igrp.framework.process.runtime.core.engine.activity.model.ProcessTimelineEvent;
 import cv.igrp.framework.process.runtime.core.engine.process.ProcessDefinitionRepresentation;
 import cv.igrp.platform.process.management.processruntime.domain.exception.RuntimeProcessEngineException;
 import cv.igrp.platform.process.management.processruntime.domain.models.*;
@@ -236,22 +234,22 @@ public interface RuntimeProcessEngineRepository {
   Map<String, Object> getActivityVariables(String activityId);
 
   /**
-   * Retrieve the active activity instances by process instance's ID
+   * Retrieves a list of active activity instances for a given process instance ID and artifact type.
    *
-   * @param processInstanceId the unique identifier for the process instance
-   * @param type the activity type filter
-   * @return a list of {@link ActivityData}
+   * @param processInstanceId the unique identifier of the process instance for which active activities need to be fetched.
+   * @param type the artifact type associated with the process instance timeline event.
+   * @return a list of {@code ActivityData} representing the active activity instances matching the provided criteria.
    */
-  List<ActivityData> getActiveActivityInstances(String processInstanceId, IGRPActivityType type);
+  List<ActivityData> getActiveActivityInstances(String processInstanceId, ProcessArtifactEvent.ArtifactType type);
 
   /**
-   * Retrieve the process timeline events by process instance's ID
+   * Retrieves a list of timeline events for a specific process instance filtered by the artifact type.
    *
-   * @param processInstanceId the unique identifier for the process instance
-   * @param type the activity type filter
-   * @return a list of {@link ProcessTimelineEvent}
+   * @param processInstanceId the unique identifier of the process instance for which timeline events should be retrieved
+   * @param type the artifact type used to filter the timeline events
+   * @return a list of timeline events for the specified process instance and artifact type
    */
-  List<ProcessTimelineEvent> getProcessTimelineEvents(String processInstanceId, IGRPActivityType type);
+  List<ProcessArtifactEvent> getProcessTimelineEvents(String processInstanceId, ProcessArtifactEvent.ArtifactType type);
 
   /**
    * Retrieve all process instances by variables expressions.

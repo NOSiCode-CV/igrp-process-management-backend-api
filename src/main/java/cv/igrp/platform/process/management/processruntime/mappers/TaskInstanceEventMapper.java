@@ -11,8 +11,15 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @Component
 public class TaskInstanceEventMapper {
+
+  private final UserProfileMapper userProfileMapper;
+
+  public TaskInstanceEventMapper(UserProfileMapper userProfileMapper) {
+    this.userProfileMapper = userProfileMapper;
+  }
 
   public TaskInstanceEventEntity toEventEntity(TaskInstanceEvent taskInstanceEvent) {
       var eventEntity = new TaskInstanceEventEntity();
@@ -65,6 +72,9 @@ public class TaskInstanceEventMapper {
       eventDto.setPerformedBy(event.getPerformedBy().getValue());
       eventDto.setObs(event.getNote());
       eventDto.setStatus(event.getStatus());
+      eventDto.setUserProfilePerformedBy(
+          userProfileMapper.toDTO(event.getUserProfilePerformedBy())
+      );
       return eventDto;
   }
 

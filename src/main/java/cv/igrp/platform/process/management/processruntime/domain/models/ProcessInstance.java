@@ -7,6 +7,7 @@ import cv.igrp.platform.process.management.shared.domain.models.ProcessNumber;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -45,6 +46,11 @@ public class ProcessInstance {
 
   private boolean isArchived;
 
+  private UserProfile userProfileStartedBy;
+  private UserProfile userProfileEndedBy;
+  private UserProfile userProfileCreatedBy;
+  private UserProfile userProfileCanceledBy;
+
   @Builder
   public ProcessInstance(Identifier id,
                          Code procReleaseKey,
@@ -68,7 +74,11 @@ public class ProcessInstance {
                          String progress,
                          Map<String, Object> variables,
                          Integer priority,
-                         boolean isArchived
+                         boolean isArchived,
+                         UserProfile userProfileStartedBy,
+                         UserProfile userProfileEndedBy,
+                         UserProfile userProfileCreatedBy,
+                         UserProfile userProfileCanceledBy
                          ) {
     this.id = id == null ? Identifier.generate() : id;
     this.procReleaseKey = Objects.requireNonNull(procReleaseKey, "Process release key cannot be null");
@@ -93,6 +103,10 @@ public class ProcessInstance {
     this.variables = variables == null ? new HashMap<>() : variables;
     this.priority = priority == null ? DEFAULT_PRIORITY : priority;
     this.isArchived = isArchived;
+    this.userProfileStartedBy = userProfileStartedBy;
+    this.userProfileEndedBy = userProfileEndedBy;
+    this.userProfileCreatedBy = userProfileCreatedBy;
+    this.userProfileCanceledBy = userProfileCanceledBy;
   }
 
   public void create(ProcessNumber processNumber, ProcessInstance processInstance, String createdBy){
@@ -160,6 +174,34 @@ public class ProcessInstance {
 
   public void unArchive(){
     this.isArchived = false;
+  }
+
+  public void resolveUserProfileStartedBy(UserProfile userProfile) {
+    if (userProfile == null) {
+      throw new IllegalArgumentException("UserProfile cannot be null");
+    }
+    this.userProfileStartedBy = userProfile;
+  }
+
+  public void resolveUserProfileEndedBy(UserProfile userProfile) {
+    if (userProfile == null) {
+      throw new IllegalArgumentException("UserProfile cannot be null");
+    }
+    this.userProfileEndedBy = userProfile;
+  }
+
+  public void resolveUserProfileCancelledBy(UserProfile userProfile) {
+    if (userProfile == null) {
+      throw new IllegalArgumentException("UserProfile cannot be null");
+    }
+    this.userProfileCanceledBy = userProfile;
+  }
+
+  public void resolveUserProfileCreatedBy(UserProfile userProfile) {
+    if (userProfile == null) {
+      throw new IllegalArgumentException("UserProfile cannot be null");
+    }
+    this.userProfileCreatedBy = userProfile;
   }
 
 }

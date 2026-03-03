@@ -307,11 +307,28 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
   }
 
   @Override
-  public List<ProcessTimelineEvent> getProcessTimelineEvents(String processInstanceId, IGRPActivityType type) {
+  public List<ProcessArtifactEvent> getProcessTimelineEvents(String processInstanceId, ProcessArtifactEvent.ArtifactType type) {
     List<ProcessTimelineEvent> timelineEvents = activityQueryService.getActivityTimelineEvents(processInstanceId);
     if (timelineEvents == null)
       return List.of();
-    return timelineEvents;
+    return timelineEvents.stream().map(processTimelineEvent
+        -> ProcessArtifactEvent.builder()
+        .artifactId(processTimelineEvent.getActivityId())
+        .artifactName(processTimelineEvent.getActivityName())
+        .artifactInstanceId(processTimelineEvent.getActivityInstanceId())
+        .assignee(processTimelineEvent.getAssignee())
+        .duration(processTimelineEvent.getDuration())
+        .endTime(processTimelineEvent.getEndTime())
+        .startTime(processTimelineEvent.getStartTime())
+        .type(ProcessArtifactEvent.ArtifactType.valueOf(processTimelineEvent.getType().name()))
+        .status(ProcessArtifactEvent.ArtifactStatus.valueOf(processTimelineEvent.getStatus().name()))
+        .taskId(processTimelineEvent.getTaskId())
+        .executionId(processTimelineEvent.getExecutionId())
+        .processInstanceId(processTimelineEvent.getProcessInstanceId())
+        .treeNumber(processTimelineEvent.getTreeNumber())
+        .variables(processTimelineEvent.getVariables())
+        .build()
+    ).toList();
   }
 
   @Override
@@ -330,8 +347,8 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
         .processInstanceId(Code.create(info.processInstanceId()))
         .parentId(Code.create(info.parentId()))
         .parentProcessInstanceId(Code.create(info.parentProcessInstanceId() != null ? info.parentProcessInstanceId() : info.parentId()))
-        .status(info.status())
-        .type(info.type())
+        .status(ProcessArtifactEvent.ArtifactStatus.valueOf(info.status().name()))
+        .type(ProcessArtifactEvent.ArtifactType.valueOf(info.type().name()))
         .build();
   }
 
@@ -351,11 +368,14 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
   }
 
   @Override
-  public List<ActivityData> getActiveActivityInstances(String processInstanceId, IGRPActivityType activityType) {
+  public List<ActivityData> getActiveActivityInstances(String processInstanceId, ProcessArtifactEvent.ArtifactType type) {
     return activityQueryService.getActiveActivityInstances(processInstanceId)
         .stream()
-        .filter(a -> activityType == null || Objects.equals(a.type(), activityType))
-        .map(
+        .filter(a -> {
+          if (type == null) return true;
+          IGRPActivityType activityType = IGRPActivityType.valueOf(type.name());
+          return Objects.equals(a.type(), activityType);
+        }).map(
             info -> ActivityData.builder()
                 .id(Code.create(info.id()))
                 .name(Name.create(info.name()))
@@ -363,8 +383,8 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
                 .processInstanceId(Code.create(info.processInstanceId()))
                 .parentId(Code.create(info.parentId()))
                 .parentProcessInstanceId(Code.create(processInstanceId))
-                .status(info.status())
-                .type(info.type())
+                .status(ProcessArtifactEvent.ArtifactStatus.valueOf(info.status().name()))
+                .type(ProcessArtifactEvent.ArtifactType.valueOf(info.type().name()))
                 .build()
         ).toList();
   }

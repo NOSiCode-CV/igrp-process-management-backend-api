@@ -1,7 +1,7 @@
 /* THIS FILE WAS GENERATED AUTOMATICALLY BY iGRP STUDIO. */
 /* DO NOT MODIFY IT BECAUSE IT COULD BE REWRITTEN AT ANY TIME. */
 
-package cv.igrp.platform.process.management.processdefinition.application.dto;
+package cv.igrp.platform.process.management.processruntime.application.dto;
 
 import cv.igrp.framework.stereotype.IgrpDTO;
 import jakarta.validation.*;
@@ -17,37 +17,28 @@ import java.util.UUID;
 
 
 @IgrpDTO
-public class ProcessSequenceDTO  {
+public class UserProfileDTO  {
 
   
   
   private UUID id ;
   
   
-  private String name ;
+  private String username ;
   
   
-  private String prefix ;
+  private String email ;
   
   
-  private short checkDigitSize ;
+  private String firstName ;
   
   
-  private short padding ;
+  private String lastName ;
   
   
-  private String dateFormat ;
+  private String fullName ;
   
   
-  private Long nextNumber ;
-  
-  
-  private short numberIncrement ;
-  
-  
-  private String processDefinitionKey ;
-  
-  
-  private String separator ;
+  private String sub ;
 
 }
