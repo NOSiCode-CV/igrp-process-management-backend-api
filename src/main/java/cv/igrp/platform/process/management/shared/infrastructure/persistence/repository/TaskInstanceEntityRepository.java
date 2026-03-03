@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.history.RevisionRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -14,5 +15,7 @@ public interface TaskInstanceEntityRepository extends
     JpaSpecificationExecutor<TaskInstanceEntity>,
     RevisionRepository<TaskInstanceEntity, UUID, Integer>
 {
+
+  Optional<TaskInstanceEntity> findByExternalId(String processInstanceId);
 
 }

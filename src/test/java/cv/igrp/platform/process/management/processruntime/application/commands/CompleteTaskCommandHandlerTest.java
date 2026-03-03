@@ -9,7 +9,8 @@ import cv.igrp.platform.process.management.processruntime.domain.models.TaskOper
 import cv.igrp.platform.process.management.processruntime.domain.service.TaskInstanceService;
 import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
-import cv.igrp.platform.process.management.shared.security.UserContext;
+import cv.igrp.platform.process.management.shared.domain.models.Identifier;
+import cv.igrp.platform.process.management.shared.security.util.UserContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,17 +43,23 @@ class CompleteTaskCommandHandlerTest {
   private CompleteTaskCommand command;
 
   private TaskInstance mockTaskInstance;
+  private Code mockCodeInstance;
   private TaskInstanceDTO mockTaskInstanceDTO;
 
   @BeforeEach
   void setUp() {
 
+    var id = UUID.randomUUID().toString();
+
     when(userContext.getCurrentUser()).thenReturn(Code.create("demo@nosi.cv"));
 
     // Mock TaskInstance and TaskInstanceDTO
     mockTaskInstance = mock(TaskInstance.class);
+    mockCodeInstance = mock(Code.class);
     mockTaskInstanceDTO = mock(TaskInstanceDTO.class);
 
+    when(taskInstanceService.getTaskById(Identifier.create(id))).thenReturn(mockTaskInstance);
+    when(taskInstanceService.getTaskById(Identifier.create(id)).getTaskKey()).thenReturn(mockCodeInstance);
     when(taskInstanceService.completeTask(any(TaskOperationData.class)))
         .thenReturn(mockTaskInstance);
     when(taskInstanceMapper.toTaskInstanceDTO(mockTaskInstance))
@@ -64,7 +71,7 @@ class CompleteTaskCommandHandlerTest {
     taskDataDTO.setVariables(List.of(new ProcessVariableDTO("var1", "value2")));
 
     command = new CompleteTaskCommand();
-    command.setId(UUID.randomUUID().toString());
+    command.setId(id);
     command.setTaskdatadto(taskDataDTO);
   }
 

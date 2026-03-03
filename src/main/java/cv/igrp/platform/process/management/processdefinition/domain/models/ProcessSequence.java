@@ -1,5 +1,6 @@
 package cv.igrp.platform.process.management.processdefinition.domain.models;
 
+import cv.igrp.platform.process.management.shared.application.constants.Status;
 import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
@@ -39,9 +40,9 @@ public class ProcessSequence {
                          String dateFormat,
                          Long nextNumber,
                          Short numberIncrement,
-                         Code processDefinitionKey)
-  {
-    this.id = id;
+                         Code processDefinitionKey
+  ){
+    this.id = id == null ? Identifier.generate() : id;
     this.name = Objects.requireNonNull(name, "Name cannot be null");
     this.prefix = Objects.requireNonNull(prefix, "Prefix cannot be null");
     this.checkDigitSize = Objects.requireNonNull(checkDigitSize, "CheckDigitSize cannot be null");
@@ -179,6 +180,8 @@ public class ProcessSequence {
         .build();
   }
 
-
+  public void resetNextNumber() {
+    this.nextNumber = 1L;
+  }
 
 }

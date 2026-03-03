@@ -7,7 +7,21 @@
   "actions": [
     {
       "actionName": "listTaskInstances",
-      "method": "GET",
+      "path": "search",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "VariablesFilterDTO",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "processruntime"
+            }
+          }
+        }
+      },
       "responses": {
         "200": {
           "name": "OK",
@@ -40,14 +54,21 @@
         },
         {
           "type": "string",
-          "name": "processName",
+          "name": "processReleaseKey",
           "description": "Process Definition Key",
           "isRequired": false
         },
         {
           "type": "string",
-          "name": "candidateGroups",
+          "name": "applicationBase",
+          "description": "Application Base",
           "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "candidateGroups",
+          "isRequired": false,
+          "description": "Candidate Groups"
         },
         {
           "type": "string",
@@ -81,6 +102,24 @@
         {
           "type": "integer",
           "name": "size",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "name",
+          "description": "Task name",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "processName",
+          "description": "Process name",
+          "isRequired": false
+        },
+        {
+          "type": "boolean",
+          "name": "filterByCurrentUser",
+          "description": "Current user filter",
           "isRequired": false
         }
       ]
@@ -146,6 +185,19 @@
       "actionName": "unClaimTask",
       "path": "{id}/unclaim",
       "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "UnclaimTaskDTO",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "processruntime"
+            }
+          }
+        }
+      },
       "responses": {
         "204": {
           "name": "nocontent",
@@ -256,7 +308,20 @@
     {
       "actionName": "getAllMyTasks",
       "path": "me",
-      "method": "GET",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "VariablesFilterDTO",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "processruntime"
+            }
+          }
+        }
+      },
       "responses": {
         "200": {
           "name": "OK",
@@ -289,15 +354,15 @@
         },
         {
           "type": "string",
-          "name": "processName",
-          "isRequired": false,
-          "description": "Process Name"
+          "name": "applicationBase",
+          "description": "Application Base",
+          "isRequired": false
         },
         {
           "type": "string",
-          "name": "candidateGroups",
-          "description": "Role",
-          "isRequired": false
+          "name": "processName",
+          "isRequired": false,
+          "description": "Process Name"
         },
         {
           "type": "string",
@@ -323,6 +388,18 @@
         {
           "type": "integer",
           "name": "size",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "processReleaseKey",
+          "description": "Process Release Key",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "name",
+          "description": "Task Name",
           "isRequired": false
         }
       ]
@@ -379,10 +456,10 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "TaskVariableDTO",
+                "type": "TaskVariablesFormsDTO",
                 "objectType": "dto",
                 "name": "data",
-                "collectionType": "list",
+                "collectionType": "none",
                 "module": "processruntime"
               }
             }
@@ -438,7 +515,48 @@
           }
         }
       }
+    },
+    {
+      "actionName": "saveTask",
+      "path": "{id}/save",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "TaskDataDTO",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "processruntime"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TaskInstanceDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "processruntime"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
     }
   ],
-  "id": "s7o1wob8tj-CONTROLLER"
+  "id": "s7o1wob8tj-CONTROLLER-listTaskInstances-getAllMyTasks-getAllMyTasks-listTaskInstances-getAllMyTasks-getAllMyTasks-unClaimTask-listTaskInstances-getAllMyTasks-getTaskVariablesById-listTaskInstances"
 }

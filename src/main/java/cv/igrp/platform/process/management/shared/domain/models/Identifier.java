@@ -3,6 +3,7 @@ package cv.igrp.platform.process.management.shared.domain.models;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.util.UUID;
 
@@ -32,5 +33,7 @@ public class Identifier {
   public static Identifier generate() {
     return Identifier.builder().build();
   }
+
+
 
 }

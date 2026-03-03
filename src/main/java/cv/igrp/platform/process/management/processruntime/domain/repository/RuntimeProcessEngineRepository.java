@@ -1,11 +1,13 @@
 package cv.igrp.platform.process.management.processruntime.domain.repository;
 
-import cv.igrp.framework.runtime.core.engine.process.ProcessDefinitionRepresentation;
-import cv.igrp.platform.process.management.processruntime.domain.exception.RuntimeProcessEngineException;
-import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstance;
-import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstanceTaskStatus;
-import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
 
+import cv.igrp.framework.process.runtime.core.engine.activity.model.IGRPActivityType;
+import cv.igrp.framework.process.runtime.core.engine.activity.model.ProcessTimelineEvent;
+import cv.igrp.framework.process.runtime.core.engine.process.ProcessDefinitionRepresentation;
+import cv.igrp.platform.process.management.processruntime.domain.exception.RuntimeProcessEngineException;
+import cv.igrp.platform.process.management.processruntime.domain.models.*;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -32,6 +34,23 @@ public interface RuntimeProcessEngineRepository {
    * @throws RuntimeProcessEngineException if the process cannot be started
    */
   ProcessInstance startProcessInstanceById(
+      String processDefinitionId,
+      String businessKey,
+      Map<String, Object> variables
+  ) throws RuntimeProcessEngineException;
+
+  /**
+   * Starts a new process instance using the given process instance ID.
+   *
+   * @param processInstanceId the unique identifier of the process instance
+   * @param processDefinitionId the unique identifier of the process definition
+   * @param businessKey         a business-specific correlation key (may be {@code null})
+   * @param variables           initial process variables (may be empty or {@code null})
+   * @return the created {@link ProcessInstance}
+   * @throws RuntimeProcessEngineException if the process cannot be started
+   */
+  ProcessInstance startProcessInstanceById(
+      String processInstanceId,
       String processDefinitionId,
       String businessKey,
       Map<String, Object> variables
@@ -88,6 +107,17 @@ public interface RuntimeProcessEngineRepository {
    * @throws RuntimeProcessEngineException if the process instance cannot be found or accessed
    */
   List<TaskInstance> getActiveTaskInstances(String processInstanceId)
+      throws RuntimeProcessEngineException;
+
+  /**
+   * Saves a given task and updates process variables.
+   *
+   * @param taskInstanceId the unique identifier of the task instance
+   * @param forms      forms to update when saving the task (may be {@code null})
+   * @param variables      variables to update when saving the task (may be {@code null})
+   * @throws RuntimeProcessEngineException if the task cannot be saved
+   */
+  void saveTask(String taskInstanceId, Map<String, Object> forms, Map<String, Object> variables)
       throws RuntimeProcessEngineException;
 
   /**
@@ -175,10 +205,11 @@ public interface RuntimeProcessEngineRepository {
   /**
    * Signals a process instance.
    * @param processInstanceId
+   * @param taskId
    * @param variables
    * @throws RuntimeProcessEngineException
    */
-  void signal(String processInstanceId, Map<String, Object> variables) throws RuntimeProcessEngineException;
+  void signal(String processInstanceId, String taskId, Map<String, Object> variables) throws RuntimeProcessEngineException;
 
   /**
    * Retrieves the process definition representation by its ID.
@@ -187,5 +218,92 @@ public interface RuntimeProcessEngineRepository {
    * @return the {@link ProcessDefinitionRepresentation}
    */
   ProcessDefinitionRepresentation getProcessDefinition(String processDefinitionId);
+
+  /**
+   * Retrieves the activity representation by its ID
+   *
+   * @param activityId the unique identifier for the activity
+   * @return the {@link ActivityData} if present
+   */
+  ActivityData getActivityById(String activityId);
+
+  /**
+   * Retrieve the activity variables through the activity's ID
+   *
+   * @param activityId the unique identifier for the activity
+   * @return a map of variables
+   */
+  Map<String, Object> getActivityVariables(String activityId);
+
+  /**
+   * Retrieve the active activity instances by process instance's ID
+   *
+   * @param processInstanceId the unique identifier for the process instance
+   * @param type the activity type filter
+   * @return a list of {@link ActivityData}
+   */
+  List<ActivityData> getActiveActivityInstances(String processInstanceId, IGRPActivityType type);
+
+  /**
+   * Retrieve the process timeline events by process instance's ID
+   *
+   * @param processInstanceId the unique identifier for the process instance
+   * @param type the activity type filter
+   * @return a list of {@link ProcessTimelineEvent}
+   */
+  List<ProcessTimelineEvent> getProcessTimelineEvents(String processInstanceId, IGRPActivityType type);
+
+  /**
+   * Retrieve all process instances by variables expressions.
+   * @param variablesExpressions the list of variables expressions
+   * @return a list of {@link ProcessInstance}
+   */
+  List<ProcessInstance> getAllProcessInstancesByVariables(List<VariablesExpression> variablesExpressions);
+
+  /**
+   * Retrieve all task instances by variables expressions.
+   * @param variablesExpressions the list of variables expressions
+   * @return a list of {@link TaskInstance}
+   */
+  List<TaskInstance> getAllTaskInstancesByVariables(List<VariablesExpression> variablesExpressions);
+
+
+  /**
+   * Add a candidate group to a task.
+   *
+   * @param taskId the unique identifier of the task
+   * @param groupId the unique identifier of the candidate group
+   * @throws RuntimeProcessEngineException if the task cannot be found or the candidate group cannot be added
+   */
+  void addCandidateGroup(String taskId, String groupId) throws RuntimeProcessEngineException;
+
+  /**
+   * Reschedules the timer job of a running process instance by updating its due date.
+   * The timer will fire after the specified number of seconds from now.
+   *
+   * @param processInstanceId the ID of the process instance
+   * @param seconds the number of seconds to postpone the timer
+   * @throws IllegalStateException if no active timer job exists for the process instance
+   */
+  void rescheduleTimer(String processInstanceId, long seconds);
+
+  /**
+   * Reschedules the timer job of a running process instance by updating its due date.
+   * The timer will fire after the specified number of seconds from now.
+   *
+   * @param processInstanceId the ID of the process instance
+   * @param timerElementId the ID of the timer element to reschedule
+   * @param seconds the number of seconds to postpone the timer
+   * @throws IllegalStateException if no active timer job exists for the process instance
+   */
+  void rescheduleTimer(String processInstanceId, String timerElementId, long seconds);
+
+  /**
+   * Updates the due date of a specific task identified by the given task ID.
+   *
+   * @param taskId the unique identifier of the task whose due date is to be updated
+   * @param dueDate the new due date and time to be set for the task
+   */
+  void setTaskDueDate(String taskId, LocalDateTime dueDate);
 
 }

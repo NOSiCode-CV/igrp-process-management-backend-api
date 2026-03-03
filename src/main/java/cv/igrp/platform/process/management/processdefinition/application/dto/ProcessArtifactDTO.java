@@ -34,5 +34,14 @@ public class ProcessArtifactDTO  {
   
   
   private String formKey ;
+  
+  
+  private String candidateGroups ;
+  
+  
+  private String dueDate ;
+  
+  
+  private Integer priority ;
 
 }

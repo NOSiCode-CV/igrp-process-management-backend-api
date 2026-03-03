@@ -14,7 +14,6 @@ import jakarta.validation.constraints.NotBlank;
 @Audited
 @Getter
 @Setter
-@ToString
 @IgrpEntity
 @Entity
 @NoArgsConstructor
@@ -53,6 +52,18 @@ public class ProcessArtifactEntity extends AuditEntity {
     @NotBlank(message = "formKey is mandatory")
     @Column(name="form_key", nullable = false)
     private String formKey;
+
+  
+    @Column(name="candidate_groups")
+    private String candidateGroups;
+
+  
+    @Column(name="priority")
+    private Integer priority;
+
+  
+    @Column(name="due_date")
+    private String dueDate;
 
   
 }

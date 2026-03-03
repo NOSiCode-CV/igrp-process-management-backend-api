@@ -1,29 +1,37 @@
 package cv.igrp.platform.process.management.processruntime.infrastructure.persistence.repository;
 
-import cv.igrp.framework.runtime.core.engine.process.ProcessDefinitionAdapter;
-import cv.igrp.framework.runtime.core.engine.process.ProcessDefinitionRepresentation;
-import cv.igrp.framework.runtime.core.engine.process.ProcessManagerAdapter;
-import cv.igrp.framework.runtime.core.engine.process.model.ProcessVariableInstance;
-import cv.igrp.framework.runtime.core.engine.task.TaskActionService;
-import cv.igrp.framework.runtime.core.engine.task.TaskQueryService;
-import cv.igrp.framework.runtime.core.engine.task.model.TaskInfo;
-import cv.igrp.framework.runtime.core.engine.task.model.TaskVariableInstance;
+
+import cv.igrp.framework.process.runtime.core.engine.activity.ActivityQueryService;
+import cv.igrp.framework.process.runtime.core.engine.activity.model.ActivityInfo;
+import cv.igrp.framework.process.runtime.core.engine.activity.model.IGRPActivityType;
+import cv.igrp.framework.process.runtime.core.engine.activity.model.ProcessTimelineEvent;
+import cv.igrp.framework.process.runtime.core.engine.process.ProcessDefinitionAdapter;
+import cv.igrp.framework.process.runtime.core.engine.process.ProcessDefinitionRepresentation;
+import cv.igrp.framework.process.runtime.core.engine.process.ProcessManagerAdapter;
+import cv.igrp.framework.process.runtime.core.engine.process.model.ProcessFilter;
+import cv.igrp.framework.process.runtime.core.engine.process.model.ProcessVariableInstance;
+import cv.igrp.framework.process.runtime.core.engine.process.model.TaskFilter;
+import cv.igrp.framework.process.runtime.core.engine.process.model.VariablesOperator;
+import cv.igrp.framework.process.runtime.core.engine.task.TaskActionService;
+import cv.igrp.framework.process.runtime.core.engine.task.TaskQueryService;
+import cv.igrp.framework.process.runtime.core.engine.task.model.TaskInfo;
+import cv.igrp.framework.process.runtime.core.engine.task.model.TaskVariableInstance;
 import cv.igrp.platform.process.management.processruntime.domain.exception.RuntimeProcessEngineException;
-import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstance;
-import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstanceTaskStatus;
-import cv.igrp.platform.process.management.processruntime.domain.models.TaskInstance;
+import cv.igrp.platform.process.management.processruntime.domain.models.*;
 import cv.igrp.platform.process.management.processruntime.domain.repository.RuntimeProcessEngineRepository;
 import cv.igrp.platform.process.management.processruntime.mappers.ProcessInstanceMapper;
 import cv.igrp.platform.process.management.processruntime.mappers.ProcessInstanceTaskStatusMapper;
 import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
+import cv.igrp.platform.process.management.shared.domain.models.Code;
+import cv.igrp.platform.process.management.shared.domain.models.Name;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Repository;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -43,6 +51,7 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
   private final TaskActionService taskActionService;
   private final ProcessInstanceTaskStatusMapper processInstanceTaskStatusMapper;
   private final TaskQueryService taskQueryService;
+  private final ActivityQueryService activityQueryService;
 
   public RuntimeProcessEngineRepositoryImpl(
       ProcessDefinitionAdapter processDefinitionAdapter,
@@ -51,7 +60,9 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
       TaskInstanceMapper taskInstanceMapper,
       TaskActionService taskActionService,
       ProcessInstanceTaskStatusMapper processInstanceTaskStatusMapper,
-      TaskQueryService taskQueryService) {
+      TaskQueryService taskQueryService,
+      ActivityQueryService activityQueryService
+  ) {
     this.processDefinitionAdapter = processDefinitionAdapter;
     this.processManagerAdapter = processManagerAdapter;
     this.processInstanceMapper = processInstanceMapper;
@@ -59,6 +70,7 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
     this.taskActionService = taskActionService;
     this.processInstanceTaskStatusMapper = processInstanceTaskStatusMapper;
     this.taskQueryService = taskQueryService;
+    this.activityQueryService = activityQueryService;
   }
 
   @Override
@@ -70,6 +82,30 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
       return processInstanceMapper.toModel(processInstance);
     } catch (Exception e) {
       LOGGER.error("Failed to start process with definition ID: {}", processDefinitionId, e);
+      throw new RuntimeProcessEngineException("Failed to start process", e);
+    }
+  }
+
+  @Override
+  public ProcessInstance startProcessInstanceById(String processInstanceId, String processDefinitionId, String businessKey, Map<String, Object> variables) throws RuntimeProcessEngineException {
+    var auth = SecurityContextHolder.getContext().getAuthentication();
+    LOGGER.info("Starting process. user={}, processInstanceId={}, processDefinitionId={}",
+        auth, processInstanceId, processDefinitionId);
+    try {
+      var processInstance = processManagerAdapter.startCreatedProcess(
+          processInstanceId,
+          processDefinitionId,
+          businessKey,
+          variables
+      );
+      LOGGER.info("Process started successfully. instanceId={}, definitionId={}",
+          processInstance.id(), processDefinitionId);
+      return processInstanceMapper.toModel(processInstance);
+    } catch (Exception e) {
+      LOGGER.error(
+          "Error starting process. processInstanceId={}, processDefinitionId={}, message={}",
+          processInstanceId, processDefinitionId, e.getMessage(), e
+      );
       throw new RuntimeProcessEngineException("Failed to start process", e);
     }
   }
@@ -147,9 +183,21 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
   }
 
   @Override
+  public void saveTask(String taskInstanceId, Map<String, Object> forms, Map<String, Object> variables) {
+    try {
+      TaskInfo taskInfo = taskQueryService.getTask(taskInstanceId).orElseThrow();
+      processManagerAdapter.setProcessVariables(taskInfo.processInstanceId(), variables);
+      taskActionService.saveTask(taskInstanceId, forms);
+    } catch (Exception e) {
+      LOGGER.error("Failed to save task: {}", taskInstanceId, e);
+      throw new RuntimeProcessEngineException("Failed to save task. " + e.getMessage(), e);
+    }
+  }
+
+  @Override
   public void completeTask(String taskInstanceId, Map<String, Object> forms, Map<String, Object> variables) {
     try {
-      TaskInfo taskInfo =  taskQueryService.getTask(taskInstanceId).orElseThrow();
+      TaskInfo taskInfo = taskQueryService.getTask(taskInstanceId).orElseThrow();
       processManagerAdapter.setProcessVariables(taskInfo.processInstanceId(), variables);
       taskActionService.completeTask(taskInstanceId, forms);
     } catch (Exception e) {
@@ -164,7 +212,7 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
       taskActionService.claimTask(taskInstanceId, userId);
     } catch (Exception e) {
       LOGGER.error("Failed to claim task: {}", taskInstanceId, e);
-      throw new RuntimeProcessEngineException("Failed to claim task. " + e.getMessage() , e);
+      throw new RuntimeProcessEngineException("Failed to claim task. " + e.getMessage(), e);
     }
   }
 
@@ -196,7 +244,7 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
           .collect(Collectors.toMap(TaskVariableInstance::name, TaskVariableInstance::value));
     } catch (Exception e) {
       LOGGER.error("Failed to retrieve variables for task with id={}", taskInstanceId, e);
-      throw new RuntimeProcessEngineException("Unable to retrieve task variables for task: " + taskInstanceId, e);
+      return Map.of();
     }
   }
 
@@ -204,13 +252,13 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
   public Map<String, Object> getProcessVariables(String processInstanceId) {
     try {
       List<ProcessVariableInstance> variables = processManagerAdapter.getProcessVariables(processInstanceId);
-      if(variables==null)return new HashMap<>();//todo remove
+      if (variables == null) return new HashMap<>();//todo remove
       return variables.stream()
-          .filter(p->p.name()!=null&&p.value()!=null) //todo fix
+          .filter(p -> p.name() != null && p.value() != null) //todo fix
           .collect(Collectors.toMap(ProcessVariableInstance::name, ProcessVariableInstance::value));
     } catch (Exception e) {
       LOGGER.error("Failed to retrieve variables for process with id={}", processInstanceId, e);
-      throw new RuntimeProcessEngineException("Unable to retrieve process variables for process: " + processInstanceId, e);
+      return Map.of();
     }
   }
 
@@ -227,7 +275,7 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
   @Override
   public void correlateMessage(String messageName, String businessKey, Map<String, Object> variables) throws RuntimeProcessEngineException {
     try {
-      processManagerAdapter.correlateMessage(messageName, businessKey, variables);
+      processManagerAdapter.correlateMessage(businessKey, messageName, variables);
     } catch (Exception e) {
       LOGGER.error("Failed to correlate message '{}' for businessKey '{}': {}", messageName, businessKey, e.getMessage(), e);
       throw new RuntimeProcessEngineException("Failed to correlate message '" + messageName + "' for businessKey '" + businessKey + "'", e);
@@ -235,9 +283,9 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
   }
 
   @Override
-  public void signal(String processInstanceId, Map<String, Object> variables) throws RuntimeProcessEngineException {
+  public void signal(String processInstanceId, String taskId, Map<String, Object> variables) throws RuntimeProcessEngineException {
     try {
-      processManagerAdapter.signal(processInstanceId, variables);
+      processManagerAdapter.signal(processInstanceId, taskId, variables);
     } catch (Exception e) {
       LOGGER.error("Failed to signal process instance '{}' with variables: {}", processInstanceId, variables, e);
       throw new RuntimeProcessEngineException(
@@ -250,10 +298,168 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
   public ProcessDefinitionRepresentation getProcessDefinition(String processDefinitionId) {
     try {
       return processDefinitionAdapter
-          .getProcessDefinition(processDefinitionId);
+          .getProcessDefinition(processDefinitionId)
+          .orElseThrow();
     } catch (Exception e) {
       LOGGER.error("Error retrieving process definition by Id: {}", processDefinitionId, e);
       throw new RuntimeProcessEngineException("Error retrieving process definition by ID: " + processDefinitionId, e);
     }
   }
+
+  @Override
+  public List<ProcessTimelineEvent> getProcessTimelineEvents(String processInstanceId, IGRPActivityType type) {
+    List<ProcessTimelineEvent> timelineEvents = activityQueryService.getActivityTimelineEvents(processInstanceId);
+    if (timelineEvents == null)
+      return List.of();
+    return timelineEvents;
+  }
+
+  @Override
+  public ActivityData getActivityById(String activityId) {
+    ActivityInfo info = activityQueryService
+        .getActivity(activityId)
+        .orElseThrow(() ->
+            new RuntimeProcessEngineException(
+                "No activity found with id: " + activityId
+            )
+        );
+    return ActivityData.builder()
+        .id(Code.create(info.id()))
+        .name(Name.create(info.name()))
+        .description(info.description())
+        .processInstanceId(Code.create(info.processInstanceId()))
+        .parentId(Code.create(info.parentId()))
+        .parentProcessInstanceId(Code.create(info.parentProcessInstanceId() != null ? info.parentProcessInstanceId() : info.parentId()))
+        .status(info.status())
+        .type(info.type())
+        .build();
+  }
+
+  @Override
+  public Map<String, Object> getActivityVariables(String activityId) {
+
+    var variables = activityQueryService.getActivityVariables(activityId);
+
+    var variablesMap = new HashMap<String, Object>();
+
+    if (variables == null || variables.isEmpty()) return variablesMap;
+
+    variables.forEach(variable -> variablesMap.put(variable.name(), variable.value()));
+
+    return variablesMap;
+
+  }
+
+  @Override
+  public List<ActivityData> getActiveActivityInstances(String processInstanceId, IGRPActivityType activityType) {
+    return activityQueryService.getActiveActivityInstances(processInstanceId)
+        .stream()
+        .filter(a -> activityType == null || Objects.equals(a.type(), activityType))
+        .map(
+            info -> ActivityData.builder()
+                .id(Code.create(info.id()))
+                .name(Name.create(info.name()))
+                .description(info.description())
+                .processInstanceId(Code.create(info.processInstanceId()))
+                .parentId(Code.create(info.parentId()))
+                .parentProcessInstanceId(Code.create(processInstanceId))
+                .status(info.status())
+                .type(info.type())
+                .build()
+        ).toList();
+  }
+
+  @Override
+  public void addCandidateGroup(String taskId, String groupId) throws RuntimeProcessEngineException {
+    try {
+      taskActionService.addCandidateGroup(taskId, groupId);
+      LOGGER.info("Added candidate group '{}' to task '{}'", groupId, taskId);
+    } catch (Exception e) {
+      LOGGER.error("Failed to add candidate group '{}' to task '{}'", groupId, taskId, e);
+      throw new RuntimeProcessEngineException(
+          String.format("Unable to add candidate group '%s' to task '%s'", groupId, taskId), e
+      );
+    }
+  }
+
+  @Override
+  public List<ProcessInstance> getAllProcessInstancesByVariables(List<VariablesExpression> variablesExpressions) {
+    if (variablesExpressions == null || variablesExpressions.isEmpty())
+      return Collections.emptyList();
+    ProcessFilter filter = new ProcessFilter();
+    variablesExpressions.forEach(vE -> {
+      filter.getVariablesExpressions().add(
+          new cv.igrp.framework.process.runtime.core.engine.process.model.VariablesExpression(
+              vE.getName(),
+              VariablesOperator.valueOf(vE.getOperator().name()),
+              vE.getValue())
+      );
+    });
+    return processManagerAdapter.listProcessInstances(filter)
+        .stream()
+        .map(processInstanceMapper::toModel)
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<TaskInstance> getAllTaskInstancesByVariables(List<VariablesExpression> variablesExpressions) {
+
+    if (variablesExpressions == null || variablesExpressions.isEmpty())
+      return Collections.emptyList();
+
+    TaskFilter filter = new TaskFilter();
+
+    variablesExpressions.forEach(vE -> {
+      filter.getVariablesExpressions().add(
+          new cv.igrp.framework.process.runtime.core.engine.process.model.VariablesExpression(
+              vE.getName(),
+              VariablesOperator.valueOf(vE.getOperator().name()),
+              vE.getValue())
+      );
+    });
+
+    return taskQueryService.listTaskInstances(filter)
+        .stream()
+        .map(taskInstanceMapper::toModel)
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public void rescheduleTimer(String processInstanceId, long seconds) {
+    try {
+      processManagerAdapter.rescheduleTimer(processInstanceId, seconds);
+      LOGGER.info("Rescheduled timer for process instance '{}' in {} seconds", processInstanceId, seconds);
+    } catch (Exception e) {
+      LOGGER.error("Failed to reschedule timer for process instance '{}'", processInstanceId, e);
+      throw new RuntimeProcessEngineException("Failed to reschedule timer for process instance: " + processInstanceId, e);
+    }
+  }
+
+  @Override
+  public void rescheduleTimer(String processInstanceId, String timerElementId, long seconds) {
+    try {
+      processManagerAdapter.rescheduleTimer(processInstanceId, timerElementId, seconds);
+      LOGGER.info("Timer '{}' for process instance '{}' successfully rescheduled to fire after {} seconds", timerElementId, processInstanceId, seconds);
+    } catch (Exception e) {
+      LOGGER.error("Failed to reschedule timer '{}' for process instance '{}'", timerElementId, processInstanceId, e);
+      throw new RuntimeProcessEngineException("Failed to reschedule timer '" + timerElementId + "' for process instance '" + processInstanceId + "'", e);
+    }
+  }
+
+  @Override
+  public void setTaskDueDate(String taskId, LocalDateTime dueDate) {
+    try{
+      long dueDateMillis = dueDate
+          .atZone(ZoneId.systemDefault())
+          .toInstant()
+          .toEpochMilli();
+      if (!taskActionService.setTaskDueDate(taskId, dueDateMillis)) {
+        throw new RuntimeProcessEngineException("Task not found or due date not updated for taskId: " + taskId);
+      }
+    }catch (Exception e){
+      LOGGER.error("Failed to set due date for task with id={}", taskId, e);
+      throw new RuntimeProcessEngineException("Failed to set due date for task with id: " + taskId, e);
+    }
+  }
+
 }

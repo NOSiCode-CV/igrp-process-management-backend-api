@@ -9,17 +9,23 @@ import cv.igrp.platform.process.management.shared.domain.models.Name;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.ProcessArtifactEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 public class ProcessArtifactMapper {
 
-  public ProcessArtifact toModel(ProcessArtifactRequestDTO dto, String processDefinitionId) {
+  public ProcessArtifact toModel(ProcessArtifactRequestDTO dto, String processDefinitionId, String taskKey) {
     return ProcessArtifact.builder()
         .name(Name.create(dto.getName()))
         .processDefinitionId(Code.create(processDefinitionId))
-        .key(Code.create(dto.getKey()))
-        .formKey(Code.create(dto.getFormKey()))
+        .key(Code.create(taskKey))
+        .formKey(dto.getFormKey())
+        .candidateGroups(dto.getCandidateGroups() != null && !dto.getCandidateGroups().isBlank()
+            ? new HashSet<>(List.of(dto.getCandidateGroups().split(",")))
+            : new HashSet<>())
+        .dueDate(dto.getDueDate())
+        .priority(dto.getPriority())
         .build();
   }
 
@@ -29,7 +35,12 @@ public class ProcessArtifactMapper {
     dto.setName(model.getName().getValue());
     dto.setProcessDefinitionId(model.getProcessDefinitionId().getValue());
     dto.setKey(model.getKey().getValue());
-    dto.setFormKey(model.getFormKey().getValue());
+    dto.setFormKey(model.getFormKey());
+    dto.setCandidateGroups(
+        !model.getCandidateGroups().isEmpty() ? String.join(",", model.getCandidateGroups()) : null
+    );
+    dto.setPriority(model.getPriority());
+    dto.setDueDate(model.getDueDate());
     return dto;
   }
 
@@ -38,8 +49,13 @@ public class ProcessArtifactMapper {
     entity.setName(model.getName().getValue());
     entity.setProcessDefinitionId(model.getProcessDefinitionId().getValue());
     entity.setKey(model.getKey().getValue());
-    entity.setFormKey(model.getFormKey().getValue());
+    entity.setFormKey(model.getFormKey());
     entity.setId(model.getId().getValue());
+    if(!model.getCandidateGroups().isEmpty()) {
+      entity.setCandidateGroups(String.join(",", model.getCandidateGroups()));
+    }
+    entity.setDueDate(model.getDueDate());
+    entity.setPriority(model.getPriority());
     return entity;
   }
 
@@ -49,7 +65,12 @@ public class ProcessArtifactMapper {
         .name(Name.create(entity.getName()))
         .processDefinitionId(Code.create(entity.getProcessDefinitionId()))
         .key(Code.create(entity.getKey()))
-        .formKey(Code.create(entity.getFormKey()))
+        .formKey(entity.getFormKey())
+        .candidateGroups(entity.getCandidateGroups() != null
+            ? new HashSet<>(List.of(entity.getCandidateGroups().split(",")))
+            : new HashSet<>())
+        .dueDate(entity.getDueDate())
+        .priority(entity.getPriority())
         .build();
   }
 
@@ -59,6 +80,21 @@ public class ProcessArtifactMapper {
 
   public List<ProcessArtifact> toModel(List<ProcessArtifactEntity> entities) {
     return entities.stream().map(this::toModel).toList();
+  }
+
+  public ProcessArtifact toModel(ProcessArtifactDTO dto) {
+    return ProcessArtifact.builder()
+        .id(Identifier.create(dto.getId()))
+        .name(Name.create(dto.getName()))
+        .processDefinitionId(Code.create(dto.getProcessDefinitionId()))
+        .key(Code.create(dto.getKey()))
+        .formKey(dto.getFormKey())
+        .candidateGroups(
+            dto.getCandidateGroups() != null
+                ? new HashSet<>(List.of(dto.getCandidateGroups().split(",")))
+                : new HashSet<>()
+        )
+        .build();
   }
 
 }

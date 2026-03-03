@@ -17,7 +17,6 @@ import java.time.LocalDateTime;
 @Audited
 @Getter
 @Setter
-@ToString
 @IgrpEntity
 @Entity
 @NoArgsConstructor

@@ -4,7 +4,7 @@ import cv.igrp.framework.core.domain.CommandHandler;
 import cv.igrp.framework.stereotype.IgrpCommandHandler;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskOperationData;
 import cv.igrp.platform.process.management.processruntime.domain.service.TaskInstanceService;
-import cv.igrp.platform.process.management.shared.security.UserContext;
+import cv.igrp.platform.process.management.shared.security.util.UserContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +35,7 @@ public class UnClaimTaskCommandHandler implements CommandHandler<UnClaimTaskComm
         TaskOperationData.builder()
             .currentUser(currentUser)
             .id(command.getId())
+            .note(command.getUnclaimtaskdto() != null ? command.getUnclaimtaskdto().getNote() : null)
             .build()
     );
     LOGGER.info("User [{}] finished unclaiming task [{}]", currentUser.getValue(), command.getId());

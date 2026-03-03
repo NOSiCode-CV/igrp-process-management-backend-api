@@ -5,12 +5,14 @@ import cv.igrp.framework.stereotype.IgrpQueryHandler;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceStatsDTO;
 import cv.igrp.platform.process.management.processruntime.domain.service.TaskInstanceService;
 import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
-import cv.igrp.platform.process.management.shared.security.UserContext;
+import cv.igrp.platform.process.management.shared.security.util.UserContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Component
 public class GetMyTaskInstanceStatisticsQueryHandler implements QueryHandler<GetMyTaskInstanceStatisticsQuery, ResponseEntity<TaskInstanceStatsDTO>>{
@@ -34,8 +36,9 @@ public class GetMyTaskInstanceStatisticsQueryHandler implements QueryHandler<Get
   @Transactional(readOnly = true)
   public ResponseEntity<TaskInstanceStatsDTO> handle(GetMyTaskInstanceStatisticsQuery query) {
     final var currentUser = userContext.getCurrentUser();
-    LOGGER.debug("User [{}] requested his task instance statistics", currentUser.getValue());
-    var statistics = taskInstanceService.getTaskStatisticsByUser(currentUser);
+    final List<String> groups = userContext.getCurrentGroups();
+    LOGGER.debug("User [{}] requested task statistics for groups [{}]", currentUser.getValue(), groups);
+    var statistics = taskInstanceService.getTaskStatisticsByUser(currentUser, groups);
     LOGGER.debug("Task statistics computed successfully for user [{}]", currentUser.getValue());
     return ResponseEntity.ok(taskInstanceMapper.toTaskInstanceStatsDto(statistics));
   }

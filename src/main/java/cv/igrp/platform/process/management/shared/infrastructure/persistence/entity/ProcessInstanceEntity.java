@@ -12,6 +12,7 @@ import java.util.UUID;
 import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 import cv.igrp.platform.process.management.shared.application.constants.ProcessInstanceStatus;
+import java.util.ArrayList;
 import java.util.List;
 
 @Audited
@@ -92,10 +93,6 @@ public class ProcessInstanceEntity extends AuditEntity {
     private ProcessInstanceStatus status;
 
 
-    @Column(name="search_terms")
-    private String searchTerms;
-
-
     @NotBlank(message = "applicationBase is mandatory")
     @Column(name="application_base", nullable = false)
     private String applicationBase;
@@ -112,8 +109,12 @@ public class ProcessInstanceEntity extends AuditEntity {
     @Column(name="priority")
     private Integer priority;
 
+
+    @Column(name="is_archived")
+    private Boolean isArchived;
+
      @OneToMany(mappedBy = "processInstanceId")
-private List<TaskInstanceEntity> taskinstancelists;
+private List<TaskInstanceEntity> taskinstancelists = new ArrayList<>();
 
 
 }

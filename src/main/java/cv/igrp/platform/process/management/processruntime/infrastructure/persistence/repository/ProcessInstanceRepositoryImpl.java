@@ -14,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -98,17 +99,35 @@ public class ProcessInstanceRepositoryImpl implements ProcessInstanceRepository 
       });
     }
 
-    if (filter.getSearchTerms() != null) {
-      spec = spec.and((root, query, cb) -> {
-        return cb.like(cb.lower(root.get("searchTerms")), "%" + filter.getSearchTerms().toLowerCase() + "%");
-      });
-    }
-
     if (filter.getApplicationBase() != null) {
       spec = spec.and((root, query, cb) -> {
         return cb.equal(root.get("applicationBase"), filter.getApplicationBase().getValue());
       });
     }
+
+    if (!filter.getIncludeProcessNumbers().isEmpty()) {
+      spec = spec.and((root, query, cb) ->
+          root.get("engineProcessNumber").in(filter.getIncludeProcessNumbers())
+      );
+    }
+
+    if (filter.getDateFrom() != null) {
+      spec = spec.and((root, query, cb) ->
+          cb.greaterThanOrEqualTo(root.get("startedAt"), filter.getDateFrom().atStartOfDay()));
+    }
+
+    if (filter.getDateTo() != null) {
+      spec = spec.and((root, query, cb) ->
+          cb.lessThanOrEqualTo(root.get("startedAt"), filter.getDateTo().atTime(LocalTime.MAX)));
+    }
+
+    if (filter.getName() != null) {
+      spec = spec.and((root, query, cb) ->
+          cb.like(root.get("name"), "%"+ filter.getName().getValue() +"%"));
+    }
+
+    spec = spec.and((root, query, cb) ->
+        cb.equal(root.get("isArchived"), filter.isArchived()));
 
     return spec;
   }
@@ -146,6 +165,14 @@ public class ProcessInstanceRepositoryImpl implements ProcessInstanceRepository 
   @Override
   public Optional<ProcessInstance> findByBusinessKey(String businessKey) {
     return processInstanceEntityRepository.findByBusinessKey(businessKey).map(mapper::toModel);
+  }
+
+  @Override
+  public List<ProcessInstance> findAllByProcessReleaseId(String processReleaseId) {
+    return processInstanceEntityRepository.findAllByProcReleaseId(processReleaseId)
+        .stream()
+        .map(mapper::toModel)
+        .toList();
   }
 
 }

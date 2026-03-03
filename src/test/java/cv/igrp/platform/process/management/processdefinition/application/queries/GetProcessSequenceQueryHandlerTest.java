@@ -5,7 +5,7 @@ import cv.igrp.platform.process.management.processdefinition.domain.models.Proce
 import cv.igrp.platform.process.management.processdefinition.domain.service.ProcessSequenceService;
 import cv.igrp.platform.process.management.processdefinition.mappers.ProcessSequenceMapper;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
-import cv.igrp.platform.process.management.shared.security.UserContext;
+import cv.igrp.platform.process.management.shared.security.util.UserContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -50,7 +50,7 @@ class GetProcessSequenceQueryHandlerTest {
 
     when(userContext.getCurrentUser()).thenReturn(Code.create("demo@nosi.cv"));
 
-    when(processSequenceService.getSequenceByProcessAndApplication(Code.create(processDefinitionKey)))
+    when(processSequenceService.getSequenceByProcessDefinitionKey(Code.create(processDefinitionKey)))
         .thenReturn(processSequenceMock);
 
     when(processSequenceMock.getProcessDefinitionKey())
@@ -69,7 +69,7 @@ class GetProcessSequenceQueryHandlerTest {
     assertEquals(processSequenceDTOMock, response.getBody());
 
     verify(userContext).getCurrentUser();
-    verify(processSequenceService).getSequenceByProcessAndApplication(Code.create(processDefinitionKey));
+    verify(processSequenceService).getSequenceByProcessDefinitionKey(Code.create(processDefinitionKey));
     verify(processSequenceMapper).toDTO(processSequenceMock);
 
   }

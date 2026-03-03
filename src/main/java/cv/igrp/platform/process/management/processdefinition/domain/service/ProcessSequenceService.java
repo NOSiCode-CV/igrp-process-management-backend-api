@@ -10,7 +10,6 @@ import jakarta.persistence.PessimisticLockException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -29,14 +28,12 @@ public class ProcessSequenceService {
   }
 
 
-  public ProcessSequence getSequenceByProcessAndApplication(Code processDefinitionKey) {
-    return processSequenceRepository.findByProcessAndApplication(processDefinitionKey.getValue())
+  public ProcessSequence getSequenceByProcessDefinitionKey(Code processDefinitionKey) {
+    return processSequenceRepository.findByProcessDefinitionKey(processDefinitionKey.getValue())
         .orElseThrow(() -> IgrpResponseStatusException.notFound(
             "Process Sequence not found for processDefinitionKey[" + processDefinitionKey.getValue() + "]"));
   }
 
-
-  @Transactional
   public ProcessSequence save(ProcessSequence processSequence) {
     var dbSequence = getProcessSequenceAsLocked(
         processSequence.getProcessDefinitionKey());
@@ -88,6 +85,5 @@ public class ProcessSequenceService {
       }
     }
   }
-
 
 }

@@ -52,6 +52,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -93,6 +94,11 @@
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
         </dependency>
         <dependency>
@@ -129,20 +135,32 @@
 
         <dependency>
             <groupId>cv.igrp.framework</groupId>
-            <artifactId>runtime-core</artifactId>
-            <version>0.1.0-beta.3</version>
+            <artifactId>process-runtime-core</artifactId>
+            <version>0.1.0-beta.20</version>
         </dependency>
 
         <dependency>
             <groupId>cv.igrp.framework</groupId>
-            <artifactId>runtime-activiti</artifactId>
-            <version>0.1.0-beta.3</version>
+            <artifactId>process-runtime-activiti</artifactId>
+            <version>0.1.0-beta.20</version>
+        </dependency>
+
+        <dependency>
+            <groupId>cv.igrp.framework</groupId>
+            <artifactId>process-runtime-auth-core</artifactId>
+            <version>0.1.0-beta.20</version>
+        </dependency>
+
+        <dependency>
+            <groupId>cv.igrp.framework</groupId>
+            <artifactId>process-runtime-auth-igrp</artifactId>
+            <version>0.1.0-beta.20</version>
         </dependency>
 
         <dependency>
             <groupId>cv.igrp.platform.access</groupId>
             <artifactId>client</artifactId>
-            <version>0.1.0-beta-20250729.152716-3</version>
+            <version>0.1.0-beta-20260127.094449-21</version>
         </dependency>
 
         <dependency>
@@ -166,12 +184,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Jakarta Mail implementation (Eclipse Angus) -->
-        <dependency>
-            <groupId>org.eclipse.angus</groupId>
-            <artifactId>angus-mail</artifactId>
-            <version>2.0.3</version>
-        </dependency>
 
         <dependency>
             <groupId>org.flywaydb</groupId>
@@ -195,6 +207,17 @@
             <version>2.13.2</version>
         </dependency>
 
+        <dependency>
+            <groupId>io.opentelemetry.instrumentation</groupId>
+            <artifactId>opentelemetry-spring-boot-starter</artifactId>
+        </dependency>
+
+        <!-- Spring Cache abstraction -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
+
     </dependencies>
 
     <dependencyManagement>
@@ -203,6 +226,13 @@
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
                 <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.opentelemetry.instrumentation</groupId>
+                <artifactId>opentelemetry-instrumentation-bom</artifactId>
+                <version>2.21.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -260,6 +290,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.12</version>
                 <executions>
                     <execution>
                         <id>prepare-agent</id>

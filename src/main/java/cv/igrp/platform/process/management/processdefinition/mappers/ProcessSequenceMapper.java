@@ -70,4 +70,16 @@ public class ProcessSequenceMapper {
     return dto;
   }
 
+  public ProcessSequence toModel(ProcessSequenceDTO processSequenceDTO) {
+    return ProcessSequence.builder()
+        .processDefinitionKey(Code.create(processSequenceDTO.getProcessDefinitionKey()))
+        .name(Name.create(processSequenceDTO.getName()))
+        .prefix(Code.create(processSequenceDTO.getPrefix()))
+        .dateFormat(processSequenceDTO.getDateFormat())
+        .padding(processSequenceDTO.getPadding())
+        .checkDigitSize(processSequenceDTO.getCheckDigitSize())
+        .numberIncrement(processSequenceDTO.getNumberIncrement())
+        .build();
+  }
+
 }

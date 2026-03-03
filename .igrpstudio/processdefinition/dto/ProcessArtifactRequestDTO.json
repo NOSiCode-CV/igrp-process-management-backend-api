@@ -18,7 +18,7 @@
       "primaryKey": false
     },
     {
-      "name": "key",
+      "name": "formKey",
       "objectType": "java",
       "type": "string",
       "required": true,
@@ -30,10 +30,35 @@
       "primaryKey": false
     },
     {
-      "name": "formKey",
+      "name": "candidateGroups",
       "objectType": "java",
       "type": "string",
-      "required": true,
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false,
+      "collectionType": "none"
+    },
+    {
+      "name": "dueDate",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    },
+    {
+      "name": "priority",
+      "objectType": "java",
+      "type": "integer",
+      "required": false,
       "before": false,
       "after": false,
       "positive": false,

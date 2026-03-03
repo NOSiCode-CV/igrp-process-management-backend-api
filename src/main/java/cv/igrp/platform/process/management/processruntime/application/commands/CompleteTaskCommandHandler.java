@@ -6,7 +6,7 @@ import cv.igrp.platform.process.management.processruntime.application.dto.TaskIn
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskOperationData;
 import cv.igrp.platform.process.management.processruntime.domain.service.TaskInstanceService;
 import cv.igrp.platform.process.management.processruntime.mappers.TaskInstanceMapper;
-import cv.igrp.platform.process.management.shared.security.UserContext;
+import cv.igrp.platform.process.management.shared.security.util.UserContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -39,12 +39,18 @@ public class CompleteTaskCommandHandler implements CommandHandler<CompleteTaskCo
     LOGGER.info("User [{}] started completing task [{}]", currentUser.getValue(), command.getId());
 
     final var forms = new HashMap<String,Object>();
-    if(command.getTaskdatadto().getForms()!=null)
-      command.getTaskdatadto().getForms().forEach( f -> forms.put(f.getName(), f.getValue()));
+    command.getTaskdatadto()
+        .getForms()
+        .forEach(v -> forms.put(v.getName(), v.getValue()));
+
+    LOGGER.info("[Complete Task] Forms: {}", forms);
 
     final var variables = new HashMap<String,Object>();
-    if(command.getTaskdatadto().getVariables()!=null)
-      command.getTaskdatadto().getVariables().forEach( v -> variables.put(v.getName(), v.getValue()));
+    command.getTaskdatadto()
+        .getVariables()
+        .forEach(v -> variables.put(v.getName(), v.getValue()));
+
+    LOGGER.info("[Complete Task] Variables: {}", variables);
 
     final var taskInstanceResp =  taskInstanceService.completeTask(
         TaskOperationData.builder()

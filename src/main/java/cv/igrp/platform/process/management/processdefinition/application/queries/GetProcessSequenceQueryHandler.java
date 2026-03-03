@@ -6,7 +6,7 @@ import cv.igrp.platform.process.management.processdefinition.application.dto.Pro
 import cv.igrp.platform.process.management.processdefinition.domain.service.ProcessSequenceService;
 import cv.igrp.platform.process.management.processdefinition.mappers.ProcessSequenceMapper;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
-import cv.igrp.platform.process.management.shared.security.UserContext;
+import cv.igrp.platform.process.management.shared.security.util.UserContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -38,7 +38,7 @@ public class GetProcessSequenceQueryHandler implements QueryHandler<GetProcessSe
 
      LOGGER.debug("User [{}] requested sequence for processDefinitionKey [{}]", currentUser.getValue(), query.getProcessDefinitionKey());
 
-     final var processSequence = processSequenceService.getSequenceByProcessAndApplication(Code.create(query.getProcessDefinitionKey()));
+     final var processSequence = processSequenceService.getSequenceByProcessDefinitionKey(Code.create(query.getProcessDefinitionKey()));
 
      LOGGER.debug("Retrieved Sequence with processDefinitionKey [{}] for user [{}]", processSequence.getProcessDefinitionKey().getValue(), currentUser.getValue());
 
