@@ -35,14 +35,13 @@ public class ProcessSequenceService {
   }
 
   public ProcessSequence save(ProcessSequence processSequence) {
-    var dbSequence = getProcessSequenceAsLocked(
-        processSequence.getProcessDefinitionKey());
+    var dbSequenceOptional = getProcessSequenceAsLocked(processSequence.getProcessDefinitionKey());
     final ProcessSequence sequenceResult;
-    if(dbSequence.isEmpty())
+    if(dbSequenceOptional.isEmpty())
       sequenceResult = processSequence.newInstance();
     else {
-      var s = dbSequence.get();
-      sequenceResult = processSequence.copyWithId(s.getId());
+      var dbSequence = dbSequenceOptional.get();
+      sequenceResult = dbSequence.update(processSequence);
     }
     sequenceResult.validate();
     return processSequenceRepository.save(sequenceResult);

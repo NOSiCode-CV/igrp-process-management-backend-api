@@ -25,9 +25,13 @@ import static cv.igrp.platform.process.management.shared.util.DateUtil.utilDateT
 public class TaskInstanceMapper {
 
   private final TaskInstanceEventMapper eventMapper;
+  private final UserProfileMapper userProfileMapper;
 
-  public TaskInstanceMapper(TaskInstanceEventMapper eventMapper) {
+  public TaskInstanceMapper(TaskInstanceEventMapper eventMapper,
+                            UserProfileMapper userProfileMapper
+  ) {
     this.eventMapper = eventMapper;
+    this.userProfileMapper = userProfileMapper;
   }
 
 
@@ -154,6 +158,15 @@ public class TaskInstanceMapper {
     dto.setForms(toProcessVariableDTO(model.getForms()));
     dto.setProcessVariables(toProcessVariableDTO(model.getProcessVariables()));
     dto.setDueDate(model.getDueDate());
+    dto.setUserProfileStartedBy(
+        userProfileMapper.toDTO(model.getUserProfileStartedBy())
+    );
+    dto.setUserProfileEndedBy(
+        userProfileMapper.toDTO(model.getUserProfileEndedBy())
+    );
+    dto.setUserProfileAssignedBy(
+        userProfileMapper.toDTO(model.getUserProfileAssignedBy())
+    );
     return dto;
   }
 
@@ -187,6 +200,15 @@ public class TaskInstanceMapper {
     dto.setForms(toProcessVariableDTO(taskInstance.getForms()));
     dto.setProcessVariables(toProcessVariableDTO(taskInstance.getProcessVariables()));
     dto.setDueDate(taskInstance.getDueDate());
+    dto.setUserProfileStartedBy(
+        userProfileMapper.toDTO(taskInstance.getUserProfileStartedBy())
+    );
+    dto.setUserProfileEndedBy(
+        userProfileMapper.toDTO(taskInstance.getUserProfileEndedBy())
+    );
+    dto.setUserProfileAssignedBy(
+        userProfileMapper.toDTO(taskInstance.getUserProfileAssignedBy())
+    );
     return dto;
   }
 

@@ -2,6 +2,9 @@ package cv.igrp.platform.process.management.shared.security;
 
 
 import cv.igrp.framework.process.runtime.auth.core.adapter.IAuthorizationServiceAdapter;
+import cv.igrp.platform.process.management.processruntime.domain.models.UserProfile;
+import cv.igrp.platform.process.management.processruntime.domain.service.UserProfileService;
+import cv.igrp.platform.process.management.shared.domain.models.Name;
 import cv.igrp.platform.process.management.shared.security.util.ActivitiConstants;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
@@ -21,6 +24,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.TokenExchangeOAuth2AuthorizedClientProvider;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -39,9 +43,13 @@ public class SecurityConfig {
   private static final Logger LOGGER = LoggerFactory.getLogger(SecurityConfig.class);
 
   private final IAuthorizationServiceAdapter authorizationService;
+  private final UserProfileService userProfileService;
 
-  public SecurityConfig(IAuthorizationServiceAdapter authorizationService) {
+  public SecurityConfig(IAuthorizationServiceAdapter authorizationService,
+                        UserProfileService userProfileService
+  ) {
     this.authorizationService = authorizationService;
+    this.userProfileService = userProfileService;
   }
 
   @Bean
@@ -75,6 +83,7 @@ public class SecurityConfig {
                 "/swagger-resources/**", "/webjars/**", "/actuator/**"
             ).permitAll()
             .anyRequest()
+                //.permitAll()
             .authenticated()  // Require authentication for all other requests
         )
         .exceptionHandling(ex -> ex.authenticationEntryPoint((request, response, authException) -> {
@@ -98,6 +107,10 @@ public class SecurityConfig {
 
     converter.setJwtGrantedAuthoritiesConverter(jwt -> {
 
+      // Upsert User Profile
+      upsertUserProfile(jwt);
+
+      // Enrich
       HttpServletRequest request =
           ((ServletRequestAttributes) RequestContextHolder
               .getRequestAttributes())
@@ -145,6 +158,22 @@ public class SecurityConfig {
     });
 
     return converter;
+  }
+
+  private void upsertUserProfile(Jwt jwt){
+    String username = jwt.getClaimAsString("preferred_username");
+    String email = jwt.getClaimAsString("email");
+    String firstName = jwt.getClaimAsString("given_name");
+    String lastName = jwt.getClaimAsString("family_name");
+    userProfileService.createUserProfile(
+        UserProfile.builder()
+            .username(username)
+            .sub(jwt.getSubject())
+            .email(email)
+            .firstName(firstName != null ? Name.create(firstName) : null)
+            .lastName(lastName != null ? Name.create(lastName) : null)
+            .build()
+    );
   }
 
   @Bean
