@@ -86,7 +86,7 @@ jobs:
       - name: Send Discord Notification
         run: |
           if [ "${{ needs.pre-deploy.result }}" != "success" ] || \
-             [ "${{ needs.build_and_push.result }}" != "success" ] then
+             [ "${{ needs.build_and_push.result }}" != "success" ]; then
             COLOR=15158332
             EMOJI=":red_circle:"
             MESSAGE="DEPLOY FAILED!"
