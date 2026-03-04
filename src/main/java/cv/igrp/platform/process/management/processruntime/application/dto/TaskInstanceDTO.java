@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import cv.igrp.platform.process.management.processruntime.application.dto.ProcessVariableDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceEventListDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.UserProfileDTO;
 import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -103,5 +104,17 @@ public class TaskInstanceDTO  {
   
   @Valid
   private List<ProcessVariableDTO> processVariables = new ArrayList<>();
+  
+  
+  private LocalDateTime dueDate ;
+  
+  @Valid
+  private UserProfileDTO userProfileAssignedBy ;
+  
+  @Valid
+  private UserProfileDTO userProfileEndedBy ;
+  
+  @Valid
+  private UserProfileDTO userProfileStartedBy ;
 
 }

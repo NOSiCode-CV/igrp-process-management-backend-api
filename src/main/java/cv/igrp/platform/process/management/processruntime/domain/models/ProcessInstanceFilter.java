@@ -27,6 +27,8 @@ public class ProcessInstanceFilter {
   private final LocalDate dateTo;
   private final Name name;
 
+  private final boolean isArchived;
+
   @Builder
   private ProcessInstanceFilter(Code number,
                                 Code procReleaseKey,
@@ -39,7 +41,9 @@ public class ProcessInstanceFilter {
                                 List<String> includeProcessNumbers,
                                 LocalDate dateFrom,
                                 LocalDate dateTo,
-                                Name name) {
+                                Name name,
+                                boolean isArchived
+  ) {
     this.number = number;
     this.procReleaseKey = procReleaseKey;
     this.procReleaseId = procReleaseId;
@@ -52,6 +56,7 @@ public class ProcessInstanceFilter {
     this.dateFrom = dateFrom;
     this.dateTo = dateTo;
     this.name = name;
+    this.isArchived = isArchived;
   }
 
   public void includeProcessNumber(String processNumber){

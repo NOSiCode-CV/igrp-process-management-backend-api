@@ -63,5 +63,8 @@ public class AreaDTO  {
   
   
   private String description ;
+  
+  
+  private String color ;
 
 }

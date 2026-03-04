@@ -1,21 +1,21 @@
 package cv.igrp.platform.process.management.processruntime.infrastructure.persistence.repository;
 
-import cv.igrp.framework.runtime.core.engine.activity.ActivityQueryService;
-import cv.igrp.framework.runtime.core.engine.activity.model.ActivityInfo;
-import cv.igrp.framework.runtime.core.engine.activity.model.IGRPActivityType;
-import cv.igrp.framework.runtime.core.engine.activity.model.ProcessActivityInfo;
-import cv.igrp.framework.runtime.core.engine.activity.model.ProcessTimelineEvent;
-import cv.igrp.framework.runtime.core.engine.process.ProcessDefinitionAdapter;
-import cv.igrp.framework.runtime.core.engine.process.ProcessDefinitionRepresentation;
-import cv.igrp.framework.runtime.core.engine.process.ProcessManagerAdapter;
-import cv.igrp.framework.runtime.core.engine.process.model.ProcessFilter;
-import cv.igrp.framework.runtime.core.engine.process.model.ProcessVariableInstance;
-import cv.igrp.framework.runtime.core.engine.process.model.TaskFilter;
-import cv.igrp.framework.runtime.core.engine.process.model.VariablesOperator;
-import cv.igrp.framework.runtime.core.engine.task.TaskActionService;
-import cv.igrp.framework.runtime.core.engine.task.TaskQueryService;
-import cv.igrp.framework.runtime.core.engine.task.model.TaskInfo;
-import cv.igrp.framework.runtime.core.engine.task.model.TaskVariableInstance;
+
+import cv.igrp.framework.process.runtime.core.engine.activity.ActivityQueryService;
+import cv.igrp.framework.process.runtime.core.engine.activity.model.ActivityInfo;
+import cv.igrp.framework.process.runtime.core.engine.activity.model.IGRPActivityType;
+import cv.igrp.framework.process.runtime.core.engine.activity.model.ProcessTimelineEvent;
+import cv.igrp.framework.process.runtime.core.engine.process.ProcessDefinitionAdapter;
+import cv.igrp.framework.process.runtime.core.engine.process.ProcessDefinitionRepresentation;
+import cv.igrp.framework.process.runtime.core.engine.process.ProcessManagerAdapter;
+import cv.igrp.framework.process.runtime.core.engine.process.model.ProcessFilter;
+import cv.igrp.framework.process.runtime.core.engine.process.model.ProcessVariableInstance;
+import cv.igrp.framework.process.runtime.core.engine.process.model.TaskFilter;
+import cv.igrp.framework.process.runtime.core.engine.process.model.VariablesOperator;
+import cv.igrp.framework.process.runtime.core.engine.task.TaskActionService;
+import cv.igrp.framework.process.runtime.core.engine.task.TaskQueryService;
+import cv.igrp.framework.process.runtime.core.engine.task.model.TaskInfo;
+import cv.igrp.framework.process.runtime.core.engine.task.model.TaskVariableInstance;
 import cv.igrp.platform.process.management.processruntime.domain.exception.RuntimeProcessEngineException;
 import cv.igrp.platform.process.management.processruntime.domain.models.*;
 import cv.igrp.platform.process.management.processruntime.domain.repository.RuntimeProcessEngineRepository;
@@ -29,6 +29,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -296,7 +298,8 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
   public ProcessDefinitionRepresentation getProcessDefinition(String processDefinitionId) {
     try {
       return processDefinitionAdapter
-          .getProcessDefinition(processDefinitionId);
+          .getProcessDefinition(processDefinitionId)
+          .orElseThrow();
     } catch (Exception e) {
       LOGGER.error("Error retrieving process definition by Id: {}", processDefinitionId, e);
       throw new RuntimeProcessEngineException("Error retrieving process definition by ID: " + processDefinitionId, e);
@@ -304,11 +307,28 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
   }
 
   @Override
-  public List<ProcessTimelineEvent> getProcessTimelineEvents(String processInstanceId, IGRPActivityType type) {
+  public List<ProcessArtifactEvent> getProcessTimelineEvents(String processInstanceId, ProcessArtifactEvent.ArtifactType type) {
     List<ProcessTimelineEvent> timelineEvents = activityQueryService.getActivityTimelineEvents(processInstanceId);
     if (timelineEvents == null)
       return List.of();
-    return timelineEvents;
+    return timelineEvents.stream().map(processTimelineEvent
+        -> ProcessArtifactEvent.builder()
+        .artifactId(processTimelineEvent.getActivityId())
+        .artifactName(processTimelineEvent.getActivityName())
+        .artifactInstanceId(processTimelineEvent.getActivityInstanceId())
+        .assignee(processTimelineEvent.getAssignee())
+        .duration(processTimelineEvent.getDuration())
+        .endTime(processTimelineEvent.getEndTime())
+        .startTime(processTimelineEvent.getStartTime())
+        .type(ProcessArtifactEvent.ArtifactType.valueOf(processTimelineEvent.getType().name()))
+        .status(ProcessArtifactEvent.ArtifactStatus.valueOf(processTimelineEvent.getStatus().name()))
+        .taskId(processTimelineEvent.getTaskId())
+        .executionId(processTimelineEvent.getExecutionId())
+        .processInstanceId(processTimelineEvent.getProcessInstanceId())
+        .treeNumber(processTimelineEvent.getTreeNumber())
+        .variables(processTimelineEvent.getVariables())
+        .build()
+    ).toList();
   }
 
   @Override
@@ -327,8 +347,8 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
         .processInstanceId(Code.create(info.processInstanceId()))
         .parentId(Code.create(info.parentId()))
         .parentProcessInstanceId(Code.create(info.parentProcessInstanceId() != null ? info.parentProcessInstanceId() : info.parentId()))
-        .status(info.status())
-        .type(info.type())
+        .status(ProcessArtifactEvent.ArtifactStatus.valueOf(info.status().name()))
+        .type(ProcessArtifactEvent.ArtifactType.valueOf(info.type().name()))
         .build();
   }
 
@@ -348,11 +368,14 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
   }
 
   @Override
-  public List<ActivityData> getActiveActivityInstances(String processInstanceId, IGRPActivityType activityType) {
+  public List<ActivityData> getActiveActivityInstances(String processInstanceId, ProcessArtifactEvent.ArtifactType type) {
     return activityQueryService.getActiveActivityInstances(processInstanceId)
         .stream()
-        .filter(a -> activityType == null || Objects.equals(a.type(), activityType))
-        .map(
+        .filter(a -> {
+          if (type == null) return true;
+          IGRPActivityType activityType = IGRPActivityType.valueOf(type.name());
+          return Objects.equals(a.type(), activityType);
+        }).map(
             info -> ActivityData.builder()
                 .id(Code.create(info.id()))
                 .name(Name.create(info.name()))
@@ -360,8 +383,8 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
                 .processInstanceId(Code.create(info.processInstanceId()))
                 .parentId(Code.create(info.parentId()))
                 .parentProcessInstanceId(Code.create(processInstanceId))
-                .status(info.status())
-                .type(info.type())
+                .status(ProcessArtifactEvent.ArtifactStatus.valueOf(info.status().name()))
+                .type(ProcessArtifactEvent.ArtifactType.valueOf(info.type().name()))
                 .build()
         ).toList();
   }
@@ -386,7 +409,7 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
     ProcessFilter filter = new ProcessFilter();
     variablesExpressions.forEach(vE -> {
       filter.getVariablesExpressions().add(
-          new cv.igrp.framework.runtime.core.engine.process.model.VariablesExpression(
+          new cv.igrp.framework.process.runtime.core.engine.process.model.VariablesExpression(
               vE.getName(),
               VariablesOperator.valueOf(vE.getOperator().name()),
               vE.getValue())
@@ -408,7 +431,7 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
 
     variablesExpressions.forEach(vE -> {
       filter.getVariablesExpressions().add(
-          new cv.igrp.framework.runtime.core.engine.process.model.VariablesExpression(
+          new cv.igrp.framework.process.runtime.core.engine.process.model.VariablesExpression(
               vE.getName(),
               VariablesOperator.valueOf(vE.getOperator().name()),
               vE.getValue())
@@ -440,6 +463,22 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
     } catch (Exception e) {
       LOGGER.error("Failed to reschedule timer '{}' for process instance '{}'", timerElementId, processInstanceId, e);
       throw new RuntimeProcessEngineException("Failed to reschedule timer '" + timerElementId + "' for process instance '" + processInstanceId + "'", e);
+    }
+  }
+
+  @Override
+  public void setTaskDueDate(String taskId, LocalDateTime dueDate) {
+    try{
+      long dueDateMillis = dueDate
+          .atZone(ZoneId.systemDefault())
+          .toInstant()
+          .toEpochMilli();
+      if (!taskActionService.setTaskDueDate(taskId, dueDateMillis)) {
+        throw new RuntimeProcessEngineException("Task not found or due date not updated for taskId: " + taskId);
+      }
+    }catch (Exception e){
+      LOGGER.error("Failed to set due date for task with id={}", taskId, e);
+      throw new RuntimeProcessEngineException("Failed to set due date for task with id: " + taskId, e);
     }
   }
 

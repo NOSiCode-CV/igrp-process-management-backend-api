@@ -89,6 +89,19 @@
       "isUrl": false,
       "primaryKey": false,
       "module": "shared"
+    },
+    {
+      "name": "userProfilePerformedBy",
+      "objectType": "dto",
+      "type": "UserProfileDTO",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false,
+      "module": "processruntime"
     }
   ],
   "id": "1w4r2fqqg2"

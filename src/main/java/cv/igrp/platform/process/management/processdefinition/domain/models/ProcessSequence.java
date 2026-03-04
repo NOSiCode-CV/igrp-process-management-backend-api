@@ -1,5 +1,6 @@
 package cv.igrp.platform.process.management.processdefinition.domain.models;
 
+import cv.igrp.platform.process.management.shared.application.constants.Status;
 import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
@@ -29,6 +30,7 @@ public class ProcessSequence {
   private Long nextNumber;
   private final Short numberIncrement;
   private final Code processDefinitionKey;
+  private String separator;
 
   @Builder
   public ProcessSequence(Identifier id,
@@ -39,9 +41,10 @@ public class ProcessSequence {
                          String dateFormat,
                          Long nextNumber,
                          Short numberIncrement,
-                         Code processDefinitionKey)
-  {
-    this.id = id;
+                         Code processDefinitionKey,
+                         String separator
+  ){
+    this.id = id == null ? Identifier.generate() : id;
     this.name = Objects.requireNonNull(name, "Name cannot be null");
     this.prefix = Objects.requireNonNull(prefix, "Prefix cannot be null");
     this.checkDigitSize = Objects.requireNonNull(checkDigitSize, "CheckDigitSize cannot be null");
@@ -50,6 +53,7 @@ public class ProcessSequence {
     this.nextNumber = nextNumber;
     this.numberIncrement = Objects.requireNonNull(numberIncrement, "NumberIncrement cannot be null");
     this.processDefinitionKey = Objects.requireNonNull(processDefinitionKey, "ProcessDefinitionKey cannot be null");
+    this.separator = separator;
   }
 
 
@@ -114,6 +118,7 @@ public class ProcessSequence {
         .nextNumber(this.nextNumber == null ? 1L : this.nextNumber)
         .numberIncrement(this.numberIncrement)
         .processDefinitionKey(this.processDefinitionKey)
+        .separator(this.separator)
         .build();
   }
 
@@ -138,15 +143,18 @@ public class ProcessSequence {
       var now = LocalDate.now();
       var dateStr = DateUtil.biLocalDateToString.apply(now, DateTimeFormatter.ofPattern(dateFormat));
       LOGGER.debug("CURRENT_DATE [{}] with FORMAT [{}] is [{}]", now, dateFormat, dateStr);
+      sb.append(separator != null ? separator : "");
       sb.append(dateStr);
     }
 
     if (padding != null && padding > 0) {
       var number = String.format("%0" + padding + "d", currentNumber); //do not edit
       LOGGER.debug("CURRENT_NUMBER [{}] with PADDING [{}] is [{}]", currentNumber, padding, number);
+      sb.append(separator != null ? separator : "");
       sb.append(number);
     } else {
       LOGGER.debug("CURRENT_NUMBER [{}] with NO PADDING is [{}]", currentNumber, currentNumber);
+      sb.append(separator != null ? separator : "");
       sb.append(currentNumber);
     }
 
@@ -179,6 +187,26 @@ public class ProcessSequence {
         .build();
   }
 
+  public void resetNextNumber() {
+    this.nextNumber = 1L;
+  }
 
+  public ProcessSequence update(ProcessSequence sequence) {
+    Long nextNumber = sequence.getNextNumber() != null
+        ? sequence.getNextNumber()
+        : this.nextNumber != null ? this.nextNumber : 1L;
+    return ProcessSequence.builder()
+        .id(this.id)
+        .name(sequence.getName())
+        .prefix(sequence.getPrefix())
+        .checkDigitSize(sequence.getCheckDigitSize())
+        .padding(sequence.getPadding() != null ? sequence.getPadding() : this.padding)
+        .dateFormat(sequence.dateFormat)
+        .nextNumber(nextNumber)
+        .numberIncrement(sequence.numberIncrement)
+        .processDefinitionKey(this.processDefinitionKey)
+        .separator(sequence.getSeparator() != null ? sequence.getSeparator() : this.separator)
+        .build();
+  }
 
 }

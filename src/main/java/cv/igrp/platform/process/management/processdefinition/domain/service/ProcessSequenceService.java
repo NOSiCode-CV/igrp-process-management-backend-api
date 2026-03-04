@@ -10,7 +10,6 @@ import jakarta.persistence.PessimisticLockException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -29,23 +28,20 @@ public class ProcessSequenceService {
   }
 
 
-  public ProcessSequence getSequenceByProcessAndApplication(Code processDefinitionKey) {
-    return processSequenceRepository.findByProcessAndApplication(processDefinitionKey.getValue())
+  public ProcessSequence getSequenceByProcessDefinitionKey(Code processDefinitionKey) {
+    return processSequenceRepository.findByProcessDefinitionKey(processDefinitionKey.getValue())
         .orElseThrow(() -> IgrpResponseStatusException.notFound(
             "Process Sequence not found for processDefinitionKey[" + processDefinitionKey.getValue() + "]"));
   }
 
-
-  @Transactional
   public ProcessSequence save(ProcessSequence processSequence) {
-    var dbSequence = getProcessSequenceAsLocked(
-        processSequence.getProcessDefinitionKey());
+    var dbSequenceOptional = getProcessSequenceAsLocked(processSequence.getProcessDefinitionKey());
     final ProcessSequence sequenceResult;
-    if(dbSequence.isEmpty())
+    if(dbSequenceOptional.isEmpty())
       sequenceResult = processSequence.newInstance();
     else {
-      var s = dbSequence.get();
-      sequenceResult = processSequence.copyWithId(s.getId());
+      var dbSequence = dbSequenceOptional.get();
+      sequenceResult = dbSequence.update(processSequence);
     }
     sequenceResult.validate();
     return processSequenceRepository.save(sequenceResult);
@@ -88,6 +84,5 @@ public class ProcessSequenceService {
       }
     }
   }
-
 
 }

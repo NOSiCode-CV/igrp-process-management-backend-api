@@ -39,10 +39,15 @@ public class TaskInstance {
   private LocalDateTime endedAt;
   private Code endedBy;
   private final List<TaskInstanceEvent> taskInstanceEvents;
-  private final List<String> candidateGroups;
+  private final Set<String> candidateGroups;
   private final Map<String, Object> variables;
   private final Map<String,Object> forms;
   private Map<String, Object> processVariables;
+  private LocalDateTime dueDate;
+
+  private UserProfile userProfileStartedBy;
+  private UserProfile userProfileEndedBy;
+  private UserProfile userProfileAssignedBy;
 
 
   @Builder
@@ -69,10 +74,14 @@ public class TaskInstance {
       LocalDateTime endedAt,
       Code endedBy,
       List<TaskInstanceEvent> taskInstanceEvents,
-      List<String> candidateGroups,
+      Set<String> candidateGroups,
       Map<String, Object> variables,
       Map<String, Object> forms,
-      Map<String, Object> processVariables
+      Map<String, Object> processVariables,
+      LocalDateTime dueDate,
+      UserProfile userProfileStartedBy,
+      UserProfile userProfileEndedBy,
+      UserProfile userProfileAssignedBy
   ) {
     this.id = id == null ? Identifier.generate() : id;
     this.taskKey = Objects.requireNonNull(taskKey, "Task Key cannot be null!");
@@ -99,9 +108,13 @@ public class TaskInstance {
     this.variables = variables != null ? variables : new HashMap<>();
     this.forms = forms != null ? forms : new HashMap<>();
     this.candidateGroups = candidateGroups != null
-        ? new ArrayList<>(candidateGroups)
-        : new ArrayList<>();
+        ? candidateGroups
+        : new HashSet<>();
     this.processVariables = processVariables != null ? processVariables : new HashMap<>();
+    this.dueDate = dueDate;
+    this.userProfileStartedBy = userProfileStartedBy;
+    this.userProfileEndedBy = userProfileEndedBy;
+    this.userProfileAssignedBy = userProfileAssignedBy;
   }
 
 
@@ -241,6 +254,31 @@ public class TaskInstance {
         .candidateGroups(List.of(groupId))
         .build();
     addCandidateGroup(taskOperationData);
+  }
+
+  public void updateDueDate(LocalDateTime dueDate) {
+    this.dueDate = dueDate;
+  }
+
+  public void resolveUserProfileEndedBy(UserProfile userProfile) {
+    if (userProfile == null) {
+      throw new IllegalArgumentException("UserProfile cannot be null");
+    }
+    this.userProfileEndedBy = userProfile;
+  }
+
+  public void resolveUserProfileStartedBy(UserProfile userProfile) {
+    if (userProfile == null) {
+      throw new IllegalArgumentException("UserProfile cannot be null");
+    }
+    this.userProfileStartedBy = userProfile;
+  }
+
+  public void resolveUserProfileAssignedBy(UserProfile userProfile) {
+    if (userProfile == null) {
+      throw new IllegalArgumentException("UserProfile cannot be null");
+    }
+    this.userProfileAssignedBy = userProfile;
   }
 
 }

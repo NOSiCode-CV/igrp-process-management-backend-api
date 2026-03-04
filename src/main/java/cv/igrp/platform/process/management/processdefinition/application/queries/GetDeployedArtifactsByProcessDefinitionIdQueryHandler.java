@@ -34,7 +34,7 @@ public class GetDeployedArtifactsByProcessDefinitionIdQueryHandler implements Qu
   @IgrpQueryHandler
   public ResponseEntity<List<ProcessArtifactDTO>> handle(GetDeployedArtifactsByProcessDefinitionIdQuery query) {
     List<ProcessArtifact> processArtifacts = processDeploymentService
-        .getDeployedArtifactsByProcessDefinitionId(Code.create(query.getId()));
+        .getDeployedArtifactsByProcessDefinitionId(query.getId());
     return ResponseEntity.ok(mapper.toDTO(processArtifacts));
   }
 

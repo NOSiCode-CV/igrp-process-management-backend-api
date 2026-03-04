@@ -1,6 +1,6 @@
 package cv.igrp.platform.process.management.processruntime.mappers;
 
-import cv.igrp.framework.runtime.core.engine.process.model.IGRPProcessStatus;
+import cv.igrp.framework.process.runtime.core.engine.process.model.IGRPProcessStatus;
 import cv.igrp.platform.process.management.processruntime.application.dto.*;
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstance;
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessStatistics;
@@ -23,6 +23,12 @@ import java.util.stream.Collectors;
 @Component
 public class ProcessInstanceMapper {
 
+  private final UserProfileMapper userProfileMapper;
+
+  public ProcessInstanceMapper(UserProfileMapper userProfileMapper) {
+    this.userProfileMapper = userProfileMapper;
+  }
+
   public ProcessInstanceEntity toEntity(ProcessInstance processInstance) {
     ProcessInstanceEntity processInstanceEntity = new ProcessInstanceEntity();
     processInstanceEntity.setNumber(processInstance.getNumber() != null ? processInstance.getNumber().getValue() : null);
@@ -43,6 +49,7 @@ public class ProcessInstanceMapper {
     processInstanceEntity.setObsCancel(processInstance.getObsCancel());
     processInstanceEntity.setName(processInstance.getName());
     processInstanceEntity.setPriority(processInstance.getPriority());
+    processInstanceEntity.setIsArchived(processInstance.isArchived());
     return processInstanceEntity;
   }
 
@@ -116,7 +123,7 @@ public class ProcessInstanceMapper {
     processInstanceDTO.setStartedAt(processInstance.getStartedAt());
     processInstanceDTO.setStartedBy(processInstance.getStartedBy());
     processInstanceDTO.setCanceledAt(processInstance.getCanceledAt());
-    processInstanceDTO.setCanceledBy(processInstance.getCanceledBy());
+    processInstanceDTO.setCancelledBy(processInstance.getCanceledBy());
     processInstanceDTO.setEndedAt(processInstance.getEndedAt());
     processInstanceDTO.setEndedBy(processInstance.getEndedBy());
     processInstanceDTO.setObsCancel(processInstance.getObsCancel());
@@ -127,6 +134,15 @@ public class ProcessInstanceMapper {
     processInstanceDTO.setPriority(processInstance.getPriority());
     processInstanceDTO.setVariables(processInstance.getVariables().entrySet()
         .stream().map(e->new ProcessVariableDTO(e.getKey(), e.getValue())).toList());
+    processInstanceDTO.setUserProfileCancelledBy(
+        userProfileMapper.toDTO(processInstance.getUserProfileCanceledBy())
+    );
+    processInstanceDTO.setUserProfileStartedBy(
+        userProfileMapper.toDTO(processInstance.getUserProfileStartedBy())
+    );
+    processInstanceDTO.setUserProfileEndedBy(
+        userProfileMapper.toDTO(processInstance.getUserProfileEndedBy())
+    );
     return processInstanceDTO;
   }
 
@@ -146,7 +162,7 @@ public class ProcessInstanceMapper {
     return dto;
   }
 
-  public ProcessInstance toModel(cv.igrp.framework.runtime.core.engine.process.model.ProcessInstance processInstance) {
+  public ProcessInstance toModel(cv.igrp.framework.process.runtime.core.engine.process.model.ProcessInstance processInstance) {
 
     if (processInstance == null) {
       return null;

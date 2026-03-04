@@ -28,71 +28,71 @@ import org.hibernate.type.SqlTypes;
 @Table(name = "t_task_instance")
 public class TaskInstanceEntity extends AuditEntity {
 
-    @Id
-    @Column(name = "id", unique = true, nullable = false)
-    private UUID id;
+  @Id
+  @Column(name = "id", unique = true, nullable = false)
+  private UUID id;
 
 
-    @Column(name="task_key", length=50)
-    private String taskKey;
+  @Column(name="task_key", length=50)
+  private String taskKey;
 
 
-    @Column(name="external_id")
-    private String externalId;
+  @Column(name="external_id")
+  private String externalId;
 
 
-    @Column(name="form_key")
-    private String formKey;
+  @Column(name="form_key")
+  private String formKey;
 
 
-    @Column(name="name", length=100)
-    private String name;
+  @Column(name="name", length=100)
+  private String name;
 
 
-    @Column(name="candidate_groups")
-    private String candidateGroups;
+  @Column(name="candidate_groups")
+  private String candidateGroups;
 
 
 
 
   @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "process_instance_id", referencedColumnName = "id")
-    private ProcessInstanceEntity processInstanceId;
-    @Column(name="started_at")
-    private LocalDateTime startedAt;
+  @JoinColumn(name = "process_instance_id", referencedColumnName = "id")
+  private ProcessInstanceEntity processInstanceId;
+  @Column(name="started_at")
+  private LocalDateTime startedAt;
 
 
-    @Column(name="started_by", length=100)
-    private String startedBy;
+  @Column(name="started_by", length=100)
+  private String startedBy;
 
 
-    @Column(name="assigned_by", length=100)
-    private String assignedBy;
+  @Column(name="assigned_by", length=100)
+  private String assignedBy;
 
 
-    @Column(name="assigned_at")
-    private LocalDateTime assignedAt;
+  @Column(name="assigned_at")
+  private LocalDateTime assignedAt;
 
 
-    @Column(name="priority")
-    private Integer priority;
+  @Column(name="priority")
+  private Integer priority;
 
 
-    @Column(name="ended_at")
-    private LocalDateTime endedAt;
+  @Column(name="ended_at")
+  private LocalDateTime endedAt;
 
 
-    @Column(name="ended_by")
-    private String endedBy;
+  @Column(name="ended_by")
+  private String endedBy;
 
 
-    @NotNull(message = "status is mandatory")
-    @Enumerated(EnumType.STRING)
-    @Column(name="status", nullable = false)
-    private TaskInstanceStatus status;
+  @NotNull(message = "status is mandatory")
+  @Enumerated(EnumType.STRING)
+  @Column(name="status", nullable = false)
+  private TaskInstanceStatus status;
 
-     @OneToMany(mappedBy = "taskInstanceId")
-private List<TaskInstanceEventEntity> taskinstanceevents = new ArrayList<>();
+  @OneToMany(mappedBy = "taskInstanceId")
+  private List<TaskInstanceEventEntity> taskinstanceevents = new ArrayList<>();
 
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(name = "variables", columnDefinition = "jsonb")
@@ -101,5 +101,8 @@ private List<TaskInstanceEventEntity> taskinstanceevents = new ArrayList<>();
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(name = "forms", columnDefinition = "jsonb")
   private Map<String, Object> forms = new HashMap<>();
+
+  @Column(name="due_date")
+  private LocalDateTime dueDate;
 
 }

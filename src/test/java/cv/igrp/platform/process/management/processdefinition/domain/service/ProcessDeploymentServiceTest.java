@@ -127,7 +127,7 @@ class ProcessDeploymentServiceTest {
         .thenReturn(List.of(artifact));
 
     // Act
-    List<ProcessArtifact> result = service.getDeployedArtifactsByProcessDefinitionId(processDefinitionId);
+    List<ProcessArtifact> result = service.getDeployedArtifactsByProcessDefinitionId(processDefinitionId.getValue());
 
     // Assert
     assertNotNull(result);
