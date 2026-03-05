@@ -27,7 +27,7 @@ public class IgrpProcessWebhookDelegate implements JavaDelegate {
 
   private static final Logger log = LoggerFactory.getLogger(IgrpProcessWebhookDelegate.class);
 
-  private final RestClient restClient = RestClient.create();
+  private final RestClient restClient;
 
   @Value(value = "${igrp.delegate.webhook.auth-token:}")
   private String globalAuthToken;
@@ -36,8 +36,9 @@ public class IgrpProcessWebhookDelegate implements JavaDelegate {
   public Expression webhookUrlPath;
   public Expression webhookPayloadHeader;
 
-  public IgrpProcessWebhookDelegate(MessageUtil messageUtil) {
+  public IgrpProcessWebhookDelegate(MessageUtil messageUtil, RestClient restClient) {
     this.messageUtil = messageUtil;
+    this.restClient = restClient;
   }
 
   @Override
@@ -70,7 +71,9 @@ public class IgrpProcessWebhookDelegate implements JavaDelegate {
       if (!headersMap.isEmpty()) {
         headersMap.forEach(headers::set);
       } else {
-        headers.set("Authorization", "Bearer " + globalAuthToken);
+        if(globalAuthToken != null && !globalAuthToken.isEmpty()) {
+          headers.set("Authorization", "Bearer " + globalAuthToken);
+        }
       }
 
       log.info("[IgrpProcessWebhookDelegate] Sending request to {}", url);
