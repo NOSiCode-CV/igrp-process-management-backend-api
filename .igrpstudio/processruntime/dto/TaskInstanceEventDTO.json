@@ -125,6 +125,32 @@
       "isUrl": false,
       "primaryKey": false,
       "module": "shared"
+    },
+    {
+      "name": "userProfileStartedBy",
+      "objectType": "dto",
+      "type": "UserProfileDTO",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false,
+      "module": "processruntime"
+    },
+    {
+      "name": "userProfileEndedBy",
+      "objectType": "dto",
+      "type": "UserProfileDTO",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false,
+      "module": "processruntime"
     }
   ],
   "id": "a2a3au4dj4"

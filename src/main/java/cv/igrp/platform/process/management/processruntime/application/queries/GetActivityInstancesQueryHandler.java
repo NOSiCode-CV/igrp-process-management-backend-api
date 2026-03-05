@@ -1,7 +1,7 @@
 package cv.igrp.platform.process.management.processruntime.application.queries;
 
 
-import cv.igrp.framework.process.runtime.core.engine.activity.model.IGRPActivityType;
+import cv.igrp.platform.process.management.processruntime.domain.models.ProcessArtifactEvent;
 import cv.igrp.platform.process.management.processruntime.mappers.ActivityMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,8 +31,8 @@ public class GetActivityInstancesQueryHandler implements QueryHandler<GetActivit
 
   @IgrpQueryHandler
   public ResponseEntity<List<ActivityDTO>> handle(GetActivityInstancesQuery query) {
-    IGRPActivityType type = query.getType() != null
-        ? IGRPActivityType.valueOf(query.getType())
+    ProcessArtifactEvent.ArtifactType type = query.getType() != null
+        ? ProcessArtifactEvent.ArtifactType.valueOf(query.getType())
         : null;
     return ResponseEntity.ok(
         activityMapper.toInstancesDto(

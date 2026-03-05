@@ -3,10 +3,7 @@ package cv.igrp.platform.process.management.processruntime.domain.service;
 import cv.igrp.platform.process.management.processdefinition.domain.models.ProcessArtifact;
 import cv.igrp.platform.process.management.processdefinition.domain.repository.ProcessDefinitionRepository;
 import cv.igrp.platform.process.management.processruntime.domain.models.*;
-import cv.igrp.platform.process.management.processruntime.domain.repository.ProcessInstanceRepository;
-import cv.igrp.platform.process.management.processruntime.domain.repository.RuntimeProcessEngineRepository;
-import cv.igrp.platform.process.management.processruntime.domain.repository.TaskInstanceEventRepository;
-import cv.igrp.platform.process.management.processruntime.domain.repository.TaskInstanceRepository;
+import cv.igrp.platform.process.management.processruntime.domain.repository.*;
 import cv.igrp.platform.process.management.shared.application.constants.ProcessInstanceStatus;
 import cv.igrp.platform.process.management.shared.application.constants.VariableTag;
 import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
@@ -21,9 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 @Service
@@ -36,6 +31,7 @@ public class TaskInstanceService {
   private final RuntimeProcessEngineRepository runtimeProcessEngineRepository;
   private final ProcessInstanceRepository processInstanceRepository;
   private final ProcessDefinitionRepository processDefinitionRepository;
+  private final UserProfileRepository userProfileRepository;
 
   private final UserContext userContext;
 
@@ -44,6 +40,7 @@ public class TaskInstanceService {
                              RuntimeProcessEngineRepository runtimeProcessEngineRepository,
                              ProcessInstanceRepository processInstanceRepository,
                              ProcessDefinitionRepository processDefinitionRepository,
+                             UserProfileRepository userProfileRepository,
                              UserContext userContext
   ) {
 
@@ -52,6 +49,7 @@ public class TaskInstanceService {
     this.runtimeProcessEngineRepository = runtimeProcessEngineRepository;
     this.processInstanceRepository = processInstanceRepository;
     this.processDefinitionRepository = processDefinitionRepository;
+    this.userProfileRepository = userProfileRepository;
     this.userContext = userContext;
   }
 
@@ -179,6 +177,9 @@ public class TaskInstanceService {
     // Enrich with process variables
     Map<String, Object> variables = runtimeProcessEngineRepository.getProcessVariables(taskInstance.getEngineProcessNumber());
     taskInstance.addProcessVariables(variables);
+    // Resolve user profiles
+    resolveUserProfiles(taskInstance);
+    taskInstance.getTaskInstanceEvents().forEach(this::resolveUserProfiles);
     return taskInstance;
   }
 
@@ -212,7 +213,48 @@ public class TaskInstanceService {
       }
     }
 
+    // Resolve user profiles
+    taskInstances.getContent().forEach(taskInstance -> {
+      resolveUserProfiles(taskInstance);
+      taskInstance.getTaskInstanceEvents().forEach(this::resolveUserProfiles);
+    });
+
     return taskInstances;
+  }
+
+  private void resolveUserProfiles(TaskInstance taskInstance) {
+    Set<String> ids = new HashSet<>();
+
+    addIfNotNull(ids, taskInstance.getStartedBy());
+    addIfNotNull(ids, taskInstance.getEndedBy());
+    addIfNotNull(ids, taskInstance.getAssignedBy());
+
+    userProfileRepository.findBySubject(ids).forEach(userProfile -> {
+
+      Code sub = Code.create(userProfile.getSub());
+
+      if (sub.equals(taskInstance.getStartedBy())) {
+        taskInstance.resolveUserProfileStartedBy(userProfile);
+      }
+      if (sub.equals(taskInstance.getEndedBy())) {
+        taskInstance.resolveUserProfileEndedBy(userProfile);
+      }
+      if (sub.equals(taskInstance.getAssignedBy())) {
+        taskInstance.resolveUserProfileAssignedBy(userProfile);
+      }
+    });
+
+  }
+
+  private void resolveUserProfiles(TaskInstanceEvent taskInstanceEvent) {
+    userProfileRepository.findBySubject(taskInstanceEvent.getPerformedBy().getValue())
+        .ifPresent(taskInstanceEvent::resolveUserProfilePerformedBy);
+  }
+
+  private void addIfNotNull(Set<String> ids, Code value) {
+    if (value != null) {
+      ids.add(value.getValue());
+    }
   }
 
   public Map<String, Object> getTaskVariables(Identifier id) {
