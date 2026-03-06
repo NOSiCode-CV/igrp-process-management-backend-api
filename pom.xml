@@ -147,7 +147,7 @@
 
         <dependency>
             <groupId>cv.igrp.framework</groupId>
-            <artifactId>process-runtime--coreauth</artifactId>
+            <artifactId>process-runtime-auth-core</artifactId>
             <version>0.1.0-beta.20</version>
         </dependency>
 
