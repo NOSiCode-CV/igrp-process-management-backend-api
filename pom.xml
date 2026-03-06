@@ -147,7 +147,7 @@
 
         <dependency>
             <groupId>cv.igrp.framework</groupId>
-            <artifactId>process-runtime-auth-core</artifactId>
+            <artifactId>process-runtime--coreauth</artifactId>
             <version>0.1.0-beta.20</version>
         </dependency>
 
@@ -216,6 +216,18 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
+
+        <dependency>
+           <groupId>cv.igrp.framework</groupId>
+           <artifactId>process-runtime-irn-integration</artifactId>
+           <version>0.1.0-beta.22</version>
+        </dependency>
+
+        <dependency>
+           <groupId>cv.igrp.framework</groupId>
+           <artifactId>process-runtime-auth-irn</artifactId>
+           <version>0.1.0-beta.22</version>
         </dependency>
 
     </dependencies>
