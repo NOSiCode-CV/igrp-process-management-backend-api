@@ -25,7 +25,11 @@ public class IgrpWebhookDelegate implements JavaDelegate {
 
   private static final Logger log = LoggerFactory.getLogger(IgrpWebhookDelegate.class);
 
-  private final RestClient restClient = RestClient.create();
+  private final RestClient restClient;
+
+  public IgrpWebhookDelegate(RestClient restClient) {
+    this.restClient = restClient;
+  }
 
   @Value(value = "${igrp.delegate.webhook.auth-token:}")
   private String globalAuthToken;
@@ -79,7 +83,9 @@ public class IgrpWebhookDelegate implements JavaDelegate {
       if (!headersMap.isEmpty()) {
         headersMap.forEach(headers::set);
       } else {
-        headers.set("Authorization", "Bearer " + globalAuthToken);
+        if(globalAuthToken != null && !globalAuthToken.isEmpty()) {
+          headers.set("Authorization", "Bearer " + globalAuthToken);
+        }
       }
 
       log.info("[IgrpWebhookDelegate] Sending {} request to {}", method, url);
