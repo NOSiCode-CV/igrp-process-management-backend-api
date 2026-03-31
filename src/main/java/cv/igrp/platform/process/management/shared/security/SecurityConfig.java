@@ -6,6 +6,7 @@ import cv.igrp.platform.process.management.processruntime.domain.models.UserProf
 import cv.igrp.platform.process.management.processruntime.domain.service.UserProfileService;
 import cv.igrp.platform.process.management.shared.domain.models.Name;
 import cv.igrp.platform.process.management.shared.security.util.ActivitiConstants;
+import cv.igrp.platform.process.management.shared.security.util.IgrpAuthorizationConstants;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +27,10 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider
 import org.springframework.security.oauth2.client.TokenExchangeOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.cors.CorsConfiguration;
@@ -101,16 +105,26 @@ public class SecurityConfig {
   }
 
   @Bean
-  public JwtAuthenticationConverter jwtAuthenticationConverter() {
+  public Converter<Jwt, AbstractAuthenticationToken> jwtAuthenticationConverter() {
 
     var converter = new JwtAuthenticationConverter();
 
     converter.setJwtGrantedAuthoritiesConverter(jwt -> {
 
-      // Upsert User Profile
-      upsertUserProfile(jwt);
+      final String email = jwt.getClaimAsString("email");
+      final String sub = jwt.getSubject();
+      final String preferredUsername = jwt.getClaimAsString("preferred_username");
 
-      // Enrich
+      LOGGER.info("Authenticating user [email={}, sub={}, preferred_username={}]", email, sub, preferredUsername);
+
+      try {
+        // Upsert User Profile
+        upsertUserProfile(jwt);
+      } catch (Exception e) {
+        LOGGER.error("Failed to upsert user profile for [email={}, sub={}]: {}", email, sub, e.getMessage(), e);
+      }
+
+      // Enrich authorities from authorization service
       HttpServletRequest request =
           ((ServletRequestAttributes) RequestContextHolder
               .getRequestAttributes())
@@ -118,53 +132,86 @@ public class SecurityConfig {
 
       Set<GrantedAuthority> authorities = new HashSet<>();
       final String token = jwt.getTokenValue();
-      authorizationService
-          .getRoles(token, request)
-          .forEach(r -> {
-            String roleValue = !r.startsWith(ROLE_PREFIX) ?  ROLE_PREFIX + r : r;
-            String groupValue = !r.startsWith(ActivitiConstants.GROUP_PREFIX) ? ActivitiConstants.GROUP_PREFIX + r : r;
-            authorities.add(new SimpleGrantedAuthority(roleValue));
-            authorities.add(new SimpleGrantedAuthority(groupValue));
-          });
 
-      authorizationService
-          .getPermissions(token, request)
-          .forEach(p -> {
-            authorities.add(new SimpleGrantedAuthority(p));
-          });
+      try {
+        var roles = authorizationService.getRoles(token, request);
+        LOGGER.debug("Roles for [{}]: {}", email, roles);
+        roles.forEach(r -> {
+              String roleValue = !r.startsWith(ROLE_PREFIX) ? ROLE_PREFIX + r : r;
+              String groupValue = !r.startsWith(ActivitiConstants.GROUP_PREFIX) ? ActivitiConstants.GROUP_PREFIX + r : r;
+              authorities.add(new SimpleGrantedAuthority(roleValue));
+              authorities.add(new SimpleGrantedAuthority(groupValue));
+            });
 
-      authorizationService
-          .getDepartments(token, request)
-          .forEach(d -> {
-            authorities.add(new SimpleGrantedAuthority(d));
-            String groupValue = !d.startsWith(ActivitiConstants.GROUP_PREFIX) ? ActivitiConstants.GROUP_PREFIX + d : d;
-            authorities.add(new SimpleGrantedAuthority(groupValue));
-          });
+        var permissions = authorizationService.getPermissions(token, request);
+        LOGGER.debug("Permissions for [{}]: {}", email, permissions);
+        permissions.forEach(p -> authorities.add(new SimpleGrantedAuthority(p)));
 
-      //authorizationService.getActiveRoles(token, request);
+        var departments = authorizationService.getDepartments(token, request);
+        LOGGER.debug("Departments for [{}]: {}", email, departments);
+        departments.forEach(d -> {
+              authorities.add(new SimpleGrantedAuthority(d));
+              String groupValue = !d.startsWith(ActivitiConstants.GROUP_PREFIX) ? ActivitiConstants.GROUP_PREFIX + d : d;
+              authorities.add(new SimpleGrantedAuthority(groupValue));
+            });
 
-      // Activiti Admin or User role
-      if(authorizationService.isSuperAdmin(token, request)){
-        authorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + ActivitiConstants.ROLE_ACTIVITI_ADMIN));
-        authorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + ActivitiConstants.ROLE_ACTIVITI_USER));
-      } else {
+        // Activiti Admin or User role
+        if (authorizationService.isSuperAdmin(token, request)) {
+          LOGGER.info("User [{}] granted super admin privileges", email);
+          authorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + IgrpAuthorizationConstants.SUPER_ADMIN_ROLE));
+          authorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + ActivitiConstants.ROLE_ACTIVITI_ADMIN));
+          authorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + ActivitiConstants.ROLE_ACTIVITI_USER));
+        } else {
+          authorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + ActivitiConstants.ROLE_ACTIVITI_USER));
+        }
+      } catch (Exception e) {
+        LOGGER.error("Failed to enrich authorities for [email={}, sub={}]: {}", email, sub, e.getMessage(), e);
+        // Ensure at least basic Activiti user role
         authorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + ActivitiConstants.ROLE_ACTIVITI_USER));
       }
 
-      LOGGER.debug("Authorities: {}", authorities);
+      LOGGER.info("Final authorities for [{}]: {}", email, authorities);
 
       return authorities;
 
     });
 
-    return converter;
+    // Wrap the converter to override the principal with fallback: email → preferred_username → sub
+    return jwt -> {
+      var authToken = converter.convert(jwt);
+      String principal = resolvePrincipal(jwt);
+      return new JwtAuthenticationToken(jwt, authToken.getAuthorities(), principal);
+    };
   }
 
-  private void upsertUserProfile(Jwt jwt){
+  /**
+   * Resolves the principal name from JWT claims with fallback chain:
+   * email → preferred_username → sub
+   */
+  private String resolvePrincipal(Jwt jwt) {
+    String email = jwt.getClaimAsString("email");
+    if (email != null && !email.isBlank()) {
+      return email;
+    }
+
+    String preferredUsername = jwt.getClaimAsString("preferred_username");
+    if (preferredUsername != null && !preferredUsername.isBlank()) {
+      LOGGER.warn("JWT missing 'email' claim, falling back to 'preferred_username' [{}]", preferredUsername);
+      return preferredUsername;
+    }
+
+    LOGGER.warn("JWT missing 'email' and 'preferred_username' claims, falling back to 'sub' [{}]", jwt.getSubject());
+    return jwt.getSubject();
+  }
+
+  private void upsertUserProfile(Jwt jwt) {
     String username = jwt.getClaimAsString("preferred_username");
     String email = jwt.getClaimAsString("email");
     String firstName = jwt.getClaimAsString("given_name");
     String lastName = jwt.getClaimAsString("family_name");
+
+    LOGGER.debug("Upserting user profile [username={}, email={}, sub={}]", username, email, jwt.getSubject());
+
     userProfileService.createUserProfile(
         UserProfile.builder()
             .username(username)
