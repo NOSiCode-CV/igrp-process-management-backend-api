@@ -27,10 +27,7 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider
 import org.springframework.security.oauth2.client.TokenExchangeOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.cors.CorsConfiguration;
@@ -105,9 +102,12 @@ public class SecurityConfig {
   }
 
   @Bean
-  public Converter<Jwt, AbstractAuthenticationToken> jwtAuthenticationConverter() {
+  public JwtAuthenticationConverter jwtAuthenticationConverter() {
 
     var converter = new JwtAuthenticationConverter();
+
+    // Use email as principal — fallback for null handled in SecurityUserContext
+    converter.setPrincipalClaimName("email");
 
     converter.setJwtGrantedAuthoritiesConverter(jwt -> {
 
@@ -176,32 +176,7 @@ public class SecurityConfig {
 
     });
 
-    // Wrap the converter to override the principal with fallback: email → preferred_username → sub
-    return jwt -> {
-      var authToken = converter.convert(jwt);
-      String principal = resolvePrincipal(jwt);
-      return new JwtAuthenticationToken(jwt, authToken.getAuthorities(), principal);
-    };
-  }
-
-  /**
-   * Resolves the principal name from JWT claims with fallback chain:
-   * email → preferred_username → sub
-   */
-  private String resolvePrincipal(Jwt jwt) {
-    String email = jwt.getClaimAsString("email");
-    if (email != null && !email.isBlank()) {
-      return email;
-    }
-
-    String preferredUsername = jwt.getClaimAsString("preferred_username");
-    if (preferredUsername != null && !preferredUsername.isBlank()) {
-      LOGGER.warn("JWT missing 'email' claim, falling back to 'preferred_username' [{}]", preferredUsername);
-      return preferredUsername;
-    }
-
-    LOGGER.warn("JWT missing 'email' and 'preferred_username' claims, falling back to 'sub' [{}]", jwt.getSubject());
-    return jwt.getSubject();
+    return converter;
   }
 
   private void upsertUserProfile(Jwt jwt) {
