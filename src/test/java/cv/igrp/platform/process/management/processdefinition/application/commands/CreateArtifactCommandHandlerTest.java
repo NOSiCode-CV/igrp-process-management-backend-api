@@ -40,18 +40,18 @@ class CreateArtifactCommandHandlerTest {
     // Arrange
     ProcessArtifactRequestDTO requestDto = new ProcessArtifactRequestDTO();
     requestDto.setName("Task 1");
-    requestDto.setKey("task_1");
     requestDto.setFormKey("/path/to/form/task_1");
 
     String processDefinitionId = "12345678";
-    CreateArtifactCommand command = new CreateArtifactCommand(requestDto, processDefinitionId);
+    String taskKey = "task_1";
+    CreateArtifactCommand command = new CreateArtifactCommand(requestDto, processDefinitionId, taskKey);
 
     ProcessArtifact artifact = ProcessArtifact.builder()
         .id(Identifier.generate())
         .name(Name.create("Task 1"))
         .processDefinitionId(Code.create(processDefinitionId))
-        .key(Code.create("task_1"))
-        .formKey(Code.create("/path/to/form/task_1"))
+        .key(Code.create(taskKey))
+        .formKey("/path/to/form/task_1")
         .build();
 
     when(processArtifactService.create(any(ProcessArtifact.class))).thenReturn(artifact);
@@ -64,7 +64,7 @@ class CreateArtifactCommandHandlerTest {
     assertEquals(201, response.getStatusCode().value());
     assertNotNull(response.getBody());
     assertEquals(requestDto.getName(), response.getBody().getName());
-    assertEquals(requestDto.getKey(), response.getBody().getKey());
+    assertEquals(taskKey, response.getBody().getKey());
     assertEquals(requestDto.getFormKey(), response.getBody().getFormKey());
     assertEquals(processDefinitionId, response.getBody().getProcessDefinitionId());
 
@@ -73,12 +73,9 @@ class CreateArtifactCommandHandlerTest {
     verify(processArtifactService).create(captor.capture());
     ProcessArtifact passed = captor.getValue();
     assertEquals(requestDto.getName(), passed.getName().getValue());
-    assertEquals(requestDto.getKey(), passed.getKey().getValue());
-    assertEquals(requestDto.getFormKey(), passed.getFormKey().getValue());
+    assertEquals(taskKey, passed.getKey().getValue());
+    assertEquals(requestDto.getFormKey(), passed.getFormKey());
     assertEquals(processDefinitionId, passed.getProcessDefinitionId().getValue());
-
-    verify(processArtifactService).create(any(ProcessArtifact.class));
-
   }
 
 }
