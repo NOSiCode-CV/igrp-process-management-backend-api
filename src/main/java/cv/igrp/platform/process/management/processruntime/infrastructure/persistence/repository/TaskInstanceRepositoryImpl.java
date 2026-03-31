@@ -176,25 +176,8 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
     if (filter.isFilterByCurrentUser() && !filter.isSuperAdmin()) {
       String currentUser = filter.getUser() != null ? filter.getUser().getValue() : null;
       Set<String> groups = filter.getContextUserGroups();
-
       LOGGER.debug("Adding visibility spec for user [{}] with groups {}", currentUser, groups);
-
-      spec = spec.and((root, query, cb) -> {
-        List<Predicate> orPredicates = new ArrayList<>();
-
-        if (currentUser != null) {
-          orPredicates.add(cb.equal(root.get("assignedBy"), currentUser));
-        }
-
-        for (String group : groups) {
-          orPredicates.add(cb.like(root.get("candidateGroups"), "%" + group + "%"));
-        }
-
-        if (orPredicates.isEmpty()) {
-          return cb.disjunction();
-        }
-        return cb.or(orPredicates.toArray(new Predicate[0]));
-      });
+      spec = spec.and(userVisibilitySpec(currentUser, groups));
     }
 
     // Client-supplied candidate groups filter
@@ -218,26 +201,26 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
 //        && (t.getCandidateGroups() == null || t.getCandidateGroups().isBlank());
 //  }
 
-  private Set<String> splitGroups(String groups) {
-    if (groups == null || groups.isBlank()) return Set.of();
-    return Arrays.stream(groups.split(","))
-        .map(String::trim)
-        .collect(Collectors.toSet());
-  }
+//  private Set<String> splitGroups(String groups) {
+//    if (groups == null || groups.isBlank()) return Set.of();
+//    return Arrays.stream(groups.split(","))
+//        .map(String::trim)
+//        .collect(Collectors.toSet());
+//  }
 
-  private boolean userCanSeeTask(TaskInstanceEntity t, String currentUser, Set<String> userGroups) {
-    // 1. Task is assigned to current user
-    if (Objects.equals(t.getAssignedBy(), currentUser)) {
-      return true;
-    }
-    // 2. Task has candidate groups — user must be in one of them
-    Set<String> taskGroups = splitGroups(t.getCandidateGroups());
-    if (!taskGroups.isEmpty()) {
-      return taskGroups.stream().anyMatch(userGroups::contains);
-    }
-    // 3. Unassigned task with no candidate groups — not relevant to this user
-    return false;
-  }
+//  private boolean userCanSeeTask(TaskInstanceEntity t, String currentUser, Set<String> userGroups) {
+//    // 1. Task is assigned to current user
+//    if (Objects.equals(t.getAssignedBy(), currentUser)) {
+//      return true;
+//    }
+//    // 2. Task has candidate groups — user must be in one of them
+//    Set<String> taskGroups = splitGroups(t.getCandidateGroups());
+//    if (!taskGroups.isEmpty()) {
+//      return taskGroups.stream().anyMatch(userGroups::contains);
+//    }
+//    // 3. Unassigned task with no candidate groups — not relevant to this user
+//    return false;
+//  }
 
 //  private boolean matchesClientFilter(TaskInstanceEntity t, Set<String> filterGroups) {
 //    if (filterGroups == null || filterGroups.isEmpty()) {
@@ -378,12 +361,11 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
   public TaskStatistics getGlobalTaskStatistics() {
 
     long total = taskInstanceEntityRepository.count();
-
-    long available = countByStatus(TaskInstanceStatus.CREATED);
-    long assigned = countByStatus(TaskInstanceStatus.ASSIGNED);
-    long suspended = countByStatus(TaskInstanceStatus.SUSPENDED);
-    long completed = countByStatus(TaskInstanceStatus.COMPLETED);
-    long canceled = countByStatus(TaskInstanceStatus.CANCELED);
+    long available = countBySpec(statusSpec(TaskInstanceStatus.CREATED));
+    long assigned = countBySpec(statusSpec(TaskInstanceStatus.ASSIGNED));
+    long suspended = countBySpec(statusSpec(TaskInstanceStatus.SUSPENDED));
+    long completed = countBySpec(statusSpec(TaskInstanceStatus.COMPLETED));
+    long canceled = countBySpec(statusSpec(TaskInstanceStatus.CANCELED));
 
     return TaskStatistics.builder()
         .totalTaskInstances(total)
@@ -393,53 +375,42 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
         .totalCompletedTasks(completed)
         .totalCanceledTasks(canceled)
         .build();
-  }
-
-
-  private long countByStatus(TaskInstanceStatus status) {
-    return taskInstanceEntityRepository.count((root, query, cb) -> cb.equal(root.get("status"), status));
   }
 
 
   @Override
   public TaskStatistics getTaskStatisticsByUser(Code user, List<String> groups, boolean isSuperAdmin) {
 
+    String currentUser = user.getValue();
     Set<String> userGroups = groups == null
         ? Set.of()
         : groups.stream().map(String::trim).collect(Collectors.toSet());
 
-    List<TaskInstanceEntity> tasks =
-        taskInstanceEntityRepository.findAll();
+    // Base visibility: tasks assigned to user OR user is in candidate group
+    Specification<TaskInstanceEntity> visibilitySpec = isSuperAdmin
+        ? Specification.allOf()
+        : userVisibilitySpec(currentUser, userGroups);
 
-    List<TaskInstanceEntity> visibleTasks = tasks.stream()
-        .filter(t -> isSuperAdmin || userCanSeeTask(t, user.getValue(), userGroups))
-        .toList();
+    long total = taskInstanceEntityRepository.count();
 
-    long total = tasks.size();
+    // Available: CREATED tasks visible to the user (claimable)
+    long available = countBySpec(visibilitySpec.and(statusSpec(TaskInstanceStatus.CREATED)));
 
-    long available = visibleTasks.stream()
-        .filter(t -> t.getStatus() == TaskInstanceStatus.CREATED)
-        .count();
+    // Assigned: ASSIGNED tasks where user is the assignee
+    long assigned = countBySpec(statusSpec(TaskInstanceStatus.ASSIGNED)
+        .and((root, query, cb) -> cb.equal(root.get("assignedBy"), currentUser)));
 
-    long assigned = visibleTasks.stream()
-        .filter(t -> t.getStatus() == TaskInstanceStatus.ASSIGNED)
-        .filter(t -> Objects.equals(t.getAssignedBy(), user.getValue()))
-        .count();
+    // Suspended: SUSPENDED tasks where user is the assignee
+    long suspended = countBySpec(statusSpec(TaskInstanceStatus.SUSPENDED)
+        .and((root, query, cb) -> cb.equal(root.get("assignedBy"), currentUser)));
 
-    long suspended = visibleTasks.stream()
-        .filter(t -> t.getStatus() == TaskInstanceStatus.SUSPENDED)
-        .filter(t -> Objects.equals(t.getAssignedBy(), user.getValue()))
-        .count();
+    // Completed: COMPLETED tasks where user ended them
+    long completed = countBySpec(statusSpec(TaskInstanceStatus.COMPLETED)
+        .and((root, query, cb) -> cb.equal(root.get("endedBy"), currentUser)));
 
-    long completed = visibleTasks.stream()
-        .filter(t -> t.getStatus() == TaskInstanceStatus.COMPLETED)
-        .filter(t -> Objects.equals(t.getEndedBy(), user.getValue()))
-        .count();
-
-    long canceled = visibleTasks.stream()
-        .filter(t -> t.getStatus() == TaskInstanceStatus.CANCELED)
-        .filter(t -> Objects.equals(t.getEndedBy(), user.getValue()))
-        .count();
+    // Canceled: CANCELED tasks where user ended them
+    long canceled = countBySpec(statusSpec(TaskInstanceStatus.CANCELED)
+        .and((root, query, cb) -> cb.equal(root.get("endedBy"), currentUser)));
 
     return TaskStatistics.builder()
         .totalTaskInstances(total)
@@ -449,6 +420,30 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
         .totalCompletedTasks(completed)
         .totalCanceledTasks(canceled)
         .build();
+  }
+
+  private Specification<TaskInstanceEntity> statusSpec(TaskInstanceStatus status) {
+    return (root, query, cb) -> cb.equal(root.get("status"), status);
+  }
+
+  private Specification<TaskInstanceEntity> userVisibilitySpec(String currentUser, Set<String> userGroups) {
+    return (root, query, cb) -> {
+      List<Predicate> orPredicates = new ArrayList<>();
+      if (currentUser != null) {
+        orPredicates.add(cb.equal(root.get("assignedBy"), currentUser));
+      }
+      for (String group : userGroups) {
+        orPredicates.add(cb.like(root.get("candidateGroups"), "%" + group + "%"));
+      }
+      if (orPredicates.isEmpty()) {
+        return cb.disjunction();
+      }
+      return cb.or(orPredicates.toArray(new Predicate[0]));
+    };
+  }
+
+  private long countBySpec(Specification<TaskInstanceEntity> spec) {
+    return taskInstanceEntityRepository.count(spec);
   }
 
   @Override

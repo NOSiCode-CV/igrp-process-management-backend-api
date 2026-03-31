@@ -217,33 +217,31 @@ class TaskInstanceRepositoryImplTest {
   @Test
   void testGetTaskStatisticsByUser() {
 
-    String user = currentUser.getValue();
+    // Total tasks in system
+    when(entityRepository.count()).thenReturn(100L);
 
-    // Create entities with different statuses visible to the user
-    TaskInstanceEntity created1 = new TaskInstanceEntity();
-    created1.setStatus(TaskInstanceStatus.CREATED);
-    created1.setAssignedBy(user);
+    // SQL count queries for each status (super admin, so visibility spec is Specification.where(null))
+    ArgumentCaptor<Specification<TaskInstanceEntity>> specCaptor = ArgumentCaptor.forClass(Specification.class);
 
-    TaskInstanceEntity assigned1 = new TaskInstanceEntity();
-    assigned1.setStatus(TaskInstanceStatus.ASSIGNED);
-    assigned1.setAssignedBy(user);
+    when(entityRepository.count(specCaptor.capture()))
+        .thenReturn(52L)   // available (CREATED + visibility)
+        .thenReturn(18L)   // assigned (ASSIGNED + assignedBy)
+        .thenReturn(5L)    // suspended (SUSPENDED + assignedBy)
+        .thenReturn(25L)   // completed (COMPLETED + endedBy)
+        .thenReturn(7L);   // canceled (CANCELED + endedBy)
 
-    TaskInstanceEntity completed1 = new TaskInstanceEntity();
-    completed1.setStatus(TaskInstanceStatus.COMPLETED);
-    completed1.setEndedBy(user);
-
-    when(entityRepository.findAll()).thenReturn(List.of(created1, assigned1, completed1));
-
-    // When - isSuperAdmin=true so all tasks are visible
+    // When - isSuperAdmin=true
     TaskStatistics stats = repository.getTaskStatisticsByUser(currentUser, null, true);
 
     // Then
-    assertEquals(3L, stats.getTotalTaskInstances());
-    assertEquals(1L, stats.getTotalAvailableTasks());
-    assertEquals(1L, stats.getTotalAssignedTasks());
-    assertEquals(0L, stats.getTotalSuspendedTasks());
-    assertEquals(1L, stats.getTotalCompletedTasks());
-    assertEquals(0L, stats.getTotalCanceledTasks());
+    assertEquals(100L, stats.getTotalTaskInstances());
+    assertEquals(52L, stats.getTotalAvailableTasks());
+    assertEquals(18L, stats.getTotalAssignedTasks());
+    assertEquals(5L, stats.getTotalSuspendedTasks());
+    assertEquals(25L, stats.getTotalCompletedTasks());
+    assertEquals(7L, stats.getTotalCanceledTasks());
+
+    assertThat(specCaptor.getAllValues()).hasSize(5);
 
   }
 
