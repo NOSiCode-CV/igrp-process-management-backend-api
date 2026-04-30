@@ -18,8 +18,9 @@ public class ApplicationAuditorAware implements AuditorAware<String> {
 
   @Override
   public Optional<String> getCurrentAuditor() {
-    return Optional.of(getCurrentSubjectName());
+    return Optional.ofNullable(getCurrentSubjectName()).filter(s -> !s.isBlank());
   }
+
 
   private String getCurrentSubjectName() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
