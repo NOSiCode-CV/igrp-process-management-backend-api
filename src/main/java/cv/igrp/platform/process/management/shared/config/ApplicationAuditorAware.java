@@ -4,7 +4,6 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,16 +18,9 @@ public class ApplicationAuditorAware implements AuditorAware<String> {
 
   @Override
   public Optional<String> getCurrentAuditor() {
-    return Optional.ofNullable(getCurrentSubjectName()).filter(s -> !s.isBlank());
+    return Optional.of(getCurrentSubjectName());
   }
 
-  /**
-   * Resolves the current user identity for auditing purposes.
-   * Priority:
-   * 1) sub claim from JWT if present
-   * 2) Authentication#getName() if an Authentication exists
-   * 3) Fallback to system account for background processing
-   */
   private String getCurrentSubjectName() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
