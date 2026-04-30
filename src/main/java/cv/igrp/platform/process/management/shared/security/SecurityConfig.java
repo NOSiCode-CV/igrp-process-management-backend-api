@@ -102,6 +102,28 @@ public class SecurityConfig {
 
     converter.setJwtGrantedAuthoritiesConverter(jwt -> {
 
+      // SMELL: JwtGrantedAuthoritiesConverter is designed solely to map JWT claims to
+      // GrantedAuthority objects. Using it to make outbound HTTP calls to the authorization
+      // service is a side effect that couples authentication to an external dependency.
+      // If the authorization service is unavailable, authentication itself fails entirely.
+      // IMPROVEMENT: Move roles/permissions/departments enrichment to a dedicated
+      // SecurityContextEnrichmentFilter that runs after authentication (similar to
+      // IAMUserProfileSyncFilter). The converter would only handle the JWT-native claims,
+      // keeping authentication and authorization enrichment separate and independently
+      // resilient to failures.
+
+      // RISK: RequestContextHolder.getRequestAttributes() returns null when this converter
+      // is invoked outside an HTTP request thread — e.g. token refresh flows, async
+      // processing, or Spring Security internal calls during filter chain setup.
+      // The unchecked cast + immediate .getRequest() call will throw NullPointerException
+      // in those scenarios.
+      // IMPROVEMENT: Guard with a null check and either skip enrichment gracefully or
+      // extract the HttpServletRequest from the filter chain context instead of relying
+      // on the thread-local RequestContextHolder.
+      //   ServletRequestAttributes attrs =
+      //       (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+      //   HttpServletRequest request = attrs != null ? attrs.getRequest() : null;
+      //   if (request == null) return Set.of(); // or minimal fallback authorities
       HttpServletRequest request =
           ((ServletRequestAttributes) RequestContextHolder
               .getRequestAttributes())
@@ -131,8 +153,6 @@ public class SecurityConfig {
             String groupValue = !d.startsWith(ActivitiConstants.GROUP_PREFIX) ? ActivitiConstants.GROUP_PREFIX + d : d;
             authorities.add(new SimpleGrantedAuthority(groupValue));
           });
-
-      //authorizationService.getActiveRoles(token, request);
 
       // Activiti Admin or User role
       if(authorizationService.isSuperAdmin(token, request)){
