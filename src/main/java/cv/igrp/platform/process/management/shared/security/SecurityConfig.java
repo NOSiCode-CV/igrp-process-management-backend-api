@@ -1,14 +1,11 @@
 package cv.igrp.platform.process.management.shared.security;
 
-
 import cv.igrp.framework.process.runtime.auth.core.adapter.IAuthorizationServiceAdapter;
-import cv.igrp.platform.process.management.processruntime.domain.models.UserProfile;
-import cv.igrp.platform.process.management.processruntime.domain.service.UserProfileService;
-import cv.igrp.platform.process.management.shared.domain.models.Name;
 import cv.igrp.platform.process.management.shared.security.util.ActivitiConstants;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -24,9 +21,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.TokenExchangeOAuth2AuthorizedClientProvider;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.cors.CorsConfiguration;
@@ -43,17 +40,13 @@ public class SecurityConfig {
   private static final Logger LOGGER = LoggerFactory.getLogger(SecurityConfig.class);
 
   private final IAuthorizationServiceAdapter authorizationService;
-  private final UserProfileService userProfileService;
 
-  public SecurityConfig(IAuthorizationServiceAdapter authorizationService,
-                        UserProfileService userProfileService
-  ) {
+  public SecurityConfig(IAuthorizationServiceAdapter authorizationService) {
     this.authorizationService = authorizationService;
-    this.userProfileService = userProfileService;
   }
 
   @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+  public SecurityFilterChain securityFilterChain(HttpSecurity http, IAMUserProfileSyncFilter iamUserProfileSyncFilter) throws Exception {
 
     http.cors(cors -> cors.configurationSource(request -> {
       var configuration = new CorsConfiguration();
@@ -97,6 +90,8 @@ public class SecurityConfig {
     // Disable CSRF
     http.csrf(AbstractHttpConfigurer::disable);
 
+    http.addFilterBefore(iamUserProfileSyncFilter, AuthorizationFilter.class);
+
     return http.build();
   }
 
@@ -107,10 +102,28 @@ public class SecurityConfig {
 
     converter.setJwtGrantedAuthoritiesConverter(jwt -> {
 
-      // Upsert User Profile
-      upsertUserProfile(jwt);
+      // SMELL: JwtGrantedAuthoritiesConverter is designed solely to map JWT claims to
+      // GrantedAuthority objects. Using it to make outbound HTTP calls to the authorization
+      // service is a side effect that couples authentication to an external dependency.
+      // If the authorization service is unavailable, authentication itself fails entirely.
+      // IMPROVEMENT: Move roles/permissions/departments enrichment to a dedicated
+      // SecurityContextEnrichmentFilter that runs after authentication (similar to
+      // IAMUserProfileSyncFilter). The converter would only handle the JWT-native claims,
+      // keeping authentication and authorization enrichment separate and independently
+      // resilient to failures.
 
-      // Enrich
+      // RISK: RequestContextHolder.getRequestAttributes() returns null when this converter
+      // is invoked outside an HTTP request thread — e.g. token refresh flows, async
+      // processing, or Spring Security internal calls during filter chain setup.
+      // The unchecked cast + immediate .getRequest() call will throw NullPointerException
+      // in those scenarios.
+      // IMPROVEMENT: Guard with a null check and either skip enrichment gracefully or
+      // extract the HttpServletRequest from the filter chain context instead of relying
+      // on the thread-local RequestContextHolder.
+      //   ServletRequestAttributes attrs =
+      //       (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+      //   HttpServletRequest request = attrs != null ? attrs.getRequest() : null;
+      //   if (request == null) return Set.of(); // or minimal fallback authorities
       HttpServletRequest request =
           ((ServletRequestAttributes) RequestContextHolder
               .getRequestAttributes())
@@ -141,8 +154,6 @@ public class SecurityConfig {
             authorities.add(new SimpleGrantedAuthority(groupValue));
           });
 
-      //authorizationService.getActiveRoles(token, request);
-
       // Activiti Admin or User role
       if(authorizationService.isSuperAdmin(token, request)){
         authorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + ActivitiConstants.ROLE_ACTIVITI_ADMIN));
@@ -160,22 +171,6 @@ public class SecurityConfig {
     return converter;
   }
 
-  private void upsertUserProfile(Jwt jwt){
-    String username = jwt.getClaimAsString("preferred_username");
-    String email = jwt.getClaimAsString("email");
-    String firstName = jwt.getClaimAsString("given_name");
-    String lastName = jwt.getClaimAsString("family_name");
-    userProfileService.createUserProfile(
-        UserProfile.builder()
-            .username(username)
-            .sub(jwt.getSubject())
-            .email(email)
-            .firstName(firstName != null ? Name.create(firstName) : null)
-            .lastName(lastName != null ? Name.create(lastName) : null)
-            .build()
-    );
-  }
-
   @Bean
   public OAuth2AuthorizedClientProvider tokenExchange() {
     return new TokenExchangeOAuth2AuthorizedClientProvider();
@@ -184,8 +179,16 @@ public class SecurityConfig {
   @Bean
   public UserDetailsService userDetailsService() {
     return username -> {
-      throw new UsernameNotFoundException("Hi, i am a dummy. UserDetailsService not used with JWT/Keycloak");
+      throw new UsernameNotFoundException("UserDetailsService not used with JWT/Keycloak");
     };
   }
+
+  @Bean
+  public FilterRegistrationBean<IAMUserProfileSyncFilter> iamUserProfileSyncFilterRegistration(IAMUserProfileSyncFilter filter) {
+    var registration = new FilterRegistrationBean<>(filter);
+    registration.setEnabled(true);
+    return registration;
+  }
+
 
 }
