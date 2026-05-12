@@ -188,8 +188,12 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
     return spec;
   }
 
+  /**
+   * A public task has NO assignee and NO candidate groups — available for anyone to claim.
+   */
   private boolean isPublicTask(TaskInstanceEntity t) {
-    return t.getCandidateGroups() == null || t.getCandidateGroups().isBlank();
+    return (t.getAssignedBy() == null || t.getAssignedBy().isBlank())
+        && (t.getCandidateGroups() == null || t.getCandidateGroups().isBlank());
   }
 
   private Set<String> splitGroups(String groups) {
