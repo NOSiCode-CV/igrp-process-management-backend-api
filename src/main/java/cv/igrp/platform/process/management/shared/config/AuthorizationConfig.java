@@ -1,6 +1,5 @@
 package cv.igrp.platform.process.management.shared.config;
 
-
 import cv.igrp.platform.access.client.ApiClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

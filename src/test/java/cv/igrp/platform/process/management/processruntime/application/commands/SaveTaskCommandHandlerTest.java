@@ -55,11 +55,8 @@ public class SaveTaskCommandHandlerTest {
 
     // Mock TaskInstance, Code and TaskInstanceDTO
     mockTaskInstance = mock(TaskInstance.class);
-    mockCodeInstance = mock(Code.class);
     mockTaskInstanceDTO = mock(TaskInstanceDTO.class);
 
-    when(taskInstanceService.getTaskById(Identifier.create(id))).thenReturn(mockTaskInstance);
-    when(taskInstanceService.getTaskById(Identifier.create(id)).getTaskKey()).thenReturn(mockCodeInstance);
     when(taskInstanceService.saveTask(any(TaskOperationData.class)))
         .thenReturn(mockTaskInstance);
     when(taskInstanceMapper.toTaskInstanceDTO(mockTaskInstance))

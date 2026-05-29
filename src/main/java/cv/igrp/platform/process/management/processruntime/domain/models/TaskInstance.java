@@ -220,7 +220,10 @@ public class TaskInstance {
   }
 
   public void addCandidateGroup(TaskOperationData data) {
+    addCandidates(data);
+  }
 
+  public void addCandidates(TaskOperationData data) {
     mergeCandidateGroups(data.getCandidateGroups());
     updateAssignmentMetadata(data.getPriority());
 

@@ -54,7 +54,7 @@ public class TaskInstanceMapper {
     taskInstanceEntity.setFormKey(taskInstance.getFormKey()!=null ? taskInstance.getFormKey().getValue() : null);
     taskInstanceEntity.setName(taskInstance.getName().getValue());
     taskInstanceEntity.setExternalId(taskInstance.getExternalId().getValue());
-    taskInstanceEntity.setCandidateGroups(!taskInstance.getCandidateGroups().isEmpty() ? String.join(",", taskInstance.getCandidateGroups()) : null);
+    syncCandidateGroups(taskInstanceEntity, taskInstance.getCandidateGroups());
     taskInstanceEntity.setPriority(taskInstance.getPriority());
     taskInstanceEntity.setStatus(taskInstance.getStatus());
     taskInstanceEntity.setStartedBy(taskInstance.getStartedBy().getValue());
@@ -76,7 +76,7 @@ public class TaskInstanceMapper {
     taskInstanceEntity.setEndedBy(taskInstance.getEndedBy() != null ? taskInstance.getEndedBy().getValue() : null);
     taskInstanceEntity.setEndedAt(taskInstance.getEndedAt());
     taskInstanceEntity.setPriority(taskInstance.getPriority());
-    taskInstanceEntity.setCandidateGroups(!taskInstance.getCandidateGroups().isEmpty() ? String.join(",", taskInstance.getCandidateGroups()) : null);
+    syncCandidateGroups(taskInstanceEntity, taskInstance.getCandidateGroups());
     taskInstanceEntity.setVariables(taskInstance.getVariables());
     taskInstanceEntity.setForms(taskInstance.getForms());
     taskInstanceEntity.setDueDate(taskInstance.getDueDate());
@@ -111,7 +111,7 @@ public class TaskInstanceMapper {
         .assignedBy(taskInstanceEntity.getAssignedBy()!=null ? Code.create(taskInstanceEntity.getAssignedBy()) : null)
         .endedAt(taskInstanceEntity.getEndedAt())
         .endedBy(taskInstanceEntity.getEndedBy()!=null ? Code.create(taskInstanceEntity.getEndedBy()) : null)
-        .candidateGroups(taskInstanceEntity.getCandidateGroups()!=null ? new HashSet<>(List.of(taskInstanceEntity.getCandidateGroups().split(","))) : null)
+        .candidateGroups(taskInstanceEntity.getCandidateGroups()!=null ? new HashSet<>(taskInstanceEntity.getCandidateGroups()) : null)
         .taskInstanceEvents(withEvents ? eventMapper.toEventModelList(taskInstanceEntity.getTaskinstanceevents()) : null)
         .forms(taskInstanceEntity.getForms())
         .variables(taskInstanceEntity.getVariables())
@@ -312,6 +312,22 @@ public class TaskInstanceMapper {
             .value(variablesExpressionDTO.getValue())
             .build()
         ).toList();
+  }
+
+  private void syncCandidateGroups(TaskInstanceEntity entity, Set<String> candidateGroups) {
+    if (entity.getCandidateGroups() == null) {
+      entity.setCandidateGroups(new HashSet<>());
+    } else {
+      entity.getCandidateGroups().clear();
+    }
+
+    if (candidateGroups != null) {
+      candidateGroups.stream()
+          .filter(Objects::nonNull)
+          .map(String::trim)
+          .filter(group -> !group.isBlank())
+          .forEach(entity.getCandidateGroups()::add);
+    }
   }
 
 }

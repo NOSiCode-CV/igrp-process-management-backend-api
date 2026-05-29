@@ -28,6 +28,7 @@ public class TaskInstanceService {
 
   private final TaskInstanceRepository taskInstanceRepository;
   private final TaskInstanceEventRepository taskInstanceEventRepository;
+  private final TaskAssignmentRuleRepository taskAssignmentRuleRepository;
   private final RuntimeProcessEngineRepository runtimeProcessEngineRepository;
   private final ProcessInstanceRepository processInstanceRepository;
   private final ProcessDefinitionRepository processDefinitionRepository;
@@ -37,6 +38,7 @@ public class TaskInstanceService {
 
   public TaskInstanceService(TaskInstanceRepository taskInstanceRepository,
                              TaskInstanceEventRepository taskInstanceEventRepository,
+                             TaskAssignmentRuleRepository taskAssignmentRuleRepository,
                              RuntimeProcessEngineRepository runtimeProcessEngineRepository,
                              ProcessInstanceRepository processInstanceRepository,
                              ProcessDefinitionRepository processDefinitionRepository,
@@ -46,6 +48,7 @@ public class TaskInstanceService {
 
     this.taskInstanceRepository = taskInstanceRepository;
     this.taskInstanceEventRepository = taskInstanceEventRepository;
+    this.taskAssignmentRuleRepository = taskAssignmentRuleRepository;
     this.runtimeProcessEngineRepository = runtimeProcessEngineRepository;
     this.processInstanceRepository = processInstanceRepository;
     this.processDefinitionRepository = processDefinitionRepository;
@@ -86,9 +89,11 @@ public class TaskInstanceService {
           taskInstance.getAssignedBy().getValue(),
           data.getNote()
       );
+
+      saveAssigneeRule(taskInstance, data);
     } else {
 
-      taskInstance.addCandidateGroup(data);
+      taskInstance.addCandidates(data);
 
       data.getCandidateGroups().forEach(group -> {
         runtimeProcessEngineRepository.addCandidateGroup(
@@ -96,6 +101,21 @@ public class TaskInstanceService {
             group
         );
       });
+
+      var candidateUsers = data.getCandidateUsers().stream()
+          .map(this::normalizeUserId)
+          .flatMap(Optional::stream)
+          .distinct()
+          .toList();
+
+      candidateUsers.forEach(user -> {
+        runtimeProcessEngineRepository.addCandidateUser(
+            taskInstance.getExternalId().getValue(),
+            user
+        );
+      });
+
+      saveCandidateUserRule(taskInstance, data, candidateUsers);
 
     }
 
@@ -108,6 +128,45 @@ public class TaskInstanceService {
 
     this.save(taskInstance);
 
+  }
+
+  private Optional<String> normalizeUserId(String userId) {
+    if (userId == null || userId.isBlank()) {
+      return Optional.empty();
+    }
+    return Optional.of(userId.trim());
+  }
+
+  private void saveAssigneeRule(TaskInstance taskInstance, TaskOperationData data) {
+    saveAssignmentRule(taskInstance, data, data.getTargetUser(), List.of());
+  }
+
+  private void saveCandidateUserRule(TaskInstance taskInstance, TaskOperationData data, List<String> candidateUsers) {
+    saveAssignmentRule(taskInstance, data, null, candidateUsers);
+  }
+
+  private void saveAssignmentRule(
+      TaskInstance taskInstance,
+      TaskOperationData data,
+      Code assignee,
+      List<String> candidateUsers
+  ) {
+    if (assignee == null && (candidateUsers == null || candidateUsers.isEmpty())) {
+      return;
+    }
+    taskAssignmentRuleRepository.save(TaskAssignmentRule.builder()
+        .processDefinitionKey(taskInstance.getProcessKey())
+        .processInstanceId(taskInstance.getProcessInstanceId())
+        .taskDefinitionKey(taskInstance.getTaskKey())
+        .assignee(assignee)
+        .candidateUsers(candidateUsers)
+        .assignmentMode(data.getAssignmentMode())
+        .priority(data.getPriority() != null ? data.getPriority() : taskInstance.getPriority())
+        .consumed(false)
+        .active(true)
+        .createdByTask(taskInstance.getId())
+        .build()
+    );
   }
 
   public void unClaimTask(TaskOperationData data) {
@@ -229,17 +288,15 @@ public class TaskInstanceService {
     addIfNotNull(ids, taskInstance.getEndedBy());
     addIfNotNull(ids, taskInstance.getAssignedBy());
 
-    userProfileRepository.findBySubject(ids).forEach(userProfile -> {
+    userProfileRepository.findBySubjectOrEmails(ids, ids).forEach(userProfile -> {
 
-      Code sub = Code.create(userProfile.getSub());
-
-      if (sub.equals(taskInstance.getStartedBy())) {
+      if (matches(userProfile, taskInstance.getStartedBy())) {
         taskInstance.resolveUserProfileStartedBy(userProfile);
       }
-      if (sub.equals(taskInstance.getEndedBy())) {
+      if (matches(userProfile, taskInstance.getEndedBy())) {
         taskInstance.resolveUserProfileEndedBy(userProfile);
       }
-      if (sub.equals(taskInstance.getAssignedBy())) {
+      if (matches(userProfile, taskInstance.getAssignedBy())) {
         taskInstance.resolveUserProfileAssignedBy(userProfile);
       }
     });
@@ -247,8 +304,18 @@ public class TaskInstanceService {
   }
 
   private void resolveUserProfiles(TaskInstanceEvent taskInstanceEvent) {
-    userProfileRepository.findBySubject(taskInstanceEvent.getPerformedBy().getValue())
+    String performedBy = taskInstanceEvent.getPerformedBy().getValue();
+    userProfileRepository.findBySubjectOrEmail(performedBy, performedBy)
         .ifPresent(taskInstanceEvent::resolveUserProfilePerformedBy);
+  }
+
+  private boolean matches(UserProfile userProfile, Code value) {
+    if (value == null) {
+      return false;
+    }
+    String identifier = value.getValue();
+    return Objects.equals(identifier, userProfile.getSub())
+        || Objects.equals(identifier, userProfile.getEmail());
   }
 
   private void addIfNotNull(Set<String> ids, Code value) {
@@ -295,22 +362,119 @@ public class TaskInstanceService {
     );
 
     for (var runtimeTask : activeTasks) {
-
-      var newTask = runtimeTask.withProperties(
-          processInstance,
-          context.findFormKey(runtimeTask.getTaskKey().getValue()).orElse(null),
-          user
-      );
-
-      context.findArtifact(runtimeTask.getTaskKey().getValue())
-          .ifPresent(artifact -> {
-            assignGroups(runtimeTask, newTask, artifact, user);
-            configureDueDate(runtimeTask, newTask, artifact);
-          });
-
-      createTask(newTask);
+      createNextTaskInstance(runtimeTask, processInstance, context, user);
     }
 
+  }
+
+  private void createNextTaskInstance(
+      TaskInstance runtimeTask,
+      ProcessInstance processInstance,
+      ArtifactContext context,
+      Code user
+  ) {
+    var artifact = context.findArtifact(runtimeTask.getTaskKey().getValue());
+    var task = runtimeTask.withProperties(
+        processInstance,
+        context.findFormKey(runtimeTask.getTaskKey().getValue()).orElse(null),
+        user
+    );
+
+    artifact.ifPresent(processArtifact -> configureDueDate(runtimeTask, task, processArtifact));
+
+    createTask(task);
+
+    applyTaskAssignments(
+        task,
+        artifact.map(ProcessArtifact::getCandidateGroups).orElse(Set.of()),
+        matchingAssignmentRules(processInstance, task),
+        user
+    );
+  }
+
+  private List<TaskAssignmentRuleRequest> matchingAssignmentRules(
+      ProcessInstance processInstance,
+      TaskInstance taskInstance
+  ) {
+    return Optional.ofNullable(processInstance.getAssignmentRules())
+        .orElse(List.of())
+        .stream()
+        .filter(rule -> rule.matches(taskInstance.getTaskKey()))
+        .toList();
+  }
+
+  private void applyTaskAssignments(
+      TaskInstance taskInstance,
+      Set<String> definitionCandidateGroups,
+      List<TaskAssignmentRuleRequest> assignmentRules,
+      Code user
+  ) {
+    var assigneeRule = assignmentRules.stream()
+        .filter(TaskAssignmentRuleRequest::hasAssignee)
+        .findFirst();
+
+    if (assigneeRule.isPresent()) {
+      applyAssigneeRule(taskInstance, assigneeRule.get(), user);
+      return;
+    }
+
+    applyDefinitionCandidateGroups(taskInstance, definitionCandidateGroups, user);
+    applyCandidateUserRules(taskInstance, assignmentRules, user);
+  }
+
+  private void applyAssigneeRule(TaskInstance taskInstance, TaskAssignmentRuleRequest rule, Code user) {
+    assignTask(TaskOperationData.builder()
+        .id(taskInstance.getId().getValue().toString())
+        .currentUser(user)
+        .targetUser(rule.getAssignee().getValue())
+        .priority(rule.getPriority())
+        .assignmentMode(rule.getAssignmentMode())
+        .build());
+  }
+
+  private void applyDefinitionCandidateGroups(TaskInstance taskInstance, Set<String> candidateGroups, Code user) {
+    var groups = normalizeCandidateGroups(candidateGroups);
+    if (groups.isEmpty()) {
+      return;
+    }
+
+    assignTask(TaskOperationData.builder()
+        .id(taskInstance.getId().getValue().toString())
+        .currentUser(user)
+        .candidateGroups(groups)
+        .build());
+  }
+
+  private void applyCandidateUserRules(
+      TaskInstance taskInstance,
+      List<TaskAssignmentRuleRequest> assignmentRules,
+      Code user
+  ) {
+    assignmentRules.stream()
+        .filter(TaskAssignmentRuleRequest::hasCandidateUsers)
+        .forEach(rule -> applyCandidateUserRule(taskInstance, rule, user));
+  }
+
+  private void applyCandidateUserRule(TaskInstance taskInstance, TaskAssignmentRuleRequest rule, Code user) {
+    assignTask(TaskOperationData.builder()
+        .id(taskInstance.getId().getValue().toString())
+        .currentUser(user)
+        .candidateUsers(rule.getCandidateUsers())
+        .priority(rule.getPriority())
+        .assignmentMode(rule.getAssignmentMode())
+        .build());
+  }
+
+  private List<String> normalizeCandidateGroups(Set<String> candidateGroups) {
+    if (candidateGroups == null || candidateGroups.isEmpty()) {
+      return List.of();
+    }
+    return candidateGroups.stream()
+        .filter(Objects::nonNull)
+        .map(String::trim)
+        .filter(group -> !group.isBlank())
+        .distinct()
+        .toList();
   }
 
   private List<TaskInstance> getActiveRuntimeTasks(ProcessInstance processInstance) {
@@ -326,16 +490,6 @@ public class TaskInstanceService {
             processInstance.getPriority()
         )
     );
-  }
-
-  private void assignGroups(TaskInstance runtimeTask, TaskInstance task, ProcessArtifact artifact, Code user) {
-    for (var groupId : artifact.getCandidateGroups()) {
-      task.addCandidateGroup(groupId, user);
-      runtimeProcessEngineRepository.addCandidateGroup(
-          runtimeTask.getExternalId().getValue(),
-          groupId
-      );
-    }
   }
 
   private void configureDueDate(TaskInstance runtimeTask, TaskInstance task, ProcessArtifact artifact) {

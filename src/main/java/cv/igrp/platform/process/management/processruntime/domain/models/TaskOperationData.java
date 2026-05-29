@@ -1,5 +1,6 @@
 package cv.igrp.platform.process.management.processruntime.domain.models;
 
+import cv.igrp.platform.process.management.shared.application.constants.TaskAssignmentMode;
 import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
@@ -23,6 +24,8 @@ public class TaskOperationData {
   private final Map<String,Object> variables;
   private final Map<String,Object> forms;
   private final List<String> candidateGroups;
+  private final List<String> candidateUsers;
+  private final TaskAssignmentMode assignmentMode;
 
   @Builder
   public TaskOperationData(String id,
@@ -32,7 +35,9 @@ public class TaskOperationData {
                            String note,
                            Map<String,Object> variables,
                            Map<String,Object> forms,
-                           List<String> candidateGroups) {
+                           List<String> candidateGroups,
+                           List<String> candidateUsers,
+                           TaskAssignmentMode assignmentMode) {
     this.id = id != null && !id.isBlank() ? Identifier.create(id) : Identifier.generate();
     this.currentUser = Objects.requireNonNull(currentUser,"Current User can't be null!");
     this.targetUser = targetUser != null && !targetUser.isBlank() ? Code.create(targetUser) : null;
@@ -41,6 +46,8 @@ public class TaskOperationData {
     this.variables = (variables!=null) ? variables : Map.of();
     this.forms = (forms!=null) ? forms : Map.of();
     this.candidateGroups = candidateGroups == null ? new ArrayList<>() : candidateGroups;
+    this.candidateUsers = candidateUsers == null ? new ArrayList<>() : candidateUsers;
+    this.assignmentMode = assignmentMode == null ? TaskAssignmentMode.ONE_TIME : assignmentMode;
   }
 
   public void validateVariablesAndForms() {

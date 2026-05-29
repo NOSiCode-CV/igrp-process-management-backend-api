@@ -231,7 +231,7 @@ class TaskInstanceRepositoryImplTest {
         .thenReturn(7L);   // canceled
 
     // When
-    TaskStatistics stats = repository.getTaskStatisticsByUser(currentUser, null);
+    TaskStatistics stats = repository.getTaskStatisticsByUser(currentUser, null, false);
 
     // Then
     assertEquals(100L, stats.getTotalTaskInstances());

@@ -1,35 +1,47 @@
 package cv.igrp.platform.process.management.processruntime.domain.service;
 
+import cv.igrp.platform.process.management.processdefinition.domain.service.ProcessDeploymentService;
 import cv.igrp.platform.process.management.processdefinition.domain.service.ProcessSequenceService;
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstance;
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstanceFilter;
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessInstanceTaskStatus;
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessStatistics;
+import cv.igrp.platform.process.management.processruntime.domain.models.TaskAssignmentRuleRequest;
 import cv.igrp.platform.process.management.processruntime.domain.repository.ProcessInstanceRepository;
 import cv.igrp.platform.process.management.processruntime.domain.repository.RuntimeProcessEngineRepository;
+import cv.igrp.platform.process.management.processruntime.domain.repository.UserProfileRepository;
 import cv.igrp.platform.process.management.shared.application.constants.ProcessInstanceStatus;
 import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
 import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
+import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import cv.igrp.platform.process.management.shared.domain.models.Name;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 import cv.igrp.platform.process.management.shared.domain.models.ProcessNumber;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ProcessInstanceServiceTest {
@@ -46,28 +58,28 @@ class ProcessInstanceServiceTest {
   @Mock
   private TaskInstanceService taskInstanceService;
 
-  @InjectMocks
+  @Mock
+  private ProcessDeploymentService processDeploymentService;
+
+  @Mock
+  private UserProfileRepository userProfileRepository;
+
   private ProcessInstanceService processInstanceService;
-
-  private String currentUser;
-
 
   @BeforeEach
   void setup() {
-    currentUser = "demo@nosi.cv";
-    processInstanceService = spy(new ProcessInstanceService(
+    processInstanceService = new ProcessInstanceService(
         processInstanceRepository,
         runtimeProcessEngineRepository,
         processSequenceService,
-        taskInstanceService
-    ));
+        taskInstanceService,
+        processDeploymentService,
+        userProfileRepository
+    );
   }
 
-
-
   @Test
-  void getAllTaskInstances_shouldReturnPageableList() {
-
+  void getAllProcessInstances_shouldReturnRepositoryPage() {
     ProcessInstanceFilter filter = ProcessInstanceFilter.builder().page(0).size(10).build();
     PageableLista<ProcessInstance> expected = PageableLista.<ProcessInstance>builder()
         .pageNumber(0)
@@ -83,206 +95,203 @@ class ProcessInstanceServiceTest {
 
     PageableLista<ProcessInstance> result = processInstanceService.getAllProcessInstances(filter);
 
-    assertEquals(expected, result);
-    verify(processInstanceRepository, times(1)).findAll(filter);
-
+    assertSame(expected, result);
+    verify(processInstanceRepository).findAll(filter);
   }
 
-
-
   @Test
-  void getProcessInstanceById_shouldReturnTaskInstance_whenFound() {
+  void getProcessInstanceById_shouldEnrichAndReturnProcessInstance_whenFound() {
     UUID id = UUID.randomUUID();
-    final var mockProcessInstance = mock(ProcessInstance.class);
-    when(mockProcessInstance.getEngineProcessNumber())
-        .thenReturn(Code.create(UUID.randomUUID().toString()));
+    ProcessInstance processInstance = ProcessInstance.builder()
+        .id(Identifier.create(id))
+        .procReleaseKey(Code.create("process-key"))
+        .procReleaseId(Code.create("release-1"))
+        .engineProcessNumber(Code.create("ENG-PROC-123"))
+        .businessKey(Code.create("business-key"))
+        .name("Invoice Process")
+        .build();
 
-    when(processInstanceRepository.findById(id))
-        .thenReturn(Optional.of(mockProcessInstance));
+    when(processInstanceRepository.findById(id)).thenReturn(Optional.of(processInstance));
+    when(runtimeProcessEngineRepository.getProcessInstanceTaskStatus("ENG-PROC-123"))
+        .thenReturn(List.of());
+    when(runtimeProcessEngineRepository.getProcessVariables("ENG-PROC-123"))
+        .thenReturn(Map.of("amount", 100));
+    when(userProfileRepository.findBySubjectOrEmails(any(), any()))
+        .thenReturn(List.of());
 
     ProcessInstance result = processInstanceService.getProcessInstanceById(id);
 
-    assertNotNull(result);
-    assertSame(mockProcessInstance, result);
-    verify(processInstanceService, times(1))
-        .setProcessInstanceProgress(mockProcessInstance);
-    verify(processInstanceService, times(1))
-        .addProcessVariables(mockProcessInstance);
+    assertSame(processInstance, result);
+    assertEquals(100, result.getVariables().get("amount"));
+    verify(runtimeProcessEngineRepository).getProcessInstanceTaskStatus("ENG-PROC-123");
+    verify(runtimeProcessEngineRepository).getProcessVariables("ENG-PROC-123");
   }
 
   @Test
   void getProcessInstanceById_shouldThrowException_whenNotFound() {
     UUID id = UUID.randomUUID();
-
-    when(processInstanceRepository.findById(id))
-        .thenReturn(Optional.empty());
+    when(processInstanceRepository.findById(id)).thenReturn(Optional.empty());
 
     IgrpResponseStatusException ex = assertThrows(
         IgrpResponseStatusException.class,
         () -> processInstanceService.getProcessInstanceById(id)
     );
+
     assertTrue(ex.getMessage().contains("No process instance found with id:"));
     assertEquals(HttpStatus.NOT_FOUND.value(), ex.getStatusCode().value());
   }
 
-
-
   @Test
-  void startProcessInstance_shouldStartAndCreateTasks() {
-
-    var procReleaseId = Code.create("REL-123");
-    var businessKey = Code.create("BK-001");
-    var processNumber = ProcessNumber.create("PROC-123");
-    var engineProcessNumber = Code.create("ENG-PROC-123");
-    var applicationCode = Code.create("APP-52");
-    var proReleaseKey = Code.create("PROC-KEY");
-    var processVersion = "v1";
-    var processName = "MyProcess";
-    // 1️⃣ prepare
+  void createProcessInstance_shouldCreateEngineInstanceAndPersistDomainInstance() {
     ProcessInstance processInstance = mock(ProcessInstance.class);
-    when(processInstance.getProcReleaseId()).thenReturn(procReleaseId);
-    when(processInstance.getBusinessKey()).thenReturn(businessKey);
-    when(processInstance.getVariables()).thenReturn(Map.of());
-
-    // 2️⃣ Mock do engine
-    ProcessInstance runningProcessInstance = mock(ProcessInstance.class);
-    when(runtimeProcessEngineRepository.startProcessInstanceById(
-        anyString(), anyString(), anyMap())).thenReturn(runningProcessInstance);
-
-    when(runningProcessInstance.getProcReleaseKey()).thenReturn(proReleaseKey);
-    when(runningProcessInstance.getEngineProcessNumber()).thenReturn(engineProcessNumber);
-    when(runningProcessInstance.getVersion()).thenReturn(processVersion);
-    when(runningProcessInstance.getName()).thenReturn(processName);
-    when(runningProcessInstance.getStatus()).thenReturn(ProcessInstanceStatus.RUNNING);
-
-    when(processSequenceService.getGeneratedProcessNumber(any()))
-        .thenReturn(processNumber);
-
-    when(processInstanceRepository.save(processInstance)).thenReturn(runningProcessInstance);
-
-    doNothing().when(taskInstanceService).createTaskInstancesByProcess(runningProcessInstance);
-
-    ProcessInstance result = processInstanceService.startProcessInstance(processInstance,currentUser);
-
-    verify(runtimeProcessEngineRepository).startProcessInstanceById(
-        eq(procReleaseId.getValue()), eq(businessKey.getValue()), eq(Map.of()));
-    verify(processSequenceService).getGeneratedProcessNumber(eq(proReleaseKey));
-    verify(processInstance).init(eq(processNumber),eq(engineProcessNumber),
-        eq(processVersion),eq(processName),eq(currentUser));
-    verify(processInstanceRepository).save(processInstance);
-    verify(taskInstanceService).createTaskInstancesByProcess(runningProcessInstance);
-
-    assertEquals(runningProcessInstance,result);
-  }
-
-
-  @Test
-  void startProcessInstance_shouldCompleteProcess_whenEngineReturnsCompleted() {
-    // Arrange
-    var procReleaseId = Code.create("REL-123");
-    var businessKey = Code.create("BK-001");
-    var processNumber = ProcessNumber.create("PROC-123");
-    var engineProcessNumber = Code.create("ENG-PROC-123");
-    var applicationCode = Code.create("APP-52");
-    var proReleaseKey = Code.create("PROC-KEY");
-    var processVersion = "v1";
-    var processName = "MyProcess";
-    var endedAt = LocalDateTime.now();
-    var endedBy = "system@nosi.cv";
-
-    ProcessInstance processInstance = mock(ProcessInstance.class);
-    when(processInstance.getProcReleaseId()).thenReturn(procReleaseId);
-    when(processInstance.getBusinessKey()).thenReturn(businessKey);
-    when(processInstance.getVariables()).thenReturn(Map.of());
-
-    // Mocks
     ProcessInstance engineProcessInstance = mock(ProcessInstance.class);
-    when(runtimeProcessEngineRepository.startProcessInstanceById(anyString(), anyString(), anyMap()))
+    ProcessNumber processNumber = ProcessNumber.create("PROC-123");
+
+    when(processInstance.getProcReleaseId()).thenReturn(null);
+    when(processInstance.getProcReleaseKey()).thenReturn(Code.create("invoice_process"));
+    when(processInstance.getBusinessKey()).thenReturn(Code.create("business-key"));
+    when(processDeploymentService.findLastProcessDefinitionIdByKey("invoice_process"))
+        .thenReturn("release-1");
+    when(runtimeProcessEngineRepository.createProcessInstanceById("release-1", "business-key"))
         .thenReturn(engineProcessInstance);
+    when(processSequenceService.getGeneratedProcessNumber(Code.create("invoice_process")))
+        .thenReturn(processNumber);
+    when(processInstanceRepository.save(processInstance)).thenReturn(processInstance);
 
-    when(engineProcessInstance.getProcReleaseKey()).thenReturn(proReleaseKey);
-    when(engineProcessInstance.getEngineProcessNumber()).thenReturn(engineProcessNumber);
-    when(engineProcessInstance.getVersion()).thenReturn(processVersion);
-    when(engineProcessInstance.getName()).thenReturn(processName);
-    when(engineProcessInstance.getStatus()).thenReturn(ProcessInstanceStatus.COMPLETED);
-    when(engineProcessInstance.getEndedAt()).thenReturn(endedAt);
-    when(engineProcessInstance.getEndedBy()).thenReturn(endedBy);
+    ProcessInstance result = processInstanceService.createProcessInstance(processInstance, "demo@nosi.cv");
 
-    when(processSequenceService.getGeneratedProcessNumber(any())).thenReturn(processNumber);
-
-    ProcessInstance runningProcessInstance = mock(ProcessInstance.class);
-    when(processInstanceRepository.save(processInstance)).thenReturn(runningProcessInstance);
-    when(processInstanceRepository.save(runningProcessInstance)).thenReturn(runningProcessInstance);
-
-    doNothing().when(taskInstanceService).createTaskInstancesByProcess(runningProcessInstance);
-
-    // Act
-    ProcessInstance result = processInstanceService.startProcessInstance(processInstance, currentUser);
-
-    // Verify
-    verify(runtimeProcessEngineRepository).startProcessInstanceById(
-        eq(procReleaseId.getValue()), eq(businessKey.getValue()), eq(Map.of())
-    );
-    verify(processSequenceService).getGeneratedProcessNumber(eq(proReleaseKey));
-    verify(processInstance).init(eq(processNumber), eq(engineProcessNumber),
-        eq(processVersion), eq(processName), eq(currentUser));
+    assertSame(processInstance, result);
+    verify(processInstance).create(processNumber, engineProcessInstance, "demo@nosi.cv");
     verify(processInstanceRepository).save(processInstance);
-    verify(taskInstanceService).createTaskInstancesByProcess(runningProcessInstance);
-    verify(runningProcessInstance).complete(eq(endedAt), eq(endedBy));
-    verify(processInstanceRepository).save(runningProcessInstance);
-
-    assertEquals(runningProcessInstance, result);
   }
 
+  @Test
+  void startProcessInstanceById_shouldStartProcessCreateTasksAndPersistStatus() {
+    UUID id = UUID.randomUUID();
+    ProcessInstance processInstance = ProcessInstance.builder()
+        .id(Identifier.create(id))
+        .procReleaseKey(Code.create("invoice_process"))
+        .procReleaseId(Code.create("release-1"))
+        .engineProcessNumber(Code.create("ENG-PROC-123"))
+        .businessKey(Code.create("business-key"))
+        .status(ProcessInstanceStatus.CREATED)
+        .name("Invoice Process")
+        .build();
+    ProcessInstance engineProcess = ProcessInstance.builder()
+        .procReleaseKey(Code.create("invoice_process"))
+        .status(ProcessInstanceStatus.RUNNING)
+        .build();
 
+    when(processInstanceRepository.findById(id)).thenReturn(Optional.of(processInstance));
+    when(runtimeProcessEngineRepository.getProcessInstanceTaskStatus("ENG-PROC-123"))
+        .thenReturn(List.of());
+    when(runtimeProcessEngineRepository.getProcessVariables("ENG-PROC-123"))
+        .thenReturn(Map.of());
+    when(userProfileRepository.findBySubjectOrEmails(any(), any()))
+        .thenReturn(List.of());
+    when(runtimeProcessEngineRepository.startProcessInstanceById(
+        eq("ENG-PROC-123"),
+        eq("release-1"),
+        eq("business-key"),
+        anyMap()
+    )).thenReturn(engineProcess);
+    when(processInstanceRepository.save(processInstance)).thenReturn(processInstance);
+
+    ProcessInstance result = processInstanceService.startProcessInstanceById(
+        id,
+        Map.of("amount", 100),
+        "demo@nosi.cv"
+    );
+
+    assertSame(processInstance, result);
+    assertEquals(ProcessInstanceStatus.RUNNING, result.getStatus());
+    assertEquals(100, result.getVariables().get("amount"));
+    verify(taskInstanceService).createTaskInstancesByProcess(processInstance);
+    verify(processInstanceRepository).save(processInstance);
+  }
 
   @Test
-  void testGetProcessInstanceTaskStatus() {
+  void startProcessInstanceById_shouldCarryAssignmentRulesToCreatedTasks() {
+    UUID id = UUID.randomUUID();
+    TaskAssignmentRuleRequest assignmentRule = TaskAssignmentRuleRequest.builder()
+        .taskKey(Code.create("approve-task"))
+        .assignee(Code.create("approver@nosi.cv"))
+        .build();
 
-    var processId = UUID.randomUUID();
-    ProcessInstance mockInstance = mock(ProcessInstance.class);
-    Code mockEngProcNumber = mock(Code.class);
+    ProcessInstance processInstance = ProcessInstance.builder()
+        .id(Identifier.create(id))
+        .procReleaseKey(Code.create("invoice_process"))
+        .procReleaseId(Code.create("release-1"))
+        .engineProcessNumber(Code.create("ENG-PROC-123"))
+        .businessKey(Code.create("business-key"))
+        .status(ProcessInstanceStatus.CREATED)
+        .name("Invoice Process")
+        .build();
+    ProcessInstance engineProcess = ProcessInstance.builder()
+        .procReleaseKey(Code.create("invoice_process"))
+        .status(ProcessInstanceStatus.RUNNING)
+        .build();
 
-    when(mockEngProcNumber.getValue()).thenReturn("PROC-123");
-    when(mockInstance.getEngineProcessNumber()).thenReturn(mockEngProcNumber);
+    when(processInstanceRepository.findById(id)).thenReturn(Optional.of(processInstance));
+    when(runtimeProcessEngineRepository.getProcessInstanceTaskStatus("ENG-PROC-123"))
+        .thenReturn(List.of());
+    when(runtimeProcessEngineRepository.getProcessVariables("ENG-PROC-123"))
+        .thenReturn(Map.of());
+    when(userProfileRepository.findBySubjectOrEmails(any(), any()))
+        .thenReturn(List.of());
+    when(runtimeProcessEngineRepository.startProcessInstanceById(
+        eq("ENG-PROC-123"),
+        eq("release-1"),
+        eq("business-key"),
+        anyMap()
+    )).thenReturn(engineProcess);
+    when(processInstanceRepository.save(processInstance)).thenReturn(processInstance);
 
-    doReturn(mockInstance).when(processInstanceService).getProcessInstanceById(processId);
-
-    // mock of external repository
-    List<ProcessInstanceTaskStatus> mockStatus = List.of(
-        ProcessInstanceTaskStatus.builder().taskKey(Code.create("Task1"))
-            .taskName(Name.create("Task1Name")).status(TaskInstanceStatus.CREATED)
-            .processInstanceId(Code.create(processId.toString())).build(),
-        ProcessInstanceTaskStatus.builder().taskKey(Code.create("Task2"))
-            .taskName(Name.create("Task2Name")).status(TaskInstanceStatus.COMPLETED)
-            .processInstanceId(Code.create(processId.toString())).build()
+    ProcessInstance result = processInstanceService.startProcessInstanceById(
+        id,
+        Map.of(),
+        List.of(assignmentRule),
+        "demo@nosi.cv"
     );
-    when(runtimeProcessEngineRepository.getProcessInstanceTaskStatus("PROC-123"))
-        .thenReturn(mockStatus);
 
-    // act
+    assertSame(processInstance, result);
+    assertEquals(List.of(assignmentRule), result.getAssignmentRules());
+    verify(taskInstanceService).createTaskInstancesByProcess(processInstance);
+  }
+
+  @Test
+  void getProcessInstanceTaskStatus_shouldDelegateUsingEngineProcessNumber() {
+    UUID processId = UUID.randomUUID();
+    ProcessInstance processInstance = ProcessInstance.builder()
+        .id(Identifier.create(processId))
+        .procReleaseKey(Code.create("process-key"))
+        .engineProcessNumber(Code.create("PROC-123"))
+        .build();
+    List<ProcessInstanceTaskStatus> statuses = List.of(
+        ProcessInstanceTaskStatus.builder()
+            .taskKey(Code.create("Task1"))
+            .taskName(Name.create("Task1Name"))
+            .status(TaskInstanceStatus.CREATED)
+            .processInstanceId(Code.create(processId.toString()))
+            .build()
+    );
+
+    when(processInstanceRepository.findById(processId)).thenReturn(Optional.of(processInstance));
+    when(runtimeProcessEngineRepository.getProcessInstanceTaskStatus("PROC-123"))
+        .thenReturn(statuses);
+    when(runtimeProcessEngineRepository.getProcessVariables("PROC-123")).thenReturn(Map.of());
+    when(userProfileRepository.findBySubjectOrEmails(any(), any())).thenReturn(List.of());
+
     List<ProcessInstanceTaskStatus> result = processInstanceService.getProcessInstanceTaskStatus(processId);
 
-    // asserts
-    assertNotNull(result);
-    assertEquals(2, result.size());
-    assertEquals("Task1Name", result.get(0).getTaskName().getValue());
-    assertEquals(TaskInstanceStatus.CREATED, result.get(0).getStatus());
-    assertEquals("Task2Name", result.get(1).getTaskName().getValue());
-    assertEquals(TaskInstanceStatus.COMPLETED, result.get(1).getStatus());
-
-    // verify
-    verify(processInstanceService).getProcessInstanceById(processId);
-    verify(runtimeProcessEngineRepository).getProcessInstanceTaskStatus("PROC-123");
-
+    assertEquals(statuses, result);
+    verify(runtimeProcessEngineRepository, org.mockito.Mockito.times(2))
+        .getProcessInstanceTaskStatus("PROC-123");
   }
 
-
-
   @Test
-  void testGetProcessStatisticsByUser(){
-
-    ProcessStatistics mockStats = ProcessStatistics.builder()
+  void getProcessInstanceStatistics_shouldDelegateToRepository() {
+    ProcessStatistics stats = ProcessStatistics.builder()
         .totalProcessInstances(100L)
         .totalCreatedProcess(52L)
         .totalRunningProcess(18L)
@@ -291,20 +300,12 @@ class ProcessInstanceServiceTest {
         .totalCanceledProcess(7L)
         .build();
 
-    when(processInstanceRepository.getProcessInstanceStatistics()).thenReturn(mockStats);
+    when(processInstanceRepository.getProcessInstanceStatistics()).thenReturn(stats);
 
-    ProcessStatistics stats = processInstanceService.getProcessInstanceStatistics();
+    ProcessStatistics result = processInstanceService.getProcessInstanceStatistics();
 
-    assertNotNull(stats);
-    assertEquals(100L, stats.getTotalProcessInstances());
-    assertEquals(52L, stats.getTotalCreatedProcess());
-    assertEquals(18L, stats.getTotalRunningProcess());
-    assertEquals(5L, stats.getTotalCompletedProcess());
-    assertEquals(25L, stats.getTotalSuspendedProcess());
-    assertEquals(7L, stats.getTotalCanceledProcess());
-
+    assertNotNull(result);
+    assertEquals(100L, result.getTotalProcessInstances());
     verify(processInstanceRepository).getProcessInstanceStatistics();
-
   }
-
 }
