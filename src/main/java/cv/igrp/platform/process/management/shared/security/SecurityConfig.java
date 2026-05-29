@@ -121,7 +121,7 @@ public class SecurityConfig {
       try {
 
         authorizationService
-            .getRoles(token, request)
+            .getActiveGroups(token, request)
             .forEach(r -> {
               String roleValue = !r.startsWith(ROLE_PREFIX) ? ROLE_PREFIX + r : r;
               String groupValue = !r.startsWith(ActivitiConstants.GROUP_PREFIX) ? ActivitiConstants.GROUP_PREFIX + r : r;
@@ -133,14 +133,6 @@ public class SecurityConfig {
             .getPermissions(token, request)
             .forEach(p -> {
               authorities.add(new SimpleGrantedAuthority(p));
-            });
-
-        authorizationService
-            .getDepartments(token, request)
-            .forEach(d -> {
-              authorities.add(new SimpleGrantedAuthority(d));
-              String groupValue = !d.startsWith(ActivitiConstants.GROUP_PREFIX) ? ActivitiConstants.GROUP_PREFIX + d : d;
-              authorities.add(new SimpleGrantedAuthority(groupValue));
             });
 
         // Activiti Admin or User role
