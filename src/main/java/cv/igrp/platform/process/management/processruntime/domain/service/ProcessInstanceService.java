@@ -166,6 +166,7 @@ public class ProcessInstanceService {
         processInstance.getVariables()
     );
 
+    taskInstanceService.registerAssignmentRules(processInstance);
     taskInstanceService.createTaskInstancesByProcess(processInstance);
 
     updateProcessInstanceStatus(process, processInstance);

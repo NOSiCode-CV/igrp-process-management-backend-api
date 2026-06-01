@@ -87,11 +87,9 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
 
     Specification<TaskInstanceEntity> spec = buildSpecification(filter);
 
-    PageRequest pageRequest = PageRequest.of(
-        filter.getPage(),
-        filter.getSize(),
-        Sort.by(Sort.Direction.DESC, "startedAt")
-    );
+    PageRequest pageRequest = filter.isFilterByCurrentUser() && !filter.isSuperAdmin()
+        ? PageRequest.of(filter.getPage(), filter.getSize())
+        : PageRequest.of(filter.getPage(), filter.getSize(), Sort.by(Sort.Direction.DESC, "startedAt"));
 
     Page<TaskInstanceEntity> page = taskInstanceEntityRepository.findAll(spec, pageRequest);
 
@@ -185,12 +183,18 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
       Set<String> groups = filter.getContextUserGroups();
       LOGGER.debug("Adding visibility spec for user [{}] with groups {}", currentUser, groups);
       spec = spec.and(userVisibilitySpec(currentUser, groups));
+      spec = spec.and(userVisibilityOrderSpec(currentUser, groups));
     }
 
     // Client-supplied candidate groups filter
     if (filter.getCandidateGroups() != null && !filter.getCandidateGroups().isEmpty()) {
       spec = spec.and((root, query, cb) ->
           candidateGroupsPredicate(root, query, cb, filter.getCandidateGroups(), JoinType.INNER));
+    }
+
+    if (filter.getCandidateUsers() != null && !filter.getCandidateUsers().isEmpty()) {
+      spec = spec.and((root, query, cb) ->
+          candidateUserRulePredicate(root, query, cb, filter.getCandidateUsers()));
     }
 
     return spec;
@@ -406,6 +410,32 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
     };
   }
 
+  private Specification<TaskInstanceEntity> userVisibilityOrderSpec(String currentUser, Set<String> userGroups) {
+    return (root, query, cb) -> {
+      if (query.getResultType() == Long.class || query.getResultType() == long.class) {
+        return cb.conjunction();
+      }
+
+      var assignedPredicate = currentUser != null && !currentUser.isBlank()
+          ? cb.equal(root.get("assignedBy"), currentUser)
+          : cb.disjunction();
+      var candidateUserPredicate = currentUser != null && !currentUser.isBlank()
+          ? candidateUserRulePredicate(root, query, cb, currentUser)
+          : cb.disjunction();
+      var candidateGroupPredicate = userGroups != null && !userGroups.isEmpty()
+          ? candidateGroupExistsPredicate(root, query, cb, userGroups)
+          : cb.disjunction();
+
+      var visibilityRank = cb.<Integer>selectCase()
+          .when(assignedPredicate, 0)
+          .when(candidateUserPredicate, 1)
+          .when(candidateGroupPredicate, 2)
+          .otherwise(3);
+      query.orderBy(cb.asc(visibilityRank), cb.desc(root.get("startedAt")));
+      return cb.conjunction();
+    };
+  }
+
   private Predicate candidateGroupsPredicate(
       Root<TaskInstanceEntity> root,
       jakarta.persistence.criteria.CriteriaQuery<?> query,
@@ -439,9 +469,70 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
         cb.equal(rule.get("taskDefinitionKey"), root.get("taskKey")),
         cb.equal(candidateUsers, user.trim()),
         cb.isTrue(rule.get("active")),
-        cb.isFalse(rule.get("consumed"))
+        cb.or(
+            cb.isFalse(rule.get("consumed")),
+            cb.equal(rule.get("createdByTask").get("id"), root.get("id"))
+        )
     );
     return cb.exists(candidateUserRule);
+  }
+
+  private Predicate candidateUserRulePredicate(
+      Root<TaskInstanceEntity> root,
+      jakarta.persistence.criteria.CriteriaQuery<?> query,
+      CriteriaBuilder cb,
+      Set<String> users
+  ) {
+    var normalizedUsers = users.stream()
+        .filter(Objects::nonNull)
+        .map(String::trim)
+        .filter(user -> !user.isBlank())
+        .collect(Collectors.toSet());
+    if (normalizedUsers.isEmpty()) {
+      return cb.disjunction();
+    }
+
+    var candidateUserRule = query.subquery(UUID.class);
+    Root<TaskAssignmentRuleEntity> rule = candidateUserRule.from(TaskAssignmentRuleEntity.class);
+    SetJoin<TaskAssignmentRuleEntity, String> candidateUsers = rule.joinSet("candidateUsers");
+    candidateUserRule.select(rule.get("id"));
+    candidateUserRule.where(
+        cb.equal(rule.get("processInstanceId").get("id"), root.get("processInstanceId").get("id")),
+        cb.equal(rule.get("taskDefinitionKey"), root.get("taskKey")),
+        candidateUsers.in(normalizedUsers),
+        cb.isTrue(rule.get("active")),
+        cb.or(
+            cb.isFalse(rule.get("consumed")),
+            cb.equal(rule.get("createdByTask").get("id"), root.get("id"))
+        )
+    );
+    return cb.exists(candidateUserRule);
+  }
+
+  private Predicate candidateGroupExistsPredicate(
+      Root<TaskInstanceEntity> root,
+      jakarta.persistence.criteria.CriteriaQuery<?> query,
+      CriteriaBuilder cb,
+      Set<String> groups
+  ) {
+    var normalizedGroups = groups.stream()
+        .filter(Objects::nonNull)
+        .map(String::trim)
+        .filter(group -> !group.isBlank())
+        .collect(Collectors.toSet());
+    if (normalizedGroups.isEmpty()) {
+      return cb.disjunction();
+    }
+
+    var candidateGroupTask = query.subquery(UUID.class);
+    Root<TaskInstanceEntity> task = candidateGroupTask.from(TaskInstanceEntity.class);
+    SetJoin<TaskInstanceEntity, String> candidateGroups = task.joinSet("candidateGroups");
+    candidateGroupTask.select(task.get("id"));
+    candidateGroupTask.where(
+        cb.equal(task.get("id"), root.get("id")),
+        candidateGroups.in(normalizedGroups)
+    );
+    return cb.exists(candidateGroupTask);
   }
 
   private long countBySpec(Specification<TaskInstanceEntity> spec) {

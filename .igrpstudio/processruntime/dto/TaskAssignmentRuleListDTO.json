@@ -1,12 +1,24 @@
 {
   "type": "dto",
   "module": "processruntime",
-  "name": "StartProcessRequestDTO",
+  "name": "TaskAssignmentRuleListDTO",
   "template": "classic",
   "enableCustonValidation": false,
   "attributes": [
     {
-      "name": "processDefinitionId",
+      "name": "id",
+      "objectType": "java",
+      "type": "uuid",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    },
+    {
+      "name": "processDefinitionKey",
       "objectType": "java",
       "type": "string",
       "required": false,
@@ -18,10 +30,10 @@
       "primaryKey": false
     },
     {
-      "name": "processKey",
+      "name": "processInstanceId",
       "objectType": "java",
-      "type": "string",
-      "required": true,
+      "type": "uuid",
+      "required": false,
       "before": false,
       "after": false,
       "positive": false,
@@ -30,7 +42,7 @@
       "primaryKey": false
     },
     {
-      "name": "businessKey",
+      "name": "taskDefinitionKey",
       "objectType": "java",
       "type": "string",
       "required": false,
@@ -42,16 +54,41 @@
       "primaryKey": false
     },
     {
-      "name": "applicationBase",
+      "name": "assignee",
       "objectType": "java",
       "type": "string",
-      "required": true,
+      "required": false,
       "before": false,
       "after": false,
       "positive": false,
       "isEmail": false,
       "isUrl": false,
       "primaryKey": false
+    },
+    {
+      "name": "candidateUsers",
+      "objectType": "java",
+      "type": "string",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
+    },
+    {
+      "name": "assignmentMode",
+      "objectType": "enum",
+      "type": "TaskAssignmentMode",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false,
+      "module": "shared"
     },
     {
       "name": "priority",
@@ -66,33 +103,41 @@
       "primaryKey": false
     },
     {
-      "name": "variables",
-      "objectType": "dto",
-      "type": "ProcessVariableDTO",
+      "name": "consumed",
+      "objectType": "java",
+      "type": "boolean",
       "required": false,
       "before": false,
       "after": false,
       "positive": false,
       "isEmail": false,
       "isUrl": false,
-      "primaryKey": false,
-      "module": "processruntime",
-      "collectionType": "list"
+      "primaryKey": false
     },
     {
-      "name": "assignmentRules",
-      "objectType": "dto",
-      "type": "ProcessTaskAssignmentRuleDTO",
+      "name": "active",
+      "objectType": "java",
+      "type": "boolean",
       "required": false,
       "before": false,
       "after": false,
       "positive": false,
       "isEmail": false,
       "isUrl": false,
-      "primaryKey": false,
-      "module": "processruntime",
-      "collectionType": "list"
+      "primaryKey": false
+    },
+    {
+      "name": "createdByTask",
+      "objectType": "java",
+      "type": "uuid",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false
     }
   ],
-  "id": "js6stijo7e"
+  "id": "task-assignment-rule-list-dto"
 }

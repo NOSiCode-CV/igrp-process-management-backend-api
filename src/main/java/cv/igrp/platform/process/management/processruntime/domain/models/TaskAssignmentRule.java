@@ -25,6 +25,7 @@ public class TaskAssignmentRule {
   private final boolean consumed;
   private final boolean active;
   private final Identifier createdByTask;
+  private final boolean persisted;
 
   @Builder
   public TaskAssignmentRule(
@@ -38,7 +39,8 @@ public class TaskAssignmentRule {
       Integer priority,
       Boolean consumed,
       Boolean active,
-      Identifier createdByTask
+      Identifier createdByTask,
+      Boolean persisted
   ) {
     this.id = id == null ? Identifier.generate() : id;
     this.processDefinitionKey = Objects.requireNonNull(processDefinitionKey, "Process definition key cannot be null!");
@@ -51,6 +53,7 @@ public class TaskAssignmentRule {
     this.consumed = consumed != null && consumed;
     this.active = active == null || active;
     this.createdByTask = createdByTask;
+    this.persisted = persisted != null && persisted;
   }
 
   private Set<String> normalizeCandidateUsers(Collection<String> candidateUsers) {
@@ -64,5 +67,13 @@ public class TaskAssignmentRule {
         .filter(user -> !user.isBlank())
         .forEach(users::add);
     return users;
+  }
+
+  public boolean hasAssignee() {
+    return assignee != null;
+  }
+
+  public boolean hasCandidateUsers() {
+    return !candidateUsers.isEmpty();
   }
 }

@@ -256,6 +256,7 @@ class ProcessInstanceServiceTest {
 
     assertSame(processInstance, result);
     assertEquals(List.of(assignmentRule), result.getAssignmentRules());
+    verify(taskInstanceService).registerAssignmentRules(processInstance);
     verify(taskInstanceService).createTaskInstancesByProcess(processInstance);
   }
 

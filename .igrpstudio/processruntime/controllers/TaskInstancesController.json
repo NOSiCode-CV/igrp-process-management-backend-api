@@ -72,6 +72,12 @@
         },
         {
           "type": "string",
+          "name": "candidateUsers",
+          "isRequired": false,
+          "description": "Candidate Users"
+        },
+        {
+          "type": "string",
           "name": "user",
           "description": "User UID",
           "isRequired": false
@@ -515,6 +521,96 @@
           }
         }
       }
+    },
+    {
+      "actionName": "listTaskAssignmentRules",
+      "path": "assignment-rules",
+      "method": "GET",
+      "responses": {
+        "200": {
+          "name": "OK",
+          "description": "List task assignment rules",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TaskAssignmentRuleListPageDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "processruntime"
+              }
+            }
+          }
+        }
+      },
+      "requestParams": [
+        {
+          "type": "string",
+          "name": "processInstanceId",
+          "description": "Process Instance Id",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "processDefinitionKey",
+          "description": "Process Definition Key",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "taskDefinitionKey",
+          "description": "Task Definition Key",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "assignee",
+          "description": "Assignee",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "candidateUsers",
+          "description": "Candidate Users",
+          "isRequired": false
+        },
+        {
+          "type": "TaskAssignmentMode",
+          "name": "assignmentMode",
+          "description": "Assignment Mode",
+          "isRequired": false,
+          "objectType": "enum",
+          "module": "shared"
+        },
+        {
+          "type": "boolean",
+          "name": "consumed",
+          "description": "Consumed",
+          "isRequired": false
+        },
+        {
+          "type": "boolean",
+          "name": "active",
+          "description": "Active",
+          "isRequired": false
+        },
+        {
+          "type": "string",
+          "name": "createdByTask",
+          "description": "Created By Task",
+          "isRequired": false
+        },
+        {
+          "type": "integer",
+          "name": "page",
+          "isRequired": false
+        },
+        {
+          "type": "integer",
+          "name": "size",
+          "isRequired": false
+        }
+      ]
     },
     {
       "actionName": "saveTask",

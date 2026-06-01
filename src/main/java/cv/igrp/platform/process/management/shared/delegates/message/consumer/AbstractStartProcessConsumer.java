@@ -7,7 +7,6 @@ import cv.igrp.platform.process.management.processruntime.domain.service.Process
 import cv.igrp.platform.process.management.shared.delegates.message.dto.ProcessVariableDTO;
 import cv.igrp.platform.process.management.shared.delegates.message.dto.StartProcessDTO;
 import cv.igrp.platform.process.management.shared.delegates.message.dto.TaskAssignmentRuleDTO;
-import cv.igrp.platform.process.management.shared.application.constants.TaskAssignmentMode;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Header;
@@ -123,17 +122,10 @@ public abstract class AbstractStartProcessConsumer {
                 ? Code.create(dto.getAssignee().trim())
                 : null)
             .candidateUsers(splitCommaSeparated(dto.getCandidateUsers()))
-            .assignmentMode(toAssignmentMode(dto.getAssignmentMode()))
+            .assignmentMode(dto.getAssignmentMode())
             .priority(dto.getPriority())
             .build())
         .toList();
-  }
-
-  private TaskAssignmentMode toAssignmentMode(String value) {
-    if (value == null || value.isBlank()) {
-      return TaskAssignmentMode.ONE_TIME;
-    }
-    return TaskAssignmentMode.valueOf(value.trim().toUpperCase());
   }
 
   private List<String> splitCommaSeparated(String value) {

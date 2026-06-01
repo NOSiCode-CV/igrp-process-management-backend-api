@@ -6,9 +6,7 @@ import cv.igrp.platform.process.management.processruntime.domain.models.ProcessI
 import cv.igrp.platform.process.management.processruntime.domain.models.ProcessStatistics;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskAssignmentRuleRequest;
 import cv.igrp.platform.process.management.shared.application.constants.ProcessInstanceStatus;
-import cv.igrp.platform.process.management.shared.application.constants.TaskAssignmentMode;
 import cv.igrp.platform.process.management.shared.application.dto.StartProcessDTO;
-import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
@@ -128,21 +126,10 @@ public class ProcessInstanceMapper {
                 ? Code.create(dto.getAssignee().trim())
                 : null)
             .candidateUsers(splitCommaSeparated(dto.getCandidateUsers()))
-            .assignmentMode(toAssignmentMode(dto.getAssignmentMode()))
+            .assignmentMode(dto.getAssignmentMode())
             .priority(dto.getPriority())
             .build())
         .toList();
-  }
-
-  private TaskAssignmentMode toAssignmentMode(String value) {
-    if (value == null || value.isBlank()) {
-      return TaskAssignmentMode.ONE_TIME;
-    }
-    try {
-      return TaskAssignmentMode.valueOf(value.trim().toUpperCase());
-    } catch (IllegalArgumentException exception) {
-      throw IgrpResponseStatusException.badRequest("Invalid assignmentMode: " + value);
-    }
   }
 
   private List<String> splitCommaSeparated(String value) {

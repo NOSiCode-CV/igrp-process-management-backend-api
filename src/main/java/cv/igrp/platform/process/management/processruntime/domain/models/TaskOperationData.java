@@ -26,6 +26,7 @@ public class TaskOperationData {
   private final List<String> candidateGroups;
   private final List<String> candidateUsers;
   private final TaskAssignmentMode assignmentMode;
+  private final boolean persistAssignmentRule;
 
   @Builder
   public TaskOperationData(String id,
@@ -37,7 +38,8 @@ public class TaskOperationData {
                            Map<String,Object> forms,
                            List<String> candidateGroups,
                            List<String> candidateUsers,
-                           TaskAssignmentMode assignmentMode) {
+                           TaskAssignmentMode assignmentMode,
+                           Boolean persistAssignmentRule) {
     this.id = id != null && !id.isBlank() ? Identifier.create(id) : Identifier.generate();
     this.currentUser = Objects.requireNonNull(currentUser,"Current User can't be null!");
     this.targetUser = targetUser != null && !targetUser.isBlank() ? Code.create(targetUser) : null;
@@ -48,6 +50,7 @@ public class TaskOperationData {
     this.candidateGroups = candidateGroups == null ? new ArrayList<>() : candidateGroups;
     this.candidateUsers = candidateUsers == null ? new ArrayList<>() : candidateUsers;
     this.assignmentMode = assignmentMode == null ? TaskAssignmentMode.ONE_TIME : assignmentMode;
+    this.persistAssignmentRule = persistAssignmentRule == null || persistAssignmentRule;
   }
 
   public void validateVariablesAndForms() {

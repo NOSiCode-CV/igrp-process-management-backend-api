@@ -1,12 +1,12 @@
 {
   "type": "dto",
-  "module": "processruntime",
-  "name": "StartProcessRequestDTO",
+  "module": "shared",
+  "name": "TaskAssignmentRuleDTO",
   "template": "classic",
   "enableCustonValidation": false,
   "attributes": [
     {
-      "name": "processDefinitionId",
+      "name": "taskKey",
       "objectType": "java",
       "type": "string",
       "required": false,
@@ -18,19 +18,7 @@
       "primaryKey": false
     },
     {
-      "name": "processKey",
-      "objectType": "java",
-      "type": "string",
-      "required": true,
-      "before": false,
-      "after": false,
-      "positive": false,
-      "isEmail": false,
-      "isUrl": false,
-      "primaryKey": false
-    },
-    {
-      "name": "businessKey",
+      "name": "assignee",
       "objectType": "java",
       "type": "string",
       "required": false,
@@ -42,16 +30,29 @@
       "primaryKey": false
     },
     {
-      "name": "applicationBase",
+      "name": "candidateUsers",
       "objectType": "java",
       "type": "string",
-      "required": true,
+      "required": false,
       "before": false,
       "after": false,
       "positive": false,
       "isEmail": false,
       "isUrl": false,
       "primaryKey": false
+    },
+    {
+      "name": "assignmentMode",
+      "objectType": "enum",
+      "type": "TaskAssignmentMode",
+      "required": false,
+      "before": false,
+      "after": false,
+      "positive": false,
+      "isEmail": false,
+      "isUrl": false,
+      "primaryKey": false,
+      "module": "shared"
     },
     {
       "name": "priority",
@@ -64,35 +65,7 @@
       "isEmail": false,
       "isUrl": false,
       "primaryKey": false
-    },
-    {
-      "name": "variables",
-      "objectType": "dto",
-      "type": "ProcessVariableDTO",
-      "required": false,
-      "before": false,
-      "after": false,
-      "positive": false,
-      "isEmail": false,
-      "isUrl": false,
-      "primaryKey": false,
-      "module": "processruntime",
-      "collectionType": "list"
-    },
-    {
-      "name": "assignmentRules",
-      "objectType": "dto",
-      "type": "ProcessTaskAssignmentRuleDTO",
-      "required": false,
-      "before": false,
-      "after": false,
-      "positive": false,
-      "isEmail": false,
-      "isUrl": false,
-      "primaryKey": false,
-      "module": "processruntime",
-      "collectionType": "list"
     }
   ],
-  "id": "js6stijo7e"
+  "id": "task-assignment-rule-dto"
 }
