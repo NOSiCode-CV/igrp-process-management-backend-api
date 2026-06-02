@@ -43,11 +43,12 @@ public class SecurityConfig {
 
   private final IAuthorizationServiceAdapter authorizationService;
 
-  @Value("${igrp.security.principal-claim-name}")
-  private String principalClaimName;
+  private final String principalClaimName;
 
-  public SecurityConfig(IAuthorizationServiceAdapter authorizationService) {
+  public SecurityConfig(IAuthorizationServiceAdapter authorizationService,
+                        @Value("${igrp.security.principal-claim-name}") String principalClaimName) {
     this.authorizationService = authorizationService;
+    this.principalClaimName = principalClaimName;
   }
 
   @Bean
