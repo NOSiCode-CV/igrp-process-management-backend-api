@@ -36,6 +36,7 @@
             <url>https://sonatype.nosi.cv/repository/igrp-framework/</url>
         </repository>
     </repositories>
+
     <properties>
         <igrp.version>0.1.0-beta.1</igrp.version>
         <java.version>25</java.version>
