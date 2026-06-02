@@ -2,6 +2,7 @@ package cv.igrp.platform.process.management.shared.security;
 
 import cv.igrp.framework.process.runtime.auth.core.adapter.IAuthorizationServiceAdapter;
 import cv.igrp.platform.process.management.shared.security.util.ActivitiConstants;
+import cv.igrp.platform.process.management.shared.security.util.IgrpAuthorizationConstants;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,10 +74,10 @@ public class SecurityConfig {
         .authorizeHttpRequests((authorize) -> authorize
             .requestMatchers(
                 "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",
-                "/swagger-resources/**", "/webjars/**", "/actuator/**"
+                "/swagger-resources/**", "/webjars/**",
+                "/actuator/health", "/actuator/health/**"
             ).permitAll()
             .anyRequest()
-                //.permitAll()
             .authenticated()  // Require authentication for all other requests
         )
         .exceptionHandling(ex -> ex.authenticationEntryPoint((request, response, authException) -> {
@@ -100,30 +101,14 @@ public class SecurityConfig {
 
     var converter = new JwtAuthenticationConverter();
 
+    // Use only if you want email as principal
+    // converter.setPrincipalClaimName("email");
+
     converter.setJwtGrantedAuthoritiesConverter(jwt -> {
 
-      // SMELL: JwtGrantedAuthoritiesConverter is designed solely to map JWT claims to
-      // GrantedAuthority objects. Using it to make outbound HTTP calls to the authorization
-      // service is a side effect that couples authentication to an external dependency.
-      // If the authorization service is unavailable, authentication itself fails entirely.
-      // IMPROVEMENT: Move roles/permissions/departments enrichment to a dedicated
-      // SecurityContextEnrichmentFilter that runs after authentication (similar to
-      // IAMUserProfileSyncFilter). The converter would only handle the JWT-native claims,
-      // keeping authentication and authorization enrichment separate and independently
-      // resilient to failures.
+      final String email = jwt.getClaimAsString("email");
+      final String sub = jwt.getSubject();
 
-      // RISK: RequestContextHolder.getRequestAttributes() returns null when this converter
-      // is invoked outside an HTTP request thread — e.g. token refresh flows, async
-      // processing, or Spring Security internal calls during filter chain setup.
-      // The unchecked cast + immediate .getRequest() call will throw NullPointerException
-      // in those scenarios.
-      // IMPROVEMENT: Guard with a null check and either skip enrichment gracefully or
-      // extract the HttpServletRequest from the filter chain context instead of relying
-      // on the thread-local RequestContextHolder.
-      //   ServletRequestAttributes attrs =
-      //       (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-      //   HttpServletRequest request = attrs != null ? attrs.getRequest() : null;
-      //   if (request == null) return Set.of(); // or minimal fallback authorities
       HttpServletRequest request =
           ((ServletRequestAttributes) RequestContextHolder
               .getRequestAttributes())
@@ -131,34 +116,37 @@ public class SecurityConfig {
 
       Set<GrantedAuthority> authorities = new HashSet<>();
       final String token = jwt.getTokenValue();
-      authorizationService
-          .getRoles(token, request)
-          .forEach(r -> {
-            String roleValue = !r.startsWith(ROLE_PREFIX) ?  ROLE_PREFIX + r : r;
-            String groupValue = !r.startsWith(ActivitiConstants.GROUP_PREFIX) ? ActivitiConstants.GROUP_PREFIX + r : r;
-            authorities.add(new SimpleGrantedAuthority(roleValue));
-            authorities.add(new SimpleGrantedAuthority(groupValue));
-          });
 
-      authorizationService
-          .getPermissions(token, request)
-          .forEach(p -> {
-            authorities.add(new SimpleGrantedAuthority(p));
-          });
+      try {
 
-      authorizationService
-          .getDepartments(token, request)
-          .forEach(d -> {
-            authorities.add(new SimpleGrantedAuthority(d));
-            String groupValue = !d.startsWith(ActivitiConstants.GROUP_PREFIX) ? ActivitiConstants.GROUP_PREFIX + d : d;
-            authorities.add(new SimpleGrantedAuthority(groupValue));
-          });
+        authorizationService
+            .getActiveGroups(token, request)
+            .forEach(r -> {
+              String roleValue = !r.startsWith(ROLE_PREFIX) ? ROLE_PREFIX + r : r;
+              String groupValue = !r.startsWith(ActivitiConstants.GROUP_PREFIX) ? ActivitiConstants.GROUP_PREFIX + r : r;
+              authorities.add(new SimpleGrantedAuthority(roleValue));
+              authorities.add(new SimpleGrantedAuthority(groupValue));
+            });
 
-      // Activiti Admin or User role
-      if(authorizationService.isSuperAdmin(token, request)){
-        authorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + ActivitiConstants.ROLE_ACTIVITI_ADMIN));
-        authorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + ActivitiConstants.ROLE_ACTIVITI_USER));
-      } else {
+        authorizationService
+            .getPermissions(token, request)
+            .forEach(p -> {
+              authorities.add(new SimpleGrantedAuthority(p));
+            });
+
+        // Activiti Admin or User role
+        if (authorizationService.isSuperAdmin(token, request)) {
+          LOGGER.info("User [{}] granted super admin privileges", email);
+          authorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + IgrpAuthorizationConstants.SUPER_ADMIN_ROLE));
+          authorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + ActivitiConstants.ROLE_ACTIVITI_ADMIN));
+          authorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + ActivitiConstants.ROLE_ACTIVITI_USER));
+        } else {
+          authorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + ActivitiConstants.ROLE_ACTIVITI_USER));
+        }
+
+      } catch (Exception e) {
+        LOGGER.error("Failed to enrich authorities for [email={}, sub={}]: {}", email, sub, e.getMessage(), e);
+        // Ensure at least basic Activiti user role
         authorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + ActivitiConstants.ROLE_ACTIVITI_USER));
       }
 
@@ -186,7 +174,7 @@ public class SecurityConfig {
   @Bean
   public FilterRegistrationBean<IAMUserProfileSyncFilter> iamUserProfileSyncFilterRegistration(IAMUserProfileSyncFilter filter) {
     var registration = new FilterRegistrationBean<>(filter);
-    registration.setEnabled(true);
+    registration.setEnabled(false);
     return registration;
   }
 

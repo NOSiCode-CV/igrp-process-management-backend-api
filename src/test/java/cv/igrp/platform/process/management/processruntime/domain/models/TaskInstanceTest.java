@@ -15,6 +15,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -175,7 +177,7 @@ class TaskInstanceTest {
 
     task.create();
 
-    task.assign(operation);
+    task.assignUser(operation);
 
     assertEquals(TaskInstanceStatus.ASSIGNED, task.getStatus());
     assertNotNull(task.getAssignedAt());
@@ -196,7 +198,7 @@ class TaskInstanceTest {
         .note("Assign once").build();
 
     task.create();
-    task.assign(operation);
+    task.assignUser(operation);
 
     var operation2 = TaskOperationData.builder()
         .id(taskId)
@@ -204,8 +206,30 @@ class TaskInstanceTest {
         .targetUser("user2@nosi.cv")
         .note("Assign again").build();
 
-    var ex = assertThrows(IgrpResponseStatusException.class, () -> task.assign(operation2));
+    var ex = assertThrows(IgrpResponseStatusException.class, () -> task.assignUser(operation2));
     assertTrue(ex.getMessage().contains("Cannot Assign a Task in Status[ASSIGNED]"));
+  }
+
+  @Test
+  void testAddCandidates_ShouldStoreGroupsAndCreateAssignEvent() {
+
+    var operation = TaskOperationData.builder()
+        .id(taskId)
+        .currentUser(currentUser)
+        .candidateGroups(List.of("group1", "group2"))
+        .note("Assign candidates")
+        .build();
+
+    task.create();
+
+    task.addCandidates(operation);
+
+    assertEquals(TaskInstanceStatus.ASSIGNED, task.getStatus());
+    assertTrue(task.getCandidateGroups().containsAll(Set.of("group1", "group2")));
+
+    var lastEvent = task.getTaskInstanceEvents().getLast();
+    assertEquals(TaskEventType.ASSIGN, lastEvent.getEventType());
+    assertEquals(currentUser, lastEvent.getPerformedBy());
   }
 
 
@@ -238,7 +262,7 @@ class TaskInstanceTest {
   }
 
   @Test
-  void testComplete_ShouldThrow_WhenTaskNotAssigned() {
+  void testComplete_ShouldSucceed_WhenTaskIsCreated() {
     var completeOperation = TaskOperationData.builder()
         .id(taskId)
         .currentUser(currentUser)
@@ -247,10 +271,10 @@ class TaskInstanceTest {
 
     task.create(); // status = CREATED (não ASSIGNED)
 
-    var ex = assertThrows(IgrpResponseStatusException.class,
-        () -> task.complete(completeOperation));
+    task.complete(completeOperation);
 
-    assertTrue(ex.getMessage().contains("Cannot Complete a Task in Status[CREATED]"));
+    assertEquals(TaskInstanceStatus.COMPLETED, task.getStatus());
+    assertEquals(currentUser, task.getEndedBy());
   }
 
 
@@ -269,6 +293,7 @@ class TaskInstanceTest {
         .name(Name.create("My Task"))
         .formKey(Code.create(oldForm))
         .startedAt(LocalDateTime.now())
+        .candidateGroups(Set.of("group1"))
         .build();
 
     var processInstance = ProcessInstance.builder()
@@ -293,6 +318,7 @@ class TaskInstanceTest {
     assertNotEquals(original, result);
     assertEquals(oldForm, original.getFormKey().getValue());
     assertEquals(newForm, result.getFormKey().getValue());
+    assertEquals(original.getCandidateGroups(), result.getCandidateGroups());
   }
 
 }
