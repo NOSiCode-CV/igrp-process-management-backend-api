@@ -3,6 +3,7 @@ package cv.igrp.platform.process.management.processruntime.mappers;
 import cv.igrp.platform.process.management.processruntime.application.commands.ListTaskAssignmentRulesCommand;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskAssignmentRuleListDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskAssignmentRuleListPageDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.TaskAssignmentRuleUpdateDTO;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskAssignmentRule;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskAssignmentRuleFilter;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
@@ -60,6 +61,20 @@ public class TaskAssignmentRuleMapper {
     dto.setActive(rule.isActive());
     dto.setCreatedByTask(rule.getCreatedByTask() != null ? rule.getCreatedByTask().getValue() : null);
     return dto;
+  }
+
+  public Code toAssignee(TaskAssignmentRuleUpdateDTO dto) {
+    if (dto == null || dto.getAssignee() == null || dto.getAssignee().isBlank()) {
+      return null;
+    }
+    return Code.create(dto.getAssignee().trim());
+  }
+
+  public Set<String> toCandidateUsers(TaskAssignmentRuleUpdateDTO dto) {
+    if (dto == null) {
+      return Set.of();
+    }
+    return splitCommaSeparated(dto.getCandidateUsers());
   }
 
   private Identifier toIdentifier(String value) {

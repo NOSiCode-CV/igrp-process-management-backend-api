@@ -15,6 +15,14 @@ public interface TaskAssignmentRuleRepository {
 
   PageableLista<TaskAssignmentRule> findAll(TaskAssignmentRuleFilter filter);
 
+  TaskAssignmentRule updateAssignment(
+      Identifier ruleId,
+      Code assignee,
+      Set<String> candidateUsers
+  );
+
+  void deactivate(Identifier ruleId);
+
   List<TaskAssignmentRule> findActiveByProcessInstanceAndTaskDefinition(
       Identifier processInstanceId,
       Code taskDefinitionKey

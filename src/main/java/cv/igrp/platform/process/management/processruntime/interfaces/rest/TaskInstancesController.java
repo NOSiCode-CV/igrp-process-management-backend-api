@@ -21,7 +21,9 @@ import cv.igrp.platform.process.management.processruntime.application.queries.*;
 import cv.igrp.framework.core.domain.CommandBus;
 import cv.igrp.platform.process.management.processruntime.application.commands.*;
 import cv.igrp.platform.process.management.processruntime.application.dto.VariablesFilterDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.TaskAssignmentRuleListDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskAssignmentRuleListPageDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.TaskAssignmentRuleUpdateDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceListPageDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TaskInstanceDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.UnclaimTaskDTO;
@@ -480,6 +482,68 @@ public class TaskInstancesController {
       final var command = new ListTaskAssignmentRulesCommand(processInstanceId, processDefinitionKey, taskDefinitionKey, assignee, candidateUsers, assignmentMode, consumed, active, createdByTask, page, size);
 
        ResponseEntity<TaskAssignmentRuleListPageDTO> response = commandBus.send(command);
+
+       return response;
+  }
+
+      @PutMapping(
+   value = "assignment-rules/{id}"
+  )
+  @Operation(
+    summary = "PUT method to handle operations for Update task assignment rule",
+    description = "PUT method to handle operations for Update task assignment rule",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          description = "Task assignment rule updated",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = TaskAssignmentRuleListDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+
+  public ResponseEntity<TaskAssignmentRuleListDTO> updateTaskAssignmentRule(@Valid @RequestBody TaskAssignmentRuleUpdateDTO updateTaskAssignmentRuleRequest
+    , @PathVariable(value = "id") String id)
+  {
+
+      final var command = new UpdateTaskAssignmentRuleCommand(updateTaskAssignmentRuleRequest, id);
+
+       ResponseEntity<TaskAssignmentRuleListDTO> response = commandBus.send(command);
+
+       return response;
+  }
+
+      @DeleteMapping(
+   value = "assignment-rules/{id}"
+  )
+  @Operation(
+    summary = "DELETE method to handle operations for Delete task assignment rule",
+    description = "DELETE method to handle operations for Delete task assignment rule",
+    responses = {
+      @ApiResponse(
+          responseCode = "204",
+          description = "No content",
+          content = @Content(
+              mediaType = "",
+              schema = @Schema(
+                  implementation = String.class,
+                  type = "String")
+          )
+      )
+    }
+  )
+
+  public ResponseEntity<?> deleteTaskAssignmentRule(
+    @PathVariable(value = "id") String id)
+  {
+
+      final var command = new DeleteTaskAssignmentRuleCommand(id);
+
+       ResponseEntity<?> response = commandBus.send(command);
 
        return response;
   }

@@ -176,12 +176,7 @@ class TaskInstanceServiceTest {
 
     verify(runtimeProcessEngineRepository).assignTask(externalId, "owner@nosi.cv", null);
     verify(runtimeProcessEngineRepository, never()).addCandidateGroup(externalId, "group1");
-    verify(taskAssignmentRuleRepository).save(argThat(rule ->
-        rule.getAssignee().equals(Code.create("owner@nosi.cv"))
-            && rule.getAssignmentMode() == TaskAssignmentMode.ALWAYS
-            && rule.getCandidateUsers().isEmpty()
-            && rule.getPriority().equals(7)
-    ));
+    verify(taskAssignmentRuleRepository, never()).save(any(TaskAssignmentRule.class));
   }
 
   @Test
@@ -345,11 +340,6 @@ class TaskInstanceServiceTest {
     when(mockTask.getExternalId()).thenReturn(Code.create(externalId));
     when(mockTask.getAssignedBy()).thenReturn(Code.create("igrp@nosi.cv"));
     when(mockTask.getTaskInstanceEvents()).thenReturn(List.of(mock(TaskInstanceEvent.class)));
-    when(mockTask.getId()).thenReturn(Identifier.create(taskId));
-    when(mockTask.getProcessInstanceId()).thenReturn(Identifier.generate());
-    when(mockTask.getProcessKey()).thenReturn(Code.create("PROC_KEY"));
-    when(mockTask.getTaskKey()).thenReturn(Code.create("task_key1"));
-
     TaskOperationData operation = TaskOperationData.builder()
         .id(taskId.toString())
         .currentUser(currentUser)
@@ -367,13 +357,36 @@ class TaskInstanceServiceTest {
     verify(taskInstanceEventRepository).save(any(TaskInstanceEvent.class));
     verify(runtimeProcessEngineRepository)
         .assignTask(externalId, "igrp@nosi.cv", "Assigning task");
-    verify(taskAssignmentRuleRepository).save(argThat(rule ->
-        rule.getAssignee().equals(Code.create("igrp@nosi.cv"))
-            && rule.getCandidateUsers().isEmpty()
-            && rule.getProcessDefinitionKey().equals(Code.create("PROC_KEY"))
-            && rule.getTaskDefinitionKey().equals(Code.create("task_key1"))
-            && rule.getCreatedByTask().equals(Identifier.create(taskId))
-    ));
+    verify(taskAssignmentRuleRepository, never()).save(any(TaskAssignmentRule.class));
+  }
+
+  @Test
+  void assignTask_shouldNotPersistAssignmentRule() {
+
+    UUID taskId = UUID.randomUUID();
+    String externalId = UUID.randomUUID().toString();
+
+    TaskInstance mockTask = mock(TaskInstance.class);
+    when(mockTask.getExternalId()).thenReturn(Code.create(externalId));
+    when(mockTask.getAssignedBy()).thenReturn(Code.create("igrp@nosi.cv"));
+    when(mockTask.getTaskInstanceEvents()).thenReturn(List.of(mock(TaskInstanceEvent.class)));
+
+    TaskOperationData operation = TaskOperationData.builder()
+        .id(taskId.toString())
+        .currentUser(currentUser)
+        .targetUser("igrp@nosi.cv")
+        .note("Assigning task")
+        .build();
+
+    when(taskInstanceRepository.findByIdWithEvents(taskId))
+        .thenReturn(Optional.of(mockTask));
+
+    taskInstanceService.assignTask(operation);
+
+    verify(mockTask).assignUser(operation);
+    verify(runtimeProcessEngineRepository)
+        .assignTask(externalId, "igrp@nosi.cv", "Assigning task");
+    verify(taskAssignmentRuleRepository, never()).save(any(TaskAssignmentRule.class));
   }
 
   @Test
@@ -385,11 +398,6 @@ class TaskInstanceServiceTest {
     TaskInstance mockTask = mock(TaskInstance.class);
     when(mockTask.getExternalId()).thenReturn(Code.create(externalId));
     when(mockTask.getTaskInstanceEvents()).thenReturn(List.of(mock(TaskInstanceEvent.class)));
-    when(mockTask.getId()).thenReturn(Identifier.create(taskId));
-    when(mockTask.getProcessInstanceId()).thenReturn(Identifier.generate());
-    when(mockTask.getProcessKey()).thenReturn(Code.create("PROC_KEY"));
-    when(mockTask.getTaskKey()).thenReturn(Code.create("task_key1"));
-
     TaskOperationData operation = TaskOperationData.builder()
         .id(taskId.toString())
         .currentUser(currentUser)
@@ -408,14 +416,7 @@ class TaskInstanceServiceTest {
     verify(runtimeProcessEngineRepository).addCandidateGroup(externalId, "group2");
     verify(runtimeProcessEngineRepository).addCandidateUser(externalId, "candidate1@nosi.cv");
     verify(runtimeProcessEngineRepository).addCandidateUser(externalId, "candidate2@nosi.cv");
-    verify(taskAssignmentRuleRepository).save(argThat(rule ->
-        rule.getAssignee() == null
-            && rule.getCandidateUsers().containsAll(Set.of("candidate1@nosi.cv", "candidate2@nosi.cv"))
-            && rule.getCandidateUsers().size() == 2
-            && rule.getProcessDefinitionKey().equals(Code.create("PROC_KEY"))
-            && rule.getTaskDefinitionKey().equals(Code.create("task_key1"))
-            && rule.getCreatedByTask().equals(Identifier.create(taskId))
-    ));
+    verify(taskAssignmentRuleRepository, never()).save(any(TaskAssignmentRule.class));
     verify(taskInstanceRepository).update(mockTask);
     verify(taskInstanceEventRepository).save(any(TaskInstanceEvent.class));
   }

@@ -613,6 +613,75 @@
       ]
     },
     {
+      "actionName": "updateTaskAssignmentRule",
+      "path": "assignment-rules/{id}",
+      "method": "PUT",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "TaskAssignmentRuleUpdateDTO",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "processruntime"
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "description": "Task assignment rule updated",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "TaskAssignmentRuleListDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "processruntime"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "actionName": "deleteTaskAssignmentRule",
+      "path": "assignment-rules/{id}",
+      "method": "DELETE",
+      "responses": {
+        "204": {
+          "name": "nocontent",
+          "description": "No content",
+          "content": {
+            "": {
+              "schema": {
+                "type": "string",
+                "name": "data",
+                "collectionType": "none"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true
+        }
+      ]
+    },
+    {
       "actionName": "saveTask",
       "path": "{id}/save",
       "method": "POST",

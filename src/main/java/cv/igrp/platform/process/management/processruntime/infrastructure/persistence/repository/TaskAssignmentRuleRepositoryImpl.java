@@ -3,6 +3,7 @@ package cv.igrp.platform.process.management.processruntime.infrastructure.persis
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskAssignmentRule;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskAssignmentRuleFilter;
 import cv.igrp.platform.process.management.processruntime.domain.repository.TaskAssignmentRuleRepository;
+import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
@@ -10,6 +11,7 @@ import cv.igrp.platform.process.management.shared.infrastructure.persistence.ent
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.TaskAssignmentRuleEntity;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.TaskInstanceEntity;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.repository.TaskAssignmentRuleEntityRepository;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.SetJoin;
@@ -17,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,14 +35,53 @@ import java.util.stream.Collectors;
 public class TaskAssignmentRuleRepositoryImpl implements TaskAssignmentRuleRepository {
 
   private final TaskAssignmentRuleEntityRepository repository;
+  private final EntityManager entityManager;
 
-  public TaskAssignmentRuleRepositoryImpl(TaskAssignmentRuleEntityRepository repository) {
+  public TaskAssignmentRuleRepositoryImpl(
+      TaskAssignmentRuleEntityRepository repository,
+      EntityManager entityManager
+  ) {
     this.repository = repository;
+    this.entityManager = entityManager;
   }
 
   @Override
   public void save(TaskAssignmentRule rule) {
     repository.save(toEntity(rule));
+  }
+
+  @Override
+  public TaskAssignmentRule updateAssignment(
+      Identifier ruleId,
+      Code assignee,
+      Set<String> candidateUsers
+  ) {
+    var rule = findUpdatableRule(ruleId);
+    rule.setAssignee(assignee != null ? assignee.getValue() : null);
+    rule.getCandidateUsers().clear();
+    rule.getCandidateUsers().addAll(normalize(candidateUsers));
+    return toModel(repository.save(rule));
+  }
+
+  @Override
+  public void deactivate(Identifier ruleId) {
+    var rule = findUpdatableRule(ruleId);
+    rule.setActive(false);
+    repository.save(rule);
+  }
+
+  private TaskAssignmentRuleEntity findUpdatableRule(Identifier ruleId) {
+    var rule = repository.findById(ruleId.getValue())
+        .orElseThrow(() -> IgrpResponseStatusException.notFound(
+            "No Task Assignment Rule found with id: " + ruleId.getValue()
+        ));
+    if (!Boolean.TRUE.equals(rule.getActive()) || Boolean.TRUE.equals(rule.getConsumed())) {
+      throw IgrpResponseStatusException.of(
+          HttpStatus.CONFLICT,
+          "Task Assignment Rule can only be changed when active=true and consumed=false"
+      );
+    }
+    return rule;
   }
 
   @Override
@@ -114,6 +156,9 @@ public class TaskAssignmentRuleRepositoryImpl implements TaskAssignmentRuleRepos
   }
 
   private Set<String> normalize(Set<String> values) {
+    if (values == null || values.isEmpty()) {
+      return Set.of();
+    }
     return values.stream()
         .filter(Objects::nonNull)
         .map(String::trim)
@@ -209,9 +254,7 @@ public class TaskAssignmentRuleRepositoryImpl implements TaskAssignmentRuleRepos
     if (rule.getProcessInstanceId() == null) {
       return null;
     }
-    var processInstance = new ProcessInstanceEntity();
-    processInstance.setId(rule.getProcessInstanceId().getValue());
-    return processInstance;
+    return entityManager.getReference(ProcessInstanceEntity.class, rule.getProcessInstanceId().getValue());
   }
 
   private TaskInstanceEntity toTaskInstanceEntity(TaskAssignmentRule rule) {
@@ -222,8 +265,6 @@ public class TaskAssignmentRuleRepositoryImpl implements TaskAssignmentRuleRepos
   }
 
   private TaskInstanceEntity toTaskInstanceEntity(Identifier taskInstanceId) {
-    var taskInstance = new TaskInstanceEntity();
-    taskInstance.setId(taskInstanceId.getValue());
-    return taskInstance;
+    return entityManager.getReference(TaskInstanceEntity.class, taskInstanceId.getValue());
   }
 }

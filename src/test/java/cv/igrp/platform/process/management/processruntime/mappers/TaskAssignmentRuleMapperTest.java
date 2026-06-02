@@ -1,6 +1,7 @@
 package cv.igrp.platform.process.management.processruntime.mappers;
 
 import cv.igrp.platform.process.management.processruntime.application.commands.ListTaskAssignmentRulesCommand;
+import cv.igrp.platform.process.management.processruntime.application.dto.TaskAssignmentRuleUpdateDTO;
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskAssignmentRule;
 import cv.igrp.platform.process.management.shared.application.constants.TaskAssignmentMode;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
@@ -98,5 +99,27 @@ class TaskAssignmentRuleMapperTest {
     assertTrue(dto.isConsumed());
     assertEquals(false, dto.isActive());
     assertEquals(createdByTask, dto.getCreatedByTask());
+  }
+
+  @Test
+  void toAssigneeAndCandidateUsers_shouldParseUpdateDTO() {
+    var dto = new TaskAssignmentRuleUpdateDTO(" demo@nosi.cv ", " user1@nosi.cv, user2@nosi.cv ");
+
+    var assignee = mapper.toAssignee(dto);
+    var candidateUsers = mapper.toCandidateUsers(dto);
+
+    assertEquals("demo@nosi.cv", assignee.getValue());
+    assertTrue(candidateUsers.containsAll(List.of("user1@nosi.cv", "user2@nosi.cv")));
+  }
+
+  @Test
+  void toAssigneeAndCandidateUsers_shouldReturnEmptyValuesForBlankDTO() {
+    var dto = new TaskAssignmentRuleUpdateDTO(" ", " ");
+
+    var assignee = mapper.toAssignee(dto);
+    var candidateUsers = mapper.toCandidateUsers(dto);
+
+    assertEquals(null, assignee);
+    assertTrue(candidateUsers.isEmpty());
   }
 }

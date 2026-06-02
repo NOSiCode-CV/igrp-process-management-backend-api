@@ -2,12 +2,14 @@ package cv.igrp.platform.process.management.processruntime.infrastructure.persis
 
 import cv.igrp.platform.process.management.processruntime.domain.models.TaskAssignmentRuleFilter;
 import cv.igrp.platform.process.management.shared.application.constants.TaskAssignmentMode;
+import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.Identifier;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.ProcessInstanceEntity;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.TaskAssignmentRuleEntity;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.TaskInstanceEntity;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.repository.TaskAssignmentRuleEntityRepository;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -19,10 +21,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -33,6 +38,9 @@ class TaskAssignmentRuleRepositoryImplTest {
 
   @Mock
   private TaskAssignmentRuleEntityRepository entityRepository;
+
+  @Mock
+  private EntityManager entityManager;
 
   @InjectMocks
   private TaskAssignmentRuleRepositoryImpl repository;
@@ -90,6 +98,98 @@ class TaskAssignmentRuleRepositoryImplTest {
     verify(entityRepository).findAll(any(Specification.class), pageRequestCaptor.capture());
     assertEquals(1, pageRequestCaptor.getValue().getPageNumber());
     assertEquals(20, pageRequestCaptor.getValue().getPageSize());
+  }
+
+  @Test
+  void markConsumed_shouldUseManagedTaskReference() {
+    UUID ruleId = UUID.randomUUID();
+    UUID taskId = UUID.randomUUID();
+    var rule = new TaskAssignmentRuleEntity();
+    var taskReference = taskInstance(taskId);
+
+    when(entityRepository.findById(ruleId)).thenReturn(Optional.of(rule));
+    when(entityManager.getReference(TaskInstanceEntity.class, taskId)).thenReturn(taskReference);
+
+    repository.markConsumed(Identifier.create(ruleId), Identifier.create(taskId));
+
+    assertTrue(rule.getConsumed());
+    assertEquals(taskReference, rule.getCreatedByTask());
+    verify(entityManager).getReference(TaskInstanceEntity.class, taskId);
+    verify(entityRepository).save(rule);
+  }
+
+  @Test
+  void updateAssignment_shouldUpdateAssigneeAndCandidateUsers_whenRuleIsActiveAndNotConsumed() {
+    UUID ruleId = UUID.randomUUID();
+    var rule = new TaskAssignmentRuleEntity();
+    rule.setId(ruleId);
+    rule.setProcessDefinitionKey("process-a");
+    rule.setTaskDefinitionKey("task-a");
+    rule.setAssignmentMode(TaskAssignmentMode.ONE_TIME);
+    rule.setConsumed(false);
+    rule.setActive(true);
+    rule.setAssignee("old@nosi.cv");
+    rule.getCandidateUsers().add("old-user@nosi.cv");
+
+    when(entityRepository.findById(ruleId)).thenReturn(Optional.of(rule));
+    when(entityRepository.save(rule)).thenReturn(rule);
+
+    var result = repository.updateAssignment(
+        Identifier.create(ruleId),
+        Code.create("new@nosi.cv"),
+        Set.of("new-user@nosi.cv")
+    );
+
+    assertEquals("new@nosi.cv", rule.getAssignee());
+    assertTrue(rule.getCandidateUsers().contains("new-user@nosi.cv"));
+    assertFalse(rule.getCandidateUsers().contains("old-user@nosi.cv"));
+    assertEquals("new@nosi.cv", result.getAssignee().getValue());
+    assertTrue(result.getCandidateUsers().contains("new-user@nosi.cv"));
+    verify(entityRepository).save(rule);
+  }
+
+  @Test
+  void deactivate_shouldSetActiveFalse_whenRuleIsActiveAndNotConsumed() {
+    UUID ruleId = UUID.randomUUID();
+    var rule = new TaskAssignmentRuleEntity();
+    rule.setId(ruleId);
+    rule.setActive(true);
+    rule.setConsumed(false);
+
+    when(entityRepository.findById(ruleId)).thenReturn(Optional.of(rule));
+
+    repository.deactivate(Identifier.create(ruleId));
+
+    assertFalse(rule.getActive());
+    verify(entityRepository).save(rule);
+  }
+
+  @Test
+  void updateAssignment_shouldThrowConflict_whenRuleIsConsumed() {
+    UUID ruleId = UUID.randomUUID();
+    var rule = new TaskAssignmentRuleEntity();
+    rule.setId(ruleId);
+    rule.setActive(true);
+    rule.setConsumed(true);
+
+    when(entityRepository.findById(ruleId)).thenReturn(Optional.of(rule));
+
+    assertThrows(IgrpResponseStatusException.class, () ->
+        repository.updateAssignment(Identifier.create(ruleId), Code.create("new@nosi.cv"), Set.of()));
+  }
+
+  @Test
+  void deactivate_shouldThrowConflict_whenRuleIsInactive() {
+    UUID ruleId = UUID.randomUUID();
+    var rule = new TaskAssignmentRuleEntity();
+    rule.setId(ruleId);
+    rule.setActive(false);
+    rule.setConsumed(false);
+
+    when(entityRepository.findById(ruleId)).thenReturn(Optional.of(rule));
+
+    assertThrows(IgrpResponseStatusException.class, () ->
+        repository.deactivate(Identifier.create(ruleId)));
   }
 
   private ProcessInstanceEntity processInstance(UUID id) {

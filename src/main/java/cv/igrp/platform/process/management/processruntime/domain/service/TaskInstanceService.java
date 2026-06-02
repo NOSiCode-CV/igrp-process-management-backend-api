@@ -90,10 +90,6 @@ public class TaskInstanceService {
           taskInstance.getAssignedBy().getValue(),
           data.getNote()
       );
-
-      if (data.isPersistAssignmentRule()) {
-        saveAssigneeRule(taskInstance, data);
-      }
     } else {
 
       taskInstance.addCandidates(data);
@@ -118,10 +114,6 @@ public class TaskInstanceService {
         );
       });
 
-      if (data.isPersistAssignmentRule()) {
-        saveCandidateUserRule(taskInstance, data, candidateUsers);
-      }
-
     }
 
     if (data.getPriority() != null && !data.getPriority().equals(taskInstance.getPriority())) {
@@ -142,42 +134,26 @@ public class TaskInstanceService {
     return Optional.of(userId.trim());
   }
 
-  private void saveAssigneeRule(TaskInstance taskInstance, TaskOperationData data) {
-    saveAssignmentRule(taskInstance, data, data.getTargetUser(), List.of());
-  }
-
-  private void saveCandidateUserRule(TaskInstance taskInstance, TaskOperationData data, List<String> candidateUsers) {
-    saveAssignmentRule(taskInstance, data, null, candidateUsers);
-  }
-
-  private void saveAssignmentRule(
-      TaskInstance taskInstance,
-      TaskOperationData data,
-      Code assignee,
-      List<String> candidateUsers
-  ) {
-    if (assignee == null && (candidateUsers == null || candidateUsers.isEmpty())) {
-      return;
-    }
-    taskAssignmentRuleRepository.save(TaskAssignmentRule.builder()
-        .processDefinitionKey(taskInstance.getProcessKey())
-        .processInstanceId(taskInstance.getProcessInstanceId())
-        .taskDefinitionKey(taskInstance.getTaskKey())
-        .assignee(assignee)
-        .candidateUsers(candidateUsers)
-        .assignmentMode(data.getAssignmentMode())
-        .priority(data.getPriority() != null ? data.getPriority() : taskInstance.getPriority())
-        .consumed(false)
-        .active(true)
-        .createdByTask(taskInstance.getId())
-        .build()
-    );
-  }
-
   public void registerAssignmentRules(ProcessInstance processInstance) {
-    Optional.ofNullable(processInstance.getAssignmentRules())
-        .orElse(List.of())
-        .forEach(rule -> taskAssignmentRuleRepository.save(TaskAssignmentRule.builder()
+    var assignmentRules = Optional.ofNullable(processInstance.getAssignmentRules()).orElse(List.of());
+    LOGGER.info(
+        "Registering [{}] task assignment rule(s) for processInstance [{}], processDefinitionKey [{}]",
+        assignmentRules.size(),
+        processInstanceIdValue(processInstance),
+        processInstance.getProcReleaseKey().getValue()
+    );
+    assignmentRules
+        .forEach(rule -> {
+          LOGGER.info(
+              "Registering task assignment rule for processInstance [{}], task [{}], assignee [{}], candidateUsers [{}], mode [{}], priority [{}]",
+              processInstanceIdValue(processInstance),
+              rule.getTaskKey().getValue(),
+              rule.getAssignee() != null ? rule.getAssignee().getValue() : null,
+              rule.getCandidateUsers(),
+              rule.getAssignmentMode(),
+              rule.getPriority()
+          );
+          taskAssignmentRuleRepository.save(TaskAssignmentRule.builder()
             .processDefinitionKey(processInstance.getProcReleaseKey())
             .processInstanceId(processInstance.getId())
             .taskDefinitionKey(rule.getTaskKey())
@@ -188,7 +164,8 @@ public class TaskInstanceService {
             .consumed(false)
             .active(true)
             .build()
-        ));
+          );
+        });
   }
 
   public void unClaimTask(TaskOperationData data) {
@@ -376,8 +353,18 @@ public class TaskInstanceService {
 
     var activeTasks = getActiveRuntimeTasks(processInstance);
     if (activeTasks.isEmpty()) {
+      LOGGER.info(
+          "No active runtime tasks found for processInstance [{}] while checking task assignment rules",
+          processInstanceIdValue(processInstance)
+      );
       return;
     }
+
+    LOGGER.info(
+        "Found [{}] active runtime task(s) for processInstance [{}]; loading task assignment rules for each task",
+        activeTasks.size(),
+        processInstanceIdValue(processInstance)
+    );
 
     updateRuntimePriorities(activeTasks, processInstance);
 
@@ -424,10 +411,16 @@ public class TaskInstanceService {
         taskInstance.getProcessInstanceId(),
         taskInstance.getTaskKey()
     );
+    LOGGER.info(
+        "Loaded [{}] active and non-consumed task assignment rule(s) from database for processInstance [{}], task [{}]",
+        persistedRules.size(),
+        taskProcessInstanceIdValue(taskInstance),
+        taskInstance.getTaskKey().getValue()
+    );
     if (!persistedRules.isEmpty()) {
       return persistedRules;
     }
-    return Optional.ofNullable(processInstance.getAssignmentRules())
+    var inMemoryRules = Optional.ofNullable(processInstance.getAssignmentRules())
         .orElse(List.of())
         .stream()
         .filter(rule -> rule.matches(taskInstance.getTaskKey()))
@@ -443,6 +436,23 @@ public class TaskInstanceService {
             .active(true)
             .build())
         .toList();
+    LOGGER.info(
+        "Using [{}] in-memory task assignment rule(s) for processInstance [{}], task [{}]",
+        inMemoryRules.size(),
+        processInstanceIdValue(processInstance),
+        taskInstance.getTaskKey().getValue()
+    );
+    return inMemoryRules;
+  }
+
+  private String processInstanceIdValue(ProcessInstance processInstance) {
+    return processInstance.getId() != null ? processInstance.getId().getValue().toString() : null;
+  }
+
+  private String taskProcessInstanceIdValue(TaskInstance taskInstance) {
+    return taskInstance.getProcessInstanceId() != null
+        ? taskInstance.getProcessInstanceId().getValue().toString()
+        : null;
   }
 
   private void applyTaskAssignments(
@@ -465,13 +475,20 @@ public class TaskInstanceService {
   }
 
   private void applyAssigneeRule(TaskInstance taskInstance, TaskAssignmentRule rule, Code user) {
+    LOGGER.info(
+        "Applying assignee task assignment rule [{}] to taskInstance [{}], task [{}], assignee [{}], mode [{}], persisted [{}]",
+        rule.getId().getValue(),
+        taskInstance.getId().getValue(),
+        taskInstance.getTaskKey().getValue(),
+        rule.getAssignee().getValue(),
+        rule.getAssignmentMode(),
+        rule.isPersisted()
+    );
     assignTask(TaskOperationData.builder()
         .id(taskInstance.getId().getValue().toString())
         .currentUser(user)
         .targetUser(rule.getAssignee().getValue())
         .priority(rule.getPriority())
-        .assignmentMode(rule.getAssignmentMode())
-        .persistAssignmentRule(!rule.isPersisted())
         .build());
     markConsumedIfOneTime(rule, taskInstance);
   }
@@ -500,19 +517,31 @@ public class TaskInstanceService {
   }
 
   private void applyCandidateUserRule(TaskInstance taskInstance, TaskAssignmentRule rule, Code user) {
+    LOGGER.info(
+        "Applying candidate-user task assignment rule [{}] to taskInstance [{}], task [{}], candidateUsers [{}], mode [{}], persisted [{}]",
+        rule.getId().getValue(),
+        taskInstance.getId().getValue(),
+        taskInstance.getTaskKey().getValue(),
+        rule.getCandidateUsers(),
+        rule.getAssignmentMode(),
+        rule.isPersisted()
+    );
     assignTask(TaskOperationData.builder()
         .id(taskInstance.getId().getValue().toString())
         .currentUser(user)
         .candidateUsers(rule.getCandidateUsers().stream().toList())
         .priority(rule.getPriority())
-        .assignmentMode(rule.getAssignmentMode())
-        .persistAssignmentRule(!rule.isPersisted())
         .build());
     markConsumedIfOneTime(rule, taskInstance);
   }
 
   private void markConsumedIfOneTime(TaskAssignmentRule rule, TaskInstance taskInstance) {
     if (rule.isPersisted() && rule.getAssignmentMode() == TaskAssignmentMode.ONE_TIME) {
+      LOGGER.info(
+          "Marking one-time task assignment rule [{}] as consumed by taskInstance [{}]",
+          rule.getId().getValue(),
+          taskInstance.getId().getValue()
+      );
       taskAssignmentRuleRepository.markConsumed(rule.getId(), taskInstance.getId());
     }
   }
