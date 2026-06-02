@@ -208,15 +208,15 @@
         </dependency>
 
         <dependency>
-           <groupId>cv.igrp.framework</groupId>
-           <artifactId>process-runtime-irn-integration</artifactId>
-           <version>0.1.0-beta.23</version>
+            <groupId>cv.igrp.framework</groupId>
+            <artifactId>process-runtime-irn-integration</artifactId>
+            <version>0.1.0-beta.23</version>
         </dependency>
 
         <dependency>
-           <groupId>cv.igrp.framework</groupId>
-           <artifactId>process-runtime-auth-irn</artifactId>
-           <version>0.1.0-beta.23</version>
+            <groupId>cv.igrp.framework</groupId>
+            <artifactId>process-runtime-auth-irn</artifactId>
+            <version>0.1.0-beta.23</version>
         </dependency>
 
     </dependencies>
