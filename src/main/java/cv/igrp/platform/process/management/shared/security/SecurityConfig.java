@@ -102,7 +102,8 @@ public class SecurityConfig {
     var converter = new JwtAuthenticationConverter();
 
     // Use only if you want email as principal
-    // converter.setPrincipalClaimName("email");
+    //TODO Convert to ENV
+    converter.setPrincipalClaimName("email");
 
     converter.setJwtGrantedAuthoritiesConverter(jwt -> {
 
