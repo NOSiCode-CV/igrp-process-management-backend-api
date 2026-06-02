@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -41,6 +42,9 @@ public class SecurityConfig {
   private static final Logger LOGGER = LoggerFactory.getLogger(SecurityConfig.class);
 
   private final IAuthorizationServiceAdapter authorizationService;
+
+  @Value("${igrp.security.principal-claim-name}")
+  private String principalClaimName;
 
   public SecurityConfig(IAuthorizationServiceAdapter authorizationService) {
     this.authorizationService = authorizationService;
@@ -101,9 +105,7 @@ public class SecurityConfig {
 
     var converter = new JwtAuthenticationConverter();
 
-    // Use only if you want email as principal
-    //TODO Convert to ENV
-    converter.setPrincipalClaimName("email");
+    converter.setPrincipalClaimName(principalClaimName);
 
     converter.setJwtGrantedAuthoritiesConverter(jwt -> {
 
