@@ -1,14 +1,12 @@
 package cv.igrp.platform.process.management.shared.security;
 
-
 import cv.igrp.framework.process.runtime.auth.core.adapter.IAuthorizationServiceAdapter;
-import cv.igrp.platform.process.management.processruntime.domain.models.UserProfile;
-import cv.igrp.platform.process.management.processruntime.domain.service.UserProfileService;
-import cv.igrp.platform.process.management.shared.domain.models.Name;
 import cv.igrp.platform.process.management.shared.security.util.ActivitiConstants;
+import cv.igrp.platform.process.management.shared.security.util.IgrpAuthorizationConstants;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -24,9 +22,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.TokenExchangeOAuth2AuthorizedClientProvider;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.cors.CorsConfiguration;
@@ -43,17 +41,13 @@ public class SecurityConfig {
   private static final Logger LOGGER = LoggerFactory.getLogger(SecurityConfig.class);
 
   private final IAuthorizationServiceAdapter authorizationService;
-  private final UserProfileService userProfileService;
 
-  public SecurityConfig(IAuthorizationServiceAdapter authorizationService,
-                        UserProfileService userProfileService
-  ) {
+  public SecurityConfig(IAuthorizationServiceAdapter authorizationService) {
     this.authorizationService = authorizationService;
-    this.userProfileService = userProfileService;
   }
 
   @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+  public SecurityFilterChain securityFilterChain(HttpSecurity http, IAMUserProfileSyncFilter iamUserProfileSyncFilter) throws Exception {
 
     http.cors(cors -> cors.configurationSource(request -> {
       var configuration = new CorsConfiguration();
@@ -80,10 +74,10 @@ public class SecurityConfig {
         .authorizeHttpRequests((authorize) -> authorize
             .requestMatchers(
                 "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",
-                "/swagger-resources/**", "/webjars/**", "/actuator/**"
+                "/swagger-resources/**", "/webjars/**",
+                "/actuator/health", "/actuator/health/**"
             ).permitAll()
             .anyRequest()
-                //.permitAll()
             .authenticated()  // Require authentication for all other requests
         )
         .exceptionHandling(ex -> ex.authenticationEntryPoint((request, response, authException) -> {
@@ -97,6 +91,8 @@ public class SecurityConfig {
     // Disable CSRF
     http.csrf(AbstractHttpConfigurer::disable);
 
+    http.addFilterBefore(iamUserProfileSyncFilter, AuthorizationFilter.class);
+
     return http.build();
   }
 
@@ -105,12 +101,14 @@ public class SecurityConfig {
 
     var converter = new JwtAuthenticationConverter();
 
+    // Use only if you want email as principal
+    // converter.setPrincipalClaimName("email");
+
     converter.setJwtGrantedAuthoritiesConverter(jwt -> {
 
-      // Upsert User Profile
-      upsertUserProfile(jwt);
+      final String email = jwt.getClaimAsString("email");
+      final String sub = jwt.getSubject();
 
-      // Enrich
       HttpServletRequest request =
           ((ServletRequestAttributes) RequestContextHolder
               .getRequestAttributes())
@@ -118,36 +116,37 @@ public class SecurityConfig {
 
       Set<GrantedAuthority> authorities = new HashSet<>();
       final String token = jwt.getTokenValue();
-      authorizationService
-          .getRoles(token, request)
-          .forEach(r -> {
-            String roleValue = !r.startsWith(ROLE_PREFIX) ?  ROLE_PREFIX + r : r;
-            String groupValue = !r.startsWith(ActivitiConstants.GROUP_PREFIX) ? ActivitiConstants.GROUP_PREFIX + r : r;
-            authorities.add(new SimpleGrantedAuthority(roleValue));
-            authorities.add(new SimpleGrantedAuthority(groupValue));
-          });
 
-      authorizationService
-          .getPermissions(token, request)
-          .forEach(p -> {
-            authorities.add(new SimpleGrantedAuthority(p));
-          });
+      try {
 
-      authorizationService
-          .getDepartments(token, request)
-          .forEach(d -> {
-            authorities.add(new SimpleGrantedAuthority(d));
-            String groupValue = !d.startsWith(ActivitiConstants.GROUP_PREFIX) ? ActivitiConstants.GROUP_PREFIX + d : d;
-            authorities.add(new SimpleGrantedAuthority(groupValue));
-          });
+        authorizationService
+            .getActiveGroups(token, request)
+            .forEach(r -> {
+              String roleValue = !r.startsWith(ROLE_PREFIX) ? ROLE_PREFIX + r : r;
+              String groupValue = !r.startsWith(ActivitiConstants.GROUP_PREFIX) ? ActivitiConstants.GROUP_PREFIX + r : r;
+              authorities.add(new SimpleGrantedAuthority(roleValue));
+              authorities.add(new SimpleGrantedAuthority(groupValue));
+            });
 
-      //authorizationService.getActiveRoles(token, request);
+        authorizationService
+            .getPermissions(token, request)
+            .forEach(p -> {
+              authorities.add(new SimpleGrantedAuthority(p));
+            });
 
-      // Activiti Admin or User role
-      if(authorizationService.isSuperAdmin(token, request)){
-        authorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + ActivitiConstants.ROLE_ACTIVITI_ADMIN));
-        authorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + ActivitiConstants.ROLE_ACTIVITI_USER));
-      } else {
+        // Activiti Admin or User role
+        if (authorizationService.isSuperAdmin(token, request)) {
+          LOGGER.info("User [{}] granted super admin privileges", email);
+          authorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + IgrpAuthorizationConstants.SUPER_ADMIN_ROLE));
+          authorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + ActivitiConstants.ROLE_ACTIVITI_ADMIN));
+          authorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + ActivitiConstants.ROLE_ACTIVITI_USER));
+        } else {
+          authorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + ActivitiConstants.ROLE_ACTIVITI_USER));
+        }
+
+      } catch (Exception e) {
+        LOGGER.error("Failed to enrich authorities for [email={}, sub={}]: {}", email, sub, e.getMessage(), e);
+        // Ensure at least basic Activiti user role
         authorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + ActivitiConstants.ROLE_ACTIVITI_USER));
       }
 
@@ -160,22 +159,6 @@ public class SecurityConfig {
     return converter;
   }
 
-  private void upsertUserProfile(Jwt jwt){
-    String username = jwt.getClaimAsString("preferred_username");
-    String email = jwt.getClaimAsString("email");
-    String firstName = jwt.getClaimAsString("given_name");
-    String lastName = jwt.getClaimAsString("family_name");
-    userProfileService.createUserProfile(
-        UserProfile.builder()
-            .username(username)
-            .sub(jwt.getSubject())
-            .email(email)
-            .firstName(firstName != null ? Name.create(firstName) : null)
-            .lastName(lastName != null ? Name.create(lastName) : null)
-            .build()
-    );
-  }
-
   @Bean
   public OAuth2AuthorizedClientProvider tokenExchange() {
     return new TokenExchangeOAuth2AuthorizedClientProvider();
@@ -184,8 +167,16 @@ public class SecurityConfig {
   @Bean
   public UserDetailsService userDetailsService() {
     return username -> {
-      throw new UsernameNotFoundException("Hi, i am a dummy. UserDetailsService not used with JWT/Keycloak");
+      throw new UsernameNotFoundException("UserDetailsService not used with JWT/Keycloak");
     };
   }
+
+  @Bean
+  public FilterRegistrationBean<IAMUserProfileSyncFilter> iamUserProfileSyncFilterRegistration(IAMUserProfileSyncFilter filter) {
+    var registration = new FilterRegistrationBean<>(filter);
+    registration.setEnabled(false);
+    return registration;
+  }
+
 
 }
