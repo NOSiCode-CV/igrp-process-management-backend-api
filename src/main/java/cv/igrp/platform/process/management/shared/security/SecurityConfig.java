@@ -78,7 +78,6 @@ public class SecurityConfig {
                 "/actuator/health", "/actuator/health/**"
             ).permitAll()
             .anyRequest()
-            //.permitAll()
             .authenticated()  // Require authentication for all other requests
         )
         .exceptionHandling(ex -> ex.authenticationEntryPoint((request, response, authException) -> {

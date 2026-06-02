@@ -261,6 +261,62 @@ class ProcessInstanceServiceTest {
   }
 
   @Test
+  void signal_shouldCarryAssignmentRulesToCreatedTasks() {
+    TaskAssignmentRuleRequest assignmentRule = TaskAssignmentRuleRequest.builder()
+        .taskKey(Code.create("next-task"))
+        .assignee(Code.create("owner@nosi.cv"))
+        .build();
+    ProcessInstance processInstance = ProcessInstance.builder()
+        .id(Identifier.generate())
+        .procReleaseKey(Code.create("invoice_process"))
+        .engineProcessNumber(Code.create("ENG-PROC-123"))
+        .businessKey(Code.create("business-key"))
+        .build();
+    ProcessInstance engineProcess = ProcessInstance.builder()
+        .procReleaseKey(Code.create("invoice_process"))
+        .status(ProcessInstanceStatus.RUNNING)
+        .build();
+
+    when(processInstanceRepository.findByBusinessKey("business-key")).thenReturn(Optional.of(processInstance));
+    when(runtimeProcessEngineRepository.getProcessInstanceById("ENG-PROC-123")).thenReturn(engineProcess);
+    when(processInstanceRepository.save(processInstance)).thenReturn(processInstance);
+
+    processInstanceService.signal("business-key", "task-1", Map.of("approved", true), List.of(assignmentRule));
+
+    assertEquals(List.of(assignmentRule), processInstance.getAssignmentRules());
+    verify(runtimeProcessEngineRepository).signal("ENG-PROC-123", "task-1", Map.of("approved", true));
+    verify(taskInstanceService).createTaskInstancesByProcess(processInstance);
+  }
+
+  @Test
+  void correlateMessage_shouldCarryAssignmentRulesToCreatedTasks() {
+    TaskAssignmentRuleRequest assignmentRule = TaskAssignmentRuleRequest.builder()
+        .taskKey(Code.create("next-task"))
+        .assignee(Code.create("owner@nosi.cv"))
+        .build();
+    ProcessInstance processInstance = ProcessInstance.builder()
+        .id(Identifier.generate())
+        .procReleaseKey(Code.create("invoice_process"))
+        .engineProcessNumber(Code.create("ENG-PROC-123"))
+        .businessKey(Code.create("business-key"))
+        .build();
+    ProcessInstance engineProcess = ProcessInstance.builder()
+        .procReleaseKey(Code.create("invoice_process"))
+        .status(ProcessInstanceStatus.RUNNING)
+        .build();
+
+    when(processInstanceRepository.findByBusinessKey("business-key")).thenReturn(Optional.of(processInstance));
+    when(runtimeProcessEngineRepository.getProcessInstanceById("ENG-PROC-123")).thenReturn(engineProcess);
+    when(processInstanceRepository.save(processInstance)).thenReturn(processInstance);
+
+    processInstanceService.correlateMessage("business-key", "message-a", Map.of("approved", true), List.of(assignmentRule));
+
+    assertEquals(List.of(assignmentRule), processInstance.getAssignmentRules());
+    verify(runtimeProcessEngineRepository).correlateMessage("message-a", "business-key", Map.of("approved", true));
+    verify(taskInstanceService).createTaskInstancesByProcess(processInstance);
+  }
+
+  @Test
   void getProcessInstanceTaskStatus_shouldDelegateUsingEngineProcessNumber() {
     UUID processId = UUID.randomUUID();
     ProcessInstance processInstance = ProcessInstance.builder()

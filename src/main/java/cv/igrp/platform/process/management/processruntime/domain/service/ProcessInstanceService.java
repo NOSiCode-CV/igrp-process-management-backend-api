@@ -184,9 +184,19 @@ public class ProcessInstanceService {
   }
 
   public void correlateMessage(String businessKey, String messageName, Map<String, Object> variables) {
+    correlateMessage(businessKey, messageName, variables, List.of());
+  }
+
+  public void correlateMessage(
+      String businessKey,
+      String messageName,
+      Map<String, Object> variables,
+      List<TaskAssignmentRuleRequest> assignmentRules
+  ) {
 
     ProcessInstance processInstance = processInstanceRepository.findByBusinessKey(businessKey)
         .orElseThrow(() -> IgrpResponseStatusException.notFound("No process instance found with businessKey: " + businessKey));
+    processInstance.addAssignmentRules(assignmentRules);
 
     runtimeProcessEngineRepository.correlateMessage(
         messageName,
@@ -204,9 +214,19 @@ public class ProcessInstanceService {
   }
 
   public void signal(String businessKey, String taskId, Map<String, Object> variables) {
+    signal(businessKey, taskId, variables, List.of());
+  }
+
+  public void signal(
+      String businessKey,
+      String taskId,
+      Map<String, Object> variables,
+      List<TaskAssignmentRuleRequest> assignmentRules
+  ) {
 
     ProcessInstance processInstance = processInstanceRepository.findByBusinessKey(businessKey)
         .orElseThrow(() -> IgrpResponseStatusException.notFound("No process instance found with businessKey: " + businessKey));
+    processInstance.addAssignmentRules(assignmentRules);
 
     runtimeProcessEngineRepository.signal(
         processInstance.getEngineProcessNumber().getValue(),
