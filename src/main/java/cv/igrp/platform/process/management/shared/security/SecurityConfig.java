@@ -6,6 +6,7 @@ import cv.igrp.platform.process.management.shared.security.util.IgrpAuthorizatio
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -42,8 +43,15 @@ public class SecurityConfig {
 
   private final IAuthorizationServiceAdapter authorizationService;
 
-  public SecurityConfig(IAuthorizationServiceAdapter authorizationService) {
+  private final String principalClaimName;
+
+
+  public SecurityConfig(
+      IAuthorizationServiceAdapter authorizationService,
+      @Value("${igrp.security.principal-claim-name}") String principalClaimName
+  ) {
     this.authorizationService = authorizationService;
+    this.principalClaimName = principalClaimName;
   }
 
   @Bean
@@ -102,7 +110,7 @@ public class SecurityConfig {
     var converter = new JwtAuthenticationConverter();
 
     // Use only if you want email as principal
-    // converter.setPrincipalClaimName("email");
+    converter.setPrincipalClaimName(principalClaimName);
 
     converter.setJwtGrantedAuthoritiesConverter(jwt -> {
 

@@ -275,6 +275,7 @@
             <plugin>
                 <groupId>org.owasp</groupId>
                 <artifactId>dependency-check-maven</artifactId>
+                <version>12.2.2</version>
                 <configuration>
                     <outputDirectory>${project.build.directory}/reports</outputDirectory>
                     <failBuildOnCVSS>10</failBuildOnCVSS>
