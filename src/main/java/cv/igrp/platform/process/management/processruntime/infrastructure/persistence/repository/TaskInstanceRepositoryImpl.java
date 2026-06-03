@@ -15,7 +15,6 @@ import cv.igrp.platform.process.management.shared.infrastructure.persistence.ent
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.repository.TaskInstanceEntityRepository;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Expression;
-import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.SetJoin;
@@ -189,7 +188,7 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
     // Client-supplied candidate groups filter
     if (filter.getCandidateGroups() != null && !filter.getCandidateGroups().isEmpty()) {
       spec = spec.and((root, query, cb) ->
-          candidateGroupsPredicate(root, query, cb, filter.getCandidateGroups(), JoinType.INNER));
+          candidateGroupExistsPredicate(root, query, cb, filter.getCandidateGroups()));
     }
 
     if (filter.getCandidateUsers() != null && !filter.getCandidateUsers().isEmpty()) {
@@ -436,23 +435,6 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
     };
   }
 
-  private Predicate candidateGroupsPredicate(
-      Root<TaskInstanceEntity> root,
-      jakarta.persistence.criteria.CriteriaQuery<?> query,
-      CriteriaBuilder cb,
-      Set<String> groups,
-      JoinType joinType
-  ) {
-    query.distinct(true);
-    SetJoin<TaskInstanceEntity, String> candidateGroups = root.joinSet("candidateGroups", joinType);
-    CriteriaBuilder.In<String> in = cb.in(candidateGroups);
-    groups.stream()
-        .filter(Objects::nonNull)
-        .map(String::trim)
-        .filter(group -> !group.isBlank())
-        .forEach(in::value);
-    return in;
-  }
 
   private Predicate candidateUserRulePredicate(
       Root<TaskInstanceEntity> root,
