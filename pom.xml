@@ -137,31 +137,25 @@
         <dependency>
             <groupId>cv.igrp.framework</groupId>
             <artifactId>process-runtime-core</artifactId>
-            <version>0.1.0-beta.21</version>
+            <version>0.1.0-beta.24</version>
         </dependency>
 
         <dependency>
             <groupId>cv.igrp.framework</groupId>
             <artifactId>process-runtime-activiti</artifactId>
-            <version>0.1.0-beta.21</version>
+            <version>0.1.0-beta.24</version>
         </dependency>
 
         <dependency>
             <groupId>cv.igrp.framework</groupId>
             <artifactId>process-runtime-auth-core</artifactId>
-            <version>0.1.0-beta.21</version>
+            <version>0.1.0-beta.24</version>
         </dependency>
 
         <dependency>
             <groupId>cv.igrp.framework</groupId>
             <artifactId>process-runtime-auth-igrp</artifactId>
-            <version>0.1.0-beta.21</version>
-        </dependency>
-
-        <dependency>
-            <groupId>cv.igrp.platform.access</groupId>
-            <artifactId>client</artifactId>
-            <version>0.1.0-beta-20260127.094449-21</version>
+            <version>0.1.0-beta.24</version>
         </dependency>
 
         <dependency>
@@ -209,6 +203,11 @@
         </dependency>
 
         <dependency>
+            <groupId>com.jayway.jsonpath</groupId>
+            <artifactId>json-path</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>io.opentelemetry.instrumentation</groupId>
             <artifactId>opentelemetry-spring-boot-starter</artifactId>
         </dependency>
@@ -218,6 +217,8 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-cache</artifactId>
         </dependency>
+
+
 
     </dependencies>
 
