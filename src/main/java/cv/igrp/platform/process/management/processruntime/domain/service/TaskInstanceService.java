@@ -234,7 +234,6 @@ public class TaskInstanceService {
 
   public TaskInstance getTaskById(Identifier id) {
     TaskInstance taskInstance = getByIdWihEvents(id);
-    resolveCandidateUsers(taskInstance);
     // Enrich with process variables
     Map<String, Object> variables = runtimeProcessEngineRepository.getProcessVariables(taskInstance.getEngineProcessNumber());
     taskInstance.addProcessVariables(variables);
@@ -269,7 +268,6 @@ public class TaskInstanceService {
       if (vars != null) {
         task.addProcessVariables(vars);
       }
-      resolveCandidateUsers(task);
     }
 
     // Resolve all user profiles in a single batch query
@@ -589,19 +587,6 @@ public class TaskInstanceService {
       );
       taskAssignmentRuleRepository.markConsumed(rule.getId(), taskInstance.getId());
     }
-  }
-
-  private void resolveCandidateUsers(TaskInstance taskInstance) {
-    if (taskInstance.getProcessInstanceId() == null || taskInstance.getTaskKey() == null) {
-      return;
-    }
-    taskInstance.resolveCandidateUsers(
-        taskAssignmentRuleRepository.findCandidateUsersForTask(
-            taskInstance.getId(),
-            taskInstance.getProcessInstanceId(),
-            taskInstance.getTaskKey()
-        )
-    );
   }
 
   private List<String> normalizeCandidateGroups(Set<String> candidateGroups) {

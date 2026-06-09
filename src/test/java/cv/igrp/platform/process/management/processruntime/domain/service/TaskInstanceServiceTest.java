@@ -557,8 +557,6 @@ class TaskInstanceServiceTest {
     when(task.getEndedBy()).thenReturn(null);
     when(task.getAssignedBy()).thenReturn(Code.create("assignee@nosi.cv"));
     when(task.getTaskInstanceEvents()).thenReturn(List.of(event));
-    when(task.getProcessInstanceId()).thenReturn(Identifier.generate());
-    when(task.getTaskKey()).thenReturn(Code.create("task-1"));
 
     PageableLista<TaskInstance> page = new PageableLista<>(0, 10, 1L, 1, true, true, List.of(task));
     when(taskInstanceRepository.findAll(filter)).thenReturn(page);
