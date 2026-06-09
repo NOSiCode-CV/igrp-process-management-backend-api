@@ -10,7 +10,6 @@ import cv.igrp.platform.process.management.shared.application.constants.TaskInst
 import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
-import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.TaskAssignmentRuleEntity;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.TaskInstanceEntity;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.repository.TaskInstanceEntityRepository;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -442,21 +441,10 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
       CriteriaBuilder cb,
       String user
   ) {
-    var candidateUserRule = query.subquery(UUID.class);
-    Root<TaskAssignmentRuleEntity> rule = candidateUserRule.from(TaskAssignmentRuleEntity.class);
-    SetJoin<TaskAssignmentRuleEntity, String> candidateUsers = rule.joinSet("candidateUsers");
-    candidateUserRule.select(rule.get("id"));
-    candidateUserRule.where(
-        cb.equal(rule.get("processInstanceId").get("id"), root.get("processInstanceId").get("id")),
-        cb.equal(rule.get("taskDefinitionKey"), root.get("taskKey")),
-        cb.equal(candidateUsers, user.trim()),
-        cb.isTrue(rule.get("active")),
-        cb.or(
-            cb.isFalse(rule.get("consumed")),
-            cb.equal(rule.get("createdByTask").get("id"), root.get("id"))
-        )
-    );
-    return cb.exists(candidateUserRule);
+    if (user == null || user.isBlank()) {
+      return cb.disjunction();
+    }
+    return candidateUserRulePredicate(root, query, cb, Set.of(user.trim()));
   }
 
   private Predicate candidateUserRulePredicate(
@@ -474,21 +462,15 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
       return cb.disjunction();
     }
 
-    var candidateUserRule = query.subquery(UUID.class);
-    Root<TaskAssignmentRuleEntity> rule = candidateUserRule.from(TaskAssignmentRuleEntity.class);
-    SetJoin<TaskAssignmentRuleEntity, String> candidateUsers = rule.joinSet("candidateUsers");
-    candidateUserRule.select(rule.get("id"));
-    candidateUserRule.where(
-        cb.equal(rule.get("processInstanceId").get("id"), root.get("processInstanceId").get("id")),
-        cb.equal(rule.get("taskDefinitionKey"), root.get("taskKey")),
-        candidateUsers.in(normalizedUsers),
-        cb.isTrue(rule.get("active")),
-        cb.or(
-            cb.isFalse(rule.get("consumed")),
-            cb.equal(rule.get("createdByTask").get("id"), root.get("id"))
-        )
+    var candidateUserTask = query.subquery(UUID.class);
+    Root<TaskInstanceEntity> task = candidateUserTask.from(TaskInstanceEntity.class);
+    SetJoin<TaskInstanceEntity, String> candidateUsers = task.joinSet("candidateUsers");
+    candidateUserTask.select(task.get("id"));
+    candidateUserTask.where(
+        cb.equal(task.get("id"), root.get("id")),
+        candidateUsers.in(normalizedUsers)
     );
-    return cb.exists(candidateUserRule);
+    return cb.exists(candidateUserTask);
   }
 
   private Predicate candidateGroupExistsPredicate(
@@ -524,6 +506,19 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
   @Override
   public Optional<TaskInstance> findByExternalId(String id) {
     return taskInstanceEntityRepository.findByExternalId(id).map(taskMapper::toModel);
+  }
+
+  @Override
+  public Map<String, TaskInstance> findAllByExternalIds(Collection<String> externalIds) {
+    if (externalIds == null || externalIds.isEmpty()) {
+      return Map.of();
+    }
+    return taskInstanceEntityRepository.findAllByExternalIdIn(externalIds).stream()
+        .collect(Collectors.toMap(
+            TaskInstanceEntity::getExternalId,
+            taskMapper::toModel,
+            (a, b) -> b
+        ));
   }
 
 }
