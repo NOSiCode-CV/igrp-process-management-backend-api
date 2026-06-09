@@ -53,7 +53,7 @@ public class SaveTaskCommandHandlerTest {
 
     when(userContext.getCurrentUser()).thenReturn(Code.create("demo@nosi.cv"));
 
-    // Mock TaskInstance, Code and TaskInstanceDTO
+    // Mock TaskInstance and TaskInstanceDTO
     mockTaskInstance = mock(TaskInstance.class);
     mockTaskInstanceDTO = mock(TaskInstanceDTO.class);
 
