@@ -34,6 +34,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import static cv.igrp.platform.process.management.shared.security.util.ActivitiConstants.GROUP_PREFIX;
 import static cv.igrp.platform.process.management.shared.security.util.IgrpAuthorizationConstants.ROLE_PREFIX;
 
 @Configuration
@@ -121,14 +122,13 @@ public class SecurityConfig {
 
       Set<GrantedAuthority> authorities = new HashSet<>();
       final String token = jwt.getTokenValue();
-
       try {
 
         authorizationService
             .getActiveGroups(token, request)
             .forEach(r -> {
               String roleValue = !r.startsWith(ROLE_PREFIX) ? ROLE_PREFIX + r : r;
-              String groupValue = !r.startsWith(ActivitiConstants.GROUP_PREFIX) ? ActivitiConstants.GROUP_PREFIX + r : r;
+              String groupValue = !r.startsWith(GROUP_PREFIX) ? GROUP_PREFIX + r : r;
               authorities.add(new SimpleGrantedAuthority(roleValue));
               authorities.add(new SimpleGrantedAuthority(groupValue));
             });
@@ -142,16 +142,14 @@ public class SecurityConfig {
           LOGGER.info("User [{}] granted super admin privileges", email);
           authorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + IgrpAuthorizationConstants.SUPER_ADMIN_ROLE));
           authorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + ActivitiConstants.ROLE_ACTIVITI_ADMIN));
-          authorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + ActivitiConstants.ROLE_ACTIVITI_USER));
-        } else {
-          authorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + ActivitiConstants.ROLE_ACTIVITI_USER));
         }
 
       } catch (Exception e) {
         LOGGER.error("Failed to enrich authorities for [email={}, sub={}]: {}", email, sub, e.getMessage(), e);
-        // Ensure at least basic Activiti user role
-        authorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + ActivitiConstants.ROLE_ACTIVITI_USER));
       }
+
+      // Ensure at least basic Activiti user role
+      authorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + ActivitiConstants.ROLE_ACTIVITI_USER));
 
       LOGGER.debug("Authorities: {}", authorities);
 

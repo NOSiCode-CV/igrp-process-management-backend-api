@@ -59,6 +59,7 @@ public class ProcessDeploymentRepositoryImpl implements ProcessDeploymentReposit
 
   @Override
   public PageableLista<ProcessDeployment> findAll(ProcessDeploymentFilter filter) {
+
     ProcessFilter processFilter = toProcessFilter(filter);
 
     List<ProcessDefinition> definitions = processDefinitionAdapter.getDeployedProcesses(processFilter);
