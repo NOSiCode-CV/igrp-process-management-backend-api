@@ -34,7 +34,9 @@ public class TaskAssignmentRuleService {
         assignee != null ? assignee.getValue() : null,
         candidateUsers
     );
-    var updatedRule = repository.updateAssignment(Identifier.create(id), assignee, candidateUsers);
+    // Priority is left untouched (null) on manual rule updates; it is only set by automated
+    // assignment delegates that resolve it from an external source.
+    var updatedRule = repository.updateAssignment(Identifier.create(id), assignee, candidateUsers, null);
     LOGGER.info(
         "Updated task assignment rule [{}]; active [{}], consumed [{}]",
         id,

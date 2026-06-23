@@ -96,12 +96,10 @@ public class TaskInstanceService {
 
       taskInstance.addCandidates(data);
 
-      data.getCandidateGroups().forEach(group -> {
-        runtimeProcessEngineRepository.addCandidateGroup(
-            taskInstance.getExternalId().getValue(),
-            group
-        );
-      });
+      data.getCandidateGroups().forEach(group -> runtimeProcessEngineRepository.addCandidateGroup(
+          taskInstance.getExternalId().getValue(),
+          group
+      ));
 
       var candidateUsers = data.getCandidateUsers().stream()
           .map(this::normalizeUserId)
@@ -109,12 +107,10 @@ public class TaskInstanceService {
           .distinct()
           .toList();
 
-      candidateUsers.forEach(user -> {
-        runtimeProcessEngineRepository.addCandidateUser(
-            taskInstance.getExternalId().getValue(),
-            user
-        );
-      });
+      candidateUsers.forEach(user -> runtimeProcessEngineRepository.addCandidateUser(
+          taskInstance.getExternalId().getValue(),
+          user
+      ));
 
     }
 

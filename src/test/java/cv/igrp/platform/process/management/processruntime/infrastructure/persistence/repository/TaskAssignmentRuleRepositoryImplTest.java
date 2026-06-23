@@ -119,7 +119,7 @@ class TaskAssignmentRuleRepositoryImplTest {
   }
 
   @Test
-  void updateAssignment_shouldUpdateAssigneeAndCandidateUsers_whenRuleIsActiveAndNotConsumed() {
+  void updateAssignment_shouldUpdateAssigneeCandidateUsersAndPriority_whenRuleIsActiveAndNotConsumed() {
     UUID ruleId = UUID.randomUUID();
     var rule = new TaskAssignmentRuleEntity();
     rule.setId(ruleId);
@@ -129,6 +129,7 @@ class TaskAssignmentRuleRepositoryImplTest {
     rule.setConsumed(false);
     rule.setActive(true);
     rule.setAssignee("old@nosi.cv");
+    rule.setPriority(1);
     rule.getCandidateUsers().add("old-user@nosi.cv");
 
     when(entityRepository.findById(ruleId)).thenReturn(Optional.of(rule));
@@ -137,14 +138,45 @@ class TaskAssignmentRuleRepositoryImplTest {
     var result = repository.updateAssignment(
         Identifier.create(ruleId),
         Code.create("new@nosi.cv"),
-        Set.of("new-user@nosi.cv")
+        Set.of("new-user@nosi.cv"),
+        7
     );
 
     assertEquals("new@nosi.cv", rule.getAssignee());
     assertTrue(rule.getCandidateUsers().contains("new-user@nosi.cv"));
     assertFalse(rule.getCandidateUsers().contains("old-user@nosi.cv"));
+    assertEquals(7, rule.getPriority());
     assertEquals("new@nosi.cv", result.getAssignee().getValue());
     assertTrue(result.getCandidateUsers().contains("new-user@nosi.cv"));
+    assertEquals(7, result.getPriority());
+    verify(entityRepository).save(rule);
+  }
+
+  @Test
+  void updateAssignment_shouldPreserveExistingPriority_whenPriorityIsNull() {
+    UUID ruleId = UUID.randomUUID();
+    var rule = new TaskAssignmentRuleEntity();
+    rule.setId(ruleId);
+    rule.setProcessDefinitionKey("process-a");
+    rule.setTaskDefinitionKey("task-a");
+    rule.setAssignmentMode(TaskAssignmentMode.ONE_TIME);
+    rule.setConsumed(false);
+    rule.setActive(true);
+    rule.setAssignee("old@nosi.cv");
+    rule.setPriority(5);
+
+    when(entityRepository.findById(ruleId)).thenReturn(Optional.of(rule));
+    when(entityRepository.save(rule)).thenReturn(rule);
+
+    var result = repository.updateAssignment(
+        Identifier.create(ruleId),
+        Code.create("new@nosi.cv"),
+        Set.of(),
+        null
+    );
+
+    assertEquals(5, rule.getPriority());
+    assertEquals(5, result.getPriority());
     verify(entityRepository).save(rule);
   }
 
@@ -175,7 +207,7 @@ class TaskAssignmentRuleRepositoryImplTest {
     when(entityRepository.findById(ruleId)).thenReturn(Optional.of(rule));
 
     assertThrows(IgrpResponseStatusException.class, () ->
-        repository.updateAssignment(Identifier.create(ruleId), Code.create("new@nosi.cv"), Set.of()));
+        repository.updateAssignment(Identifier.create(ruleId), Code.create("new@nosi.cv"), Set.of(), null));
   }
 
   @Test

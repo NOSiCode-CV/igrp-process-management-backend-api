@@ -84,10 +84,11 @@ public class TaskInstancesController {
     @RequestParam(value = "size", required = false) Integer size,
     @RequestParam(value = "name", required = false) String name,
     @RequestParam(value = "processName", required = false) String processName,
-    @RequestParam(value = "filterByCurrentUser", required = false) boolean filterByCurrentUser)
+    @RequestParam(value = "filterByCurrentUser", required = false) boolean filterByCurrentUser,
+    @RequestParam(value = "priority", required = false) Integer priority)
   {
 
-      final var command = new ListTaskInstancesCommand(listTaskInstancesRequest, processInstanceId, processNumber, processReleaseKey, applicationBase, candidateGroups, candidateUsers, user, status, dateFrom, dateTo, page, size, name, processName, filterByCurrentUser);
+      final var command = new ListTaskInstancesCommand(listTaskInstancesRequest, processInstanceId, processNumber, processReleaseKey, applicationBase, candidateGroups, candidateUsers, user, status, dateFrom, dateTo, page, size, name, processName, filterByCurrentUser, priority);
 
        ResponseEntity<TaskInstanceListPageDTO> response = commandBus.send(command);
 
@@ -280,10 +281,11 @@ public class TaskInstancesController {
     @RequestParam(value = "page", required = false) Integer page,
     @RequestParam(value = "size", required = false) Integer size,
     @RequestParam(value = "processReleaseKey", required = false) String processReleaseKey,
-    @RequestParam(value = "name", required = false) String name)
+    @RequestParam(value = "name", required = false) String name,
+    @RequestParam(value = "priority", required = false) Integer priority)
   {
 
-      final var command = new GetAllMyTasksCommand(getAllMyTasksRequest, processInstanceId, processNumber, applicationBase, processName, status, dateFrom, dateTo, page, size, processReleaseKey, name);
+      final var command = new GetAllMyTasksCommand(getAllMyTasksRequest, processInstanceId, processNumber, applicationBase, processName, status, dateFrom, dateTo, page, size, processReleaseKey, name, priority);
 
        ResponseEntity<TaskInstanceListPageDTO> response = commandBus.send(command);
 

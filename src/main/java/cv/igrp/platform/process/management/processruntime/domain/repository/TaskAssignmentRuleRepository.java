@@ -18,7 +18,8 @@ public interface TaskAssignmentRuleRepository {
   TaskAssignmentRule updateAssignment(
       Identifier ruleId,
       Code assignee,
-      Set<String> candidateUsers
+      Set<String> candidateUsers,
+      Integer priority
   );
 
   void deactivate(Identifier ruleId);

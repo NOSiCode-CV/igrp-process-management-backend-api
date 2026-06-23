@@ -54,12 +54,16 @@ public class TaskAssignmentRuleRepositoryImpl implements TaskAssignmentRuleRepos
   public TaskAssignmentRule updateAssignment(
       Identifier ruleId,
       Code assignee,
-      Set<String> candidateUsers
+      Set<String> candidateUsers,
+      Integer priority
   ) {
     var rule = findUpdatableRule(ruleId);
     rule.setAssignee(assignee != null ? assignee.getValue() : null);
     rule.getCandidateUsers().clear();
     rule.getCandidateUsers().addAll(normalize(candidateUsers));
+    if (priority != null) {
+      rule.setPriority(priority);
+    }
     return toModel(repository.save(rule));
   }
 

@@ -58,12 +58,12 @@ class TaskAssignmentRuleServiceTest {
         .assignee(assignee)
         .candidateUsers(candidateUsers)
         .build();
-    when(repository.updateAssignment(Identifier.create(id), assignee, candidateUsers)).thenReturn(expected);
+    when(repository.updateAssignment(Identifier.create(id), assignee, candidateUsers, null)).thenReturn(expected);
 
     var result = service.updateAssignment(id.toString(), assignee, candidateUsers);
 
     assertSame(expected, result);
-    verify(repository).updateAssignment(Identifier.create(id), assignee, candidateUsers);
+    verify(repository).updateAssignment(Identifier.create(id), assignee, candidateUsers, null);
   }
 
   @Test
