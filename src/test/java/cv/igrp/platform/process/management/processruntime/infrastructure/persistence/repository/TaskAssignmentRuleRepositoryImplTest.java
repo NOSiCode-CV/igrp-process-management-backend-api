@@ -57,6 +57,7 @@ class TaskAssignmentRuleRepositoryImplTest {
     entity.setTaskDefinitionKey("task-a");
     entity.setAssignee("demo@nosi.cv");
     entity.getCandidateUsers().addAll(List.of("user1@nosi.cv", "user2@nosi.cv"));
+    entity.getCandidateGroups().addAll(List.of("group1", "group2"));
     entity.setAssignmentMode(TaskAssignmentMode.ALWAYS);
     entity.setPriority(5);
     entity.setConsumed(false);
@@ -69,6 +70,7 @@ class TaskAssignmentRuleRepositoryImplTest {
         .taskDefinitionKey(Code.create("task-a"))
         .assignee(Code.create("demo@nosi.cv"))
         .candidateUsers(Set.of("user1@nosi.cv"))
+        .candidateGroups(Set.of("group1"))
         .assignmentMode(TaskAssignmentMode.ALWAYS)
         .consumed(false)
         .active(true)
@@ -90,6 +92,7 @@ class TaskAssignmentRuleRepositoryImplTest {
     assertEquals("task-a", rule.getTaskDefinitionKey().getValue());
     assertEquals("demo@nosi.cv", rule.getAssignee().getValue());
     assertTrue(rule.getCandidateUsers().containsAll(List.of("user1@nosi.cv", "user2@nosi.cv")));
+    assertTrue(rule.getCandidateGroups().containsAll(List.of("group1", "group2")));
     assertEquals(TaskAssignmentMode.ALWAYS, rule.getAssignmentMode());
     assertEquals(5, rule.getPriority());
     assertEquals(createdByTaskId, rule.getCreatedByTask().getValue());
@@ -131,6 +134,7 @@ class TaskAssignmentRuleRepositoryImplTest {
     rule.setAssignee("old@nosi.cv");
     rule.setPriority(1);
     rule.getCandidateUsers().add("old-user@nosi.cv");
+    rule.getCandidateGroups().add("old-group");
 
     when(entityRepository.findById(ruleId)).thenReturn(Optional.of(rule));
     when(entityRepository.save(rule)).thenReturn(rule);
@@ -139,15 +143,19 @@ class TaskAssignmentRuleRepositoryImplTest {
         Identifier.create(ruleId),
         Code.create("new@nosi.cv"),
         Set.of("new-user@nosi.cv"),
+        Set.of("new-group"),
         7
     );
 
     assertEquals("new@nosi.cv", rule.getAssignee());
     assertTrue(rule.getCandidateUsers().contains("new-user@nosi.cv"));
     assertFalse(rule.getCandidateUsers().contains("old-user@nosi.cv"));
+    assertTrue(rule.getCandidateGroups().contains("new-group"));
+    assertFalse(rule.getCandidateGroups().contains("old-group"));
     assertEquals(7, rule.getPriority());
     assertEquals("new@nosi.cv", result.getAssignee().getValue());
     assertTrue(result.getCandidateUsers().contains("new-user@nosi.cv"));
+    assertTrue(result.getCandidateGroups().contains("new-group"));
     assertEquals(7, result.getPriority());
     verify(entityRepository).save(rule);
   }
@@ -171,6 +179,7 @@ class TaskAssignmentRuleRepositoryImplTest {
     var result = repository.updateAssignment(
         Identifier.create(ruleId),
         Code.create("new@nosi.cv"),
+        Set.of(),
         Set.of(),
         null
     );
@@ -207,7 +216,7 @@ class TaskAssignmentRuleRepositoryImplTest {
     when(entityRepository.findById(ruleId)).thenReturn(Optional.of(rule));
 
     assertThrows(IgrpResponseStatusException.class, () ->
-        repository.updateAssignment(Identifier.create(ruleId), Code.create("new@nosi.cv"), Set.of(), null));
+        repository.updateAssignment(Identifier.create(ruleId), Code.create("new@nosi.cv"), Set.of(), Set.of(), null));
   }
 
   @Test

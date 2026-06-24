@@ -266,6 +266,7 @@ class IgrpExternalUserAssignmentDelegateTest {
         eq(existingRuleId),
         argThat(code -> "john.doe@example.com".equals(code.getValue())),
         eq(Set.of()),
+        eq(Set.of()),
         isNull()
     );
     verify(taskAssignmentRuleRepository, never()).save(any(TaskAssignmentRule.class));
@@ -295,7 +296,7 @@ class IgrpExternalUserAssignmentDelegateTest {
 
     delegate.execute(execution);
 
-    verify(taskAssignmentRuleRepository, never()).updateAssignment(any(), any(), any(), any());
+    verify(taskAssignmentRuleRepository, never()).updateAssignment(any(), any(), any(), any(), any());
     verify(taskAssignmentRuleRepository).save(any(TaskAssignmentRule.class));
   }
 
@@ -362,6 +363,7 @@ class IgrpExternalUserAssignmentDelegateTest {
     verify(taskAssignmentRuleRepository).updateAssignment(
         eq(existingRuleId),
         argThat(code -> "john.doe@example.com".equals(code.getValue())),
+        eq(Set.of()),
         eq(Set.of()),
         eq(3)
     );

@@ -587,6 +587,12 @@
           "isRequired": false
         },
         {
+          "type": "string",
+          "name": "candidateGroups",
+          "description": "Candidate Groups",
+          "isRequired": false
+        },
+        {
           "type": "TaskAssignmentMode",
           "name": "assignmentMode",
           "description": "Assignment Mode",

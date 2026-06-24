@@ -473,6 +473,7 @@ public class TaskInstancesController {
     @RequestParam(value = "taskDefinitionKey", required = false) String taskDefinitionKey,
     @RequestParam(value = "assignee", required = false) String assignee,
     @RequestParam(value = "candidateUsers", required = false) String candidateUsers,
+    @RequestParam(value = "candidateGroups", required = false) String candidateGroups,
     @RequestParam(value = "assignmentMode", required = false) TaskAssignmentMode assignmentMode,
     @RequestParam(value = "consumed", required = false) Boolean consumed,
     @RequestParam(value = "active", required = false) Boolean active,
@@ -481,7 +482,7 @@ public class TaskInstancesController {
     @RequestParam(value = "size", required = false) Integer size)
   {
 
-      final var command = new ListTaskAssignmentRulesCommand(processInstanceId, processDefinitionKey, taskDefinitionKey, assignee, candidateUsers, assignmentMode, consumed, active, createdByTask, page, size);
+      final var command = new ListTaskAssignmentRulesCommand(processInstanceId, processDefinitionKey, taskDefinitionKey, assignee, candidateUsers, candidateGroups, assignmentMode, consumed, active, createdByTask, page, size);
 
        ResponseEntity<TaskAssignmentRuleListPageDTO> response = commandBus.send(command);
 

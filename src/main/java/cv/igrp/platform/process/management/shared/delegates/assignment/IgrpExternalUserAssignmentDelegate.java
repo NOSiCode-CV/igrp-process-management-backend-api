@@ -154,6 +154,7 @@ public class IgrpExternalUserAssignmentDelegate implements JavaDelegate {
           updatableRule.get().getId(),
           Code.create(userIdentifier),
           Set.of(),
+          Set.of(),
           priority
       );
       log.info("[ExternalUserAssignment] Updated existing rule: id={}, assignee={}, priority={}",

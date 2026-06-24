@@ -19,6 +19,7 @@ public interface TaskAssignmentRuleRepository {
       Identifier ruleId,
       Code assignee,
       Set<String> candidateUsers,
+      Set<String> candidateGroups,
       Integer priority
   );
 
