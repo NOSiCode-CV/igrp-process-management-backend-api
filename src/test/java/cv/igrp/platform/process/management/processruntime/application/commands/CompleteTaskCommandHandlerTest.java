@@ -79,7 +79,7 @@ class CompleteTaskCommandHandlerTest {
 
     // Then
     assertNotNull(response);
-    assertEquals(200, response.getStatusCodeValue());
+    assertEquals(200, response.getStatusCode().value());
     assertSame(mockTaskInstanceDTO, response.getBody());
 
     // Verify
