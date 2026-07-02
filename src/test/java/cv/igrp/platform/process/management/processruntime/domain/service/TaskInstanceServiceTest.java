@@ -4,6 +4,7 @@ import cv.igrp.platform.process.management.processdefinition.domain.models.Proce
 import cv.igrp.platform.process.management.processdefinition.domain.repository.ProcessDefinitionRepository;
 import cv.igrp.platform.process.management.processruntime.domain.models.*;
 import cv.igrp.platform.process.management.shared.application.constants.TaskAssignmentMode;
+import cv.igrp.platform.process.management.shared.application.constants.VaribalesOperator;
 import cv.igrp.platform.process.management.processruntime.domain.repository.*;
 import cv.igrp.platform.process.management.shared.application.constants.ProcessInstanceStatus;
 import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
@@ -253,6 +254,78 @@ class TaskInstanceServiceTest {
     taskInstanceService.createTaskInstancesByProcess(processInstance);
 
     verify(runtimeProcessEngineRepository).addCandidateUser(externalId, "candidate@nosi.cv");
+    verify(taskAssignmentRuleRepository).markConsumed(Identifier.create(ruleId), Identifier.create(taskId));
+    verify(taskAssignmentRuleRepository, never()).save(any(TaskAssignmentRule.class));
+  }
+
+  @Test
+  void createTaskInstancesByProcess_shouldConsumePersistedOneTimeCandidateGroupRule() {
+
+    UUID taskId = UUID.randomUUID();
+    UUID ruleId = UUID.randomUUID();
+    String externalId = UUID.randomUUID().toString();
+
+    ProcessInstance processInstance = ProcessInstance.builder()
+        .id(Identifier.generate())
+        .procReleaseKey(Code.create("PROC_KEY"))
+        .procReleaseId(Code.create("PROC_RELEASE_ID"))
+        .engineProcessNumber(Code.create("ENG-PROC-123"))
+        .businessKey(Code.create("BUS-1"))
+        .startedBy("demo@nosi.cv")
+        .priority(10)
+        .build();
+
+    TaskAssignmentRule persistedRule = TaskAssignmentRule.builder()
+        .id(Identifier.create(ruleId))
+        .processDefinitionKey(processInstance.getProcReleaseKey())
+        .processInstanceId(processInstance.getId())
+        .taskDefinitionKey(Code.create("task-1"))
+        .candidateGroups(List.of("group-1"))
+        .assignmentMode(TaskAssignmentMode.ONE_TIME)
+        .priority(7)
+        .persisted(true)
+        .build();
+
+    TaskInstance runtimeTask = TaskInstance.builder()
+        .id(Identifier.create(taskId))
+        .taskKey(Code.create("task-1"))
+        .externalId(Code.create(externalId))
+        .name(Name.create("Task-1"))
+        .startedAt(LocalDateTime.now())
+        .build();
+
+    TaskInstance persistedTask = TaskInstance.builder()
+        .id(Identifier.create(taskId))
+        .taskKey(Code.create("task-1"))
+        .externalId(Code.create(externalId))
+        .name(Name.create("Task-1"))
+        .processInstanceId(processInstance.getId())
+        .processKey(processInstance.getProcReleaseKey())
+        .startedBy(Code.create("demo@nosi.cv"))
+        .status(TaskInstanceStatus.CREATED)
+        .taskInstanceEvents(new ArrayList<>())
+        .build();
+
+    ProcessArtifact artifact = mock(ProcessArtifact.class);
+    when(artifact.getKey()).thenReturn(Code.create("task-1"));
+    when(artifact.getFormKey()).thenReturn(null);
+    when(artifact.getCandidateGroups()).thenReturn(Set.of());
+    when(artifact.getDueDate()).thenReturn(null);
+
+    when(runtimeProcessEngineRepository.getActiveTaskInstances("ENG-PROC-123"))
+        .thenReturn(List.of(runtimeTask));
+    when(processDefinitionRepository.findAllArtifacts(processInstance.getProcReleaseId()))
+        .thenReturn(List.of(artifact));
+    when(taskAssignmentRuleRepository.findActiveByProcessInstanceAndTaskDefinition(
+        processInstance.getId(),
+        Code.create("task-1")
+    )).thenReturn(List.of(persistedRule));
+    when(taskInstanceRepository.findByIdWithEvents(taskId))
+        .thenReturn(Optional.of(persistedTask));
+
+    taskInstanceService.createTaskInstancesByProcess(processInstance);
+
+    verify(runtimeProcessEngineRepository).addCandidateGroup(externalId, "group-1");
     verify(taskAssignmentRuleRepository).markConsumed(Identifier.create(ruleId), Identifier.create(taskId));
     verify(taskAssignmentRuleRepository, never()).save(any(TaskAssignmentRule.class));
   }
@@ -542,9 +615,10 @@ class TaskInstanceServiceTest {
   @Test
   void getAllTaskInstances_shouldUseBatchMethodsForVariablesAndProfiles() {
 
-    // Setup filter (no current-user filtering)
+    // Setup filter (no current-user filtering, no variable filtering)
     TaskInstanceFilter filter = mock(TaskInstanceFilter.class);
     when(filter.isFilterByCurrentUser()).thenReturn(false);
+    when(filter.getVariablesExpressions()).thenReturn(List.of());
 
     // Setup task event
     TaskInstanceEvent event = mock(TaskInstanceEvent.class);
@@ -581,6 +655,62 @@ class TaskInstanceServiceTest {
     // Verify individual methods are NEVER called in the list path
     verify(runtimeProcessEngineRepository, never()).getProcessVariables(anyString());
     verify(userProfileRepository, never()).findBySubjectOrEmail(anyString(), anyString());
+  }
+
+  @Test
+  void getAllTaskInstances_shouldDelegateVariableFilteringToEngine_andCollectEngineProcessNumbers() {
+
+    VariablesExpression expression = VariablesExpression.builder()
+        .name("status")
+        .operator(VaribalesOperator.EQUALS)
+        .value("ACTIVE")
+        .build();
+
+    TaskInstanceFilter filter = TaskInstanceFilter.builder()
+        .variablesExpressions(new ArrayList<>(List.of(expression)))
+        .build();
+
+    ProcessInstance engineMatch = mock(ProcessInstance.class);
+    when(engineMatch.getEngineProcessNumber()).thenReturn(Code.create("ENG-001"));
+
+    when(runtimeProcessEngineRepository.getAllProcessInstancesByVariables(filter.getVariablesExpressions()))
+        .thenReturn(List.of(engineMatch));
+
+    PageableLista<TaskInstance> page = new PageableLista<>(0, 50, 0L, 0, true, true, List.of());
+    when(taskInstanceRepository.findAll(filter)).thenReturn(page);
+
+    taskInstanceService.getAllTaskInstances(filter);
+
+    // Engine was queried for process variables, and the matching engine process number was
+    // collected onto the filter so the repository can restrict tasks by their parent process.
+    verify(runtimeProcessEngineRepository).getAllProcessInstancesByVariables(filter.getVariablesExpressions());
+    assertTrue(filter.getEngineProcessNumbers().contains("ENG-001"));
+  }
+
+  @Test
+  void getAllTaskInstances_shouldLeaveEngineProcessNumbersEmpty_whenEngineReturnsNoMatches() {
+
+    VariablesExpression expression = VariablesExpression.builder()
+        .name("status")
+        .operator(VaribalesOperator.EQUALS)
+        .value("ACTIVE")
+        .build();
+
+    TaskInstanceFilter filter = TaskInstanceFilter.builder()
+        .variablesExpressions(new ArrayList<>(List.of(expression)))
+        .build();
+
+    when(runtimeProcessEngineRepository.getAllProcessInstancesByVariables(filter.getVariablesExpressions()))
+        .thenReturn(List.of());
+
+    PageableLista<TaskInstance> page = new PageableLista<>(0, 50, 0L, 0, true, true, List.of());
+    when(taskInstanceRepository.findAll(filter)).thenReturn(page);
+
+    taskInstanceService.getAllTaskInstances(filter);
+
+    // No process-variable matches: the repository falls back to the task-local (JSONB) predicate only.
+    verify(runtimeProcessEngineRepository).getAllProcessInstancesByVariables(filter.getVariablesExpressions());
+    assertTrue(filter.getEngineProcessNumbers().isEmpty());
   }
 
 }

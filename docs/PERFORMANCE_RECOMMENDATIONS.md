@@ -11,11 +11,11 @@ This project is a Spring Boot 3 / Java 25 service with JPA/PostgreSQL, Activiti 
 | P0 | N+1 queries — task list | Batch process-variable and user-profile resolution in task list endpoint. | **RESOLVED** |
 | P0 | N+1 queries — process list | Batch progress, variables, and user-profile resolution in process list endpoint. | **RESOLVED** |
 | P0 | N+1 queries — candidate users | Persist `candidateUsers` to DB instead of per-task `task_assignment_rule` query. | **RESOLVED** |
-| P0 | Webhook/runtime timeouts | Configure `RestClient` connect and read timeouts globally; current default is infinite. | Open |
+| P0 | Webhook/runtime timeouts | Configure `RestClient` connect and read timeouts globally; current default is infinite. | **RESOLVED** (app + framework `0.1.0-beta.24.1`; app pom bumped & green locally — pending Nexus deploy of the framework) |
 | P0 | Auth per-request overhead | Cache authorization groups, permissions, and super-admin checks; currently 3 remote calls per request. | Open |
 | P1 | N+1 queries — timeline events | Batch task-instance and user-profile resolution in `ActivityInstanceService`. | **RESOLVED** |
-| P1 | Statistics queries | Replace 6+ individual COUNT queries with grouped aggregate or cached result. | Open |
-| P1 | Database indexes | Add Flyway-managed indexes for the most common task/process filters and sorts. | Open |
+| P1 | Statistics queries | Replace 6+ individual COUNT queries with grouped aggregate or cached result. | **RESOLVED** (global task & process stats use one `GROUP BY`; per-user left as-is by design) |
+| P1 | Database indexes | Add Flyway-managed indexes for the most common task/process filters and sorts. | **RESOLVED** (Flyway `V6`, `CREATE INDEX CONCURRENTLY`) |
 | P1 | Class-level @Transactional on consumers | Move `@Transactional` from class to method level on Kafka/RabbitMQ consumers. | Open |
 | P1 | Unbounded archive queries | `archiveProcess`/`unArchiveProcess` load all instances without pagination and save individually. | Open |
 | P1 | IAM profile sync filter | DB read/write on every authenticated request without caching. | Open |
@@ -28,6 +28,10 @@ This project is a Spring Boot 3 / Java 25 service with JPA/PostgreSQL, Activiti 
 | P2 | Connection pool | Tune HikariCP and PostgreSQL limits per pod replica count. | Open |
 | P2 | Process list sorting | `ProcessInstanceRepositoryImpl#findAll` has no deterministic sort order. | Open |
 | P2 | Kafka consumer config | No explicit concurrency, max-poll-records, or DLQ settings. | Open |
+| P2 | N+1 queries — single task detail | `getTaskById()` resolves user profiles per event instead of batching. | **RESOLVED** |
+| P2 | Serial loop — process task status batch | `getProcessInstanceTaskStatusBatch()` loops serially per process instance. | Open |
+| P2 | Serial loop — artifact saves on import | `importProcessDefinition()` saves each artifact individually in a loop. | Open |
+| P2 | Serial loop — group assignment | `updateProcessDefinitionAssignment()` and import call `addCandidateStarterGroup()` per group in a loop. | Open |
 | P3 | N+1 queries — runtime priorities | Per-task `setTaskPriority()` during task creation; low impact (1-3 tasks typically). | Open |
 | P3 | Audit/history retention | Review Activiti `history-level=full` and Envers retention for production volume. | Open |
 | P3 | Build/runtime | Pin image tags, set JVM container memory flags, right-size Docker memory limit. | Open |
@@ -137,9 +141,80 @@ Recommended actions:
 - Use `saveAll(List<TaskAssignmentRule>)` for batch inserts.
 - Configure `spring.jpa.properties.hibernate.jdbc.batch_size=20` to enable JDBC batching.
 
+### TaskInstanceService.getTaskById — per-event user profile resolution (P2) — RESOLVED
+
+**File:** `TaskInstanceService.java`
+
+**Resolved on 2026-06-24.** `getTaskById` now calls the existing batch helper
+`resolveAllUserProfiles(List.of(taskInstance))`, which collects the task's `startedBy`/`endedBy`/
+`assignedBy` plus every event's `performedBy` and resolves them in a single `findBySubjectOrEmails`
+call (previously 1 + N per-event `findBySubjectOrEmail` queries). The now-orphaned per-task and
+per-event `resolveUserProfiles` overloads (and the `matches` helper they used) were removed.
+
+### RuntimeProcessEngineRepositoryImpl.getProcessInstanceTaskStatusBatch — serial loop (P2)
+
+**File:** `RuntimeProcessEngineRepositoryImpl.java:296-313`
+
+```java
+for (String processInstanceId : processInstanceIds) {
+    List<ProcessInstanceTaskStatus> statuses = taskQueryService.getUserTaskProgress(processInstanceId).stream()
+        .map(processInstanceTaskStatusMapper::toModel)
+        .collect(Collectors.toList());
+    result.put(processInstanceId, statuses);
+}
+```
+
+Same pattern as the already-documented `getCandidateStarterGroupsBatch`: the method name suggests batch operation, but it loops serially calling `getUserTaskProgress()` per process instance. Loading 50 process instances results in 50 sequential calls.
+
+Recommended actions:
+
+- If the runtime engine supports a batch task progress API, use it.
+- Otherwise, use `CompletableFuture` with a bounded thread pool to parallelize the calls.
+- The loop is contained in the infrastructure layer, so callers are already batch-aware.
+
+### ProcessDeploymentService.importProcessDefinition — sequential artifact saves (P2)
+
+**File:** `ProcessDeploymentService.java:179-190`
+
+```java
+processPackage.getArtifacts().forEach(processArtifact -> {
+    // ... build artifact ...
+    processDefinitionRepository.saveArtifact(newProcessArtifact);
+});
+```
+
+Each artifact is saved individually in a loop. A process with 20 artifacts triggers 20 sequential DB inserts.
+
+Recommended actions:
+
+- Add a `saveAllArtifacts(List<ProcessArtifact>)` method to the repository.
+- Use `saveAll()` with Hibernate JDBC batching (`hibernate.jdbc.batch_size`).
+
+### ProcessDeploymentService — sequential group assignment (P2)
+
+**File:** `ProcessDeploymentService.java:103-115` and `192-195`
+
+```java
+Arrays.stream(groups.split(","))
+    .forEach(group -> processDeploymentRepository.addCandidateStarterGroup(processDefinitionId, group));
+```
+
+Both `updateProcessDefinitionAssignment()` and `importProcessDefinition()` call `addCandidateStarterGroup()` per group in a loop. Assigning 10 groups means 10 sequential external API calls.
+
+Recommended actions:
+
+- Add a `addCandidateStarterGroups(String processDefinitionId, Set<String> groups)` batch method if the framework adapter supports it.
+- Otherwise, parallelize with `CompletableFuture` as with the task status batch.
+
 ---
 
 ## RestClient Timeouts (P0)
+
+**Resolved on 2026-06-24.** Connect/read timeouts (default 5s/10s, env-overridable via
+`igrp.restclient.connect-timeout` / `igrp.restclient.read-timeout` → `IGRP_RESTCLIENT_*`) are
+now applied via `ClientHttpRequestFactorySettings` in **both** RestClient beans:
+- App fallback `RestClientConfig.defaultRestClient` (active when `igrp.restclient.provider` ≠ `irn`) — live in this repo.
+- Framework `RestClientSignedAuthorizationConfig.restClient()` in `process-runtime-irn-integration` (active in production, `provider=irn`) — JWT interceptor preserved. The monorepo is **version-bumped to `0.1.0-beta.24.1`** (hotfix on the beta.24 / Activiti-8 line; `beta.25` belongs to the divergent Activiti-9 branch) and the app's `process-runtime-*` deps are bumped to match. Built + verified locally (app: 288 tests green). **Remaining step: deploy the monorepo `0.1.0-beta.24.1` to Nexus** (their CI) — until then `beta.24.1` exists only in local `.m2`, so the app pom bump must not be merged ahead of the Nexus deploy.
 
 ### RestClientConfig — no timeout defaults
 
@@ -213,6 +288,14 @@ Recommended actions:
 
 ## Statistics Queries (P1)
 
+**Resolved on 2026-06-24 (global endpoints).** `getGlobalTaskStatistics` and
+`getProcessInstanceStatistics` now issue a single `GROUP BY status` aggregate
+(`countGroupedByStatus()` on each Spring Data repository) instead of 6 sequential COUNT
+queries. Output is unchanged (statuses with no rows default to 0; total is the sum of all
+buckets). The per-user endpoint `getTaskStatisticsByUser` is intentionally left unchanged —
+its 6 counts use *different* predicates (visibility / `assignedBy` / `endedBy`), so it is not
+a plain `GROUP BY`; caching is the better future lever there.
+
 ### Task statistics — 6 separate COUNT queries
 
 **File:** `TaskInstanceRepositoryImpl.java:328-345`
@@ -253,6 +336,17 @@ SELECT status, COUNT(*) FROM t_task_instance GROUP BY status;
 ---
 
 ## Database And Query Performance (P1)
+
+**Resolved on 2026-06-24 (indexes).** Added Flyway migration
+`V6__add_performance_indexes.sql`, which creates the task/process filter & sort indexes
+below using `CREATE INDEX CONCURRENTLY IF NOT EXISTS` so the build does not block writes on
+the large production tables. The migration is non-transactional
+(`V6__add_performance_indexes.sql.conf` → `executeInTransaction=false`) and
+`spring.flyway.postgresql.transactional-lock=false` switches Flyway to a session-level lock
+(required for `CONCURRENTLY`). Validated end-to-end against PostgreSQL 17: all indexes
+created, valid, and idempotent on re-run. Two of the indexes
+(`idx_process_instance_release`, `idx_task_assignment_rule_process_task`) are redundant with
+existing index prefixes and are flagged in the migration as safe to drop.
 
 ### Add indexes for common filters and sorts
 
@@ -570,8 +664,8 @@ Recommended actions:
 ## Suggested Next Steps
 
 1. **Week 1 — Highest impact, lowest risk:**
-   - Add `RestClient` connect/read timeouts globally (blocks indefinite hangs).
-   - Add missing database indexes via Flyway migration.
+   - ~~Add `RestClient` connect/read timeouts globally (blocks indefinite hangs).~~ **DONE** (app fallback live; framework/IRN path pending release).
+   - ~~Add missing database indexes via Flyway migration.~~ **DONE** (`V6`, `CONCURRENTLY`).
    - Cache authorization calls in `SecurityConfig` (eliminates 3 remote calls/request).
 
 2. **Week 2 — N+1 query fixes:**
@@ -582,10 +676,13 @@ Recommended actions:
    - ~~Batch candidate starter groups in `ProcessDeploymentService#getAllDeployments`.~~ **DONE.**
    - ~~Persist `candidateUsers` to task entity to eliminate per-task `resolveCandidateUsers` N+1 query.~~ **DONE.**
 
-3. **Week 3 — Consumer and statistics fixes:**
+3. **Week 3 — Consumer, statistics, and serial loop fixes:**
    - Move `@Transactional` to method level on Kafka/RabbitMQ consumers.
-   - Replace statistics 6-query pattern with `GROUP BY` or cached aggregate.
+   - ~~Replace statistics 6-query pattern with `GROUP BY` or cached aggregate.~~ **DONE** (global endpoints; per-user left as-is).
    - Add Kafka consumer concurrency and DLQ configuration.
+   - ~~Batch user profile resolution in `getTaskById()` (mirrors existing list pattern).~~ **DONE.**
+   - Batch artifact saves and group assignments in `importProcessDefinition()`.
+   - Parallelize or batch `getProcessInstanceTaskStatusBatch()` if runtime API supports it.
 
 4. **Week 4 — Cleanup and hardening:**
    - Add page size validation and max limits on all list endpoints.

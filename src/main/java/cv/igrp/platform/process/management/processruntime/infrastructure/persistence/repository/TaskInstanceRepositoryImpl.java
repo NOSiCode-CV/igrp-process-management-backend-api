@@ -155,6 +155,11 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
           cb.equal(root.get("status"), filter.getStatus().getCode()));
     }
 
+    if (filter.getPriority() != null) {
+      spec = spec.and((root, _, cb) ->
+          cb.equal(root.get("priority"), filter.getPriority()));
+    }
+
     if (filter.getDateFrom() != null) {
       spec = spec.and((root, _, cb) ->
           cb.greaterThanOrEqualTo(root.get("startedAt"), filter.getDateFrom().atStartOfDay()));
@@ -167,11 +172,19 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
 
     if (!filter.getVariablesExpressions().isEmpty()) {
       spec = spec.and((root, _, cb) -> {
-        List<Predicate> predicates = filter.getVariablesExpressions()
+        // Task-local variables (JSONB column) — all expressions ANDed together
+        Predicate jsonbMatch = cb.and(filter.getVariablesExpressions()
             .stream()
             .map(expr -> buildVariablePredicate(expr, root, cb))
-            .toList();
-        return cb.and(predicates.toArray(new Predicate[0]));
+            .toArray(Predicate[]::new));
+        // Process variables — resolved by the engine into matching engine process numbers.
+        // Empty list means the engine matched nothing, so the process side contributes nothing
+        // and the result depends solely on the task-local match.
+        Predicate processMatch = filter.getEngineProcessNumbers().isEmpty()
+            ? cb.disjunction()
+            : root.get("processInstanceId").get("engineProcessNumber").in(filter.getEngineProcessNumbers());
+        // A task matches if EITHER its process variables OR its task-local variables match.
+        return cb.or(processMatch, jsonbMatch);
       });
     }
 
@@ -325,20 +338,25 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
   @Override
   public TaskStatistics getGlobalTaskStatistics() {
 
-    long total = taskInstanceEntityRepository.count();
-    long available = countBySpec(statusSpec(TaskInstanceStatus.CREATED));
-    long assigned = countBySpec(statusSpec(TaskInstanceStatus.ASSIGNED));
-    long suspended = countBySpec(statusSpec(TaskInstanceStatus.SUSPENDED));
-    long completed = countBySpec(statusSpec(TaskInstanceStatus.COMPLETED));
-    long canceled = countBySpec(statusSpec(TaskInstanceStatus.CANCELED));
+    // Single grouped aggregate instead of one COUNT query per status. Statuses with no
+    // rows are absent from the result and default to 0; total is the sum across all
+    // buckets, matching the previous count() semantics.
+    Map<TaskInstanceStatus, Long> counts = new EnumMap<>(TaskInstanceStatus.class);
+    long total = 0L;
+    for (var row : taskInstanceEntityRepository.countGroupedByStatus()) {
+      total += row.getCount();
+      if (row.getStatus() != null) {
+        counts.merge(row.getStatus(), row.getCount(), Long::sum);
+      }
+    }
 
     return TaskStatistics.builder()
         .totalTaskInstances(total)
-        .totalAvailableTasks(available)
-        .totalAssignedTasks(assigned)
-        .totalSuspendedTasks(suspended)
-        .totalCompletedTasks(completed)
-        .totalCanceledTasks(canceled)
+        .totalAvailableTasks(counts.getOrDefault(TaskInstanceStatus.CREATED, 0L))
+        .totalAssignedTasks(counts.getOrDefault(TaskInstanceStatus.ASSIGNED, 0L))
+        .totalSuspendedTasks(counts.getOrDefault(TaskInstanceStatus.SUSPENDED, 0L))
+        .totalCompletedTasks(counts.getOrDefault(TaskInstanceStatus.COMPLETED, 0L))
+        .totalCanceledTasks(counts.getOrDefault(TaskInstanceStatus.CANCELED, 0L))
         .build();
   }
 
@@ -517,7 +535,7 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
         .collect(Collectors.toMap(
             TaskInstanceEntity::getExternalId,
             taskMapper::toModel,
-            (a, b) -> b
+            (_, b) -> b
         ));
   }
 
