@@ -20,6 +20,8 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -94,12 +96,10 @@ public class TaskInstanceService {
 
       taskInstance.addCandidates(data);
 
-      data.getCandidateGroups().forEach(group -> {
-        runtimeProcessEngineRepository.addCandidateGroup(
-            taskInstance.getExternalId().getValue(),
-            group
-        );
-      });
+      data.getCandidateGroups().forEach(group -> runtimeProcessEngineRepository.addCandidateGroup(
+          taskInstance.getExternalId().getValue(),
+          group
+      ));
 
       var candidateUsers = data.getCandidateUsers().stream()
           .map(this::normalizeUserId)
@@ -107,12 +107,10 @@ public class TaskInstanceService {
           .distinct()
           .toList();
 
-      candidateUsers.forEach(user -> {
-        runtimeProcessEngineRepository.addCandidateUser(
-            taskInstance.getExternalId().getValue(),
-            user
-        );
-      });
+      candidateUsers.forEach(user -> runtimeProcessEngineRepository.addCandidateUser(
+          taskInstance.getExternalId().getValue(),
+          user
+      ));
 
     }
 
@@ -145,11 +143,12 @@ public class TaskInstanceService {
     assignmentRules
         .forEach(rule -> {
           LOGGER.info(
-              "Registering task assignment rule for processInstance [{}], task [{}], assignee [{}], candidateUsers [{}], mode [{}], priority [{}]",
+              "Registering task assignment rule for processInstance [{}], task [{}], assignee [{}], candidateUsers [{}], candidateGroups [{}], mode [{}], priority [{}]",
               processInstanceIdValue(processInstance),
               rule.getTaskKey().getValue(),
               rule.getAssignee() != null ? rule.getAssignee().getValue() : null,
               rule.getCandidateUsers(),
+              rule.getCandidateGroups(),
               rule.getAssignmentMode(),
               rule.getPriority()
           );
@@ -159,6 +158,7 @@ public class TaskInstanceService {
             .taskDefinitionKey(rule.getTaskKey())
             .assignee(rule.getAssignee())
             .candidateUsers(rule.getCandidateUsers())
+            .candidateGroups(rule.getCandidateGroups())
             .assignmentMode(rule.getAssignmentMode())
             .priority(rule.getPriority())
             .consumed(false)
@@ -232,13 +232,11 @@ public class TaskInstanceService {
 
   public TaskInstance getTaskById(Identifier id) {
     TaskInstance taskInstance = getByIdWihEvents(id);
-    resolveCandidateUsers(taskInstance);
     // Enrich with process variables
     Map<String, Object> variables = runtimeProcessEngineRepository.getProcessVariables(taskInstance.getEngineProcessNumber());
     taskInstance.addProcessVariables(variables);
-    // Resolve user profiles
-    resolveUserProfiles(taskInstance);
-    taskInstance.getTaskInstanceEvents().forEach(this::resolveUserProfiles);
+    // Resolve user profiles for the task and its events in a single batch query
+    resolveAllUserProfiles(List.of(taskInstance));
     return taskInstance;
   }
 
@@ -252,71 +250,85 @@ public class TaskInstanceService {
           .forEach(filter::addContextUserGroup);
     }
 
+    // Resolve process-variable filters via the engine into matching engine process numbers.
+    // The repository OR-combines these with the task-local (JSONB) variable predicate.
+    if (!filter.getVariablesExpressions().isEmpty()) {
+      List<ProcessInstance> engineProcessInstances =
+          runtimeProcessEngineRepository.getAllProcessInstancesByVariables(filter.getVariablesExpressions());
+      engineProcessInstances.forEach(pi ->
+          filter.includeEngineProcessNumber(pi.getEngineProcessNumber().getValue()));
+    }
+
     PageableLista<TaskInstance> taskInstances = taskInstanceRepository.findAll(filter);
 
-    // Enrich with process variables
-    Map<String, Map<String, Object>> variablesMap = new HashMap<>();
-    List<String> engineProcessNumbers = taskInstances.getContent().stream()
+    // Enrich with process variables — single batch call
+    Set<String> uniqueProcessNumbers = taskInstances.getContent().stream()
         .map(TaskInstance::getEngineProcessNumber)
-        .toList();
-    for (String engineProcessNumber : engineProcessNumbers) {
-      if (variablesMap.containsKey(engineProcessNumber))
-        continue;
-      Map<String, Object> variables = runtimeProcessEngineRepository.getProcessVariables(engineProcessNumber);
-      variablesMap.put(engineProcessNumber, variables);
-    }
+        .filter(Objects::nonNull)
+        .collect(Collectors.toCollection(LinkedHashSet::new));
+    Map<String, Map<String, Object>> variablesMap =
+        runtimeProcessEngineRepository.getProcessVariablesBatch(uniqueProcessNumbers);
+
     for (TaskInstance task : taskInstances.getContent()) {
       Map<String, Object> vars = variablesMap.get(task.getEngineProcessNumber());
       if (vars != null) {
         task.addProcessVariables(vars);
       }
-      resolveCandidateUsers(task);
     }
 
-    // Resolve user profiles
-    taskInstances.getContent().forEach(taskInstance -> {
-      resolveUserProfiles(taskInstance);
-      taskInstance.getTaskInstanceEvents().forEach(this::resolveUserProfiles);
-    });
+    // Resolve all user profiles in a single batch query
+    resolveAllUserProfiles(taskInstances.getContent());
 
     return taskInstances;
   }
 
-  private void resolveUserProfiles(TaskInstance taskInstance) {
-    Set<String> ids = new HashSet<>();
-
-    addIfNotNull(ids, taskInstance.getStartedBy());
-    addIfNotNull(ids, taskInstance.getEndedBy());
-    addIfNotNull(ids, taskInstance.getAssignedBy());
-
-    userProfileRepository.findBySubjectOrEmails(ids, ids).forEach(userProfile -> {
-
-      if (matches(userProfile, taskInstance.getStartedBy())) {
-        taskInstance.resolveUserProfileStartedBy(userProfile);
-      }
-      if (matches(userProfile, taskInstance.getEndedBy())) {
-        taskInstance.resolveUserProfileEndedBy(userProfile);
-      }
-      if (matches(userProfile, taskInstance.getAssignedBy())) {
-        taskInstance.resolveUserProfileAssignedBy(userProfile);
-      }
-    });
-
-  }
-
-  private void resolveUserProfiles(TaskInstanceEvent taskInstanceEvent) {
-    String performedBy = taskInstanceEvent.getPerformedBy().getValue();
-    userProfileRepository.findBySubjectOrEmail(performedBy, performedBy)
-        .ifPresent(taskInstanceEvent::resolveUserProfilePerformedBy);
-  }
-
-  private boolean matches(UserProfile userProfile, Code value) {
-    if (value == null) {
-      return false;
+  /**
+   * Resolves user profiles for all tasks and their events in a single batch query.
+   * Collects all user identifiers across the entire page, performs one batch lookup,
+   * then distributes profiles back to each task and event.
+   */
+  private void resolveAllUserProfiles(List<TaskInstance> taskInstances) {
+    if (taskInstances == null || taskInstances.isEmpty()) {
+      return;
     }
-    String identifier = value.getValue();
-    return Objects.equals(identifier, userProfile.getSub())
-        || Objects.equals(identifier, userProfile.getEmail());
+
+    Set<String> allIds = new HashSet<>();
+    for (TaskInstance task : taskInstances) {
+      addIfNotNull(allIds, task.getStartedBy());
+      addIfNotNull(allIds, task.getEndedBy());
+      addIfNotNull(allIds, task.getAssignedBy());
+      for (TaskInstanceEvent event : task.getTaskInstanceEvents()) {
+        if (event.getPerformedBy() != null) {
+          allIds.add(event.getPerformedBy().getValue());
+        }
+      }
+    }
+
+    if (allIds.isEmpty()) {
+      return;
+    }
+
+    List<UserProfile> profiles = userProfileRepository.findBySubjectOrEmails(allIds, allIds);
+    Map<String, UserProfile> lookup = new HashMap<>();
+    for (UserProfile p : profiles) {
+      if (p.getSub() != null) lookup.put(p.getSub(), p);
+      if (p.getEmail() != null) lookup.put(p.getEmail(), p);
+    }
+
+    for (TaskInstance task : taskInstances) {
+      applyProfile(lookup, task.getStartedBy(), task::resolveUserProfileStartedBy);
+      applyProfile(lookup, task.getEndedBy(), task::resolveUserProfileEndedBy);
+      applyProfile(lookup, task.getAssignedBy(), task::resolveUserProfileAssignedBy);
+      for (TaskInstanceEvent event : task.getTaskInstanceEvents()) {
+        applyProfile(lookup, event.getPerformedBy(), event::resolveUserProfilePerformedBy);
+      }
+    }
+  }
+
+  private void applyProfile(Map<String, UserProfile> lookup, Code identifier, Consumer<UserProfile> setter) {
+    if (identifier == null) return;
+    UserProfile profile = lookup.get(identifier.getValue());
+    if (profile != null) setter.accept(profile);
   }
 
   private void addIfNotNull(Set<String> ids, Code value) {
@@ -430,6 +442,7 @@ public class TaskInstanceService {
             .taskDefinitionKey(rule.getTaskKey())
             .assignee(rule.getAssignee())
             .candidateUsers(rule.getCandidateUsers())
+            .candidateGroups(rule.getCandidateGroups())
             .assignmentMode(rule.getAssignmentMode())
             .priority(rule.getPriority())
             .consumed(false)
@@ -471,7 +484,7 @@ public class TaskInstanceService {
     }
 
     applyDefinitionCandidateGroups(taskInstance, definitionCandidateGroups, user);
-    applyCandidateUserRules(taskInstance, assignmentRules, user);
+    applyCandidateRules(taskInstance, assignmentRules, user);
   }
 
   private void applyAssigneeRule(TaskInstance taskInstance, TaskAssignmentRule rule, Code user) {
@@ -506,23 +519,24 @@ public class TaskInstanceService {
         .build());
   }
 
-  private void applyCandidateUserRules(
+  private void applyCandidateRules(
       TaskInstance taskInstance,
       List<TaskAssignmentRule> assignmentRules,
       Code user
   ) {
     assignmentRules.stream()
-        .filter(TaskAssignmentRule::hasCandidateUsers)
-        .forEach(rule -> applyCandidateUserRule(taskInstance, rule, user));
+        .filter(rule -> rule.hasCandidateUsers() || rule.hasCandidateGroups())
+        .forEach(rule -> applyCandidateRule(taskInstance, rule, user));
   }
 
-  private void applyCandidateUserRule(TaskInstance taskInstance, TaskAssignmentRule rule, Code user) {
+  private void applyCandidateRule(TaskInstance taskInstance, TaskAssignmentRule rule, Code user) {
     LOGGER.info(
-        "Applying candidate-user task assignment rule [{}] to taskInstance [{}], task [{}], candidateUsers [{}], mode [{}], persisted [{}]",
+        "Applying candidate task assignment rule [{}] to taskInstance [{}], task [{}], candidateUsers [{}], candidateGroups [{}], mode [{}], persisted [{}]",
         rule.getId().getValue(),
         taskInstance.getId().getValue(),
         taskInstance.getTaskKey().getValue(),
         rule.getCandidateUsers(),
+        rule.getCandidateGroups(),
         rule.getAssignmentMode(),
         rule.isPersisted()
     );
@@ -530,6 +544,7 @@ public class TaskInstanceService {
         .id(taskInstance.getId().getValue().toString())
         .currentUser(user)
         .candidateUsers(rule.getCandidateUsers().stream().toList())
+        .candidateGroups(rule.getCandidateGroups().stream().toList())
         .priority(rule.getPriority())
         .build());
     markConsumedIfOneTime(rule, taskInstance);
@@ -544,19 +559,6 @@ public class TaskInstanceService {
       );
       taskAssignmentRuleRepository.markConsumed(rule.getId(), taskInstance.getId());
     }
-  }
-
-  private void resolveCandidateUsers(TaskInstance taskInstance) {
-    if (taskInstance.getProcessInstanceId() == null || taskInstance.getTaskKey() == null) {
-      return;
-    }
-    taskInstance.resolveCandidateUsers(
-        taskAssignmentRuleRepository.findCandidateUsersForTask(
-            taskInstance.getId(),
-            taskInstance.getProcessInstanceId(),
-            taskInstance.getTaskKey()
-        )
-    );
   }
 
   private List<String> normalizeCandidateGroups(Set<String> candidateGroups) {

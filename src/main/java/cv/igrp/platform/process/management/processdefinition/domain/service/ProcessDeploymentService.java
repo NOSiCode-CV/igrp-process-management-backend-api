@@ -14,6 +14,7 @@ import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponse
 import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 import cv.igrp.platform.process.management.shared.domain.models.ResourceName;
+import cv.igrp.platform.process.management.shared.security.util.IgrpAuthorizationConstants;
 import cv.igrp.platform.process.management.shared.security.util.UserContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,16 +57,24 @@ public class ProcessDeploymentService {
 
   public PageableLista<ProcessDeployment> getAllDeployments(ProcessDeploymentFilter processDeploymentFilter) {
     if (processDeploymentFilter.isFilterByCurrentUser()) {
-      userContext.getCurrentGroups()
-          .forEach(processDeploymentFilter::addContextGroup);
+      List<String> contextGroups = userContext.getCurrentGroups();
+      if(!contextGroups.isEmpty()){
+        userContext.getCurrentGroups()
+            .forEach(processDeploymentFilter::addContextGroup);
+      }
+      if(contextGroups.isEmpty() && !userContext.isSuperAdmin()){
+        processDeploymentFilter.addContextGroup(IgrpAuthorizationConstants.DEFAULT_GROUP);
+      }
     }
     PageableLista<ProcessDeployment> pageableLista = processDeploymentRepository.findAll(processDeploymentFilter);
-    // Enrich with candidate groups
-    pageableLista.getContent()
-        .forEach(processDeployment -> {
-          processDeploymentRepository.getCandidateStarterGroups(processDeployment.getId())
-              .forEach(processDeployment::addCandidateGroups);
-        });
+    // Enrich with candidate groups — single batch call
+    List<String> ids = pageableLista.getContent().stream()
+        .map(ProcessDeployment::getId)
+        .toList();
+    Map<String, Set<String>> groupsMap = processDeploymentRepository.getCandidateStarterGroupsBatch(ids);
+    pageableLista.getContent().forEach(deployment ->
+        groupsMap.getOrDefault(deployment.getId(), Set.of())
+            .forEach(deployment::addCandidateGroups));
     return pageableLista;
   }
 
