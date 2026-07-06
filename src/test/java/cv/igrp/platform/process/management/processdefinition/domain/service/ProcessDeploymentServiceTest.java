@@ -6,6 +6,8 @@ import cv.igrp.platform.process.management.processdefinition.domain.models.Proce
 import cv.igrp.platform.process.management.processdefinition.domain.models.ProcessDeployment;
 import cv.igrp.platform.process.management.processdefinition.domain.repository.ProcessDeploymentRepository;
 import cv.igrp.platform.process.management.shared.domain.models.*;
+import cv.igrp.platform.process.management.shared.security.util.IgrpAuthorizationConstants;
+import cv.igrp.platform.process.management.shared.security.util.UserContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -13,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -24,6 +27,9 @@ class ProcessDeploymentServiceTest {
 
   @Mock
   private ProcessDeploymentRepository processDeploymentRepository;
+
+  @Mock
+  private UserContext userContext;
 
   @InjectMocks
   private ProcessDeploymentService service;
@@ -108,6 +114,52 @@ class ProcessDeploymentServiceTest {
     assertEquals(processDeployment.getApplicationBase(), actualProcessDeployment.getApplicationBase());
     assertTrue(actualProcessDeployment.isDeployed());
     assertNotNull(actualProcessDeployment.getDeployedAt());
+  }
+
+  @Test
+  void getAllDeployments_shouldUseDefaultGroupWhenFilteringCurrentUserWithoutGroupsAndNotSuperAdmin() {
+    ProcessDeploymentFilter filter = ProcessDeploymentFilter.builder()
+        .filterByCurrentUser(true)
+        .build();
+
+    PageableLista<ProcessDeployment> expectedPage = PageableLista.<ProcessDeployment>builder()
+        .pageNumber(0)
+        .pageSize(20)
+        .content(List.of())
+        .build();
+
+    when(userContext.getCurrentGroups()).thenReturn(List.of());
+    when(userContext.isSuperAdmin()).thenReturn(false);
+    when(processDeploymentRepository.findAll(filter)).thenReturn(expectedPage);
+
+    PageableLista<ProcessDeployment> result = service.getAllDeployments(filter);
+
+    assertEquals(expectedPage, result);
+    assertEquals(Set.of(IgrpAuthorizationConstants.DEFAULT_GROUP), filter.getContextGroups());
+    verify(processDeploymentRepository).findAll(filter);
+  }
+
+  @Test
+  void getAllDeployments_shouldNotUseDefaultGroupWhenFilteringCurrentUserWithoutGroupsAndSuperAdmin() {
+    ProcessDeploymentFilter filter = ProcessDeploymentFilter.builder()
+        .filterByCurrentUser(true)
+        .build();
+
+    PageableLista<ProcessDeployment> expectedPage = PageableLista.<ProcessDeployment>builder()
+        .pageNumber(0)
+        .pageSize(20)
+        .content(List.of())
+        .build();
+
+    when(userContext.getCurrentGroups()).thenReturn(List.of());
+    when(userContext.isSuperAdmin()).thenReturn(true);
+    when(processDeploymentRepository.findAll(filter)).thenReturn(expectedPage);
+
+    PageableLista<ProcessDeployment> result = service.getAllDeployments(filter);
+
+    assertEquals(expectedPage, result);
+    assertTrue(filter.getContextGroups().isEmpty());
+    verify(processDeploymentRepository).findAll(filter);
   }
 
   @Test

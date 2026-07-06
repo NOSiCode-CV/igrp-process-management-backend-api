@@ -60,7 +60,7 @@ class AssignTaskCommandHandlerTest {
 
     // Then
     assertNotNull(response);
-    assertEquals(204, response.getStatusCodeValue());
+    assertEquals(204, response.getStatusCode().value());
 
     // verify
     verify(taskInstanceService, times(1)).assignTask(argThat(data ->
