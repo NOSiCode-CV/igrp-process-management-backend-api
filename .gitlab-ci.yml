@@ -11,7 +11,7 @@ variables:
   CI_PROJECT: "igrp"
   VERSION_TAG: "$CI_COMMIT_SHORT_SHA"
   IMAGE_NAME_FULL: "$REGISTRY_URL/$CI_PROJECT/$IMAGE_NAME"
-  IMAGE_TAG: latest
+  IMAGE_TAG: pre-release
 
 stages:
   - build
@@ -21,7 +21,7 @@ stages:
   tags:
     - nosi-runner
   only:
-    - main
+    - pre-release
     
   before_script:
     - apk add --no-cache curl bash
@@ -38,7 +38,7 @@ build-jvm-arm64:
   tags:
     - arm64
   only:
-    - main
+    - pre-release
 
 build-jvm-amd64:
   extends: .build-template
@@ -50,7 +50,7 @@ build-jvm-amd64:
     - docker buildx inspect --bootstrap
     - docker build -f Dockerfile --platform linux/amd64 -t "$IMAGE_NAME_FULL-jvm:amd64"  --pull --build-arg  --push --output=type=image,name="$IMAGE_NAME_FULL-jvm:amd64",push=true .
   only:
-    - main
+    - pre-release
 
 create-jvm-manifest:
   stage: manifest
@@ -64,7 +64,7 @@ create-jvm-manifest:
     - build-jvm-amd64
     - build-jvm-arm64
   only:
-    - main
+    - pre-release
 
 
 build-pre-release-jvm-amd64:
