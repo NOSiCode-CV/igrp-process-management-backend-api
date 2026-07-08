@@ -4,6 +4,7 @@ package cv.igrp.platform.process.management;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.kafka.annotation.EnableKafka;
 import cv.igrp.platform.process.management.shared.config.ApplicationAuditorAware;
 import org.springframework.boot.SpringApplication;
@@ -18,6 +19,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @EnableCaching
 @EnableKafka
 @SpringBootApplication
+@ComponentScan(basePackages = "cv.igrp")
 @EnableJpaAuditing(auditorAwareRef = "auditAware", dateTimeProviderRef = "auditDateTimeProvider")
 public class IgrpPlatformProcessManagementApplication {
 
