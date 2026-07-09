@@ -6,7 +6,6 @@ variables:
   DOCKER_DRIVER: overlay2
   DOCKER_TLS_CERTDIR: ""
   DOCKER_HOST: tcp://docker:2375
-  DOCKER_CLI_EXPERIMENTAL: "enabled"      # p/ docker manifest
   REGISTRY_URL: "registry.nosi.cv"
   IMAGE_NAME: "igrp-process-management-backend-api"
   CI_PROJECT: "igrp"
@@ -39,7 +38,7 @@ build-jvm-arm64:
     # Maven → a camada de dependency:go-offline é reutilizada entre pipelines).
     # ignore-error: se o registry não suportar o formato, o build continua sem exportar cache.
     - >
-      docker buildx build -f Dockerfile --platform linux/arm64
+      docker buildx build -f Dockerfile --platform linux/arm64 --provenance=false
       --cache-from "type=registry,ref=$IMAGE_NAME_FULL-jvm:cache-arm64"
       --cache-to "type=registry,ref=$IMAGE_NAME_FULL-jvm:cache-arm64,mode=max,image-manifest=true,oci-mediatypes=true,ignore-error=true"
       -t "$IMAGE_NAME_FULL-jvm:arm64-pre-release" --push .
@@ -51,7 +50,7 @@ build-jvm-amd64:
     - nosi-runner
   script:
     - >
-      docker buildx build -f Dockerfile --platform linux/amd64
+      docker buildx build -f Dockerfile --platform linux/amd64 --provenance=false
       --cache-from "type=registry,ref=$IMAGE_NAME_FULL-jvm:cache-amd64"
       --cache-to "type=registry,ref=$IMAGE_NAME_FULL-jvm:cache-amd64,mode=max,image-manifest=true,oci-mediatypes=true,ignore-error=true"
       -t "$IMAGE_NAME_FULL-jvm:amd64-pre-release" --push .
@@ -63,8 +62,14 @@ create-jvm-manifest:
   before_script:
     - docker login -u "$BASE_REGISTRY_USERNAME" -p "$BASE_REGISTRY_PASSWORD" "$REGISTRY_URL"
   script:
-    - docker manifest create "$IMAGE_NAME_FULL-jvm:$IMAGE_TAG" --amend "$IMAGE_NAME_FULL-jvm:amd64-pre-release" --amend "$IMAGE_NAME_FULL-jvm:arm64-pre-release"
-    - docker manifest push "$IMAGE_NAME_FULL-jvm:$IMAGE_TAG"
+    # imagetools create combina os manifestos de arch num índice multi-arch e faz push
+    # numa só operação. Robusto (lida com índices/attestations) — substitui o
+    # 'docker manifest create --amend', que rejeita fontes que sejam manifest lists.
+    - >
+      docker buildx imagetools create
+      -t "$IMAGE_NAME_FULL-jvm:$IMAGE_TAG"
+      "$IMAGE_NAME_FULL-jvm:amd64-pre-release"
+      "$IMAGE_NAME_FULL-jvm:arm64-pre-release"
   needs:
     - build-jvm-amd64
     - build-jvm-arm64
@@ -85,7 +90,7 @@ build-pre-release-jvm-amd64:
     - nosi-runner
   script:
     - >
-      docker buildx build -f Dockerfile --platform linux/amd64
+      docker buildx build -f Dockerfile --platform linux/amd64 --provenance=false
       --cache-from "type=registry,ref=$IMAGE_NAME_FULL-jvm:cache-amd64"
       --cache-to "type=registry,ref=$IMAGE_NAME_FULL-jvm:cache-amd64,mode=max,image-manifest=true,oci-mediatypes=true,ignore-error=true"
       -t "$IMAGE_NAME_FULL-jvm:pre-release" --push .
