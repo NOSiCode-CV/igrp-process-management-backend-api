@@ -244,6 +244,18 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <!-- Alinha o access client com o core-spring-boot 0.2.0-beta.5, que foi
+                 compilado contra client 0.2.0-beta.6 (tem ApiClient.setClientCredentials).
+                 Sem isto, process-runtime-auth-igrp arrasta o client 0.1.0-beta-SNAPSHOT
+                 (sem esse método) e o arranque falha com NoSuchMethodError em
+                 AuthorizationSyncRunner.syncAuthorization. Declarado ANTES do
+                 process-runtime-bom para vencer a mediação. Remover quando o
+                 process-runtime passar a usar o client 0.2.x. -->
+            <dependency>
+                <groupId>cv.igrp.platform.access</groupId>
+                <artifactId>client</artifactId>
+                <version>0.2.0-beta.6</version>
+            </dependency>
             <dependency>
                 <groupId>cv.igrp.framework</groupId>
                 <artifactId>process-runtime-bom</artifactId>
