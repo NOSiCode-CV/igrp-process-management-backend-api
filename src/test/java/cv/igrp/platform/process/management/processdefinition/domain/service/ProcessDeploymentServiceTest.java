@@ -15,10 +15,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -66,6 +68,7 @@ class ProcessDeploymentServiceTest {
         .build();
 
     ProcessDeployment processDeployment = ProcessDeployment.builder()
+        .id("deployment-1")
         .key(Code.create("invoice-process-key"))
         .name(Name.create("Invoice Process"))
         .description("Invoice Process sample")
@@ -87,12 +90,15 @@ class ProcessDeploymentServiceTest {
         .build();
 
     when(processDeploymentRepository.findAll(filter)).thenReturn(expectedPage);
+    when(processDeploymentRepository.getCandidateStarterGroupsBatch(List.of("deployment-1")))
+        .thenReturn(Map.of("deployment-1", Set.of("group-a", "group-b")));
 
     // Act
     PageableLista<ProcessDeployment> result = service.getAllDeployments(filter);
 
     // Assert
     verify(processDeploymentRepository).findAll(filter);
+    verify(processDeploymentRepository).getCandidateStarterGroupsBatch(List.of("deployment-1"));
 
     // Assertions
     assertNotNull(result);
@@ -114,6 +120,30 @@ class ProcessDeploymentServiceTest {
     assertEquals(processDeployment.getApplicationBase(), actualProcessDeployment.getApplicationBase());
     assertTrue(actualProcessDeployment.isDeployed());
     assertNotNull(actualProcessDeployment.getDeployedAt());
+    assertEquals(Set.of("group-a", "group-b"), actualProcessDeployment.getCandidateGroups());
+  }
+
+  @Test
+  void getAllDeployments_shouldUseCurrentUserGroupsWhenFilteringCurrentUserAndNotSuperAdmin() {
+    ProcessDeploymentFilter filter = ProcessDeploymentFilter.builder()
+        .filterByCurrentUser(true)
+        .build();
+
+    PageableLista<ProcessDeployment> expectedPage = PageableLista.<ProcessDeployment>builder()
+        .pageNumber(0)
+        .pageSize(20)
+        .content(List.of())
+        .build();
+
+    when(userContext.isSuperAdmin()).thenReturn(false);
+    when(userContext.getCurrentGroups()).thenReturn(List.of("group-a", "group-b"));
+    when(processDeploymentRepository.findAll(filter)).thenReturn(expectedPage);
+
+    PageableLista<ProcessDeployment> result = service.getAllDeployments(filter);
+
+    assertEquals(expectedPage, result);
+    assertEquals(Set.of("group-a", "group-b"), filter.getContextGroups());
+    verify(processDeploymentRepository).findAll(filter);
   }
 
   @Test
@@ -151,7 +181,6 @@ class ProcessDeploymentServiceTest {
         .content(List.of())
         .build();
 
-    when(userContext.getCurrentGroups()).thenReturn(List.of());
     when(userContext.isSuperAdmin()).thenReturn(true);
     when(processDeploymentRepository.findAll(filter)).thenReturn(expectedPage);
 
@@ -159,6 +188,7 @@ class ProcessDeploymentServiceTest {
 
     assertEquals(expectedPage, result);
     assertTrue(filter.getContextGroups().isEmpty());
+    verify(userContext, never()).getCurrentGroups();
     verify(processDeploymentRepository).findAll(filter);
   }
 
