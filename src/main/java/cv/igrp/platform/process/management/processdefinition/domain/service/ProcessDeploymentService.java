@@ -56,14 +56,16 @@ public class ProcessDeploymentService {
   }
 
   public PageableLista<ProcessDeployment> getAllDeployments(ProcessDeploymentFilter processDeploymentFilter) {
-    if (processDeploymentFilter.isFilterByCurrentUser() && !userContext.isSuperAdmin()) {
-      List<String> contextGroups = userContext.getCurrentGroups();
-      if(!contextGroups.isEmpty()){
-        userContext.getCurrentGroups()
-            .forEach(processDeploymentFilter::addContextGroup);
-      }
-      if(contextGroups.isEmpty() ){
-        processDeploymentFilter.addContextGroup(IgrpAuthorizationConstants.DEFAULT_GROUP);
+    if (processDeploymentFilter.isFilterByCurrentUser()) {
+      if (userContext.isSuperAdmin()) {
+        processDeploymentFilter.disableCurrentUserFilter();
+      } else {
+        List<String> contextGroups = userContext.getCurrentGroups();
+        if (!contextGroups.isEmpty()) {
+          contextGroups.forEach(processDeploymentFilter::addContextGroup);
+        } else {
+          processDeploymentFilter.addContextGroup(IgrpAuthorizationConstants.DEFAULT_GROUP);
+        }
       }
     }
     PageableLista<ProcessDeployment> pageableLista = processDeploymentRepository.findAll(processDeploymentFilter);
