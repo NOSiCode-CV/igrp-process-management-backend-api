@@ -185,6 +185,26 @@ class ProcessDeploymentRepositoryImplTest {
   }
 
   @Test
+  void findAll_shouldUseExplicitGroupsWhenCurrentUserFilterIsDisabled() {
+    ProcessDeploymentFilter filter = ProcessDeploymentFilter.builder()
+        .filterByCurrentUser(true)
+        .contextGroups(Set.of("context-group"))
+        .groups(Set.of("client-group"))
+        .build();
+    filter.disableCurrentUserFilter();
+
+    when(processDefinitionAdapter.getDeployedProcesses(any(ProcessFilter.class)))
+        .thenReturn(List.of());
+
+    repository.findAll(filter);
+
+    ArgumentCaptor<ProcessFilter> captor = ArgumentCaptor.forClass(ProcessFilter.class);
+    verify(processDefinitionAdapter).getDeployedProcesses(captor.capture());
+
+    assertEquals(List.of("client-group"), captor.getValue().getGroupsIds());
+  }
+
+  @Test
   void findAllArtifacts_shouldMapEngineArtifacts() {
     String processDefinitionId = "release-1";
     cv.igrp.framework.process.runtime.core.engine.task.model.ProcessArtifact engineArtifact =

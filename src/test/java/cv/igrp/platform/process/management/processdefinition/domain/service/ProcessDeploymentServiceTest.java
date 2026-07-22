@@ -187,6 +187,7 @@ class ProcessDeploymentServiceTest {
     PageableLista<ProcessDeployment> result = service.getAllDeployments(filter);
 
     assertEquals(expectedPage, result);
+    assertFalse(filter.isFilterByCurrentUser());
     assertTrue(filter.getContextGroups().isEmpty());
     verify(userContext, never()).getCurrentGroups();
     verify(processDeploymentRepository).findAll(filter);
