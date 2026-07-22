@@ -20,8 +20,7 @@ stages:
 
 # Builder buildx (driver docker-container: necessário p/ cache registry mode=max).
 .build-template:
-  tags:
-    - nosi-runner
+
   only:
     - pre-release
   before_script:
@@ -46,8 +45,6 @@ build-jvm-arm64:
 build-jvm-amd64:
   stage: build
   extends: .build-template
-  tags:
-    - nosi-runner
   script:
     - >
       docker buildx build -f Dockerfile --platform linux/amd64 --provenance=false
@@ -57,8 +54,6 @@ build-jvm-amd64:
 
 create-jvm-manifest:
   stage: manifest
-  tags:
-    - nosi-runner
   before_script:
     - docker login -u "$BASE_REGISTRY_USERNAME" -p "$BASE_REGISTRY_PASSWORD" "$REGISTRY_URL"
   script:
@@ -86,8 +81,6 @@ build-pre-release-jvm-amd64:
   before_script:
     - docker login -u "$BASE_REGISTRY_USERNAME" -p "$BASE_REGISTRY_PASSWORD" "$REGISTRY_URL"
     - docker buildx create --name igrpbuilder --driver docker-container --use --bootstrap 2>/dev/null || docker buildx use igrpbuilder
-  tags:
-    - nosi-runner
   script:
     - >
       docker buildx build -f Dockerfile --platform linux/amd64 --provenance=false
