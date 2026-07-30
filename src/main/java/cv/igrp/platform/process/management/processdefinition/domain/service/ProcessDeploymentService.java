@@ -1,5 +1,6 @@
 package cv.igrp.platform.process.management.processdefinition.domain.service;
 
+import cv.igrp.platform.process.management.area.domain.repository.AreaProcessRepository;
 import cv.igrp.platform.process.management.processdefinition.domain.filter.ProcessDeploymentFilter;
 import cv.igrp.platform.process.management.processdefinition.domain.models.ProcessArtifact;
 import cv.igrp.platform.process.management.processdefinition.domain.models.ProcessDeployment;
@@ -37,17 +38,20 @@ public class ProcessDeploymentService {
   private final ProcessDefinitionRepository processDefinitionRepository;
   private final ProcessSequenceRepository processSequenceRepository;
   private final ProcessInstanceRepository processInstanceRepository;
+  private final AreaProcessRepository areaProcessRepository;
 
   public ProcessDeploymentService(ProcessDeploymentRepository processDeploymentRepository,
                                   UserContext userContext,
                                   ProcessDefinitionRepository processDefinitionRepository,
                                   ProcessSequenceRepository processSequenceRepository,
-                                  ProcessInstanceRepository processInstanceRepository) {
+                                  ProcessInstanceRepository processInstanceRepository,
+                                  AreaProcessRepository areaProcessRepository) {
     this.processDeploymentRepository = processDeploymentRepository;
     this.userContext = userContext;
     this.processDefinitionRepository = processDefinitionRepository;
     this.processSequenceRepository = processSequenceRepository;
     this.processInstanceRepository = processInstanceRepository;
+    this.areaProcessRepository = areaProcessRepository;
   }
 
   public ProcessDeployment deployProcess(ProcessDeployment processDeployment) {
@@ -209,6 +213,7 @@ public class ProcessDeploymentService {
   }
 
   public ProcessDeployment deployProcessAndConfigure(ProcessDeployment processDeployment) {
+    resolveApplicationBase(processDeployment);
 
     Optional<String> optionalProcessId = processDeploymentRepository.findLastProcessDefinitionIdByKey(
         processDeployment.getKey().getValue()
@@ -256,6 +261,18 @@ public class ProcessDeploymentService {
     }
 
     return deployedProcess;
+  }
+
+  private void resolveApplicationBase(ProcessDeployment processDeployment) {
+    if (processDeployment.getApplicationBase() != null) {
+      return;
+    }
+    Code applicationBase = areaProcessRepository
+        .findApplicationBaseByProcessKey(processDeployment.getKey())
+        .orElseThrow(() -> IgrpResponseStatusException.badRequest(
+            "applicationBase is required when the process definition is not associated with an area"
+        ));
+    processDeployment.resolveApplicationBase(applicationBase);
   }
 
   public void archiveProcess(String processDefinitionId) {

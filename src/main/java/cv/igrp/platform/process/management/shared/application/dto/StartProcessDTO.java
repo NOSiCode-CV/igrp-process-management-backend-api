@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import cv.igrp.platform.process.management.shared.application.dto.ProcessVariableDTO;
+import cv.igrp.platform.process.management.shared.application.dto.TaskAssignmentRuleDTO;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,5 +40,8 @@ public class StartProcessDTO  {
   
   @Valid
   private List<ProcessVariableDTO> variables = new ArrayList<>();
+  
+  @Valid
+  private List<TaskAssignmentRuleDTO> assignmentRules = new ArrayList<>();
 
 }

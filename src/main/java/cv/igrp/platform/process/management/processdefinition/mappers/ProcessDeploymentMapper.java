@@ -25,7 +25,7 @@ public class ProcessDeploymentMapper {
         .description(dto.getDescription())
         .resourceName(ResourceName.create(dto.getResourceName()))
         .key(Code.create(dto.getKey()))
-        .applicationBase(Code.create(dto.getApplicationBase()))
+        .applicationBase(toCode(dto.getApplicationBase()))
         .build();
   }
 
@@ -92,5 +92,8 @@ public class ProcessDeploymentMapper {
         .build();
   }
 
+  private Code toCode(String value) {
+    return value != null && !value.isBlank() ? Code.create(value) : null;
+  }
 
 }
