@@ -1,10 +1,15 @@
 package cv.igrp.platform.process.management.processdefinition.domain.service;
 
+import cv.igrp.platform.process.management.area.domain.repository.AreaProcessRepository;
 import cv.igrp.platform.process.management.processdefinition.domain.filter.ProcessDeploymentFilter;
 import cv.igrp.platform.process.management.processdefinition.domain.models.BpmnXml;
 import cv.igrp.platform.process.management.processdefinition.domain.models.ProcessArtifact;
 import cv.igrp.platform.process.management.processdefinition.domain.models.ProcessDeployment;
+import cv.igrp.platform.process.management.processdefinition.domain.repository.ProcessDefinitionRepository;
 import cv.igrp.platform.process.management.processdefinition.domain.repository.ProcessDeploymentRepository;
+import cv.igrp.platform.process.management.processdefinition.domain.repository.ProcessSequenceRepository;
+import cv.igrp.platform.process.management.processruntime.domain.repository.ProcessInstanceRepository;
+import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.platform.process.management.shared.domain.models.*;
 import cv.igrp.platform.process.management.shared.security.util.IgrpAuthorizationConstants;
 import cv.igrp.platform.process.management.shared.security.util.UserContext;
@@ -32,6 +37,18 @@ class ProcessDeploymentServiceTest {
 
   @Mock
   private UserContext userContext;
+
+  @Mock
+  private ProcessDefinitionRepository processDefinitionRepository;
+
+  @Mock
+  private ProcessSequenceRepository processSequenceRepository;
+
+  @Mock
+  private ProcessInstanceRepository processInstanceRepository;
+
+  @Mock
+  private AreaProcessRepository areaProcessRepository;
 
   @InjectMocks
   private ProcessDeploymentService service;
@@ -224,6 +241,47 @@ class ProcessDeploymentServiceTest {
 
     verify(processDeploymentRepository).findAllArtifacts(processDefinitionId.getValue());
 
+  }
+
+  @Test
+  void deployProcessAndConfigure_shouldResolveApplicationBaseFromAreaWhenMissing() {
+    ProcessDeployment processDeployment = ProcessDeployment.builder()
+        .key(Code.create("invoice-process-key"))
+        .name(Name.create("Invoice Process"))
+        .description("Invoice Process sample")
+        .resourceName(ResourceName.create("invoicing.bpmn20.xml"))
+        .bpmnXml(BpmnXml.create("<definitions>...</definitions>"))
+        .build();
+
+    when(areaProcessRepository.findApplicationBaseByProcessKey(Code.create("invoice-process-key")))
+        .thenReturn(java.util.Optional.of(Code.create("igrp-app")));
+    when(processDeploymentRepository.findLastProcessDefinitionIdByKey("invoice-process-key"))
+        .thenReturn(java.util.Optional.empty());
+    when(processDeploymentRepository.deploy(any(ProcessDeployment.class)))
+        .thenAnswer(invocation -> invocation.getArgument(0));
+
+    ProcessDeployment result = service.deployProcessAndConfigure(processDeployment);
+
+    assertEquals("igrp-app", result.getApplicationBase().getValue());
+    assertTrue(result.isDeployed());
+    verify(areaProcessRepository).findApplicationBaseByProcessKey(Code.create("invoice-process-key"));
+  }
+
+  @Test
+  void deployProcessAndConfigure_shouldRejectMissingApplicationBaseWhenAreaCannotBeResolved() {
+    ProcessDeployment processDeployment = ProcessDeployment.builder()
+        .key(Code.create("invoice-process-key"))
+        .name(Name.create("Invoice Process"))
+        .description("Invoice Process sample")
+        .resourceName(ResourceName.create("invoicing.bpmn20.xml"))
+        .bpmnXml(BpmnXml.create("<definitions>...</definitions>"))
+        .build();
+
+    when(areaProcessRepository.findApplicationBaseByProcessKey(Code.create("invoice-process-key")))
+        .thenReturn(java.util.Optional.empty());
+
+    assertThrows(IgrpResponseStatusException.class, () -> service.deployProcessAndConfigure(processDeployment));
+    verify(processDeploymentRepository, never()).deploy(any(ProcessDeployment.class));
   }
 
 }
