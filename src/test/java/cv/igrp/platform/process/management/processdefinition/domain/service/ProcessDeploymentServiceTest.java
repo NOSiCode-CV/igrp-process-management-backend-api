@@ -9,7 +9,6 @@ import cv.igrp.platform.process.management.processdefinition.domain.repository.P
 import cv.igrp.platform.process.management.processdefinition.domain.repository.ProcessDeploymentRepository;
 import cv.igrp.platform.process.management.processdefinition.domain.repository.ProcessSequenceRepository;
 import cv.igrp.platform.process.management.processruntime.domain.repository.ProcessInstanceRepository;
-import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.platform.process.management.shared.domain.models.*;
 import cv.igrp.platform.process.management.shared.security.util.IgrpAuthorizationConstants;
 import cv.igrp.platform.process.management.shared.security.util.UserContext;
@@ -268,7 +267,7 @@ class ProcessDeploymentServiceTest {
   }
 
   @Test
-  void deployProcessAndConfigure_shouldRejectMissingApplicationBaseWhenAreaCannotBeResolved() {
+  void deployProcessAndConfigure_shouldUseDefaultApplicationBaseWhenAreaCannotBeResolved() {
     ProcessDeployment processDeployment = ProcessDeployment.builder()
         .key(Code.create("invoice-process-key"))
         .name(Name.create("Invoice Process"))
@@ -279,9 +278,41 @@ class ProcessDeploymentServiceTest {
 
     when(areaProcessRepository.findApplicationBaseByProcessKey(Code.create("invoice-process-key")))
         .thenReturn(java.util.Optional.empty());
+    when(processDeploymentRepository.findLastProcessDefinitionIdByKey("invoice-process-key"))
+        .thenReturn(java.util.Optional.empty());
+    when(processDeploymentRepository.deploy(any(ProcessDeployment.class)))
+        .thenAnswer(invocation -> invocation.getArgument(0));
 
-    assertThrows(IgrpResponseStatusException.class, () -> service.deployProcessAndConfigure(processDeployment));
-    verify(processDeploymentRepository, never()).deploy(any(ProcessDeployment.class));
+    ProcessDeployment result = service.deployProcessAndConfigure(processDeployment);
+
+    assertEquals("NOT_SET", result.getApplicationBase().getValue());
+    assertTrue(result.isDeployed());
+    verify(processDeploymentRepository).deploy(processDeployment);
+  }
+
+  @Test
+  void deployProcessAndConfigure_shouldResolveApplicationBaseWhenCurrentValueIsDefault() {
+    ProcessDeployment processDeployment = ProcessDeployment.builder()
+        .key(Code.create("invoice-process-key"))
+        .name(Name.create("Invoice Process"))
+        .description("Invoice Process sample")
+        .resourceName(ResourceName.create("invoicing.bpmn20.xml"))
+        .bpmnXml(BpmnXml.create("<definitions>...</definitions>"))
+        .applicationBase(Code.create("NOT_SET"))
+        .build();
+
+    when(areaProcessRepository.findApplicationBaseByProcessKey(Code.create("invoice-process-key")))
+        .thenReturn(java.util.Optional.of(Code.create("igrp-app")));
+    when(processDeploymentRepository.findLastProcessDefinitionIdByKey("invoice-process-key"))
+        .thenReturn(java.util.Optional.empty());
+    when(processDeploymentRepository.deploy(any(ProcessDeployment.class)))
+        .thenAnswer(invocation -> invocation.getArgument(0));
+
+    ProcessDeployment result = service.deployProcessAndConfigure(processDeployment);
+
+    assertEquals("igrp-app", result.getApplicationBase().getValue());
+    assertTrue(result.isDeployed());
+    verify(areaProcessRepository).findApplicationBaseByProcessKey(Code.create("invoice-process-key"));
   }
 
 }

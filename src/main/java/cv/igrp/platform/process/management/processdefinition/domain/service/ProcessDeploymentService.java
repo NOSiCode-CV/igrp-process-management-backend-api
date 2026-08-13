@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 public class ProcessDeploymentService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ProcessDeploymentService.class);
+  private static final String DEFAULT_APPLICATION_BASE = "NOT_SET";
 
 
   private final ProcessDeploymentRepository processDeploymentRepository;
@@ -213,7 +214,8 @@ public class ProcessDeploymentService {
   }
 
   public ProcessDeployment deployProcessAndConfigure(ProcessDeployment processDeployment) {
-    resolveApplicationBase(processDeployment);
+
+    this.resolveApplicationBase(processDeployment);
 
     Optional<String> optionalProcessId = processDeploymentRepository.findLastProcessDefinitionIdByKey(
         processDeployment.getKey().getValue()
@@ -264,15 +266,18 @@ public class ProcessDeploymentService {
   }
 
   private void resolveApplicationBase(ProcessDeployment processDeployment) {
-    if (processDeployment.getApplicationBase() != null) {
+    if (hasResolvedApplicationBase(processDeployment)) {
       return;
     }
     Code applicationBase = areaProcessRepository
         .findApplicationBaseByProcessKey(processDeployment.getKey())
-        .orElseThrow(() -> IgrpResponseStatusException.badRequest(
-            "applicationBase is required when the process definition is not associated with an area"
-        ));
+        .orElseGet(() -> Code.create(DEFAULT_APPLICATION_BASE));
     processDeployment.resolveApplicationBase(applicationBase);
+  }
+
+  private boolean hasResolvedApplicationBase(ProcessDeployment processDeployment) {
+    return processDeployment.getApplicationBase() != null
+        && !DEFAULT_APPLICATION_BASE.equals(processDeployment.getApplicationBase().getValue());
   }
 
   public void archiveProcess(String processDefinitionId) {
