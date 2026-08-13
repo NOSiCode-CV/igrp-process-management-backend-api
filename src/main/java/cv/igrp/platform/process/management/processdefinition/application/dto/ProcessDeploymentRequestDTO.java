@@ -34,8 +34,6 @@ public class ProcessDeploymentRequestDTO  {
   @NotBlank(message = "The field <bpmnXml> is required")
   
   private String bpmnXml ;
-  @NotBlank(message = "The field <applicationBase> is required")
-  
   private String applicationBase ;
 
 }

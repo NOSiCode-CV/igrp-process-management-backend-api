@@ -58,6 +58,7 @@ class AreaProcessRepositoryImplTest {
 
     AreaEntity areaEntity = new AreaEntity();
     areaEntity.setId(areaId);
+    areaEntity.setApplicationBase("igrp-app");
     areaProcessEntity = new AreaProcessEntity();
     areaProcessEntity.setId(processId);
     areaProcessEntity.setAreaId(areaEntity);
@@ -116,6 +117,17 @@ class AreaProcessRepositoryImplTest {
     Optional<AreaProcess> result = areaProcessRepository.findById(UUID.randomUUID());
 
     assertFalse(result.isPresent());
+  }
+
+  @Test
+  void testFindApplicationBaseByProcessKey() {
+    when(areaProcessEntityRepository.findFirstByProcReleaseKeyAndStatusOrderByCreatedDateDesc("PROC_KEY", Status.ACTIVE))
+        .thenReturn(Optional.of(areaProcessEntity));
+
+    Optional<Code> result = areaProcessRepository.findApplicationBaseByProcessKey(Code.create("PROC_KEY"));
+
+    assertTrue(result.isPresent());
+    assertEquals("igrp-app", result.get().getValue());
   }
 
   @Test
