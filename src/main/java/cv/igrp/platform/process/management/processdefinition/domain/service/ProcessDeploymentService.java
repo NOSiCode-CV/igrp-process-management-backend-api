@@ -1,5 +1,6 @@
 package cv.igrp.platform.process.management.processdefinition.domain.service;
 
+import cv.igrp.platform.process.management.area.domain.repository.AreaProcessRepository;
 import cv.igrp.platform.process.management.processdefinition.domain.filter.ProcessDeploymentFilter;
 import cv.igrp.platform.process.management.processdefinition.domain.models.ProcessArtifact;
 import cv.igrp.platform.process.management.processdefinition.domain.models.ProcessDeployment;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
 public class ProcessDeploymentService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ProcessDeploymentService.class);
+  private static final String DEFAULT_APPLICATION_BASE = "NOT_SET";
 
 
   private final ProcessDeploymentRepository processDeploymentRepository;
@@ -37,17 +39,20 @@ public class ProcessDeploymentService {
   private final ProcessDefinitionRepository processDefinitionRepository;
   private final ProcessSequenceRepository processSequenceRepository;
   private final ProcessInstanceRepository processInstanceRepository;
+  private final AreaProcessRepository areaProcessRepository;
 
   public ProcessDeploymentService(ProcessDeploymentRepository processDeploymentRepository,
                                   UserContext userContext,
                                   ProcessDefinitionRepository processDefinitionRepository,
                                   ProcessSequenceRepository processSequenceRepository,
-                                  ProcessInstanceRepository processInstanceRepository) {
+                                  ProcessInstanceRepository processInstanceRepository,
+                                  AreaProcessRepository areaProcessRepository) {
     this.processDeploymentRepository = processDeploymentRepository;
     this.userContext = userContext;
     this.processDefinitionRepository = processDefinitionRepository;
     this.processSequenceRepository = processSequenceRepository;
     this.processInstanceRepository = processInstanceRepository;
+    this.areaProcessRepository = areaProcessRepository;
   }
 
   public ProcessDeployment deployProcess(ProcessDeployment processDeployment) {
@@ -57,13 +62,15 @@ public class ProcessDeploymentService {
 
   public PageableLista<ProcessDeployment> getAllDeployments(ProcessDeploymentFilter processDeploymentFilter) {
     if (processDeploymentFilter.isFilterByCurrentUser()) {
-      List<String> contextGroups = userContext.getCurrentGroups();
-      if(!contextGroups.isEmpty()){
-        userContext.getCurrentGroups()
-            .forEach(processDeploymentFilter::addContextGroup);
-      }
-      if(contextGroups.isEmpty() && !userContext.isSuperAdmin()){
-        processDeploymentFilter.addContextGroup(IgrpAuthorizationConstants.DEFAULT_GROUP);
+      if (userContext.isSuperAdmin()) {
+        processDeploymentFilter.disableCurrentUserFilter();
+      } else {
+        List<String> contextGroups = userContext.getCurrentGroups();
+        if (!contextGroups.isEmpty()) {
+          contextGroups.forEach(processDeploymentFilter::addContextGroup);
+        } else {
+          processDeploymentFilter.addContextGroup(IgrpAuthorizationConstants.DEFAULT_GROUP);
+        }
       }
     }
     PageableLista<ProcessDeployment> pageableLista = processDeploymentRepository.findAll(processDeploymentFilter);
@@ -208,6 +215,8 @@ public class ProcessDeploymentService {
 
   public ProcessDeployment deployProcessAndConfigure(ProcessDeployment processDeployment) {
 
+    this.resolveApplicationBase(processDeployment);
+
     Optional<String> optionalProcessId = processDeploymentRepository.findLastProcessDefinitionIdByKey(
         processDeployment.getKey().getValue()
     );
@@ -254,6 +263,21 @@ public class ProcessDeploymentService {
     }
 
     return deployedProcess;
+  }
+
+  private void resolveApplicationBase(ProcessDeployment processDeployment) {
+    if (hasResolvedApplicationBase(processDeployment)) {
+      return;
+    }
+    Code applicationBase = areaProcessRepository
+        .findApplicationBaseByProcessKey(processDeployment.getKey())
+        .orElseGet(() -> Code.create(DEFAULT_APPLICATION_BASE));
+    processDeployment.resolveApplicationBase(applicationBase);
+  }
+
+  private boolean hasResolvedApplicationBase(ProcessDeployment processDeployment) {
+    return processDeployment.getApplicationBase() != null
+        && !DEFAULT_APPLICATION_BASE.equals(processDeployment.getApplicationBase().getValue());
   }
 
   public void archiveProcess(String processDefinitionId) {

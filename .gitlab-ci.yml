@@ -11,60 +11,65 @@ variables:
   CI_PROJECT: "igrp"
   VERSION_TAG: "$CI_COMMIT_SHORT_SHA"
   IMAGE_NAME_FULL: "$REGISTRY_URL/$CI_PROJECT/$IMAGE_NAME"
-  IMAGE_TAG: latest
+  IMAGE_TAG: pre-release
+  GIT_DEPTH: "1"                           # checkout raso (não precisamos de histórico)
 
 stages:
   - build
   - manifest
 
+# Builder buildx (driver docker-container: necessário p/ cache registry mode=max).
 .build-template:
-  tags:
-    - nosi-runner
+
   only:
-    - main
-    
+    - pre-release
   before_script:
-    - apk add --no-cache curl bash
     - docker login -u "$BASE_REGISTRY_USERNAME" -p "$BASE_REGISTRY_PASSWORD" "$REGISTRY_URL"
+    - docker buildx create --name igrpbuilder --driver docker-container --use --bootstrap 2>/dev/null || docker buildx use igrpbuilder
 
 build-jvm-arm64:
   stage: build
   extends: .build-template
-  script:
-    - docker buildx create --use --name amd64builder
-    - docker buildx inspect --bootstrap
-    - docker build -f Dockerfile --platform linux/arm64 -t "$IMAGE_NAME_FULL-jvm:arm64" --pull --build-arg --push --output=type=image,name="$IMAGE_NAME_FULL-jvm:arm64",push=true .
-
   tags:
     - arm64
-  only:
-    - main
+  script:
+    # Cache de camadas por arch no registry (mode=max cacheia também a fase de build
+    # Maven → a camada de dependency:go-offline é reutilizada entre pipelines).
+    # ignore-error: se o registry não suportar o formato, o build continua sem exportar cache.
+    - >
+      docker buildx build -f Dockerfile --platform linux/arm64 --provenance=false
+      --cache-from "type=registry,ref=$IMAGE_NAME_FULL-jvm:cache-arm64"
+      --cache-to "type=registry,ref=$IMAGE_NAME_FULL-jvm:cache-arm64,mode=max,image-manifest=true,oci-mediatypes=true,ignore-error=true"
+      -t "$IMAGE_NAME_FULL-jvm:arm64-pre-release" --push .
 
 build-jvm-amd64:
-  extends: .build-template
   stage: build
-  tags:
-    - nosi-runner
+  extends: .build-template
   script:
-    - docker buildx create --use --name amd64builder
-    - docker buildx inspect --bootstrap
-    - docker build -f Dockerfile --platform linux/amd64 -t "$IMAGE_NAME_FULL-jvm:amd64"  --pull --build-arg  --push --output=type=image,name="$IMAGE_NAME_FULL-jvm:amd64",push=true .
-  only:
-    - main
+    - >
+      docker buildx build -f Dockerfile --platform linux/amd64 --provenance=false
+      --cache-from "type=registry,ref=$IMAGE_NAME_FULL-jvm:cache-amd64"
+      --cache-to "type=registry,ref=$IMAGE_NAME_FULL-jvm:cache-amd64,mode=max,image-manifest=true,oci-mediatypes=true,ignore-error=true"
+      -t "$IMAGE_NAME_FULL-jvm:amd64-pre-release" --push .
 
 create-jvm-manifest:
   stage: manifest
-  tags:
-    - nosi-runner
-  script:
+  before_script:
     - docker login -u "$BASE_REGISTRY_USERNAME" -p "$BASE_REGISTRY_PASSWORD" "$REGISTRY_URL"
-    - docker manifest create "$IMAGE_NAME_FULL-jvm:$IMAGE_TAG" --amend "$IMAGE_NAME_FULL-jvm:amd64" --amend "$IMAGE_NAME_FULL-jvm:arm64"
-    - docker manifest push "$IMAGE_NAME_FULL-jvm:$IMAGE_TAG"
+  script:
+    # imagetools create combina os manifestos de arch num índice multi-arch e faz push
+    # numa só operação. Robusto (lida com índices/attestations) — substitui o
+    # 'docker manifest create --amend', que rejeita fontes que sejam manifest lists.
+    - >
+      docker buildx imagetools create
+      -t "$IMAGE_NAME_FULL-jvm:$IMAGE_TAG"
+      "$IMAGE_NAME_FULL-jvm:amd64-pre-release"
+      "$IMAGE_NAME_FULL-jvm:arm64-pre-release"
   needs:
     - build-jvm-amd64
     - build-jvm-arm64
   only:
-    - main
+    - pre-release
 
 
 build-pre-release-jvm-amd64:
@@ -74,13 +79,13 @@ build-pre-release-jvm-amd64:
       command: [ "--tls=false", "--mtu=1240" ]
   stage: build
   before_script:
-    - apk add --no-cache curl bash
     - docker login -u "$BASE_REGISTRY_USERNAME" -p "$BASE_REGISTRY_PASSWORD" "$REGISTRY_URL"
-  tags:
-    - nosi-runner
+    - docker buildx create --name igrpbuilder --driver docker-container --use --bootstrap 2>/dev/null || docker buildx use igrpbuilder
   script:
-    - docker buildx create --use --name amd64builder
-    - docker buildx inspect --bootstrap
-    - docker build -f Dockerfile --platform linux/amd64 -t "$IMAGE_NAME_FULL-jvm:pre-release"  --pull --build-arg  --push --output=type=image,name="$IMAGE_NAME_FULL-jvm:pre-release",push=true .
+    - >
+      docker buildx build -f Dockerfile --platform linux/amd64 --provenance=false
+      --cache-from "type=registry,ref=$IMAGE_NAME_FULL-jvm:cache-amd64"
+      --cache-to "type=registry,ref=$IMAGE_NAME_FULL-jvm:cache-amd64,mode=max,image-manifest=true,oci-mediatypes=true,ignore-error=true"
+      -t "$IMAGE_NAME_FULL-jvm:pre-release" --push .
   only:
     - deploy/pre-release

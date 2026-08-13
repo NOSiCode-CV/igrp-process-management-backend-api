@@ -89,4 +89,40 @@ class DeployProcessCommandHandlerTest {
 
   }
 
+  @Test
+  void testHandle_acceptsMissingApplicationBaseAndDelegatesResolutionToService() {
+
+    ProcessDeploymentRequestDTO requestDTO = new ProcessDeploymentRequestDTO();
+    requestDTO.setName("Process invoicing");
+    requestDTO.setDescription("Process invoicing description");
+    requestDTO.setKey("invoicing_key");
+    requestDTO.setResourceName("invoicing.bpmn20.xml");
+    requestDTO.setBpmnXml("<definitions...</<definitions>");
+
+    ProcessDeployment deployedModel = ProcessDeployment.builder()
+        .name(Name.create("Process invoicing"))
+        .description("Process invoicing description")
+        .key(Code.create("invoicing_key"))
+        .resourceName(ResourceName.create("invoicing.bpmn20.xml"))
+        .bpmnXml(BpmnXml.create("<definitions...</<definitions>"))
+        .applicationBase(Code.create("igrp-app"))
+        .version("1.0")
+        .deploymentId("deploy-001")
+        .deployed(true)
+        .deployedAt(LocalDateTime.now())
+        .build();
+
+    when(processDeploymentService.deployProcessAndConfigure(any(ProcessDeployment.class)))
+        .thenReturn(deployedModel);
+
+    ResponseEntity<ProcessDeploymentDTO> response = handler.handle(new DeployProcessCommand(requestDTO));
+
+    assertNotNull(response.getBody());
+    assertEquals("igrp-app", response.getBody().getApplicationBase());
+    verify(processDeploymentService).deployProcessAndConfigure(argThat(deployment ->
+        deployment.getApplicationBase() == null
+    ));
+
+  }
+
 }

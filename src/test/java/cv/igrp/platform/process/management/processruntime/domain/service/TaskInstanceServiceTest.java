@@ -658,6 +658,49 @@ class TaskInstanceServiceTest {
   }
 
   @Test
+  void getAllTaskInstances_shouldDisableCurrentUserFilterForSuperAdmin() {
+    TaskInstanceFilter filter = TaskInstanceFilter.builder()
+        .filterByCurrentUser(true)
+        .build();
+
+    PageableLista<TaskInstance> page = new PageableLista<>(0, 50, 0L, 0, true, true, List.of());
+    when(userContext.isSuperAdmin()).thenReturn(true);
+    when(taskInstanceRepository.findAll(filter)).thenReturn(page);
+
+    PageableLista<TaskInstance> result = taskInstanceService.getAllTaskInstances(filter);
+
+    assertEquals(page, result);
+    assertFalse(filter.isFilterByCurrentUser());
+    assertFalse(filter.isSuperAdmin());
+    assertTrue(filter.getContextUserGroups().isEmpty());
+    verify(userContext, never()).getCurrentUser();
+    verify(userContext, never()).getCurrentGroups();
+    verify(taskInstanceRepository).findAll(filter);
+  }
+
+  @Test
+  void getAllTaskInstances_shouldBindCurrentUserAndGroupsForNonSuperAdmin() {
+    TaskInstanceFilter filter = TaskInstanceFilter.builder()
+        .filterByCurrentUser(true)
+        .build();
+
+    PageableLista<TaskInstance> page = new PageableLista<>(0, 50, 0L, 0, true, true, List.of());
+    when(userContext.isSuperAdmin()).thenReturn(false);
+    when(userContext.getCurrentUser()).thenReturn(currentUser);
+    when(userContext.getCurrentGroups()).thenReturn(List.of("group-a", "group-b"));
+    when(taskInstanceRepository.findAll(filter)).thenReturn(page);
+
+    PageableLista<TaskInstance> result = taskInstanceService.getAllTaskInstances(filter);
+
+    assertEquals(page, result);
+    assertTrue(filter.isFilterByCurrentUser());
+    assertFalse(filter.isSuperAdmin());
+    assertEquals(currentUser, filter.getUser());
+    assertEquals(Set.of("group-a", "group-b"), filter.getContextUserGroups());
+    verify(taskInstanceRepository).findAll(filter);
+  }
+
+  @Test
   void getAllTaskInstances_shouldDelegateVariableFilteringToEngine_andCollectEngineProcessNumbers() {
 
     VariablesExpression expression = VariablesExpression.builder()
