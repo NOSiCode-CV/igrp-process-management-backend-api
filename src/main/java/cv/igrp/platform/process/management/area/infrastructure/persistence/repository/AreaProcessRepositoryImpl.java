@@ -7,7 +7,6 @@ import cv.igrp.platform.process.management.area.domain.repository.AreaProcessRep
 import cv.igrp.platform.process.management.area.mappers.AreaProcessMapper;
 import cv.igrp.platform.process.management.shared.application.constants.Status;
 import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
-import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.AreaEntity;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.AreaProcessEntity;
@@ -100,16 +99,6 @@ public class AreaProcessRepositoryImpl implements AreaProcessRepository {
   @Transactional(readOnly = true)
   public Optional<AreaProcess> findById(UUID id) {
     return areaProcessEntityRepository.findById(id).map(areaProcessMapper::toModel);
-  }
-
-  @Override
-  @Transactional(readOnly = true)
-  public Optional<Code> findApplicationBaseByProcessKey(Code processKey) {
-    return areaProcessEntityRepository
-        .findFirstByProcReleaseKeyAndStatusOrderByCreatedDateDesc(processKey.getValue(), Status.ACTIVE)
-        .map(AreaProcessEntity::getAreaId)
-        .map(AreaEntity::getApplicationBase)
-        .map(Code::create);
   }
 
   @Override

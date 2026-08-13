@@ -67,7 +67,7 @@ public class ProcessDeployment {
     this.deployedAt = deployedAt;
     this.procReleaseKey = procReleaseKey;
     this.procReleaseId = procReleaseId;
-    this.applicationBase = applicationBase;
+    this.applicationBase = Objects.requireNonNull(applicationBase, "Application Code cannot be null");;
     this.candidateGroups = candidateGroups == null ? new HashSet<>() : candidateGroups;
   }
 
@@ -87,10 +87,6 @@ public class ProcessDeployment {
 
   public void addCandidateGroups(String group) {
     this.candidateGroups.add(group);
-  }
-
-  public void resolveApplicationBase(Code applicationBase) {
-    this.applicationBase = Objects.requireNonNull(applicationBase, "Application Code cannot be null");
   }
 
 }
