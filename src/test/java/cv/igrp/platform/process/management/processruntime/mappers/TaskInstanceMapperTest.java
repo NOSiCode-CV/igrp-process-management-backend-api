@@ -70,4 +70,21 @@ class TaskInstanceMapperTest {
 
     assertEquals(7, filter.getPriority());
   }
+
+  @Test
+  void toVariablesExpressionList_shouldTreatNullVariablesAsEmpty() {
+    var dto = new VariablesFilterDTO();
+    dto.setVariables(null);
+
+    var variables = mapper.toVariablesExpressionList(dto);
+
+    assertEquals(0, variables.size());
+  }
+
+  @Test
+  void toVariablesExpressionList_shouldTreatNullDtoAsEmpty() {
+    var variables = mapper.toVariablesExpressionList(null);
+
+    assertEquals(0, variables.size());
+  }
 }
