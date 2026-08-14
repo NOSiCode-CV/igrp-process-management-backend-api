@@ -57,7 +57,7 @@ class UpdateTaskAssignmentRuleCommandHandlerTest {
 
     var response = handler.handle(command);
 
-    assertEquals(200, response.getStatusCodeValue());
+    assertEquals(200, response.getStatusCode().value());
     assertSame(dto, response.getBody());
     verify(service).updateAssignment(id, assignee, candidateUsers, candidateGroups);
   }
