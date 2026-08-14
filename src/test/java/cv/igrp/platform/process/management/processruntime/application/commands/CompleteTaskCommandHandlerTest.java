@@ -15,6 +15,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
@@ -88,5 +89,20 @@ class CompleteTaskCommandHandlerTest {
     verify(taskInstanceMapper, times(1))
         .toTaskInstanceDTO(mockTaskInstance);
     verifyNoMoreInteractions(taskInstanceService, taskInstanceMapper, userContext);
+  }
+
+  @Test
+  void handle_shouldTreatNullFormsAndVariablesAsEmpty() {
+    TaskDataDTO taskDataDTO = new TaskDataDTO();
+    taskDataDTO.setForms(null);
+    taskDataDTO.setVariables(null);
+    command.setTaskdatadto(taskDataDTO);
+
+    handler.handle(command);
+
+    var captor = ArgumentCaptor.forClass(TaskOperationData.class);
+    verify(taskInstanceService).completeTask(captor.capture());
+    assertEquals(0, captor.getValue().getForms().size());
+    assertEquals(0, captor.getValue().getVariables().size());
   }
 }
