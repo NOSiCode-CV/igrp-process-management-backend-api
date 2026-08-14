@@ -1,6 +1,5 @@
 package cv.igrp.platform.process.management.shared.infrastructure.persistence.repository;
 
-import cv.igrp.platform.process.management.shared.application.constants.Status;
 import cv.igrp.platform.process.management.shared.infrastructure.persistence.entity.AreaProcessEntity;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,10 +14,5 @@ public interface AreaProcessEntityRepository extends
     JpaSpecificationExecutor<AreaProcessEntity>,
     RevisionRepository<AreaProcessEntity, UUID, Integer>
 {
-
-  Optional<AreaProcessEntity> findFirstByProcReleaseKeyAndStatusOrderByCreatedDateDesc(
-      String procReleaseKey,
-      Status status
-  );
 
 }

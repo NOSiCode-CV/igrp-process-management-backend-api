@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -74,7 +73,7 @@ public class SecurityConfig {
 
     // Configure OAuth2 Resource Server to use JWT tokens for authentication
     http.oauth2ResourceServer((oauth2ResourceServer) -> oauth2ResourceServer
-        .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtProcessAuthenticationConverter()))
+        .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
     );
 
     // Configure authorization rules and policy enforcement
@@ -104,9 +103,8 @@ public class SecurityConfig {
     return http.build();
   }
 
-  @Primary
   @Bean
-  public JwtAuthenticationConverter jwtProcessAuthenticationConverter() {
+  public JwtAuthenticationConverter jwtAuthenticationConverter() {
 
     var converter = new JwtAuthenticationConverter();
 

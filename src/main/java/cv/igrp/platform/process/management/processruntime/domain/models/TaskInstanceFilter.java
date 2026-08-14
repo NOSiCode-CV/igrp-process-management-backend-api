@@ -38,7 +38,7 @@ public class TaskInstanceFilter {
   private final Name name;
   private final Code processRealeaseKey;
 
-  private boolean filterByCurrentUser;
+  private final boolean filterByCurrentUser;
 
   private boolean isSuperAdmin;
 
@@ -103,11 +103,6 @@ public class TaskInstanceFilter {
   public void bindCurrentUser(Code user, boolean isSuperAdmin){
     this.user = user;
     this.isSuperAdmin = isSuperAdmin;
-  }
-
-  public void disableCurrentUserFilter() {
-    this.filterByCurrentUser = false;
-    this.isSuperAdmin = false;
   }
 
 }
