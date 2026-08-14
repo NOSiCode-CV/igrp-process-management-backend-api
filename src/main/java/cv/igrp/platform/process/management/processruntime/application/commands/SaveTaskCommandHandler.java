@@ -16,6 +16,7 @@ import cv.igrp.platform.process.management.processruntime.application.dto.TaskIn
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
+import java.util.Optional;
 
 @Component
 public class SaveTaskCommandHandler implements CommandHandler<SaveTaskCommand, ResponseEntity<TaskInstanceDTO>> {
@@ -40,14 +41,15 @@ public class SaveTaskCommandHandler implements CommandHandler<SaveTaskCommand, R
      LOGGER.info("User [{}] started completing task [{}]", currentUser.getValue(), command.getId());
 
      final var forms = new HashMap<String,Object>();
-     command.getTaskdatadto()
-         .getForms()
+     Optional.ofNullable(command.getTaskdatadto().getForms())
+         .orElseGet(java.util.List::of)
          .forEach(v -> forms.put(v.getName(), v.getValue()));
      LOGGER.info("[Save Task] Forms: {}", forms);
 
      final var variables = new HashMap<String,Object>();
-     if(command.getTaskdatadto().getVariables()!=null)
-       command.getTaskdatadto().getVariables().forEach( v -> variables.put(v.getName(), v.getValue()));
+     Optional.ofNullable(command.getTaskdatadto().getVariables())
+         .orElseGet(java.util.List::of)
+         .forEach(v -> variables.put(v.getName(), v.getValue()));
 
      LOGGER.info("[Save Task] Variables: {}", variables);
 
