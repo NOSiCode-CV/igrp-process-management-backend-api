@@ -39,7 +39,7 @@
 
     <properties>
         <igrp.version>0.1.0-beta.1</igrp.version>
-        <igrp.process-runtime.version>0.1.0-beta.24.2</igrp.process-runtime.version>
+        <igrp.process-runtime.version>0.1.0-beta.24.3</igrp.process-runtime.version>
         <java.version>26</java.version>
         <spring-cloud.version>2025.1.2</spring-cloud.version>
         <springdoc.version>3.0.3</springdoc.version>
