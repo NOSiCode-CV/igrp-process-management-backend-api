@@ -45,8 +45,4 @@ public class ProcessDeploymentFilter {
     this.contextGroups.add(contextGroup);
   }
 
-  public void disableCurrentUserFilter() {
-    this.filterByCurrentUser = false;
-  }
-
 }

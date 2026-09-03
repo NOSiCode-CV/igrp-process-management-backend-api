@@ -1,14 +1,10 @@
 package cv.igrp.platform.process.management.processdefinition.domain.service;
 
-import cv.igrp.platform.process.management.area.domain.repository.AreaProcessRepository;
 import cv.igrp.platform.process.management.processdefinition.domain.filter.ProcessDeploymentFilter;
 import cv.igrp.platform.process.management.processdefinition.domain.models.BpmnXml;
 import cv.igrp.platform.process.management.processdefinition.domain.models.ProcessArtifact;
 import cv.igrp.platform.process.management.processdefinition.domain.models.ProcessDeployment;
-import cv.igrp.platform.process.management.processdefinition.domain.repository.ProcessDefinitionRepository;
 import cv.igrp.platform.process.management.processdefinition.domain.repository.ProcessDeploymentRepository;
-import cv.igrp.platform.process.management.processdefinition.domain.repository.ProcessSequenceRepository;
-import cv.igrp.platform.process.management.processruntime.domain.repository.ProcessInstanceRepository;
 import cv.igrp.platform.process.management.shared.domain.models.*;
 import cv.igrp.platform.process.management.shared.security.util.IgrpAuthorizationConstants;
 import cv.igrp.platform.process.management.shared.security.util.UserContext;
@@ -19,12 +15,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -36,18 +30,6 @@ class ProcessDeploymentServiceTest {
 
   @Mock
   private UserContext userContext;
-
-  @Mock
-  private ProcessDefinitionRepository processDefinitionRepository;
-
-  @Mock
-  private ProcessSequenceRepository processSequenceRepository;
-
-  @Mock
-  private ProcessInstanceRepository processInstanceRepository;
-
-  @Mock
-  private AreaProcessRepository areaProcessRepository;
 
   @InjectMocks
   private ProcessDeploymentService service;
@@ -84,7 +66,6 @@ class ProcessDeploymentServiceTest {
         .build();
 
     ProcessDeployment processDeployment = ProcessDeployment.builder()
-        .id("deployment-1")
         .key(Code.create("invoice-process-key"))
         .name(Name.create("Invoice Process"))
         .description("Invoice Process sample")
@@ -106,15 +87,12 @@ class ProcessDeploymentServiceTest {
         .build();
 
     when(processDeploymentRepository.findAll(filter)).thenReturn(expectedPage);
-    when(processDeploymentRepository.getCandidateStarterGroupsBatch(List.of("deployment-1")))
-        .thenReturn(Map.of("deployment-1", Set.of("group-a", "group-b")));
 
     // Act
     PageableLista<ProcessDeployment> result = service.getAllDeployments(filter);
 
     // Assert
     verify(processDeploymentRepository).findAll(filter);
-    verify(processDeploymentRepository).getCandidateStarterGroupsBatch(List.of("deployment-1"));
 
     // Assertions
     assertNotNull(result);
@@ -136,30 +114,6 @@ class ProcessDeploymentServiceTest {
     assertEquals(processDeployment.getApplicationBase(), actualProcessDeployment.getApplicationBase());
     assertTrue(actualProcessDeployment.isDeployed());
     assertNotNull(actualProcessDeployment.getDeployedAt());
-    assertEquals(Set.of("group-a", "group-b"), actualProcessDeployment.getCandidateGroups());
-  }
-
-  @Test
-  void getAllDeployments_shouldUseCurrentUserGroupsWhenFilteringCurrentUserAndNotSuperAdmin() {
-    ProcessDeploymentFilter filter = ProcessDeploymentFilter.builder()
-        .filterByCurrentUser(true)
-        .build();
-
-    PageableLista<ProcessDeployment> expectedPage = PageableLista.<ProcessDeployment>builder()
-        .pageNumber(0)
-        .pageSize(20)
-        .content(List.of())
-        .build();
-
-    when(userContext.isSuperAdmin()).thenReturn(false);
-    when(userContext.getCurrentGroups()).thenReturn(List.of("group-a", "group-b"));
-    when(processDeploymentRepository.findAll(filter)).thenReturn(expectedPage);
-
-    PageableLista<ProcessDeployment> result = service.getAllDeployments(filter);
-
-    assertEquals(expectedPage, result);
-    assertEquals(Set.of("group-a", "group-b"), filter.getContextGroups());
-    verify(processDeploymentRepository).findAll(filter);
   }
 
   @Test
@@ -197,15 +151,14 @@ class ProcessDeploymentServiceTest {
         .content(List.of())
         .build();
 
+    when(userContext.getCurrentGroups()).thenReturn(List.of());
     when(userContext.isSuperAdmin()).thenReturn(true);
     when(processDeploymentRepository.findAll(filter)).thenReturn(expectedPage);
 
     PageableLista<ProcessDeployment> result = service.getAllDeployments(filter);
 
     assertEquals(expectedPage, result);
-    assertFalse(filter.isFilterByCurrentUser());
     assertTrue(filter.getContextGroups().isEmpty());
-    verify(userContext, never()).getCurrentGroups();
     verify(processDeploymentRepository).findAll(filter);
   }
 
@@ -240,79 +193,6 @@ class ProcessDeploymentServiceTest {
 
     verify(processDeploymentRepository).findAllArtifacts(processDefinitionId.getValue());
 
-  }
-
-  @Test
-  void deployProcessAndConfigure_shouldResolveApplicationBaseFromAreaWhenMissing() {
-    ProcessDeployment processDeployment = ProcessDeployment.builder()
-        .key(Code.create("invoice-process-key"))
-        .name(Name.create("Invoice Process"))
-        .description("Invoice Process sample")
-        .resourceName(ResourceName.create("invoicing.bpmn20.xml"))
-        .bpmnXml(BpmnXml.create("<definitions>...</definitions>"))
-        .build();
-
-    when(areaProcessRepository.findApplicationBaseByProcessKey(Code.create("invoice-process-key")))
-        .thenReturn(java.util.Optional.of(Code.create("igrp-app")));
-    when(processDeploymentRepository.findLastProcessDefinitionIdByKey("invoice-process-key"))
-        .thenReturn(java.util.Optional.empty());
-    when(processDeploymentRepository.deploy(any(ProcessDeployment.class)))
-        .thenAnswer(invocation -> invocation.getArgument(0));
-
-    ProcessDeployment result = service.deployProcessAndConfigure(processDeployment);
-
-    assertEquals("igrp-app", result.getApplicationBase().getValue());
-    assertTrue(result.isDeployed());
-    verify(areaProcessRepository).findApplicationBaseByProcessKey(Code.create("invoice-process-key"));
-  }
-
-  @Test
-  void deployProcessAndConfigure_shouldUseDefaultApplicationBaseWhenAreaCannotBeResolved() {
-    ProcessDeployment processDeployment = ProcessDeployment.builder()
-        .key(Code.create("invoice-process-key"))
-        .name(Name.create("Invoice Process"))
-        .description("Invoice Process sample")
-        .resourceName(ResourceName.create("invoicing.bpmn20.xml"))
-        .bpmnXml(BpmnXml.create("<definitions>...</definitions>"))
-        .build();
-
-    when(areaProcessRepository.findApplicationBaseByProcessKey(Code.create("invoice-process-key")))
-        .thenReturn(java.util.Optional.empty());
-    when(processDeploymentRepository.findLastProcessDefinitionIdByKey("invoice-process-key"))
-        .thenReturn(java.util.Optional.empty());
-    when(processDeploymentRepository.deploy(any(ProcessDeployment.class)))
-        .thenAnswer(invocation -> invocation.getArgument(0));
-
-    ProcessDeployment result = service.deployProcessAndConfigure(processDeployment);
-
-    assertEquals("NOT_SET", result.getApplicationBase().getValue());
-    assertTrue(result.isDeployed());
-    verify(processDeploymentRepository).deploy(processDeployment);
-  }
-
-  @Test
-  void deployProcessAndConfigure_shouldResolveApplicationBaseWhenCurrentValueIsDefault() {
-    ProcessDeployment processDeployment = ProcessDeployment.builder()
-        .key(Code.create("invoice-process-key"))
-        .name(Name.create("Invoice Process"))
-        .description("Invoice Process sample")
-        .resourceName(ResourceName.create("invoicing.bpmn20.xml"))
-        .bpmnXml(BpmnXml.create("<definitions>...</definitions>"))
-        .applicationBase(Code.create("NOT_SET"))
-        .build();
-
-    when(areaProcessRepository.findApplicationBaseByProcessKey(Code.create("invoice-process-key")))
-        .thenReturn(java.util.Optional.of(Code.create("igrp-app")));
-    when(processDeploymentRepository.findLastProcessDefinitionIdByKey("invoice-process-key"))
-        .thenReturn(java.util.Optional.empty());
-    when(processDeploymentRepository.deploy(any(ProcessDeployment.class)))
-        .thenAnswer(invocation -> invocation.getArgument(0));
-
-    ProcessDeployment result = service.deployProcessAndConfigure(processDeployment);
-
-    assertEquals("igrp-app", result.getApplicationBase().getValue());
-    assertTrue(result.isDeployed());
-    verify(areaProcessRepository).findApplicationBaseByProcessKey(Code.create("invoice-process-key"));
   }
 
 }

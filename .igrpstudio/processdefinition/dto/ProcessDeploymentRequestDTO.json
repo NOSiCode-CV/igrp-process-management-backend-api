@@ -69,7 +69,7 @@
       "name": "applicationBase",
       "objectType": "java",
       "type": "string",
-      "required": false,
+      "required": true,
       "before": false,
       "after": false,
       "positive": false,

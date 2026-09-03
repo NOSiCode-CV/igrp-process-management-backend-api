@@ -243,15 +243,11 @@ public class TaskInstanceService {
   public PageableLista<TaskInstance> getAllTaskInstances(TaskInstanceFilter filter) {
 
     if (filter.isFilterByCurrentUser()) {
+      final var currentUser = userContext.getCurrentUser();
       final var isSuperAdmin = userContext.isSuperAdmin();
-      if (isSuperAdmin) {
-        filter.disableCurrentUserFilter();
-      } else {
-        final var currentUser = userContext.getCurrentUser();
-        filter.bindCurrentUser(currentUser, false);
-        userContext.getCurrentGroups()
-            .forEach(filter::addContextUserGroup);
-      }
+      filter.bindCurrentUser(currentUser, isSuperAdmin);
+      userContext.getCurrentGroups()
+          .forEach(filter::addContextUserGroup);
     }
 
     // Resolve process-variable filters via the engine into matching engine process numbers.
