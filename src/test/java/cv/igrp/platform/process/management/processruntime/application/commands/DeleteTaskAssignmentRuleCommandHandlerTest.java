@@ -27,7 +27,7 @@ class DeleteTaskAssignmentRuleCommandHandlerTest {
 
     var response = handler.handle(new DeleteTaskAssignmentRuleCommand(id));
 
-    assertEquals(204, response.getStatusCodeValue());
+    assertEquals(204, response.getStatusCode().value());
     verify(service).deactivate(id);
   }
 }

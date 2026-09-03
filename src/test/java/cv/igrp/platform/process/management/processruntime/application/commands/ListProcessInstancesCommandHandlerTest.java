@@ -3,6 +3,7 @@ package cv.igrp.platform.process.management.processruntime.application.commands;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+import cv.igrp.platform.process.management.processruntime.application.dto.VariablesFilterDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,5 +37,22 @@ public class ListProcessInstancesCommandHandlerTest {
         // Then
         // assertNotNull(response);
         // assertEquals(..., response.getBody());
+    }
+
+    @Test
+    void toVariablesExpressionList_shouldTreatNullVariablesAsEmpty() {
+        var dto = new VariablesFilterDTO();
+        dto.setVariables(null);
+
+        var variables = listProcessInstancesCommandHandler.toVariablesExpressionList(dto);
+
+        assertEquals(0, variables.size());
+    }
+
+    @Test
+    void toVariablesExpressionList_shouldTreatNullDtoAsEmpty() {
+        var variables = listProcessInstancesCommandHandler.toVariablesExpressionList(null);
+
+        assertEquals(0, variables.size());
     }
 }

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
+import java.util.Optional;
 
 @Component
 public class CompleteTaskCommandHandler implements CommandHandler<CompleteTaskCommand, ResponseEntity<TaskInstanceDTO>> {
@@ -39,15 +40,15 @@ public class CompleteTaskCommandHandler implements CommandHandler<CompleteTaskCo
     LOGGER.info("User [{}] started completing task [{}]", currentUser.getValue(), command.getId());
 
     final var forms = new HashMap<String,Object>();
-    command.getTaskdatadto()
-        .getForms()
+    Optional.ofNullable(command.getTaskdatadto().getForms())
+        .orElseGet(java.util.List::of)
         .forEach(v -> forms.put(v.getName(), v.getValue()));
 
     LOGGER.info("[Complete Task] Forms: {}", forms);
 
     final var variables = new HashMap<String,Object>();
-    command.getTaskdatadto()
-        .getVariables()
+    Optional.ofNullable(command.getTaskdatadto().getVariables())
+        .orElseGet(java.util.List::of)
         .forEach(v -> variables.put(v.getName(), v.getValue()));
 
     LOGGER.info("[Complete Task] Variables: {}", variables);

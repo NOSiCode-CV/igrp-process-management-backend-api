@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.14</version>
+        <version>4.1.0</version>
         <relativePath/>
     </parent>
     <groupId>cv.igrp.platform.process.management</groupId>
@@ -39,13 +39,14 @@
 
     <properties>
         <igrp.version>0.1.0-beta.1</igrp.version>
-        <igrp.process-runtime.version>0.1.0-beta.24.2</igrp.process-runtime.version>
-        <java.version>25</java.version>
-        <spring-cloud.version>2025.0.0</spring-cloud.version>
-        <springdoc.version>2.8.9</springdoc.version>
+        <igrp.process-runtime.version>0.1.0-beta.24.3</igrp.process-runtime.version>
+        <java.version>26</java.version>
+        <spring-cloud.version>2025.1.2</spring-cloud.version>
+        <springdoc.version>3.0.3</springdoc.version>
+        <jackson2.version>2.21.4</jackson2.version>
         <!-- Pin core OpenTelemetry API/SDK to the version required by
              opentelemetry-instrumentation-bom 2.28.1 (core 1.62.0).
-             Spring Boot 3.5.x otherwise forces core to 1.49.0, which mismatches
+             Spring Boot otherwise forces core to 1.49.0, which mismatches
              the 2.28.1 starter (and its 1.62.0-alpha incubator deps) at runtime.
              Keep this value in sync whenever the instrumentation BOM is bumped. -->
         <opentelemetry.version>1.62.0</opentelemetry.version>
@@ -81,6 +82,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-jdbc-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
@@ -99,6 +105,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-access</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -116,7 +126,6 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-oauth2-client</artifactId>
-            <version>6.3.7</version>
         </dependency>
 
         <dependency>
@@ -194,9 +203,8 @@
         </dependency>
 
         <dependency>
-            <groupId>org.springframework.kafka</groupId>
-            <artifactId>spring-kafka</artifactId>
-            <version>3.3.1</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-kafka</artifactId>
         </dependency>
 
         <dependency>
@@ -224,7 +232,7 @@
         <dependency>
             <groupId>cv.igrp.framework.auth</groupId>
             <artifactId>core-spring-boot</artifactId>
-            <version>0.2.0-beta.5</version>
+            <version>0.2.0-beta.8</version>
         </dependency>
 
     </dependencies>
@@ -241,6 +249,46 @@
                 <groupId>io.opentelemetry</groupId>
                 <artifactId>opentelemetry-bom</artifactId>
                 <version>${opentelemetry.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- Alinha o access client com o core-spring-boot 0.2.0-beta.5, que foi
+                 compilado contra client 0.2.0-beta.6 (tem ApiClient.setClientCredentials).
+                 Sem isto, process-runtime-auth-igrp arrasta o client 0.1.0-beta-SNAPSHOT
+                 (sem esse método) e o arranque falha com NoSuchMethodError em
+                 AuthorizationSyncRunner.syncAuthorization. Declarado ANTES do
+                 process-runtime-bom para vencer a mediação. Remover quando o
+                 process-runtime passar a usar o client 0.2.x. -->
+            <dependency>
+                <groupId>cv.igrp.platform.access</groupId>
+                <artifactId>client</artifactId>
+                <version>0.2.0-beta.6</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-framework-bom</artifactId>
+                <version>${spring-framework.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-bom</artifactId>
+                <version>${spring-security.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>${jackson2.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.data</groupId>
+                <artifactId>spring-data-bom</artifactId>
+                <version>${spring-data-bom.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>

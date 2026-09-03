@@ -311,7 +311,11 @@ public class TaskInstanceMapper {
   }
 
   public List<VariablesExpression> toVariablesExpressionList(VariablesFilterDTO dto){
+    if (dto == null || dto.getVariables() == null) {
+      return List.of();
+    }
     return dto.getVariables().stream()
+        .filter(Objects::nonNull)
         .map(variablesExpressionDTO -> VariablesExpression.builder()
             .name(variablesExpressionDTO.getName())
             .operator(variablesExpressionDTO.getOperator())

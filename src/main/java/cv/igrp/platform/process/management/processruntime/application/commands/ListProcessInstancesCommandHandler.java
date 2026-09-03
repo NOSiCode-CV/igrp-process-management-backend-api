@@ -22,6 +22,7 @@ import cv.igrp.platform.process.management.processruntime.application.dto.Proces
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Component
 public class ListProcessInstancesCommandHandler implements CommandHandler<ListProcessInstancesCommand, ResponseEntity<ProcessInstanceListPageDTO>> {
@@ -58,7 +59,11 @@ public class ListProcessInstancesCommandHandler implements CommandHandler<ListPr
   }
 
   public List<VariablesExpression> toVariablesExpressionList(VariablesFilterDTO dto){
+    if (dto == null || dto.getVariables() == null) {
+      return List.of();
+    }
     return dto.getVariables().stream()
+        .filter(Objects::nonNull)
         .map(variablesExpressionDTO -> VariablesExpression.builder()
             .name(variablesExpressionDTO.getName())
             .operator(variablesExpressionDTO.getOperator())
