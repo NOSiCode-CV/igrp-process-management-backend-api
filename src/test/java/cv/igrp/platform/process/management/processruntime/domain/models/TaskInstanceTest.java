@@ -211,7 +211,7 @@ class TaskInstanceTest {
   }
 
   @Test
-  void testAddCandidates_ShouldStoreGroupsAndCreateAssignEvent() {
+  void testAddCandidates_ShouldStoreGroupsWithoutAssigningTask() {
 
     var operation = TaskOperationData.builder()
         .id(taskId)
@@ -224,11 +224,14 @@ class TaskInstanceTest {
 
     task.addCandidates(operation);
 
-    assertEquals(TaskInstanceStatus.ASSIGNED, task.getStatus());
+    assertEquals(TaskInstanceStatus.CREATED, task.getStatus());
+    assertNull(task.getAssignedAt());
+    assertNull(task.getAssignedBy());
     assertTrue(task.getCandidateGroups().containsAll(Set.of("group1", "group2")));
 
     var lastEvent = task.getTaskInstanceEvents().getLast();
     assertEquals(TaskEventType.ASSIGN, lastEvent.getEventType());
+    assertEquals(TaskInstanceStatus.CREATED, lastEvent.getStatus());
     assertEquals(currentUser, lastEvent.getPerformedBy());
   }
 

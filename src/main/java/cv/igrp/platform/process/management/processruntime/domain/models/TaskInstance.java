@@ -243,7 +243,7 @@ public class TaskInstance {
   public void addCandidates(TaskOperationData data) {
     mergeCandidateGroups(data.getCandidateGroups());
     mergeCandidateUsers(data.getCandidateUsers());
-    updateAssignmentMetadata(data.getPriority());
+    updatePriority(data.getPriority());
 
     createTaskInstanceEvent(
         TaskEventType.ASSIGN,
@@ -273,9 +273,7 @@ public class TaskInstance {
         .forEach(this.candidateUsers::add);
   }
 
-  private void updateAssignmentMetadata(Integer priority) {
-    this.assignedAt = LocalDateTime.now();
-    this.status = TaskInstanceStatus.ASSIGNED;
+  private void updatePriority(Integer priority) {
     if (priority != null && priority != 0) {
       this.priority = priority;
     }
