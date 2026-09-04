@@ -374,6 +374,11 @@ class ProcessInstanceServiceTest {
     assertEquals("Canceled by requester", result.getObsCancel());
     assertNotNull(result.getCanceledAt());
     verify(runtimeProcessEngineRepository).cancelProcessInstance("ENG-PROC-123", "Canceled by requester");
+    verify(taskInstanceService).cancelTaskInstancesByProcessInstance(
+        processInstance,
+        Code.create("demo@nosi.cv"),
+        "Canceled by requester"
+    );
     verify(processInstanceRepository).save(processInstance);
   }
 
@@ -400,6 +405,8 @@ class ProcessInstanceServiceTest {
     assertEquals(HttpStatus.CONFLICT.value(), ex.getStatusCode().value());
     verify(runtimeProcessEngineRepository, org.mockito.Mockito.never())
         .cancelProcessInstance(anyString(), anyString());
+    verify(taskInstanceService, org.mockito.Mockito.never())
+        .cancelTaskInstancesByProcessInstance(any(), any(), anyString());
   }
 
   @Test

@@ -179,6 +179,16 @@ public class TaskInstance {
     createTaskInstanceEvent(TaskEventType.COMPLETE, data.getCurrentUser(), data.getNote());
   }
 
+  public void cancel(Code currentUser, String note) {
+    if (this.status == TaskInstanceStatus.COMPLETED || this.status == TaskInstanceStatus.CANCELED) {
+      throw IgrpResponseStatusException.of(HttpStatus.CONFLICT, String.format("Cannot Cancel a Task in Status[%s]", this.status));
+    }
+    this.endedBy = Objects.requireNonNull(currentUser, "Current User cannot be null!");
+    this.endedAt = LocalDateTime.now();
+    this.status = TaskInstanceStatus.CANCELED;
+    createTaskInstanceEvent(TaskEventType.CANCEL, currentUser, note);
+  }
+
   private void createTaskInstanceEvent(TaskEventType eventType, Code user, String note) {
     this.taskInstanceEvents.add(
         TaskInstanceEvent.builder()
