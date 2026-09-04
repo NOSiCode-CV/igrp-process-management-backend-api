@@ -345,6 +345,16 @@ public class RuntimeProcessEngineRepositoryImpl implements RuntimeProcessEngineR
   }
 
   @Override
+  public void cancelProcessInstance(String processInstanceId, String reason) throws RuntimeProcessEngineException {
+    try {
+      processManagerAdapter.terminateProcess(processInstanceId, reason);
+    } catch (Exception e) {
+      LOGGER.error("Failed to cancel process instance '{}': {}", processInstanceId, e.getMessage(), e);
+      throw new RuntimeProcessEngineException("Failed to cancel process instance with ID '" + processInstanceId + "'.", e);
+    }
+  }
+
+  @Override
   public ProcessDefinitionRepresentation getProcessDefinition(String processDefinitionId) {
     try {
       return processDefinitionAdapter

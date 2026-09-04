@@ -161,6 +161,19 @@ public class ProcessInstance {
     this.status = ProcessInstanceStatus.SUSPENDED;
   }
 
+  public void cancel(String canceledBy, String obsCancel) {
+    if (canceledBy == null || canceledBy.isBlank()) {
+      throw new IllegalStateException("The canceledBy (user) of the process instance cannot be null or blank");
+    }
+    if (this.status == ProcessInstanceStatus.COMPLETED || this.status == ProcessInstanceStatus.CANCELED) {
+      throw new IllegalStateException("Cannot cancel a process instance in status " + this.status);
+    }
+    this.status = ProcessInstanceStatus.CANCELED;
+    this.canceledAt = LocalDateTime.now();
+    this.canceledBy = canceledBy;
+    this.obsCancel = obsCancel;
+  }
+
   public static String generateBusinessKey(){
     return UUID.randomUUID().toString();
   }
