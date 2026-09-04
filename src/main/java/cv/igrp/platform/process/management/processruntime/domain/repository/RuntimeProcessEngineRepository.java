@@ -221,6 +221,15 @@ public interface RuntimeProcessEngineRepository {
   void signal(String processInstanceId, String taskId, Map<String, Object> variables) throws RuntimeProcessEngineException;
 
   /**
+   * Cancels a process instance in the runtime engine.
+   *
+   * @param processInstanceId the ID of the process instance
+   * @param reason the reason for cancellation
+   * @throws RuntimeProcessEngineException if the process instance cannot be canceled
+   */
+  void cancelProcessInstance(String processInstanceId, String reason) throws RuntimeProcessEngineException;
+
+  /**
    * Retrieves the process definition representation by its ID.
    *
    * @param processDefinitionId the unique identifier of the process definition

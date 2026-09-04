@@ -347,6 +347,62 @@ class ProcessInstanceServiceTest {
   }
 
   @Test
+  void cancelProcessInstanceById_shouldTerminateEngineAndPersistCanceledStatus() {
+    UUID id = UUID.randomUUID();
+    ProcessInstance processInstance = ProcessInstance.builder()
+        .id(Identifier.create(id))
+        .procReleaseKey(Code.create("invoice_process"))
+        .procReleaseId(Code.create("release-1"))
+        .engineProcessNumber(Code.create("ENG-PROC-123"))
+        .businessKey(Code.create("business-key"))
+        .status(ProcessInstanceStatus.RUNNING)
+        .name("Invoice Process")
+        .build();
+
+    when(processInstanceRepository.findById(id)).thenReturn(Optional.of(processInstance));
+    when(processInstanceRepository.save(processInstance)).thenReturn(processInstance);
+
+    ProcessInstance result = processInstanceService.cancelProcessInstanceById(
+        id,
+        "Canceled by requester",
+        "demo@nosi.cv"
+    );
+
+    assertSame(processInstance, result);
+    assertEquals(ProcessInstanceStatus.CANCELED, result.getStatus());
+    assertEquals("demo@nosi.cv", result.getCanceledBy());
+    assertEquals("Canceled by requester", result.getObsCancel());
+    assertNotNull(result.getCanceledAt());
+    verify(runtimeProcessEngineRepository).cancelProcessInstance("ENG-PROC-123", "Canceled by requester");
+    verify(processInstanceRepository).save(processInstance);
+  }
+
+  @Test
+  void cancelProcessInstanceById_shouldRejectCompletedProcessInstance() {
+    UUID id = UUID.randomUUID();
+    ProcessInstance processInstance = ProcessInstance.builder()
+        .id(Identifier.create(id))
+        .procReleaseKey(Code.create("invoice_process"))
+        .procReleaseId(Code.create("release-1"))
+        .engineProcessNumber(Code.create("ENG-PROC-123"))
+        .businessKey(Code.create("business-key"))
+        .status(ProcessInstanceStatus.COMPLETED)
+        .name("Invoice Process")
+        .build();
+
+    when(processInstanceRepository.findById(id)).thenReturn(Optional.of(processInstance));
+
+    IgrpResponseStatusException ex = assertThrows(
+        IgrpResponseStatusException.class,
+        () -> processInstanceService.cancelProcessInstanceById(id, "Too late", "demo@nosi.cv")
+    );
+
+    assertEquals(HttpStatus.CONFLICT.value(), ex.getStatusCode().value());
+    verify(runtimeProcessEngineRepository, org.mockito.Mockito.never())
+        .cancelProcessInstance(anyString(), anyString());
+  }
+
+  @Test
   void getProcessInstanceStatistics_shouldDelegateToRepository() {
     ProcessStatistics stats = ProcessStatistics.builder()
         .totalProcessInstances(100L)

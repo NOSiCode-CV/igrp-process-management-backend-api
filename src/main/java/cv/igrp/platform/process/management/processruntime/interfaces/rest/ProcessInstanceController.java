@@ -32,6 +32,7 @@ import cv.igrp.platform.process.management.processruntime.application.dto.Create
 import cv.igrp.platform.process.management.processruntime.application.dto.StartProcessRequestDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.ProcessVariablesRequestDTO;
 import cv.igrp.platform.process.management.processruntime.application.dto.TimerRescheduleDTO;
+import cv.igrp.platform.process.management.processruntime.application.dto.CancelProcessInstanceDTO;
 
 @IgrpController
 @RestController
@@ -328,6 +329,37 @@ public class ProcessInstanceController {
   {
 
       final var command = new StartProcessInstanceByIdCommand(startProcessInstanceByIdRequest, id);
+
+       ResponseEntity<ProcessInstanceDTO> response = commandBus.send(command);
+
+       return response;
+  }
+
+      @PostMapping(
+   value = "{id}/cancel"
+  )
+  @Operation(
+    summary = "POST method to handle operations for Cancel process instance",
+    description = "POST method to handle operations for Cancel process instance",
+    responses = {
+      @ApiResponse(
+          responseCode = "200",
+          description = "",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(
+                  implementation = ProcessInstanceDTO.class,
+                  type = "object")
+          )
+      )
+    }
+  )
+
+  public ResponseEntity<ProcessInstanceDTO> cancelProcessInstance(@Valid @RequestBody(required = false) CancelProcessInstanceDTO cancelProcessInstanceRequest
+    , @PathVariable(value = "id") String id)
+  {
+
+      final var command = new CancelProcessInstanceCommand(cancelProcessInstanceRequest, id);
 
        ResponseEntity<ProcessInstanceDTO> response = commandBus.send(command);
 

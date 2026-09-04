@@ -346,6 +346,49 @@
       ]
     },
     {
+      "actionName": "cancelProcessInstance",
+      "path": "{id}/cancel",
+      "method": "POST",
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "CancelProcessInstanceDTO",
+              "collectionType": "none",
+              "name": "data",
+              "objectType": "dto",
+              "module": "processruntime",
+              "isRequired": false
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "name": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "ProcessInstanceDTO",
+                "objectType": "dto",
+                "name": "data",
+                "collectionType": "none",
+                "module": "processruntime"
+              }
+            }
+          }
+        }
+      },
+      "pathVariables": [
+        {
+          "name": "id",
+          "type": "string",
+          "isRequired": true,
+          "description": "ID of the Process Instance"
+        }
+      ]
+    },
+    {
       "actionName": "rescheduleTimer",
       "path": "{id}/timer/reschedule",
       "method": "POST",
@@ -387,5 +430,5 @@
       ]
     }
   ],
-  "id": "pyn9bsrz1z-CONTROLLER-startProcessInstance-startProcessEvent-startProcessEvent-listProcessInstances-listProcessInstances-listProcessInstances-createProcessInstance-startProcessEvent-createStartProcessInstance-rescheduleTimer-rescheduleTimer-rescheduleTimer-listProcessInstances-listProcessInstances-listProcessInstances"
+  "id": "pyn9bsrz1z-CONTROLLER-startProcessInstance-startProcessEvent-startProcessEvent-listProcessInstances-listProcessInstances-listProcessInstances-createProcessInstance-startProcessEvent-createStartProcessInstance-cancelProcessInstance-rescheduleTimer-rescheduleTimer-rescheduleTimer-listProcessInstances-listProcessInstances-listProcessInstances"
 }

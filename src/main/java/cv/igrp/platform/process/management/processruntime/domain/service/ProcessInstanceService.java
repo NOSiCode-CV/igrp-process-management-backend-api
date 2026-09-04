@@ -15,6 +15,7 @@ import cv.igrp.platform.process.management.shared.application.constants.ProcessI
 import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
 import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -306,6 +307,35 @@ public class ProcessInstanceService {
 
     updateProcessInstanceStatus(process, processInstance);
 
+  }
+
+  public ProcessInstance cancelProcessInstanceById(UUID id, String obsCancel, String user) {
+    ProcessInstance processInstance = processInstanceRepository.findById(id)
+        .orElseThrow(() -> IgrpResponseStatusException.notFound("No process instance found with id: " + id));
+
+    if (processInstance.getStatus() == ProcessInstanceStatus.COMPLETED
+        || processInstance.getStatus() == ProcessInstanceStatus.CANCELED) {
+      throw IgrpResponseStatusException.of(
+          HttpStatus.CONFLICT,
+          String.format("Cannot cancel a process instance in status [%s]", processInstance.getStatus())
+      );
+    }
+
+    if (processInstance.getEngineProcessNumber() == null || processInstance.getEngineProcessNumber().getValue() == null) {
+      throw IgrpResponseStatusException.of(
+          HttpStatus.CONFLICT,
+          "Cannot cancel a process instance without engine process number"
+      );
+    }
+
+    runtimeProcessEngineRepository.cancelProcessInstance(
+        processInstance.getEngineProcessNumber().getValue(),
+        obsCancel
+    );
+
+    processInstance.cancel(user, obsCancel);
+
+    return processInstanceRepository.save(processInstance);
   }
 
   private void updateProcessInstanceStatus(ProcessInstance engineProcess, ProcessInstance processInstance) {
