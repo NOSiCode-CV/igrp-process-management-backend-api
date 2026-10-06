@@ -539,4 +539,12 @@ public class TaskInstanceRepositoryImpl implements TaskInstanceRepository {
         ));
   }
 
+  @Override
+  public List<TaskInstance> findAllByProcessInstanceId(UUID processInstanceId) {
+    return taskInstanceEntityRepository.findAllByProcessInstanceId_Id(processInstanceId)
+        .stream()
+        .map(entity -> taskMapper.toModel(entity, true))
+        .toList();
+  }
+
 }

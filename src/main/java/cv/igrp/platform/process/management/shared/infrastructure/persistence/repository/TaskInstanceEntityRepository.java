@@ -24,6 +24,8 @@ public interface TaskInstanceEntityRepository extends
 
   List<TaskInstanceEntity> findAllByExternalIdIn(Collection<String> externalIds);
 
+  List<TaskInstanceEntity> findAllByProcessInstanceId_Id(UUID processInstanceId);
+
   /**
    * Aggregates task counts grouped by status in a single query. Replaces the previous
    * per-status COUNT queries used by the global task statistics endpoint.

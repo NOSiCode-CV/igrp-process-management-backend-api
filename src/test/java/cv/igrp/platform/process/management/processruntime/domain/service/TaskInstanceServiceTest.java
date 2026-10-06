@@ -526,6 +526,56 @@ class TaskInstanceServiceTest {
     verify(runtimeProcessEngineRepository).unClaimTask(externalId);
   }
 
+  @Test
+  void cancelTaskInstancesByProcessInstance_shouldCancelOnlyNonTerminalTasks() {
+    ProcessInstance processInstance = ProcessInstance.builder()
+        .id(Identifier.generate())
+        .procReleaseKey(Code.create("PROC_KEY"))
+        .procReleaseId(Code.create("PROC_RELEASE_ID"))
+        .build();
+
+    TaskInstance createdTask = taskWithStatus(processInstance.getId(), TaskInstanceStatus.CREATED);
+    TaskInstance assignedTask = taskWithStatus(processInstance.getId(), TaskInstanceStatus.ASSIGNED);
+    TaskInstance completedTask = taskWithStatus(processInstance.getId(), TaskInstanceStatus.COMPLETED);
+    TaskInstance canceledTask = taskWithStatus(processInstance.getId(), TaskInstanceStatus.CANCELED);
+
+    when(taskInstanceRepository.findAllByProcessInstanceId(processInstance.getId().getValue()))
+        .thenReturn(List.of(createdTask, assignedTask, completedTask, canceledTask));
+
+    taskInstanceService.cancelTaskInstancesByProcessInstance(
+        processInstance,
+        currentUser,
+        "Process canceled"
+    );
+
+    assertEquals(TaskInstanceStatus.CANCELED, createdTask.getStatus());
+    assertEquals(TaskInstanceStatus.CANCELED, assignedTask.getStatus());
+    assertEquals(TaskInstanceStatus.COMPLETED, completedTask.getStatus());
+    assertEquals(TaskInstanceStatus.CANCELED, canceledTask.getStatus());
+    assertEquals(currentUser, createdTask.getEndedBy());
+    assertEquals(currentUser, assignedTask.getEndedBy());
+    assertEquals("Process canceled", createdTask.getTaskInstanceEvents().getLast().getNote());
+    assertEquals("Process canceled", assignedTask.getTaskInstanceEvents().getLast().getNote());
+    verify(taskInstanceRepository).update(createdTask);
+    verify(taskInstanceRepository).update(assignedTask);
+    verify(taskInstanceRepository, never()).update(completedTask);
+    verify(taskInstanceRepository, never()).update(canceledTask);
+    verify(taskInstanceEventRepository, times(2)).save(any(TaskInstanceEvent.class));
+  }
+
+  private TaskInstance taskWithStatus(Identifier processInstanceId, TaskInstanceStatus status) {
+    return TaskInstance.builder()
+        .id(Identifier.generate())
+        .taskKey(Code.create("task-" + status.name().toLowerCase()))
+        .externalId(Code.create(UUID.randomUUID().toString()))
+        .name(Name.create("Task " + status.name()))
+        .processInstanceId(processInstanceId)
+        .status(status)
+        .startedBy(Code.create("starter@nosi.cv"))
+        .taskInstanceEvents(new ArrayList<>())
+        .build();
+  }
+
   /* ============================================================
    *  completeTask
    * ============================================================ */

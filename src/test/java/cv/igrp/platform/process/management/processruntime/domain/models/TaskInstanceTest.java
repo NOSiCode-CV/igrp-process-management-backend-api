@@ -280,6 +280,39 @@ class TaskInstanceTest {
     assertEquals(currentUser, task.getEndedBy());
   }
 
+  @Test
+  void testCancel_ShouldGenerateCancelEvent() {
+
+    task.create();
+
+    task.cancel(currentUser, "Process canceled");
+
+    assertEquals(TaskInstanceStatus.CANCELED, task.getStatus());
+    assertNotNull(task.getEndedAt());
+    assertEquals(currentUser, task.getEndedBy());
+
+    var lastEvent = task.getTaskInstanceEvents().getLast();
+    assertEquals(TaskEventType.CANCEL, lastEvent.getEventType());
+    assertEquals(TaskInstanceStatus.CANCELED, lastEvent.getStatus());
+    assertEquals(currentUser, lastEvent.getPerformedBy());
+    assertEquals("Process canceled", lastEvent.getNote());
+  }
+
+  @Test
+  void testCancel_ShouldThrow_WhenTaskAlreadyCompleted() {
+
+    task.create();
+    task.complete(TaskOperationData.builder()
+        .id(taskId)
+        .currentUser(currentUser)
+        .build());
+
+    var ex = assertThrows(IgrpResponseStatusException.class,
+        () -> task.cancel(currentUser, "Too late"));
+
+    assertTrue(ex.getMessage().contains("Cannot Cancel a Task in Status[COMPLETED]"));
+  }
+
 
 
   @Test

@@ -31,4 +31,6 @@ public interface TaskInstanceRepository {
   Optional<TaskInstance> findByExternalId(String id);
 
   Map<String, TaskInstance> findAllByExternalIds(Collection<String> externalIds);
+
+  List<TaskInstance> findAllByProcessInstanceId(UUID processInstanceId);
 }

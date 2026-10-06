@@ -14,6 +14,7 @@ import cv.igrp.platform.process.management.processruntime.domain.repository.User
 import cv.igrp.platform.process.management.shared.application.constants.ProcessInstanceStatus;
 import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
 import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
+import cv.igrp.platform.process.management.shared.domain.models.Code;
 import cv.igrp.platform.process.management.shared.domain.models.PageableLista;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -330,6 +331,12 @@ public class ProcessInstanceService {
 
     runtimeProcessEngineRepository.cancelProcessInstance(
         processInstance.getEngineProcessNumber().getValue(),
+        obsCancel
+    );
+
+    taskInstanceService.cancelTaskInstancesByProcessInstance(
+        processInstance,
+        Code.create(user),
         obsCancel
     );
 

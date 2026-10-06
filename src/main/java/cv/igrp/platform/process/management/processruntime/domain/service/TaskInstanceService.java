@@ -6,6 +6,7 @@ import cv.igrp.platform.process.management.processruntime.domain.models.*;
 import cv.igrp.platform.process.management.processruntime.domain.repository.*;
 import cv.igrp.platform.process.management.shared.application.constants.ProcessInstanceStatus;
 import cv.igrp.platform.process.management.shared.application.constants.TaskAssignmentMode;
+import cv.igrp.platform.process.management.shared.application.constants.TaskInstanceStatus;
 import cv.igrp.platform.process.management.shared.application.constants.VariableTag;
 import cv.igrp.platform.process.management.shared.domain.exceptions.IgrpResponseStatusException;
 import cv.igrp.platform.process.management.shared.domain.models.ArtifactContext;
@@ -62,6 +63,16 @@ public class TaskInstanceService {
 
   public void createTaskInstancesByProcess(ProcessInstance processInstance) {
     this.createNextTaskInstances(processInstance, Code.create(processInstance.getStartedBy()));
+  }
+
+  public void cancelTaskInstancesByProcessInstance(ProcessInstance processInstance, Code currentUser, String note) {
+    taskInstanceRepository.findAllByProcessInstanceId(processInstance.getId().getValue()).stream()
+        .filter(task -> task.getStatus() != TaskInstanceStatus.COMPLETED)
+        .filter(task -> task.getStatus() != TaskInstanceStatus.CANCELED)
+        .forEach(task -> {
+          task.cancel(currentUser, note);
+          save(task);
+        });
   }
 
   public TaskInstance getByIdWihEvents(Identifier id) {
