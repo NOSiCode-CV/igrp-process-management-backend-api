@@ -21,12 +21,14 @@ class ProcessDeploymentTest {
   }
 
   @Test
-  void constructor_shouldThrow_whenApplicationBaseIsNull() {
-    NullPointerException ex = assertThrows(NullPointerException.class, () ->
-        ProcessDeployment.builder()
-            .key(Code.create("PROCESS_KEY"))
-            .build()
-    );
+  void deploy_shouldThrow_whenApplicationBaseIsNull() {
+    ProcessDeployment deployment = ProcessDeployment.builder()
+        .key(Code.create("PROCESS_KEY"))
+        .resourceName(ResourceName.create("invoicing.bpmn20.xml"))
+        .bpmnXml(BpmnXml.create("<definitions />"))
+        .build();
+
+    IllegalStateException ex = assertThrows(IllegalStateException.class, deployment::deploy);
     assertEquals("Application Code cannot be null", ex.getMessage());
   }
 
