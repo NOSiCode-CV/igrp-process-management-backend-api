@@ -16,6 +16,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -87,6 +88,68 @@ class DeployProcessCommandHandlerTest {
     // Verify service call
     verify(processDeploymentService).deployProcessAndConfigure(any(ProcessDeployment.class));
 
+  }
+
+  @Test
+  void testHandle_allowsMissingApplicationBase() {
+
+    ProcessDeploymentRequestDTO requestDTO = buildRequestDTO(null);
+    DeployProcessCommand command = new DeployProcessCommand(requestDTO);
+
+    ProcessDeployment deployedModel = buildDeployedModel();
+    when(processDeploymentService.deployProcessAndConfigure(any(ProcessDeployment.class)))
+        .thenReturn(deployedModel);
+
+    ResponseEntity<ProcessDeploymentDTO> response = handler.handle(command);
+
+    assertEquals(HttpStatus.CREATED, response.getStatusCode());
+    ArgumentCaptor<ProcessDeployment> captor = ArgumentCaptor.forClass(ProcessDeployment.class);
+    verify(processDeploymentService).deployProcessAndConfigure(captor.capture());
+    assertNull(captor.getValue().getApplicationBase());
+  }
+
+  @Test
+  void testHandle_allowsBlankApplicationBase() {
+
+    ProcessDeploymentRequestDTO requestDTO = buildRequestDTO(" ");
+    DeployProcessCommand command = new DeployProcessCommand(requestDTO);
+
+    ProcessDeployment deployedModel = buildDeployedModel();
+    when(processDeploymentService.deployProcessAndConfigure(any(ProcessDeployment.class)))
+        .thenReturn(deployedModel);
+
+    ResponseEntity<ProcessDeploymentDTO> response = handler.handle(command);
+
+    assertEquals(HttpStatus.CREATED, response.getStatusCode());
+    ArgumentCaptor<ProcessDeployment> captor = ArgumentCaptor.forClass(ProcessDeployment.class);
+    verify(processDeploymentService).deployProcessAndConfigure(captor.capture());
+    assertNull(captor.getValue().getApplicationBase());
+  }
+
+  private ProcessDeploymentRequestDTO buildRequestDTO(String applicationBase) {
+    ProcessDeploymentRequestDTO requestDTO = new ProcessDeploymentRequestDTO();
+    requestDTO.setName("Process invoicing");
+    requestDTO.setDescription("Process invoicing description");
+    requestDTO.setKey("invoicing_key");
+    requestDTO.setResourceName("invoicing.bpmn20.xml");
+    requestDTO.setBpmnXml("<definitions...</<definitions>");
+    requestDTO.setApplicationBase(applicationBase);
+    return requestDTO;
+  }
+
+  private ProcessDeployment buildDeployedModel() {
+    return ProcessDeployment.builder()
+        .name(Name.create("Process invoicing"))
+        .description("Process invoicing description")
+        .key(Code.create("invoicing_key"))
+        .resourceName(ResourceName.create("invoicing.bpmn20.xml"))
+        .bpmnXml(BpmnXml.create("<definitions...</<definitions>"))
+        .applicationBase(Code.create("igrp-app"))
+        .version("1.0")
+        .deploymentId("deploy-001")
+        .deployed(true)
+        .deployedAt(LocalDateTime.now())
+        .build();
   }
 
 }
