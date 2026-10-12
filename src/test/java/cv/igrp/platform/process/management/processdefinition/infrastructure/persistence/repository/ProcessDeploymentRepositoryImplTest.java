@@ -207,6 +207,18 @@ class ProcessDeploymentRepositoryImplTest {
   }
 
   @Test
+  void findLastProcessDefinitionIdByKey_shouldDelegateWithApplicationBase() {
+    when(processDefinitionAdapter.getLastProcessDefinitionIdByKey("invoice_process", "igrp-app"))
+        .thenReturn(Optional.of("release-1"));
+
+    Optional<String> result = repository.findLastProcessDefinitionIdByKey("invoice_process", "igrp-app");
+
+    assertTrue(result.isPresent());
+    assertEquals("release-1", result.get());
+    verify(processDefinitionAdapter).getLastProcessDefinitionIdByKey("invoice_process", "igrp-app");
+  }
+
+  @Test
   void findById_shouldMapProcessDefinitionRepresentationWhenPresent() {
     IgrpProcessDefinitionRepresentation representation = IgrpProcessDefinitionRepresentation.builder()
         .key("invoice_process")

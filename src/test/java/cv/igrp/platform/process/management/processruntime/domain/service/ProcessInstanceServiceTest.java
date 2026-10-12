@@ -149,8 +149,9 @@ class ProcessInstanceServiceTest {
 
     when(processInstance.getProcReleaseId()).thenReturn(null);
     when(processInstance.getProcReleaseKey()).thenReturn(Code.create("invoice_process"));
+    when(processInstance.getApplicationBase()).thenReturn(Code.create("igrp-app"));
     when(processInstance.getBusinessKey()).thenReturn(Code.create("business-key"));
-    when(processDeploymentService.findLastProcessDefinitionIdByKey("invoice_process"))
+    when(processDeploymentService.findLastProcessDefinitionIdByKey("invoice_process", "igrp-app"))
         .thenReturn("release-1");
     when(runtimeProcessEngineRepository.createProcessInstanceById("release-1", "business-key"))
         .thenReturn(engineProcessInstance);

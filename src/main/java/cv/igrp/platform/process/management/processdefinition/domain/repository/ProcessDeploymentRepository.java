@@ -44,12 +44,14 @@ public interface ProcessDeploymentRepository {
 
 
   /**
-   * Retrieves the unique identifier of the most recent process definition based on the specified process definition key.
+   * Retrieves the unique identifier of the most recent process definition based on the specified process definition key
+   * and application base.
    *
    * @param processDefinitionKey the key representing the process definition
+   * @param applicationBase the tenant/application base that scopes the process definition
    * @return the unique identifier of the latest process definition associated with the provided key
    */
-  Optional<String> findLastProcessDefinitionIdByKey(String processDefinitionKey);
+  Optional<String> findLastProcessDefinitionIdByKey(String processDefinitionKey, String applicationBase);
 
   /**
    * Adds a candidate starter group to a specified process definition.

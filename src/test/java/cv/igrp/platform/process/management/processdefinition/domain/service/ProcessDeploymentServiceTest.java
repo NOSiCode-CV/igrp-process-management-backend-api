@@ -254,7 +254,7 @@ class ProcessDeploymentServiceTest {
 
     when(areaProcessRepository.findApplicationBaseByProcessKey(Code.create("invoice-process-key")))
         .thenReturn(java.util.Optional.of(Code.create("igrp-app")));
-    when(processDeploymentRepository.findLastProcessDefinitionIdByKey("invoice-process-key"))
+    when(processDeploymentRepository.findLastProcessDefinitionIdByKey("invoice-process-key", "igrp-app"))
         .thenReturn(java.util.Optional.empty());
     when(processDeploymentRepository.deploy(any(ProcessDeployment.class)))
         .thenAnswer(invocation -> invocation.getArgument(0));
@@ -278,7 +278,7 @@ class ProcessDeploymentServiceTest {
 
     when(areaProcessRepository.findApplicationBaseByProcessKey(Code.create("invoice-process-key")))
         .thenReturn(java.util.Optional.empty());
-    when(processDeploymentRepository.findLastProcessDefinitionIdByKey("invoice-process-key"))
+    when(processDeploymentRepository.findLastProcessDefinitionIdByKey("invoice-process-key", "NOT_SET"))
         .thenReturn(java.util.Optional.empty());
     when(processDeploymentRepository.deploy(any(ProcessDeployment.class)))
         .thenAnswer(invocation -> invocation.getArgument(0));
@@ -303,7 +303,7 @@ class ProcessDeploymentServiceTest {
 
     when(areaProcessRepository.findApplicationBaseByProcessKey(Code.create("invoice-process-key")))
         .thenReturn(java.util.Optional.of(Code.create("igrp-app")));
-    when(processDeploymentRepository.findLastProcessDefinitionIdByKey("invoice-process-key"))
+    when(processDeploymentRepository.findLastProcessDefinitionIdByKey("invoice-process-key", "igrp-app"))
         .thenReturn(java.util.Optional.empty());
     when(processDeploymentRepository.deploy(any(ProcessDeployment.class)))
         .thenAnswer(invocation -> invocation.getArgument(0));
