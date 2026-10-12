@@ -89,9 +89,11 @@ public class ProcessDeploymentService {
     return processDeploymentRepository.findAllArtifacts(processDefinitionId);
   }
 
-  public String findLastProcessDefinitionIdByKey(String processDefinitionKey) {
-    return processDeploymentRepository.findLastProcessDefinitionIdByKey(processDefinitionKey)
-        .orElseThrow(() -> IgrpResponseStatusException.notFound("No last process definition founded by key: " +  processDefinitionKey));
+  public String findLastProcessDefinitionIdByKey(String processDefinitionKey, String applicationBase) {
+    return processDeploymentRepository.findLastProcessDefinitionIdByKey(processDefinitionKey, applicationBase)
+        .orElseThrow(() -> IgrpResponseStatusException.notFound(
+            "No last process definition founded by key: " + processDefinitionKey + " and applicationBase: " + applicationBase
+        ));
   }
 
   public void assignProcessDefinition(String id, String groups) {
@@ -218,7 +220,8 @@ public class ProcessDeploymentService {
     this.resolveApplicationBase(processDeployment);
 
     Optional<String> optionalProcessId = processDeploymentRepository.findLastProcessDefinitionIdByKey(
-        processDeployment.getKey().getValue()
+        processDeployment.getKey().getValue(),
+        processDeployment.getApplicationBase().getValue()
     );
 
     // Deploy
